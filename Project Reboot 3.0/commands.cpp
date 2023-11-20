@@ -765,7 +765,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			Deop(ReceivingController);
 			SendMessageToConsole(PlayerController, L"Removed operator from player!");
 		}
-		else if (Command == "setpickaxe")
+		else if (Command == "setpickaxe" || Command == "pickaxe")
 		{
 			if (NumArgs < 1)
 			{
@@ -971,7 +971,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, std::wstring(PlayerNames.begin(), PlayerNames.end()).c_str());
 		}
-		else if (Command == "launch")
+		else if (Command == "launch" || Command == "fling")
 		{
 			if (Arguments.size() <= 3)
 			{
@@ -1008,7 +1008,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Launched character!");
 		}
-		else if (Command == "setshield")
+		else if (Command == "setshield" || Command == "shield")
 		{
 			auto Pawn = ReceivingController->GetMyFortPawn();
 
@@ -1042,7 +1042,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			Pawn->SetCanBeDamaged(!Pawn->CanBeDamaged());
 			SendMessageToConsole(PlayerController, std::wstring(L"God set to " + std::to_wstring(!(bool)Pawn->CanBeDamaged())).c_str());
 		}
-		else if (Command == "applycid")
+		else if (Command == "applycid" || Command == "skin")
 		{
 			auto PlayerState = Cast<AFortPlayerState>(ReceivingController->GetPlayerState());
 
@@ -1187,7 +1187,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				SendMessageToConsole(PlayerController, L"Failed to spawn!");
 			}
 		}
-		else if (Command == "spawnbot")
+		else if (Command == "spawnbot" || Command == "bot")
 		{
 			auto Pawn = ReceivingController->GetPawn();
 
@@ -1241,7 +1241,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Summoned!");
 		}
-		else if (Command == "sethealth")
+		else if (Command == "sethealth" || Command == "health")
 		{
 			auto Pawn = ReceivingController->GetMyFortPawn();
 
@@ -1411,6 +1411,53 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			Pawn->TeleportTo(FVector(X, Y, Z), Pawn->GetActorRotation());
 			SendMessageToConsole(PlayerController, L"Teleported!");
 		}
+		else if (Command == "healthall")
+		{
+			for (int i = 0; i < ClientConnections.Num(); i++)
+			{
+				auto PlayerController = Cast<AFortPlayerController>(ClientConnections.at(i)->GetPlayerController());
+
+				if (!PlayerController->IsValidLowLevel())
+					continue;
+
+				auto Pawn = PlayerController->GetMyFortPawn();
+
+				Pawn->SetHealth(100.f);
+			}
+
+			SendMessageToConsole(PlayerController, L"Healed all players health!\n");
+		}
+		else if (Command == "shieldall")
+		{
+			for (int i = 0; i < ClientConnections.Num(); i++)
+			{
+				auto PlayerController = Cast<AFortPlayerController>(ClientConnections.at(i)->GetPlayerController());
+
+				if (!PlayerController->IsValidLowLevel())
+					continue;
+
+				auto Pawn = PlayerController->GetMyFortPawn();
+
+				Pawn->SetShield(100.f);
+			}
+
+			SendMessageToConsole(PlayerController, L"Healed all players shield!\n");
+		}
+		else if (Command == "godall")
+		{
+			for (int i = 0; i < ClientConnections.Num(); i++)
+			{
+				auto PlayerController = Cast<AFortPlayerController>(ClientConnections.at(i)->GetPlayerController());
+
+				if (!PlayerController->IsValidLowLevel())
+					continue;
+
+				auto Pawn = PlayerController->GetMyFortPawn();
+				Pawn->SetCanBeDamaged(!Pawn->CanBeDamaged());
+				SendMessageToConsole(PlayerController, std::wstring(L"God of all players set to " + std::to_wstring(!(bool)Pawn->CanBeDamaged())).c_str());
+			}
+		}
+
 		else { bSendHelpMessage = true; };
 	}
 	else { bSendHelpMessage = true; };
@@ -1420,24 +1467,27 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		FString HelpMessage = LR"(
 cheat giveitem <ShortWID> <Count=1> - Gives a weapon to the executing player, if inventory is full drops a pickup on the player.
 cheat grant <name_rarity> (ex: rocket_sr) - Gives a weapon using a shortcut name, without ID.
-cheat togglesnowmap - Toggles between full snow map and zero snow map.
-cheat getlocation - Gets the location of your player and copies it to the hoster's clipboard.
-cheat summon <BlueprintClassPathName> <Count=1> - Summons the specified blueprint class at the executing player's location. Note: There is a limit on the count.
+cheat summon/spawn <BlueprintClassPathName> <Count=1> - Summons the specified blueprint class at the executing player's location. Note: There is a limit on the count.
 cheat bugitgo <X> <Y> <Z> - Teleport to a location.
-cheat launch <X> <Y> <Z> - Launches a player.
+cheat launch/fling <X> <Y> <Z> - Launches a player.
 cheat listplayers - Gives you all players names.
 cheat pausesafezone - Pauses the zone.
-cheat sethealth <Health=100.f> - Sets executing player's health.
-cheat setshield <Shield=0.f> - Sets executing player's shield.
-cheat applycid <CIDShortName> - Sets a player's character.
+cheat health <Health=100.f> - Sets executing player's health.
+cheat shield <Shield=0.f> - Sets executing player's shield.
+cheat skin <CIDShortName> - Sets a player's character.
 cheat spawnpickup <ShortWID> <ItemCount=1> <PickupCount=1> - Spawns a pickup at specified player.
-cheat teleport/tp - Teleports to what the player is looking at.
-cheat spawnbot <Amount=1> - Spawns a bot at the player (experimental).
-cheat setpickaxe <PickaxeID> - Set player's pickaxe. Can be either the PID or WID
+cheat tp - Teleports to what the player is looking at.
+cheat bot <Amount=1> - Spawns a bot at the player (experimental).
+cheat pickaxe <PickaxeID> - Set player's pickaxe. Can be either the PID or WID
 cheat destroytarget - Destroys the actor that the player is looking at.
 cheat wipequickbar <Primary|Secondary> <RemoveUndroppables=false> - Wipes the specified quickbar (parameters is not case sensitive).
 cheat wipequickbars <RemoveUndroppables=false> - Wipes primary and secondary quickbar of targeted player (parameter is not case sensitive).
-cheat suicide - Makes targeted player suicide. 
+cheat suicide - Insta-kills player.
+cheat healthall - Heals all players health.
+cheat shieldall - Heals all players shield.
+cheat godall - Gods all players.
+cheat getlocation - Gives you the current XYZ cords of where you are standing and copies them to your clipboard (useful for bugitgo)
+cheat togglesnowmap - Toggles the map to have snow or not. (7.30, 11.31, 15.10, 19.10 ONLY)
 
 If you want to execute a command on a certain player, surround their name (case sensitive) with \, and put the param with their name anywhere. Example: cheat sethealth \Milxnor\ 100
 )";
