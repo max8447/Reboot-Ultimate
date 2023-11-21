@@ -1000,7 +1000,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			struct
 			{
-				FVector                                     LaunchVelocity;                                           // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+				FVector											   LaunchVelocity;                                           // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 				bool                                               bXYOverride;                                              // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 				bool                                               bZOverride;                                               // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 			} ACharacter_LaunchCharacter_Params{ FVector(X, Y, Z), false, false };
@@ -1034,20 +1034,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			static auto GodFn = FindObject<UFunction>("/Script/Engine.CheatManager.God") ? FindObject<UFunction>("/Script/Engine.CheatManager.God") :
 				FindObject<UFunction>("/Script/Engine.CheatManager:God");
 
-			if (!GodFn)
-			{
-				auto Pawn = ReceivingController->GetMyFortPawn();
-
-				if (!Pawn)
-				{
-					SendMessageToConsole(PlayerController, L"No pawn!");
-					return;
-				}
-
-				Pawn->SetCanBeDamaged(!Pawn->CanBeDamaged());
-				SendMessageToConsole(PlayerController, std::wstring(L"God set to " + std::to_wstring(!(bool)Pawn->CanBeDamaged())).c_str());
-			}
-			else
+			if (GodFn)
 			{
 				auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
 
@@ -1060,6 +1047,88 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				CheatManager->God();
 				CheatManager = nullptr;
 			}
+			else
+			{
+				auto Pawn = ReceivingController->GetMyFortPawn();
+
+				if (!Pawn)
+				{
+					SendMessageToConsole(PlayerController, L"No pawn!");
+					return;
+				}
+
+				Pawn->SetCanBeDamaged(!Pawn->CanBeDamaged());
+				SendMessageToConsole(PlayerController, std::wstring(L"God set to " + std::to_wstring(!(bool)Pawn->CanBeDamaged())).c_str());
+			}
+		}
+		else if (Command == "changesize")
+		{
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(PlayerController, L"Please provide a size!");
+				return;
+			}
+
+			float F = 0.f;
+
+			try { F = std::stof(Arguments[1]); }
+			catch (...) {}
+
+			auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
+
+			if (!CheatManager)
+			{
+				SendMessageToConsole(PlayerController, L"Failed to spawn player's cheat manager!");
+				return;
+			}
+
+			CheatManager->ChangeSize(F);
+			CheatManager = nullptr;
+		}
+		else if (Command == "damagetarget")
+		{
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(PlayerController, L"Please provide a value!");
+				return;
+			}
+
+			float DamageAmount = 0.f;
+
+			try { DamageAmount = std::stof(Arguments[1]); }
+			catch (...) {}
+
+			auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
+
+			if (!CheatManager)
+			{
+				SendMessageToConsole(PlayerController, L"Failed to spawn player's cheat manager!");
+				return;
+			}
+
+			CheatManager->DamageTarget(DamageAmount);
+			CheatManager = nullptr;
+		}
+		else if (Command == "destroyall")
+		{
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(PlayerController, L"Please provide a class!");
+				return;
+			}
+
+			TSubclassOf<class AActor> AClass = Cast<UClass>(FindObject(Arguments[1], nullptr, ANY_PACKAGE));
+
+			auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
+
+			if (!CheatManager)
+			{
+				SendMessageToConsole(PlayerController, L"Failed to spawn player's cheat manager!");
+				return;
+			}
+
+			CheatManager->DestroyAll(AClass);
+			CheatManager = nullptr;
 		}
 		else if (Command == "mang")
 		{
@@ -1073,8 +1142,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			cmd[0] = std::toupper(cmd[0]);
 
-			auto MangFn = FindObject<UFunction>("/Script/Engine.CheatManager." + cmd) ? FindObject<UFunction>("/Script/Engine.CheatManager." + cmd) :
-				FindObject<UFunction>("/Script/Engine.CheatManager:" + cmd);
+			auto MangFn = FindObject<UFunction>("/Script/Engine.CheatManager." + cmd);
 
 			if (!MangFn)
 			{
@@ -1539,6 +1607,10 @@ cheat shieldall - Heals all players shield.
 cheat godall - Gods all players.
 cheat getlocation - Gives you the current XYZ cords of where you are standing and copies them to your clipboard (useful for bugitgo)
 cheat togglesnowmap - Toggles the map to have snow or not. (7.30, 11.31, 15.10, 19.10 ONLY)
+cheat destroyall <ClassPathName> - Destroys every actor of a given class. Useful for removing all floorloot for example.
+cheat changesize <Size=1.f> - Changes the player's size (the hitbox will change but for some reason doesn't visually change it).
+cheat damagetarget <Damage=0.f> - Damages the Actor in front of you by the specified amount.
+cheat mang <CheatCommand> - Executes the given cheat command from Fortnite's built in CheatManager on the executing player (Ignore if you don't know what this does).
 
 If you want to execute a command on a certain player, surround their name (case sensitive) with \, and put the param with their name anywhere. Example: cheat sethealth \Milxnor\ 100
 )";
