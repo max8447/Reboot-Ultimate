@@ -14,6 +14,22 @@ void UCheatManager::DestroyTarget()
 	this->ProcessEvent(DestroyTargetFn);
 }
 
+void UCheatManager::God()
+{
+	static auto GodFn = FindObject<UFunction>("/Script/Engine.CheatManager.God") ? FindObject<UFunction>("/Script/Engine.CheatManager.God") :
+		FindObject<UFunction>("/Script/Engine.CheatManager:God");
+
+	this->ProcessEvent(GodFn, nullptr);
+}
+
+void UCheatManager::Mang(std::string Arg)
+{
+	auto MangFn = FindObject<UFunction>("/Script/Engine.CheatManager." + Arg) ? FindObject<UFunction>("/Script/Engine.CheatManager." + Arg) :
+		FindObject<UFunction>("/Script/Engine.CheatManager:" + Arg);
+
+	this->ProcessEvent(MangFn, nullptr);
+}
+
 UClass* UCheatManager::StaticClass()
 {
 	static auto Class = FindObject<UClass>(L"/Script/Engine.CheatManager");

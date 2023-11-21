@@ -1031,16 +1031,67 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		}
 		else if (Command == "god")
 		{
-			auto Pawn = ReceivingController->GetMyFortPawn();
+			static auto GodFn = FindObject<UFunction>("/Script/Engine.CheatManager.God") ? FindObject<UFunction>("/Script/Engine.CheatManager.God") :
+				FindObject<UFunction>("/Script/Engine.CheatManager:God");
 
-			if (!Pawn)
+			if (!GodFn)
 			{
-				SendMessageToConsole(PlayerController, L"No pawn!");
+				auto Pawn = ReceivingController->GetMyFortPawn();
+
+				if (!Pawn)
+				{
+					SendMessageToConsole(PlayerController, L"No pawn!");
+					return;
+				}
+
+				Pawn->SetCanBeDamaged(!Pawn->CanBeDamaged());
+				SendMessageToConsole(PlayerController, std::wstring(L"God set to " + std::to_wstring(!(bool)Pawn->CanBeDamaged())).c_str());
+			}
+			else
+			{
+				auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
+
+				if (!CheatManager)
+				{
+					SendMessageToConsole(PlayerController, L"Failed to spawn player's cheat manager!");
+					return;
+				}
+
+				CheatManager->God();
+				CheatManager = nullptr;
+			}
+		}
+		else if (Command == "mang")
+		{
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(PlayerController, L"Please provide a cheat command!");
 				return;
 			}
 
-			Pawn->SetCanBeDamaged(!Pawn->CanBeDamaged());
-			SendMessageToConsole(PlayerController, std::wstring(L"God set to " + std::to_wstring(!(bool)Pawn->CanBeDamaged())).c_str());
+			std::string cmd = Arguments[1];
+
+			cmd[0] = std::toupper(cmd[0]);
+
+			auto MangFn = FindObject<UFunction>("/Script/Engine.CheatManager." + cmd) ? FindObject<UFunction>("/Script/Engine.CheatManager." + cmd) :
+				FindObject<UFunction>("/Script/Engine.CheatManager:" + cmd);
+
+			if (!MangFn)
+			{
+				SendMessageToConsole(PlayerController, L"Cheat command not supported!");
+				return;
+			}
+
+			auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
+
+			if (!CheatManager)
+			{
+				SendMessageToConsole(PlayerController, L"Failed to spawn player's cheat manager!");
+				return;
+			}
+
+			CheatManager->Mang(cmd);
+			CheatManager = nullptr;
 		}
 		else if (Command == "applycid")
 		{
