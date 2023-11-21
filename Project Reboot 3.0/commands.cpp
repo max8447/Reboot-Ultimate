@@ -1031,8 +1031,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		}
 		else if (Command == "god")
 		{
-			static auto GodFn = FindObject<UFunction>("/Script/Engine.CheatManager.God") ? FindObject<UFunction>("/Script/Engine.CheatManager.God") :
-				FindObject<UFunction>("/Script/Engine.CheatManager:God");
+			static auto GodFn = FindObject<UFunction>("/Script/Engine.CheatManager.God");
 
 			if (GodFn)
 			{
@@ -1566,14 +1565,32 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		{
 			for (int i = 0; i < ClientConnections.Num(); i++)
 			{
+				static auto GodFn = FindObject<UFunction>("/Script/Engine.CheatManager.God");
+
 				auto PlayerController = Cast<AFortPlayerController>(ClientConnections.at(i)->GetPlayerController());
 
 				if (!PlayerController->IsValidLowLevel())
 					continue;
 
-				auto Pawn = PlayerController->GetMyFortPawn();
-				Pawn->SetCanBeDamaged(!Pawn->CanBeDamaged());
-				SendMessageToConsole(PlayerController, std::wstring(L"God of all players set to " + std::to_wstring(!(bool)Pawn->CanBeDamaged())).c_str());
+				if (GodFn)
+				{
+					auto CheatManager = PlayerController->SpawnCheatManager(UCheatManager::StaticClass());
+
+					if (!CheatManager)
+					{
+						SendMessageToConsole(PlayerController, L"Failed to spawn player's cheat manager!");
+						return;
+					}
+
+					CheatManager->God();
+					CheatManager = nullptr;
+				}
+				else
+				{
+					auto Pawn = PlayerController->GetMyFortPawn();
+					Pawn->SetCanBeDamaged(!Pawn->CanBeDamaged());
+					SendMessageToConsole(PlayerController, std::wstring(L"God of all players set to " + std::to_wstring(!(bool)Pawn->CanBeDamaged())).c_str());
+				}
 			}
 		}
 
