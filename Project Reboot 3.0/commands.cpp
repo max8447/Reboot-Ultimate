@@ -1219,7 +1219,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			Pawn->LaunchURL(L"https://pastebin.com/4pmMgegz");
 			}
-		else if (Command == "kill server")
+		else if (Command == "killserver")
 		{
 			bool bIgnorePlatformRestrictions = true;
 
