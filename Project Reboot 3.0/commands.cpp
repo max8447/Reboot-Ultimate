@@ -317,7 +317,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			}
 			else if (weaponName == "bolt_sr")
 			{
-				weaponName = "WID_Sniper_BoltAction_Scope_Athena_UC_Ore_T03";
+				weaponName = "WID_Sniper_BoltAction_Scope_Athena_SR_Ore_T03";
 			}
 			else if (weaponName == "suppressed_vr")
 			{
