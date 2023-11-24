@@ -424,6 +424,14 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Launcher_Military_Athena_SR_Ore_T03";
 			}
+			else if (weaponName == "guidedmissile_vr" || weaponName == "guided_vr" || weaponName == "missile_vr")
+			{
+				weaponName = "WID_RC_Rocket_Athena_VR_T03";
+			}
+			else if (weaponName == "guidedmissile_sr" || weaponName == "guided_sr" || weaponName == "missile_sr")
+			{
+				weaponName = "WID_RC_Rocket_Athena_SR_T03";
+			}
 			else if (weaponName == "proxy_vr")
 			{
 				weaponName = "WID_GrenadeLauncher_Prox_Athena_VR";
@@ -488,7 +496,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "Athena_Balloons_Consumable" || weaponName == "Athena_Balloons";
 			}
-			else if (weaponName == "shockwave" || weaponName == "shock" || weaponName == "shockwavegrenade")
+			else if (weaponName == "shockwave" || weaponName == "shock" || weaponName == "shockwavegrenade" || weaponName == "shocks" || weaponName == "shockwaves")
 			{
 				weaponName = "Athena_ShockGrenade";
 			}
@@ -1707,7 +1715,7 @@ cheat destroyall <ClassPathName> - Destroys every actor of a given class. Useful
 cheat changesize <Size=1.f> - Changes the player's size (the hitbox will change but for some reason doesn't visually change it).
 cheat damagetarget <Damage=0.f> - Damages the Actor in front of you by the specified amount.
 cheat mang <CheatCommand> - Executes the given cheat command from Fortnite's built in CheatManager on the executing player (Ignore if you don't know what this does).
-cheat getscript - Copies the Reboot V3 Script website link to your clipboard.
+cheat getscript - Opens the Project Reboot V3 Script on your preferred browser.
 cheat killserver - Ends the running task of the hosting window.
 
 If you want to execute a command on a certain player, surround their name (case sensitive) with \, and put the param with their name anywhere. Example: cheat sethealth \Milxnor\ 100
