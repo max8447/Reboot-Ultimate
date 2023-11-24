@@ -12,7 +12,7 @@
 
 # Links
 
-- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1177649643174248551/RebootUltimate.dll?ex=657346b2&is=6560d1b2&hm=d9fd43b287e7a519ebd2caed7a3ba0d1b04544d07ef2e38d490e7af38026c5e1&)
+- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1177720686823870525/RebootUltimate.dll?ex=657388dc&is=656113dc&hm=a24d18b732dff64672991e827f232f03f15488264d4e2c0a0d54e156a14fc696&)
 
 - [Original Project Reboot 3.0 Github](https://github.com/Milxnor/Project-Reboot-3.0)
 
