@@ -467,7 +467,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Athena_Bucket_Coal";
 			}
-			else if (weaponName == "stink" || weaponName == "stinkbomb")
+			else if (weaponName == "stink" || weaponName == "stinkbomb" || weaponName == "stinks")
 			{
 				weaponName = "Athena_GasGrenade";
 			}
