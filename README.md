@@ -9,3 +9,9 @@
 - Several things from Project Reboot have been fixed in this version such as 9.10 volcano, 9.40 live event, and working bots on versions before 9!
 - When injecting the DLL, all buttons you'll need are already selected (besides gamemode), as well as the amount of time it takes to start has been increased from 5 seconds to 15.
 - Lategame loot automatically starts up with all of the Ammo, Materials, and Traps you'd ever need in order to play! Hop in and start trickshotting immedietely!
+
+## Links
+
+- [Original Reboot 3.0](https://github.com/Milxnor/Project-Reboot-3.0)
+
+- [Reboot TS Discord Server](https://discord.gg/invite/rPc5t4usPe)
