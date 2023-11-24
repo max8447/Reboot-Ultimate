@@ -69,12 +69,12 @@ extern inline int StartReverseZonePhase = 7;
 extern inline int EndReverseZonePhase = 5;
 extern inline float StartingShield = 0;
 extern inline bool bEnableReverseZone = false;
-extern inline int AmountOfPlayersWhenBusStart = 0; 
+extern inline int AmountOfPlayersWhenBusStart = 0;
 extern inline bool bHandleDeath = true;
 extern inline bool bUseCustomMap = false;
 extern inline std::string CustomMapName = "";
 extern inline int AmountToSubtractIndex = 1;
-extern inline int SecondsUntilTravel = 5;
+extern inline int SecondsUntilTravel = 15;
 extern inline bool bSwitchedInitialLevel = false;
 extern inline bool bIsInAutoRestart = false;
 extern inline float AutoBusStartSeconds = 60;
@@ -89,7 +89,7 @@ extern inline int AmountOfBotsToSpawn = 0;
 extern inline bool bEnableRebooting = false;
 extern inline bool bEngineDebugLogs = false;
 extern inline bool bStartedBus = false;
-extern inline int AmountOfHealthSiphon = 0;
+extern inline int AmountOfHealthSiphon = 50;
 
 // THE BASE CODE IS FROM IMGUI GITHUB
 
@@ -330,7 +330,7 @@ static inline void StaticUI()
 		}
 	}
 
-	ImGui::InputInt("Shield/Health for siphon", &AmountOfHealthSiphon);
+	ImGui::InputInt("Shield/Health for Siphon", &AmountOfHealthSiphon);
 
 #ifndef PROD
 	ImGui::Checkbox("Log ProcessEvent", &Globals::bLogProcessEvent);
@@ -340,11 +340,11 @@ static inline void StaticUI()
 	ImGui::Checkbox("Infinite Ammo", &Globals::bInfiniteAmmo);
 	ImGui::Checkbox("Infinite Materials", &Globals::bInfiniteMaterials);
 
-	ImGui::Checkbox("No MCP (Don't change unless you know what this is)", &Globals::bNoMCP);
+	ImGui::Checkbox("No MCP", &Globals::bNoMCP);
 
 	if (Addresses::ApplyGadgetData && Addresses::RemoveGadgetData && Engine_Version < 424)
 	{
-		ImGui::Checkbox("Enable AGIDs (Don't change unless you know what this is)", &Globals::bEnableAGIDs);
+		ImGui::Checkbox("Enable Gadgets", &Globals::bEnableAGIDs);
 	}
 }
 
@@ -521,36 +521,36 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 	auto GameState = Cast<AFortGameStateAthena>(GameMode->GetGameState());
 
 	auto GetAircrafts = [&]() -> std::vector<AActor*>
-	{
-		static auto AircraftsOffset = GameState->GetOffset("Aircrafts", false);
-		std::vector<AActor*> Aircrafts;
-
-		if (AircraftsOffset == -1)
 		{
-			// GameState->Aircraft
+			static auto AircraftsOffset = GameState->GetOffset("Aircrafts", false);
+			std::vector<AActor*> Aircrafts;
 
-			static auto FortAthenaAircraftClass = FindObject<UClass>(L"/Script/FortniteGame.FortAthenaAircraft");
-			auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
-
-			for (int i = 0; i < AllAircrafts.Num(); i++)
+			if (AircraftsOffset == -1)
 			{
-				Aircrafts.push_back(AllAircrafts.at(i));
+				// GameState->Aircraft
+
+				static auto FortAthenaAircraftClass = FindObject<UClass>(L"/Script/FortniteGame.FortAthenaAircraft");
+				auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
+
+				for (int i = 0; i < AllAircrafts.Num(); i++)
+				{
+					Aircrafts.push_back(AllAircrafts.at(i));
+				}
+
+				AllAircrafts.Free();
+			}
+			else
+			{
+				const auto& GameStateAircrafts = GameState->Get<TArray<AActor*>>(AircraftsOffset);
+
+				for (int i = 0; i < GameStateAircrafts.Num(); i++)
+				{
+					Aircrafts.push_back(GameStateAircrafts.at(i));
+				}
 			}
 
-			AllAircrafts.Free();
-		}
-		else
-		{
-			const auto& GameStateAircrafts = GameState->Get<TArray<AActor*>>(AircraftsOffset);
-
-			for (int i = 0; i < GameStateAircrafts.Num(); i++)
-			{
-				Aircrafts.push_back(GameStateAircrafts.at(i));
-			}
-		}
-
-		return Aircrafts;
-	};
+			return Aircrafts;
+		};
 
 	GameMode->StartAircraftPhase();
 
@@ -657,36 +657,85 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 		if (!WorldInventory)
 			continue;
 
-		static auto WoodItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
-		static auto StoneItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
-		static auto MetalItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+		static auto WoodItemData = FindObject<UFortItemDefinition>(
+			L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+		static auto StoneItemData = FindObject<UFortItemDefinition>(
+			L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+		static auto MetalItemData = FindObject<UFortItemDefinition>(
+			L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+		static auto Gold = FindObject<UFortItemDefinition>(
+			L"/Game/Items/ResourcePickups/Athena_WadsItemData.Athena_WadsItemData");
+		static auto Crown = FindObject<UFortItemDefinition>(
+			L"/VictoryCrownsGameplay/Items/AGID_VictoryCrown.AGID_VictoryCrown");
 
-		static auto Rifle = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Assault_AutoHigh_Athena_SR_Ore_T03.WID_Assault_AutoHigh_Athena_SR_Ore_T03");
-		static auto Shotgun = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_SR_Ore_T03.WID_Shotgun_Standard_Athena_SR_Ore_T03")
-			? FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_SR_Ore_T03.WID_Shotgun_Standard_Athena_SR_Ore_T03")
-			: FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_C_Ore_T03.WID_Shotgun_Standard_Athena_C_Ore_T03");
-		static auto SMG = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Pistol_AutoHeavyPDW_Athena_R_Ore_T03.WID_Pistol_AutoHeavyPDW_Athena_R_Ore_T03")
-			? FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Pistol_AutoHeavyPDW_Athena_R_Ore_T03.WID_Pistol_AutoHeavyPDW_Athena_R_Ore_T03")
-			: FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Pistol_AutoHeavySuppressed_Athena_R_Ore_T03.WID_Pistol_AutoHeavySuppressed_Athena_R_Ore_T03");
+		static auto Sniper = FindObject<UFortItemDefinition>(
+			L"");
+		static auto Secondary = FindObject<UFortItemDefinition>(
+			L"");
+		static auto Tertiary = FindObject<UFortItemDefinition>(
+			L"");
+		static auto Consumable1 = FindObject<UFortItemDefinition>(
+			L"");
+		static auto Consumable2 = FindObject<UFortItemDefinition>(
+			L"");
 
-		static auto MiniShields = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/ShieldSmall/Athena_ShieldSmall.Athena_ShieldSmall");
+		static auto Bouncer = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Traps/TID_Context_BouncePad_Athena.TID_Context_BouncePad_Athena");
+		static auto LaunchPad = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Traps/TID_Floor_Player_Launch_Pad_Athena.TID_Floor_Player_Launch_Pad_Athena");
+		static auto DirBouncePad = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Traps/TID_Floor_Player_Jump_Pad_Free_Direction_Athena.TID_Floor_Player_Jump_Pad_Free_Direction_Athena");
+		static auto FreezeTrap = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Traps/TID_Context_Freeze_Athena.TID_Context_Freeze_Athena");
+		static auto SpeedBoost = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Traps/TID_Context_SpeedBoost.TID_Context_SpeedBoost");
+		static auto Campfire = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Traps/TID_Floor_Player_Campfire_Athena.TID_Floor_Player_Campfire_Athena");
 
-		static auto Shells = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Ammo/AthenaAmmoDataShells.AthenaAmmoDataShells");
-		static auto Medium = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsMedium.AthenaAmmoDataBulletsMedium");
-		static auto Light = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsLight.AthenaAmmoDataBulletsLight");
-		static auto Heavy = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsHeavy.AthenaAmmoDataBulletsHeavy");
+		static auto HeavyAmmo = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsHeavy.AthenaAmmoDataBulletsHeavy");
+		static auto ShellsAmmo = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Ammo/AthenaAmmoDataShells.AthenaAmmoDataShells");
+		static auto MediumAmmo = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsMedium.AthenaAmmoDataBulletsMedium");
+		static auto LightAmmo = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsLight.AthenaAmmoDataBulletsLight");
+		static auto RocketAmmo = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Ammo/AmmoDataRockets.AmmoDataRockets");
+		static auto ExplosiveAmmo = FindObject<UFortItemDefinition>(
+			L"/Game/Items/Ammo/AmmoDataExplosive.AmmoDataExplosive");
+		static auto EnergyCells = FindObject<UFortItemDefinition>(
+			L"/Game/Items/Ammo/AmmoDataEnergyCell.AmmoDataEnergyCell");
+		static auto Arrows = FindObject<UFortItemDefinition>(
+			L"/PrimalGameplay/Items/Ammo/AthenaAmmoDataArrows.AthenaAmmoDataArrows");
+		static auto ReconAmmo = FindObject<UFortItemDefinition>(
+			L"/MotherGameplay/Items/Scooter/Ammo_Athena_Mother_Scooter.Ammo_Athena_Mother_Scooter");
 
-		WorldInventory->AddItem(WoodItemData, nullptr, 500);
-		WorldInventory->AddItem(StoneItemData, nullptr, 500);
-		WorldInventory->AddItem(MetalItemData, nullptr, 500);
-		WorldInventory->AddItem(Rifle, nullptr, 1);
-		WorldInventory->AddItem(Shotgun, nullptr, 1);
-		WorldInventory->AddItem(SMG, nullptr, 1);
-		WorldInventory->AddItem(MiniShields, nullptr, 6);
-		WorldInventory->AddItem(Shells, nullptr, 999);
-		WorldInventory->AddItem(Medium, nullptr, 999);
-		WorldInventory->AddItem(Light, nullptr, 999);
-		WorldInventory->AddItem(Heavy, nullptr, 999);
+		WorldInventory->AddItem(WoodItemData, nullptr, 999);
+		WorldInventory->AddItem(StoneItemData, nullptr, 999);
+		WorldInventory->AddItem(MetalItemData, nullptr, 999);
+		WorldInventory->AddItem(Gold, nullptr, 10000);
+		WorldInventory->AddItem(Sniper, nullptr, 1);
+		WorldInventory->AddItem(Secondary, nullptr, 1);
+		WorldInventory->AddItem(Tertiary, nullptr, 1);
+		WorldInventory->AddItem(Consumable1, nullptr, 1);
+		WorldInventory->AddItem(Consumable2, nullptr, 10);
+		WorldInventory->AddItem(ShellsAmmo, nullptr, 999);
+		WorldInventory->AddItem(HeavyAmmo, nullptr, 999);
+		WorldInventory->AddItem(MediumAmmo, nullptr, 999);
+		WorldInventory->AddItem(LightAmmo, nullptr, 999);
+		WorldInventory->AddItem(RocketAmmo, nullptr, 999);
+		WorldInventory->AddItem(ExplosiveAmmo, nullptr, 999);
+		WorldInventory->AddItem(EnergyCells, nullptr, 999);
+		WorldInventory->AddItem(Arrows, nullptr, 30);
+		WorldInventory->AddItem(ReconAmmo, nullptr, 999);
+		WorldInventory->AddItem(Bouncer, nullptr, 999);
+		WorldInventory->AddItem(LaunchPad, nullptr, 999);
+		WorldInventory->AddItem(DirBouncePad, nullptr, 999);
+		WorldInventory->AddItem(FreezeTrap, nullptr, 999);
+		WorldInventory->AddItem(SpeedBoost, nullptr, 999);
+		WorldInventory->AddItem(Campfire, nullptr, 999);
+		WorldInventory->AddItem(Crown, nullptr, 1);
 
 		WorldInventory->Update();
 	}
@@ -718,13 +767,13 @@ static inline void MainUI()
 					SetIsLategame(bWillBeLategame);
 				}
 
-				ImGui::Text(std::format("Joinable {}", Globals::bStartedListening).c_str());
+				ImGui::Text(std::format("Joinable: {}", Globals::bStartedListening).c_str());
 
 				static std::string ConsoleCommand;
 
-				ImGui::InputText("Console command", &ConsoleCommand);
+				ImGui::InputText("Console Command", &ConsoleCommand);
 
-				if (ImGui::Button("Execute console command"))
+				if (ImGui::Button("Execute Console Command"))
 				{
 					auto wstr = std::wstring(ConsoleCommand.begin(), ConsoleCommand.end());
 
@@ -743,7 +792,7 @@ static inline void MainUI()
 				if (ImGui::Button("New"))
 				{
 					static auto NextFn = FindObject<UFunction>("/Game/Athena/Prototype/Blueprints/Cube/CUBE.CUBE_C.Next");
-					static auto NewFn = FindObject<UFunction>("/Game/Athena/Prototype/Blueprints/Cube/CUBE.CUBE_C.New");					
+					static auto NewFn = FindObject<UFunction>("/Game/Athena/Prototype/Blueprints/Cube/CUBE.CUBE_C.New");
 					auto Loader = GetEventLoader("/Game/Athena/Prototype/Blueprints/Cube/CUBE.CUBE_C");
 
 					LOG_INFO(LogDev, "Loader: {}", __int64(Loader));
@@ -782,7 +831,7 @@ static inline void MainUI()
 					}
 					else
 					{
-						LOG_ERROR(LogGame, "Restarting is not supported on chapter 2 and above!");
+						LOG_ERROR(LogGame, "Restarting is not supported on Chapter 2 and above!");
 					}
 				}
 
@@ -834,7 +883,7 @@ static inline void MainUI()
 
 							AmountOfPlayersWhenBusStart = GameState->GetPlayersLeft(); // scuffed!!!!
 
-							if (Fortnite_Version == 1.11)
+							if (Fortnite_Version == 1.11 || Fortnite_Version == 7.30 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.10)
 							{
 								static auto OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus");
 								LOG_INFO(LogDev, "OverrideBattleBusSkin: {}", __int64(OverrideBattleBusSkin));
@@ -922,7 +971,7 @@ static inline void MainUI()
 
 		else if (Tab == PLAYERS_TAB)
 		{
-			
+
 		}
 
 		else if (Tab == EVENT_TAB)
@@ -1143,7 +1192,7 @@ static inline void MainUI()
 
 							WeaponsFile << std::format("[{}] {}\n", ItemDefinitionName, Object->GetPathName());
 						}
-					};
+						};
 
 					DumpItemDefinitionClass(UFortWeaponItemDefinition::StaticClass());
 					DumpItemDefinitionClass(UFortGadgetItemDefinition::StaticClass());
@@ -1186,7 +1235,7 @@ static inline void MainUI()
 			if (ImGui::Button("Give Item to Everyone"))
 			{
 				auto ItemDefinition = FindObject<UFortItemDefinition>(ItemToGrantEveryone, nullptr, ANY_PACKAGE);
-				
+
 				if (ItemDefinition)
 				{
 					static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
@@ -1386,7 +1435,7 @@ static inline void MainUI()
 				}
 			} */
 
-			/* 
+			/*
 			ImGui::Text(std::format("Amount of hooks {}", AllFunctionHooks.size()).c_str());
 
 			for (auto& FunctionHook : AllFunctionHooks)
@@ -1411,7 +1460,7 @@ static inline void MainUI()
 
 					FunctionHook.IsHooked = !FunctionHook.IsHooked;
 				}
-			} 
+			}
 			*/
 		}
 		else if (Tab == DEBUGLOG_TAB)
@@ -1460,7 +1509,7 @@ static inline void PregameUI()
 
 		ImGui::SliderInt("Seconds until load into map", &SecondsUntilTravel, 1, 100);
 	}
-		
+
 	if (!Globals::bCreative)
 		ImGui::InputText("Playlist", &PlaylistName);
 }
@@ -1496,7 +1545,7 @@ static inline DWORD WINAPI GuiThread(LPVOID)
 {
 	WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, L"RebootClass", NULL };
 	::RegisterClassEx(&wc);
-	HWND hwnd = ::CreateWindowExW(0L, wc.lpszClassName, L"Project Reboot", (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX), 100, 100, Width, Height, NULL, NULL, wc.hInstance, NULL);
+	HWND hwnd = ::CreateWindowExW(0L, wc.lpszClassName, L"Reboot Ultimate", (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX), 100, 100, Width, Height, NULL, NULL, wc.hInstance, NULL);
 
 	if (false) // idk why this dont work
 	{
@@ -1583,7 +1632,7 @@ static inline DWORD WINAPI GuiThread(LPVOID)
 
 		if (!ImGui::IsWindowCollapsed())
 		{
-			ImGui::Begin("Project Reboot 3.0", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+			ImGui::Begin("Reboot Ultimate", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 
 			Globals::bInitializedPlaylist ? MainUI() : PregameUI();
 

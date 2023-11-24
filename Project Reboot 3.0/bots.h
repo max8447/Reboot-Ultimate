@@ -93,7 +93,7 @@ public:
 		{
 			static int CurrentBotNum = 1;
 			auto BotNumWStr = std::to_wstring(CurrentBotNum++);
-			NewName = (L"RebootBot" + BotNumWStr).c_str();
+			NewName = (L"Bot " + BotNumWStr).c_str();
 		}
 
 		if (auto PlayerController = Cast<APlayerController>(Controller))

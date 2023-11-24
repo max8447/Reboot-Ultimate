@@ -318,7 +318,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			}
 			else if (weaponName == "bolt_sr")
 			{
-				weaponName = "WID_Sniper_BoltAction_Scope_Athena_UC_Ore_T03";
+				weaponName = "WID_Sniper_BoltAction_Scope_Athena_SR_Ore_T03";
 			}
 			else if (weaponName == "suppressed_vr")
 			{
@@ -468,7 +468,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Athena_Bucket_Coal";
 			}
-			else if (weaponName == "stink" || weaponName == "stinkbomb")
+			else if (weaponName == "stink" || weaponName == "stinkbomb" || weaponName == "stinks")
 			{
 				weaponName = "Athena_GasGrenade";
 			}
@@ -1700,7 +1700,7 @@ cheat healthall - Heals all players health.
 cheat shieldall - Heals all players shield.
 cheat godall - Gods all players.
 cheat getlocation - Gives you the current XYZ cords of where you are standing and copies them to your clipboard (useful for bugitgo)
-cheat togglesnowmap - Toggles the map to have snow or not. (7.30, 11.31, 15.10, 19.10 ONLY)
+cheat togglesnowmap - Toggles the map to have snow or not. (7.10, 7.30, 11.31, 15.10, 19.10 ONLY)
 cheat destroyall <ClassPathName> - Destroys every actor of a given class. Useful for removing all floorloot for example.
 cheat changesize <Size=1.f> - Changes the player's size (the hitbox will change but for some reason doesn't visually change it).
 cheat damagetarget <Damage=0.f> - Damages the Actor in front of you by the specified amount.
