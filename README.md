@@ -10,7 +10,7 @@
 - When injecting the DLL, all buttons you'll need are already selected (besides gamemode), as well as the amount of time it takes to start has been increased from 5 seconds to 15.
 - Lategame loot automatically starts up with all of the Ammo, Materials, and Traps you'd ever need in order to play! Hop in and start trickshotting immedietely!
 
-## Links
+# Links
 
 - [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1177649643174248551/RebootUltimate.dll?ex=657346b2&is=6560d1b2&hm=d9fd43b287e7a519ebd2caed7a3ba0d1b04544d07ef2e38d490e7af38026c5e1&)
 
