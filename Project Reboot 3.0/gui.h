@@ -69,7 +69,7 @@ extern inline int StartReverseZonePhase = 7;
 extern inline int EndReverseZonePhase = 5;
 extern inline float StartingShield = 0;
 extern inline bool bEnableReverseZone = false;
-extern inline int AmountOfPlayersWhenBusStart = 0; 
+extern inline int AmountOfPlayersWhenBusStart = 0;
 extern inline bool bHandleDeath = true;
 extern inline bool bUseCustomMap = false;
 extern inline std::string CustomMapName = "";
@@ -330,7 +330,7 @@ static inline void StaticUI()
 		}
 	}
 
-	ImGui::InputInt("Shield/Health for siphon", &AmountOfHealthSiphon);
+	ImGui::InputInt("Shield/Health for Siphon", &AmountOfHealthSiphon);
 
 #ifndef PROD
 	ImGui::Checkbox("Log ProcessEvent", &Globals::bLogProcessEvent);
@@ -340,11 +340,11 @@ static inline void StaticUI()
 	ImGui::Checkbox("Infinite Ammo", &Globals::bInfiniteAmmo);
 	ImGui::Checkbox("Infinite Materials", &Globals::bInfiniteMaterials);
 
-	ImGui::Checkbox("No MCP (Don't change unless you know what this is)", &Globals::bNoMCP);
+	ImGui::Checkbox("No MCP", &Globals::bNoMCP);
 
 	if (Addresses::ApplyGadgetData && Addresses::RemoveGadgetData && Engine_Version < 424)
 	{
-		ImGui::Checkbox("Enable AGIDs (Don't change unless you know what this is)", &Globals::bEnableAGIDs);
+		ImGui::Checkbox("Enable Gadgets", &Globals::bEnableAGIDs);
 	}
 }
 
@@ -521,36 +521,36 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 	auto GameState = Cast<AFortGameStateAthena>(GameMode->GetGameState());
 
 	auto GetAircrafts = [&]() -> std::vector<AActor*>
-	{
-		static auto AircraftsOffset = GameState->GetOffset("Aircrafts", false);
-		std::vector<AActor*> Aircrafts;
-
-		if (AircraftsOffset == -1)
 		{
-			// GameState->Aircraft
+			static auto AircraftsOffset = GameState->GetOffset("Aircrafts", false);
+			std::vector<AActor*> Aircrafts;
 
-			static auto FortAthenaAircraftClass = FindObject<UClass>(L"/Script/FortniteGame.FortAthenaAircraft");
-			auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
-
-			for (int i = 0; i < AllAircrafts.Num(); i++)
+			if (AircraftsOffset == -1)
 			{
-				Aircrafts.push_back(AllAircrafts.at(i));
+				// GameState->Aircraft
+
+				static auto FortAthenaAircraftClass = FindObject<UClass>(L"/Script/FortniteGame.FortAthenaAircraft");
+				auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
+
+				for (int i = 0; i < AllAircrafts.Num(); i++)
+				{
+					Aircrafts.push_back(AllAircrafts.at(i));
+				}
+
+				AllAircrafts.Free();
+			}
+			else
+			{
+				const auto& GameStateAircrafts = GameState->Get<TArray<AActor*>>(AircraftsOffset);
+
+				for (int i = 0; i < GameStateAircrafts.Num(); i++)
+				{
+					Aircrafts.push_back(GameStateAircrafts.at(i));
+				}
 			}
 
-			AllAircrafts.Free();
-		}
-		else
-		{
-			const auto& GameStateAircrafts = GameState->Get<TArray<AActor*>>(AircraftsOffset);
-
-			for (int i = 0; i < GameStateAircrafts.Num(); i++)
-			{
-				Aircrafts.push_back(GameStateAircrafts.at(i));
-			}
-		}
-
-		return Aircrafts;
-	};
+			return Aircrafts;
+		};
 
 	GameMode->StartAircraftPhase();
 
@@ -767,32 +767,13 @@ static inline void MainUI()
 					SetIsLategame(bWillBeLategame);
 				}
 
-				auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
-
-				if (GameState)
-				{
-					static auto DefaultGliderRedeployCanRedeployOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "DefaultGliderRedeployCanRedeploy", false);
-
-					if (DefaultGliderRedeployCanRedeployOffset != -1)
-					{
-						bool EnableGliderRedeploy = (bool)GameState->Get<float>(DefaultGliderRedeployCanRedeployOffset);
-
-						if (ImGui::Checkbox("Enable Glider Redeploy", &EnableGliderRedeploy))
-						{
-							GameState->Get<float>(DefaultGliderRedeployCanRedeployOffset) = EnableGliderRedeploy;
-						}
-					}
-				}
-			}
-		}
-
 				ImGui::Text(std::format("Joinable: {}", Globals::bStartedListening).c_str());
 
 				static std::string ConsoleCommand;
 
 				ImGui::InputText("Console Command", &ConsoleCommand);
 
-				if (ImGui::Button("Execute Console command"))
+				if (ImGui::Button("Execute Console Command"))
 				{
 					auto wstr = std::wstring(ConsoleCommand.begin(), ConsoleCommand.end());
 
@@ -811,7 +792,7 @@ static inline void MainUI()
 				if (ImGui::Button("New"))
 				{
 					static auto NextFn = FindObject<UFunction>("/Game/Athena/Prototype/Blueprints/Cube/CUBE.CUBE_C.Next");
-					static auto NewFn = FindObject<UFunction>("/Game/Athena/Prototype/Blueprints/Cube/CUBE.CUBE_C.New");					
+					static auto NewFn = FindObject<UFunction>("/Game/Athena/Prototype/Blueprints/Cube/CUBE.CUBE_C.New");
 					auto Loader = GetEventLoader("/Game/Athena/Prototype/Blueprints/Cube/CUBE.CUBE_C");
 
 					LOG_INFO(LogDev, "Loader: {}", __int64(Loader));
@@ -969,9 +950,28 @@ static inline void MainUI()
 					}
 				}
 
+				auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+
+				if (GameState)
+				{
+					static auto DefaultGliderRedeployCanRedeployOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "DefaultGliderRedeployCanRedeploy", false);
+
+					if (DefaultGliderRedeployCanRedeployOffset != -1)
+					{
+						bool EnableGliderRedeploy = (bool)GameState->Get<float>(DefaultGliderRedeployCanRedeployOffset);
+
+						if (ImGui::Checkbox("Enable Glider Redeploy", &EnableGliderRedeploy))
+						{
+							GameState->Get<float>(DefaultGliderRedeployCanRedeployOffset) = EnableGliderRedeploy;
+						}
+					}
+				}
+			}
+		}
+
 		else if (Tab == PLAYERS_TAB)
 		{
-			
+
 		}
 
 		else if (Tab == EVENT_TAB)
@@ -1192,7 +1192,7 @@ static inline void MainUI()
 
 							WeaponsFile << std::format("[{}] {}\n", ItemDefinitionName, Object->GetPathName());
 						}
-					};
+						};
 
 					DumpItemDefinitionClass(UFortWeaponItemDefinition::StaticClass());
 					DumpItemDefinitionClass(UFortGadgetItemDefinition::StaticClass());
@@ -1235,7 +1235,7 @@ static inline void MainUI()
 			if (ImGui::Button("Give Item to Everyone"))
 			{
 				auto ItemDefinition = FindObject<UFortItemDefinition>(ItemToGrantEveryone, nullptr, ANY_PACKAGE);
-				
+
 				if (ItemDefinition)
 				{
 					static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
@@ -1435,7 +1435,7 @@ static inline void MainUI()
 				}
 			} */
 
-			/* 
+			/*
 			ImGui::Text(std::format("Amount of hooks {}", AllFunctionHooks.size()).c_str());
 
 			for (auto& FunctionHook : AllFunctionHooks)
@@ -1460,7 +1460,7 @@ static inline void MainUI()
 
 					FunctionHook.IsHooked = !FunctionHook.IsHooked;
 				}
-			} 
+			}
 			*/
 		}
 		else if (Tab == DEBUGLOG_TAB)
@@ -1509,7 +1509,7 @@ static inline void PregameUI()
 
 		ImGui::SliderInt("Seconds until load into map", &SecondsUntilTravel, 1, 100);
 	}
-		
+
 	if (!Globals::bCreative)
 		ImGui::InputText("Playlist", &PlaylistName);
 }
