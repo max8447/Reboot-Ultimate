@@ -12,6 +12,8 @@
 
 ## Links
 
-- [Original Reboot 3.0](https://github.com/Milxnor/Project-Reboot-3.0)
+- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1177649643174248551/RebootUltimate.dll?ex=657346b2&is=6560d1b2&hm=d9fd43b287e7a519ebd2caed7a3ba0d1b04544d07ef2e38d490e7af38026c5e1&)
+
+- [Original Project Reboot 3.0 Github](https://github.com/Milxnor/Project-Reboot-3.0)
 
 - [Reboot TS Discord Server](https://discord.gg/invite/rPc5t4usPe)
