@@ -1163,7 +1163,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				return;
 			}
 
-			TSubclassOf<class AActor> AClass = Cast<UClass>(FindObject(Arguments[1], nullptr, ANY_PACKAGE));
+			TSubclassOf<class AActor> AClass = FindObject<UClass>(Arguments[1]);
 
 			auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
 
