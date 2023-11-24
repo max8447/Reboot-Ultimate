@@ -1219,7 +1219,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			Pawn->LaunchURL(L"https://pastebin.com/4pmMgegz");
 			}
-		else if (Command == "kill server")
+		else if (Command == "killserver")
 		{
 			bool bIgnorePlatformRestrictions = true;
 
@@ -1684,6 +1684,8 @@ cheat summon/spawn <BlueprintClassPathName> <Count=1> - Summons the specified bl
 cheat bugitgo <X> <Y> <Z> - Teleport to a location.
 cheat launch/fling <X> <Y> <Z> - Launches a player.
 cheat listplayers - Gives you all players names.
+cheat kick - Kicks the player from the game.
+cheat ban - Permanently bans the player from the game.
 cheat pausesafezone - Pauses the zone.
 cheat health <Health=100.f> - Sets executing player's health.
 cheat shield <Shield=0.f> - Sets executing player's shield.
@@ -1705,6 +1707,8 @@ cheat destroyall <ClassPathName> - Destroys every actor of a given class. Useful
 cheat changesize <Size=1.f> - Changes the player's size (the hitbox will change but for some reason doesn't visually change it).
 cheat damagetarget <Damage=0.f> - Damages the Actor in front of you by the specified amount.
 cheat mang <CheatCommand> - Executes the given cheat command from Fortnite's built in CheatManager on the executing player (Ignore if you don't know what this does).
+cheat getscript - Copies the Reboot V3 Script website link to your clipboard.
+cheat killserver - Ends the running task of the hosting window.
 
 If you want to execute a command on a certain player, surround their name (case sensitive) with \, and put the param with their name anywhere. Example: cheat sethealth \Milxnor\ 100
 )";
