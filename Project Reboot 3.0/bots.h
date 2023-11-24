@@ -21,6 +21,7 @@ public:
 class PlayerBot
 {
 public:
+	AFortPlayerController* PlayerController = nullptr;
 	AController* Controller = nullptr;
 	BotPOIEncounter currentBotEncounter;
 	int TotalPlayersEncountered;
@@ -73,6 +74,7 @@ public:
 		static auto FortAthenaAIBotControllerClass = FindObject<UClass>(L"/Script/FortniteGame.FortAthenaAIBotController");
 
 		Controller = GetWorld()->SpawnActor<AController>(ControllerClass);
+		PlayerController = Cast<AFortPlayerController>(Controller);
 		AFortPlayerPawnAthena* Pawn = GetWorld()->SpawnActor<AFortPlayerPawnAthena>(PawnClass, SpawnTransform, CreateSpawnParameters(ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn));
 		AFortPlayerStateAthena* PlayerState = Cast<AFortPlayerStateAthena>(Controller->GetPlayerState());
 
@@ -137,8 +139,10 @@ public:
 
 		Controller->Possess(Pawn);
 
-		Pawn->SetHealth(100);
-		Pawn->SetMaxHealth(100);
+		Pawn->SetHealth(20);
+		Pawn->SetMaxHealth(20);
+		Pawn->SetShield(20);
+		Pawn->SetMaxShield(20);
 
 		AFortInventory** Inventory = nullptr;
 
@@ -221,12 +225,10 @@ public:
 			PlayerAbilitySet->GiveToAbilitySystem(AbilitySystemComponent);
 		}
 
-		// PlayerController->GetCosmeticLoadout()->GetCharacter() = FindObject("/Game/Athena/Items/Cosmetics/Characters/CID_263_Athena_Commando_F_MadCommander.CID_263_Athena_Commando_F_MadCommander");
-		// Pawn->GetCosmeticLoadout()->GetCharacter() = PlayerController->GetCosmeticLoadout()->GetCharacter();
+		PlayerController->GetCosmeticLoadout()->GetCharacter() = FindObject("/Game/Athena/Items/Cosmetics/Characters/CID_263_Athena_Commando_F_MadCommander.CID_263_Athena_Commando_F_MadCommander");
+		Pawn->GetCosmeticLoadout()->GetCharacter() = PlayerController->GetCosmeticLoadout()->GetCharacter();
 
-		// PlayerController->ApplyCosmeticLoadout();
-
-		/*
+		PlayerController->ApplyCosmeticLoadout();
 
 		auto AllHeroTypes = GetAllObjectsOfClass(FindObject<UClass>(L"/Script/FortniteGame.FortHeroType"));
 		std::vector<UFortItemDefinition*> AthenaHeroTypes;
@@ -273,8 +275,6 @@ public:
 		RegisteredPlayers.Add(NewPlayerInfo);
 
 		ApplyHID(Pawn, HeroType, true);
-
-		*/
 
 		GameState->GetPlayersLeft()++;
 		GameState->OnRep_PlayersLeft();
@@ -340,6 +340,7 @@ namespace Bots
 		for (auto& PlayerBot : AllPlayerBotsToTick)
 		{
 			auto CurrentPlayer = PlayerBot.Controller;
+			auto CurrentController = PlayerBot.PlayerController;
 
 			if (CurrentPlayer->IsActorBeingDestroyed())
 				continue;
@@ -379,12 +380,12 @@ namespace Bots
 				}
 			}
 
-			/* bool bShouldJumpFromBus = CurrentPlayerState->IsInAircraft(); // TODO (Milxnor) add a random percent thing
+			bool bShouldJumpFromBus = CurrentPlayerState->IsInAircraft(); // TODO (Milxnor) add a random percent thing
 
 			if (bShouldJumpFromBus)
 			{
-				CurrentPlayer->ServerAttemptAircraftJumpHook(CurrentPlayer, FRotator());
-			} */
+				CurrentController->ServerAttemptAircraftJumpHook(CurrentController, FRotator());
+			}
 		}
 
 		// AllBuildingContainers.Free();

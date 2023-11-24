@@ -289,8 +289,15 @@ AActor* AFortPlayerPawn::ServerOnExitVehicleHook(AFortPlayerPawn* PlayerPawn, ET
 	auto VehicleWeaponDefinition = PlayerPawn->GetVehicleWeaponDefinition(PlayerPawn->GetVehicle());
 	LOG_INFO(LogDev, "VehicleWeaponDefinition: {}", VehicleWeaponDefinition ? VehicleWeaponDefinition->GetFullName() : "BadRead");
 	PlayerPawn->UnEquipVehicleWeaponDefinition(VehicleWeaponDefinition);
+	PlayerPawn->ExitVehicle();
 
 	return ServerOnExitVehicleOriginal(PlayerPawn, ExitForceBehavior);
+}
+
+void AFortPlayerPawn::ExitVehicle()
+{
+	auto ExitVehicleFn = FindObject<UFunction>("/Script/FortniteUI.FortGlobalUIContext.ExitVehicle");
+	this->ProcessEvent(ExitVehicleFn, nullptr);
 }
 
 void AFortPlayerPawn::ServerSendZiplineStateHook(AFortPlayerPawn* Pawn, FZiplinePawnState InZiplineState)

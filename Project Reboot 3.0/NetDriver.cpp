@@ -31,10 +31,10 @@ void UNetDriver::RemoveNetworkActor(AActor* Actor)
 
 void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 {
-	/* if (bEnableBotTick)
+	if (bEnableBotTick)
 	{
 		Bots::Tick();
-	} */
+	}
 
 	if (Globals::bStartedListening)
 	{

@@ -1,7 +1,8 @@
 #include "commands.h"
 #include "calendar.h"
-#include "Subsystems.h"
-#include <Windows.h>
+#include "FortPawn.h"
+#include "TSubclassOf.h"
+#include "moderation.h"
 
 void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 {
@@ -765,6 +766,52 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			Deop(ReceivingController);
 			SendMessageToConsole(PlayerController, L"Removed operator from player!");
 		}
+		else if (Command == "kick")
+		{
+			if (ReceivingController == PlayerController)
+			{
+				SendMessageToConsole(PlayerController, L"You can't kick yourself!");
+				return;
+			}
+
+			FString Reason = L"You have been kicked.";
+
+			static auto ClientReturnToMainMenu = FindObject<UFunction>("/Script/Engine.PlayerController.ClientReturnToMainMenu");
+			ReceivingController->ProcessEvent(ClientReturnToMainMenu, &Reason);
+
+			std::string KickedPlayerName;
+			KickedPlayerName = ReceivingController->GetPlayerState()->GetPlayerName().ToString();
+
+			std::wstringstream MsgStream;
+			MsgStream << L"Successfully kicked " << std::wstring(KickedPlayerName.begin(), KickedPlayerName.end()) << L".";
+			std::wstring Msg = MsgStream.str();
+
+			SendMessageToConsole(PlayerController, Msg.c_str());
+		}
+		else if (Command == "ban")
+		{
+			if (ReceivingController == PlayerController)
+			{
+				SendMessageToConsole(PlayerController, L"You can't ban yourself!");
+				return;
+			}
+
+			Ban(ReceivingController);
+
+			FString Reason = L"You have been banned.";
+
+			static auto ClientReturnToMainMenu = FindObject<UFunction>("/Script/Engine.PlayerController.ClientReturnToMainMenu");
+			ReceivingController->ProcessEvent(ClientReturnToMainMenu, &Reason);
+
+			std::string BannedPlayerName;
+			BannedPlayerName = ReceivingController->GetPlayerState()->GetPlayerName().ToString();
+
+			std::wstringstream MsgStream;
+			MsgStream << L"Successfully banned " << std::wstring(BannedPlayerName.begin(), BannedPlayerName.end()) << L".";
+			std::wstring Msg = MsgStream.str();
+
+			SendMessageToConsole(PlayerController, Msg.c_str());
+		}
 		else if (Command == "setpickaxe" || Command == "pickaxe")
 		{
 			if (NumArgs < 1)
@@ -1160,6 +1207,24 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			CheatManager->Mang(cmd);
 			CheatManager = nullptr;
 		}
+		else if (Command == "getscript")
+		{
+			auto Pawn = ReceivingController->GetMyFortPawn();
+
+			if (!Pawn)
+			{
+				SendMessageToConsole(PlayerController, L"No pawn!");
+				return;
+			}
+
+			Pawn->LaunchURL(L"https://pastebin.com/4pmMgegz");
+			}
+		else if (Command == "kill server")
+		{
+			bool bIgnorePlatformRestrictions = true;
+
+			ReceivingController->QuitGame(GetWorld(), ReceivingController, EQuitPreference::Quit, bIgnorePlatformRestrictions); // this is funny trust
+		}
 		else if (Command == "applycid" || Command == "skin")
 		{
 			auto PlayerState = Cast<AFortPlayerState>(ReceivingController->GetPlayerState());
@@ -1358,6 +1423,18 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			}
 
 			SendMessageToConsole(PlayerController, L"Summoned!");
+		}
+		else if (Command == "spawnbotsatplayerstarts")
+		{
+			int Amount = 1;
+
+			if (Arguments.size() >= 2)
+			{
+				try { Amount = std::stof(Arguments[1]); }
+				catch (...) {}
+			}
+
+			Bots::SpawnBotsAtPlayerStarts(Amount);
 		}
 		else if (Command == "sethealth" || Command == "health")
 		{
