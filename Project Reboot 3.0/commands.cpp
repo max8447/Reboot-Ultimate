@@ -230,11 +230,11 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			}
 			else if (weaponName == "ar_vr")
 			{
-				weaponName = "WID_Assault_Auto_Athena_VR_Ore_T03";
+				weaponName = "WID_Assault_AutoHigh_Athena_VR_Ore_T03";
 			}
 			else if (weaponName == "ar_sr")
 			{
-				weaponName = "WID_Assault_Auto_Athena_sr_Ore_T03";
+				weaponName = "WID_Assault_AutoHigh_Athena_SR_Ore_T03";
 			}
 			else if (weaponName == "ar_ur")
 			{
