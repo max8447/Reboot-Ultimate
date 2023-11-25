@@ -12,7 +12,7 @@
 
 ## To Do:
 
-- [Fix 19.10 Teams](https://github.com/Milxnor/Project-Reboot-3.0/commit/1d12b8929f644da6b81566545010220f3adafea8) (priority rn)
+- Fix 19.10 Teams (priority rn)
 - Remove Traps if 19.10
 - Vehicle Command (similar to cheat grant)
 - Backbling, Glider, and Wrap Commands
