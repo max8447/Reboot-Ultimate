@@ -12,7 +12,7 @@
 
 ## To Do:
 
-- Fix 19.10 Teams (priority rn)
+- Fix 19.10 Teams
 - Remove Traps if 19.10
 - Vehicle Command (similar to cheat grant)
 - Backbling, Glider, and Wrap Commands
