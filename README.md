@@ -10,9 +10,18 @@
 - When injecting the DLL, all buttons you'll need are already selected (besides gamemode), as well as the amount of time it takes to start has been increased from 5 seconds to 15.
 - Lategame loot automatically starts up with all of the Ammo, Materials, and Traps you'd ever need in order to play! Hop in and start trickshotting immedietely!
 
+## To Do:
+
+- Fix 19.10 Teams
+- Remove Traps if 19.10
+- Vehicle Command (similar to cheat grant)
+- Backbling, Glider, and Wrap Commands
+- cheat applycid (cheat skin) gives HID as well
+- More gun commands/wordings of existing gun commands in cheat grant
+
 # Links
 
-- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1177720686823870525/RebootUltimate.dll?ex=657388dc&is=656113dc&hm=a24d18b732dff64672991e827f232f03f15488264d4e2c0a0d54e156a14fc696&)
+- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1177981912925601812/RebootUltimate.dll?ex=65747c25&is=65620725&hm=c2061b42975b0bdda76c8b562efe08afbb1bb462b2e79d914795742a8f6a79b6&)
 
 - [Original Project Reboot 3.0 Github](https://github.com/Milxnor/Project-Reboot-3.0)
 
