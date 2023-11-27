@@ -592,10 +592,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Athena_HappyGhost_Infinite";
 			}
-			else if (weaponName == "grappler" || weaponName == "grap" || weaponName == "grapple")
-			{
-				weaponName = "WID_Hook_Gun_Slide";
-			}
 			else if (weaponName == "jules" || weaponName == "julesgrappler" || weaponName == "julesgrap")
 			{
 				weaponName = "WID_Boss_GrapplingHoot";
@@ -639,6 +635,17 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			else if (weaponName == "grabitron")
 			{
 				weaponName = "WID_GravyGoblinV2_Athena";
+			}
+			else if (weaponName == "grappler" || weaponName == "grap" || weaponName == "grapple")
+			{
+				if (Fortnite_Version < 7)
+				{
+					weaponName = "WID_Hook_Gun_VR_Ore_T03";
+				}
+				else
+				{
+					weaponName = "WID_Hook_Gun_Slide";
+				}
 			}
 
 			auto WID = Cast<UFortWorldItemDefinition>(FindObject(weaponName, nullptr, ANY_PACKAGE));
