@@ -652,7 +652,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			if (!WID)
 			{
-				SendMessageToConsole(PlayerController, L"Invalid WID! This might mean the item you're looking for may not exist in the current version!");
+				SendMessageToConsole(PlayerController, L"Invalid WID! This usually means you either have the wrong name of an item, or the item doesn't exist on your version!");
 				return;
 			}
 
@@ -1756,7 +1756,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			}
 
 			SendMessageToConsole(PlayerController, L"Gave all players ammo, materials, and traps!\n");
-		}
+			}
 		else if (Command == "godall")
 		{
 			for (int i = 0; i < ClientConnections.Num(); i++)
@@ -1799,7 +1799,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		FString HelpMessage = LR"(
 cheat giveitem <ShortWID> <Count=1> - Gives a weapon to the executing player, if inventory is full drops a pickup on the player.
 cheat grant <name_rarity> (ex: rocket_sr) - Gives a weapon using a shortcut name, without ID.
-cheat summon/spawn <BlueprintClassPathName> <Count=1> - Summons the specified blueprint class at the executing player's location. Note: There is a limit on the count.
+cheat summon <BlueprintClassPathName> <Count=1> - Summons the specified blueprint class at the executing player's location. Note: There is a limit on the count.
 cheat bugitgo <X> <Y> <Z> - Teleport to a location.
 cheat launch/fling <X> <Y> <Z> - Launches a player.
 cheat listplayers - Gives you all players names.
