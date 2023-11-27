@@ -1646,6 +1646,110 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Healed all players shield!\n");
 		}
+		else if (Command == "giveall")
+		{
+			static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
+			auto WorldNetDriver = GetWorld()->Get<UNetDriver*>(World_NetDriverOffset);
+			auto& ClientConnections = WorldNetDriver->GetClientConnections();
+
+			for (int z = 0; z < ClientConnections.Num(); z++)
+			{
+				auto ClientConnection = ClientConnections.at(z);
+				auto FortPC = Cast<AFortPlayerController>(ClientConnection->GetPlayerController());
+
+				if (!FortPC)
+					continue;
+
+				auto WorldInventory = FortPC->GetWorldInventory();
+
+				if (!WorldInventory)
+					continue;
+
+				static auto WoodItemData = FindObject<UFortItemDefinition>(
+					L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+				static auto StoneItemData = FindObject<UFortItemDefinition>(
+					L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+				static auto MetalItemData = FindObject<UFortItemDefinition>(
+					L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+				static auto Gold = FindObject<UFortItemDefinition>(
+					L"/Game/Items/ResourcePickups/Athena_WadsItemData.Athena_WadsItemData");
+				static auto Crown = FindObject<UFortItemDefinition>(
+					L"/VictoryCrownsGameplay/Items/AGID_VictoryCrown.AGID_VictoryCrown");
+
+				static auto Sniper = FindObject<UFortItemDefinition>(
+					L"");
+				static auto Secondary = FindObject<UFortItemDefinition>(
+					L"");
+				static auto Tertiary = FindObject<UFortItemDefinition>(
+					L"");
+				static auto Consumable1 = FindObject<UFortItemDefinition>(
+					L"");
+				static auto Consumable2 = FindObject<UFortItemDefinition>(
+					L"");
+
+				static auto Bouncer = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Traps/TID_Context_BouncePad_Athena.TID_Context_BouncePad_Athena");
+				static auto LaunchPad = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Traps/TID_Floor_Player_Launch_Pad_Athena.TID_Floor_Player_Launch_Pad_Athena");
+				static auto DirBouncePad = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Traps/TID_Floor_Player_Jump_Pad_Free_Direction_Athena.TID_Floor_Player_Jump_Pad_Free_Direction_Athena");
+				static auto FreezeTrap = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Traps/TID_Context_Freeze_Athena.TID_Context_Freeze_Athena");
+				static auto SpeedBoost = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Traps/TID_Context_SpeedBoost.TID_Context_SpeedBoost");
+				static auto Campfire = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Traps/TID_Floor_Player_Campfire_Athena.TID_Floor_Player_Campfire_Athena");
+
+				static auto HeavyAmmo = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsHeavy.AthenaAmmoDataBulletsHeavy");
+				static auto ShellsAmmo = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Ammo/AthenaAmmoDataShells.AthenaAmmoDataShells");
+				static auto MediumAmmo = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsMedium.AthenaAmmoDataBulletsMedium");
+				static auto LightAmmo = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsLight.AthenaAmmoDataBulletsLight");
+				static auto RocketAmmo = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Ammo/AmmoDataRockets.AmmoDataRockets");
+				static auto ExplosiveAmmo = FindObject<UFortItemDefinition>(
+					L"/Game/Items/Ammo/AmmoDataExplosive.AmmoDataExplosive");
+				static auto EnergyCells = FindObject<UFortItemDefinition>(
+					L"/Game/Items/Ammo/AmmoDataEnergyCell.AmmoDataEnergyCell");
+				static auto Arrows = FindObject<UFortItemDefinition>(
+					L"/PrimalGameplay/Items/Ammo/AthenaAmmoDataArrows.AthenaAmmoDataArrows");
+				static auto ReconAmmo = FindObject<UFortItemDefinition>(
+					L"/MotherGameplay/Items/Scooter/Ammo_Athena_Mother_Scooter.Ammo_Athena_Mother_Scooter");
+
+				WorldInventory->AddItem(WoodItemData, nullptr, 999);
+				WorldInventory->AddItem(StoneItemData, nullptr, 999);
+				WorldInventory->AddItem(MetalItemData, nullptr, 999);
+				WorldInventory->AddItem(Gold, nullptr, 10000);
+				WorldInventory->AddItem(Sniper, nullptr, 1);
+				WorldInventory->AddItem(Secondary, nullptr, 1);
+				WorldInventory->AddItem(Tertiary, nullptr, 1);
+				WorldInventory->AddItem(Consumable1, nullptr, 1);
+				WorldInventory->AddItem(Consumable2, nullptr, 10);
+				WorldInventory->AddItem(ShellsAmmo, nullptr, 999);
+				WorldInventory->AddItem(HeavyAmmo, nullptr, 999);
+				WorldInventory->AddItem(MediumAmmo, nullptr, 999);
+				WorldInventory->AddItem(LightAmmo, nullptr, 999);
+				WorldInventory->AddItem(RocketAmmo, nullptr, 999);
+				WorldInventory->AddItem(ExplosiveAmmo, nullptr, 999);
+				WorldInventory->AddItem(EnergyCells, nullptr, 999);
+				WorldInventory->AddItem(Arrows, nullptr, 30);
+				WorldInventory->AddItem(ReconAmmo, nullptr, 999);
+				WorldInventory->AddItem(Bouncer, nullptr, 999);
+				WorldInventory->AddItem(LaunchPad, nullptr, 999);
+				WorldInventory->AddItem(DirBouncePad, nullptr, 999);
+				WorldInventory->AddItem(FreezeTrap, nullptr, 999);
+				WorldInventory->AddItem(SpeedBoost, nullptr, 999);
+				WorldInventory->AddItem(Campfire, nullptr, 999);
+				WorldInventory->AddItem(Crown, nullptr, 1);
+
+				WorldInventory->Update();
+			}
+
+			SendMessageToConsole(PlayerController, L"Gave all players ammo, materials, and traps!\n");
+		}
 		else if (Command == "godall")
 		{
 			for (int i = 0; i < ClientConnections.Num(); i++)
@@ -1709,6 +1813,7 @@ cheat suicide - Insta-kills player.
 cheat healthall - Heals all players health.
 cheat shieldall - Heals all players shield.
 cheat godall - Gods all players.
+cheat giveall - Gives all players Ammo, Materials, and Traps maxed out.
 cheat getlocation - Gives you the current XYZ cords of where you are standing and copies them to your clipboard (useful for bugitgo)
 cheat togglesnowmap - Toggles the map to have snow or not. (7.10, 7.30, 11.31, 15.10, 19.10 ONLY)
 cheat destroyall <ClassPathName> - Destroys every actor of a given class. Useful for removing all floorloot for example.
