@@ -228,15 +228,15 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Assault_Auto_Athena_R_Ore_T03";
 			}
-			else if (weaponName == "ar_vr")
+			else if (weaponName == "ar_vr" || weaponName == "scar_vr")
 			{
 				weaponName = "WID_Assault_AutoHigh_Athena_VR_Ore_T03";
 			}
-			else if (weaponName == "ar_sr")
+			else if (weaponName == "ar_sr" || weaponName == "scar_sr")
 			{
 				weaponName = "WID_Assault_AutoHigh_Athena_SR_Ore_T03";
 			}
-			else if (weaponName == "ar_ur")
+			else if (weaponName == "ar_ur" || weaponName == "scar_ur")
 			{
 				weaponName = "WID_Boss_Adventure_AR";
 			}
@@ -444,7 +444,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_GrenadeLauncher_Prox_Athena_SR";
 			}
-			else if (weaponName == "xenonbow")
+			else if (weaponName == "xenonbow" || weaponName == "xenon" || weaponName == "stwbow")
 			{
 				weaponName = "WID_Sniper_Neon_Bow_SR_Crystal_T04";
 			}
@@ -455,10 +455,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			else if (weaponName == "rift")
 			{
 				weaponName = "Athena_Rift_Item";
-			}
-			else if (weaponName == "snowman" || weaponName == "snowmen")
-			{
-				weaponName = "AGID_SneakySnowmanV2";
 			}
 			else if (weaponName == "crashpad")
 			{
@@ -508,10 +504,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "Athena_SuperTowerGrenade_A";
 			}
-			else if (weaponName == "presents" || weaponName == "present")
-			{
-				weaponName = "Athena_BirthdayGiftBox";
-			}
 			else if (weaponName == "hopflop" || weaponName == "hopflopper")
 			{
 				weaponName = "WID_Athena_Flopper_HopFlopper";
@@ -528,7 +520,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "Athena_ChillBronco";
 			}
-			else if (weaponName == "minis" || weaponName == "mini")
+			else if (weaponName == "minis")
 			{
 				weaponName = "Athena_ShieldSmall";
 			}
@@ -552,15 +544,11 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Athena_Grenade_Molotov";
 			}
-			else if (weaponName == "tire")
+			else if (weaponName == "tire" || weaponName == "tires" || weaponName == "tyre")
 			{
 				weaponName = "ID_ValetMod_Tires_OffRoad_Thrown";
 			}
-			else if (weaponName == "spiderman" || weaponName == "spider-man")
-			{
-				weaponName = "WID_WestSausage_Parallel";
-			}
-			else if (weaponName == "doomgauntlets")
+			else if (weaponName == "doomgauntlets" || weaponName == "doom")
 			{
 				weaponName = "WID_HighTower_Date_ChainLightning_CoreBR";
 			}
@@ -620,10 +608,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Bow_Shockwave_Athena_SR";
 			}
-			else if (weaponName == "icygrap" || weaponName == "icygrappler")
-			{
-				weaponName = "WID_Athena_IcyGrapple";
-			}
 			else if (weaponName == "stwpumpkin" || weaponName == "stwrocket")
 			{
 				weaponName = "WID_Launcher_Pumpkin_RPG_SR_Ore_T01";
@@ -645,6 +629,28 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				else
 				{
 					weaponName = "WID_Hook_Gun_Slide";
+				}
+			}
+			else if (weaponName == "presents" || weaponName == "present")
+			{
+				if (Fortnite_Version < 15)
+				{
+					weaponName = "Athena_GiftBox";
+				}
+				else
+				{
+					weaponName = "Athena_HolidayGiftBox";
+				}
+			}
+			else if (weaponName == "snowman" || weaponName == "snowmen")
+			{
+				if (Fortnite_Version < 11)
+				{
+					weaponName = "Athena_SneakySnowman";
+				}
+				else
+				{
+					weaponName = "AGID_SneakySnowmanV2";
 				}
 			}
 
