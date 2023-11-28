@@ -1756,7 +1756,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			}
 
 			SendMessageToConsole(PlayerController, L"Gave all players ammo, materials, and traps!\n");
-			}
+		}
 		else if (Command == "godall")
 		{
 			for (int i = 0; i < ClientConnections.Num(); i++)
