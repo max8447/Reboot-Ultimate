@@ -3,6 +3,7 @@
 #include "FortPawn.h"
 #include "TSubclassOf.h"
 #include "moderation.h"
+#include "gui.h"
 
 void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 {
@@ -1004,6 +1005,16 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			Pawn->CopyToClipboard(Loc);
 		}
+		else if (Command == "startaircraft")
+		{
+			if (bStartedBus)
+				SendMessageToConsole(ReceivingController, L"Bus has already started!");
+				return;
+
+			UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"startaircraft", ReceivingController);
+
+			SendMessageToConsole(ReceivingController, L"Started bus.");
+		}
 		else if (Command == "listplayers")
 		{
 			std::string PlayerNames;
@@ -1717,6 +1728,7 @@ cheat damagetarget <Damage=0.f> - Damages the Actor in front of you by the speci
 cheat mang <CheatCommand> - Executes the given cheat command from Fortnite's built in CheatManager on the executing player (Ignore if you don't know what this does).
 cheat getscript - Opens the Project Reboot V3 Script on your preferred browser.
 cheat killserver - Ends the running task of the hosting window.
+cheat startairctaft - Starts the bus.
 
 If you want to execute a command on a certain player, surround their name (case sensitive) with \, and put the param with their name anywhere. Example: cheat sethealth \Milxnor\ 100
 )";
