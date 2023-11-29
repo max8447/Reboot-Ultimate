@@ -229,15 +229,15 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Assault_Auto_Athena_R_Ore_T03";
 			}
-			else if (weaponName == "ar_vr")
+			else if (weaponName == "ar_vr" || weaponName == "scar_vr")
 			{
 				weaponName = "WID_Assault_AutoHigh_Athena_VR_Ore_T03";
 			}
-			else if (weaponName == "ar_sr")
+			else if (weaponName == "ar_sr" || weaponName == "scar_sr")
 			{
 				weaponName = "WID_Assault_AutoHigh_Athena_SR_Ore_T03";
 			}
-			else if (weaponName == "ar_ur")
+			else if (weaponName == "ar_ur" || weaponName == "scar_ur")
 			{
 				weaponName = "WID_Boss_Adventure_AR";
 			}
@@ -445,7 +445,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_GrenadeLauncher_Prox_Athena_SR";
 			}
-			else if (weaponName == "xenonbow")
+			else if (weaponName == "xenonbow" || weaponName == "xenon" || weaponName == "stwbow")
 			{
 				weaponName = "WID_Sniper_Neon_Bow_SR_Crystal_T04";
 			}
@@ -456,10 +456,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			else if (weaponName == "rift")
 			{
 				weaponName = "Athena_Rift_Item";
-			}
-			else if (weaponName == "snowman" || weaponName == "snowmen")
-			{
-				weaponName = "AGID_SneakySnowmanV2";
 			}
 			else if (weaponName == "crashpad")
 			{
@@ -509,10 +505,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "Athena_SuperTowerGrenade_A";
 			}
-			else if (weaponName == "presents" || weaponName == "present")
-			{
-				weaponName = "Athena_BirthdayGiftBox";
-			}
 			else if (weaponName == "hopflop" || weaponName == "hopflopper")
 			{
 				weaponName = "WID_Athena_Flopper_HopFlopper";
@@ -529,7 +521,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "Athena_ChillBronco";
 			}
-			else if (weaponName == "minis" || weaponName == "mini")
+			else if (weaponName == "minis")
 			{
 				weaponName = "Athena_ShieldSmall";
 			}
@@ -553,15 +545,11 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Athena_Grenade_Molotov";
 			}
-			else if (weaponName == "tire")
+			else if (weaponName == "tire" || weaponName == "tires" || weaponName == "tyre")
 			{
 				weaponName = "ID_ValetMod_Tires_OffRoad_Thrown";
 			}
-			else if (weaponName == "spiderman" || weaponName == "spider-man")
-			{
-				weaponName = "WID_WestSausage_Parallel";
-			}
-			else if (weaponName == "doomgauntlets")
+			else if (weaponName == "doomgauntlets" || weaponName == "doom")
 			{
 				weaponName = "WID_HighTower_Date_ChainLightning_CoreBR";
 			}
@@ -593,10 +581,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Athena_HappyGhost_Infinite";
 			}
-			else if (weaponName == "grappler" || weaponName == "grap" || weaponName == "grapple")
-			{
-				weaponName = "WID_Hook_Gun_Slide";
-			}
 			else if (weaponName == "jules" || weaponName == "julesgrappler" || weaponName == "julesgrap")
 			{
 				weaponName = "WID_Boss_GrapplingHoot";
@@ -625,10 +609,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Bow_Shockwave_Athena_SR";
 			}
-			else if (weaponName == "icygrap" || weaponName == "icygrappler")
-			{
-				weaponName = "WID_Athena_IcyGrapple";
-			}
 			else if (weaponName == "stwpumpkin" || weaponName == "stwrocket")
 			{
 				weaponName = "WID_Launcher_Pumpkin_RPG_SR_Ore_T01";
@@ -641,12 +621,45 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_GravyGoblinV2_Athena";
 			}
+			else if (weaponName == "grappler" || weaponName == "grap" || weaponName == "grapple")
+			{
+				if (Fortnite_Version < 7)
+				{
+					weaponName = "WID_Hook_Gun_VR_Ore_T03";
+				}
+				else
+				{
+					weaponName = "WID_Hook_Gun_Slide";
+				}
+			}
+			else if (weaponName == "presents" || weaponName == "present")
+			{
+				if (Fortnite_Version < 15)
+				{
+					weaponName = "Athena_GiftBox";
+				}
+				else
+				{
+					weaponName = "Athena_HolidayGiftBox";
+				}
+			}
+			else if (weaponName == "snowman" || weaponName == "snowmen")
+			{
+				if (Fortnite_Version < 11)
+				{
+					weaponName = "Athena_SneakySnowman";
+				}
+				else
+				{
+					weaponName = "AGID_SneakySnowmanV2";
+				}
+			}
 
 			auto WID = Cast<UFortWorldItemDefinition>(FindObject(weaponName, nullptr, ANY_PACKAGE));
 
 			if (!WID)
 			{
-				SendMessageToConsole(PlayerController, L"Invalid WID! This might mean the item you're looking for may not exist in the current version!");
+				SendMessageToConsole(PlayerController, L"Invalid WID! This usually means you either have the wrong name of an item, or the item doesn't exist on your version!");
 				return;
 			}
 
@@ -1657,6 +1670,110 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Healed all players shield!\n");
 		}
+		else if (Command == "giveall")
+		{
+			static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
+			auto WorldNetDriver = GetWorld()->Get<UNetDriver*>(World_NetDriverOffset);
+			auto& ClientConnections = WorldNetDriver->GetClientConnections();
+
+			for (int z = 0; z < ClientConnections.Num(); z++)
+			{
+				auto ClientConnection = ClientConnections.at(z);
+				auto FortPC = Cast<AFortPlayerController>(ClientConnection->GetPlayerController());
+
+				if (!FortPC)
+					continue;
+
+				auto WorldInventory = FortPC->GetWorldInventory();
+
+				if (!WorldInventory)
+					continue;
+
+				static auto WoodItemData = FindObject<UFortItemDefinition>(
+					L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+				static auto StoneItemData = FindObject<UFortItemDefinition>(
+					L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+				static auto MetalItemData = FindObject<UFortItemDefinition>(
+					L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+				static auto Gold = FindObject<UFortItemDefinition>(
+					L"/Game/Items/ResourcePickups/Athena_WadsItemData.Athena_WadsItemData");
+				static auto Crown = FindObject<UFortItemDefinition>(
+					L"/VictoryCrownsGameplay/Items/AGID_VictoryCrown.AGID_VictoryCrown");
+
+				static auto Sniper = FindObject<UFortItemDefinition>(
+					L"");
+				static auto Secondary = FindObject<UFortItemDefinition>(
+					L"");
+				static auto Tertiary = FindObject<UFortItemDefinition>(
+					L"");
+				static auto Consumable1 = FindObject<UFortItemDefinition>(
+					L"");
+				static auto Consumable2 = FindObject<UFortItemDefinition>(
+					L"");
+
+				static auto Bouncer = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Traps/TID_Context_BouncePad_Athena.TID_Context_BouncePad_Athena");
+				static auto LaunchPad = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Traps/TID_Floor_Player_Launch_Pad_Athena.TID_Floor_Player_Launch_Pad_Athena");
+				static auto DirBouncePad = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Traps/TID_Floor_Player_Jump_Pad_Free_Direction_Athena.TID_Floor_Player_Jump_Pad_Free_Direction_Athena");
+				static auto FreezeTrap = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Traps/TID_Context_Freeze_Athena.TID_Context_Freeze_Athena");
+				static auto SpeedBoost = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Traps/TID_Context_SpeedBoost.TID_Context_SpeedBoost");
+				static auto Campfire = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Traps/TID_Floor_Player_Campfire_Athena.TID_Floor_Player_Campfire_Athena");
+
+				static auto HeavyAmmo = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsHeavy.AthenaAmmoDataBulletsHeavy");
+				static auto ShellsAmmo = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Ammo/AthenaAmmoDataShells.AthenaAmmoDataShells");
+				static auto MediumAmmo = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsMedium.AthenaAmmoDataBulletsMedium");
+				static auto LightAmmo = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsLight.AthenaAmmoDataBulletsLight");
+				static auto RocketAmmo = FindObject<UFortItemDefinition>(
+					L"/Game/Athena/Items/Ammo/AmmoDataRockets.AmmoDataRockets");
+				static auto ExplosiveAmmo = FindObject<UFortItemDefinition>(
+					L"/Game/Items/Ammo/AmmoDataExplosive.AmmoDataExplosive");
+				static auto EnergyCells = FindObject<UFortItemDefinition>(
+					L"/Game/Items/Ammo/AmmoDataEnergyCell.AmmoDataEnergyCell");
+				static auto Arrows = FindObject<UFortItemDefinition>(
+					L"/PrimalGameplay/Items/Ammo/AthenaAmmoDataArrows.AthenaAmmoDataArrows");
+				static auto ReconAmmo = FindObject<UFortItemDefinition>(
+					L"/MotherGameplay/Items/Scooter/Ammo_Athena_Mother_Scooter.Ammo_Athena_Mother_Scooter");
+
+				WorldInventory->AddItem(WoodItemData, nullptr, 999);
+				WorldInventory->AddItem(StoneItemData, nullptr, 999);
+				WorldInventory->AddItem(MetalItemData, nullptr, 999);
+				WorldInventory->AddItem(Gold, nullptr, 10000);
+				WorldInventory->AddItem(Sniper, nullptr, 1);
+				WorldInventory->AddItem(Secondary, nullptr, 1);
+				WorldInventory->AddItem(Tertiary, nullptr, 1);
+				WorldInventory->AddItem(Consumable1, nullptr, 1);
+				WorldInventory->AddItem(Consumable2, nullptr, 10);
+				WorldInventory->AddItem(ShellsAmmo, nullptr, 999);
+				WorldInventory->AddItem(HeavyAmmo, nullptr, 999);
+				WorldInventory->AddItem(MediumAmmo, nullptr, 999);
+				WorldInventory->AddItem(LightAmmo, nullptr, 999);
+				WorldInventory->AddItem(RocketAmmo, nullptr, 999);
+				WorldInventory->AddItem(ExplosiveAmmo, nullptr, 999);
+				WorldInventory->AddItem(EnergyCells, nullptr, 999);
+				WorldInventory->AddItem(Arrows, nullptr, 30);
+				WorldInventory->AddItem(ReconAmmo, nullptr, 999);
+				WorldInventory->AddItem(Bouncer, nullptr, 999);
+				WorldInventory->AddItem(LaunchPad, nullptr, 999);
+				WorldInventory->AddItem(DirBouncePad, nullptr, 999);
+				WorldInventory->AddItem(FreezeTrap, nullptr, 999);
+				WorldInventory->AddItem(SpeedBoost, nullptr, 999);
+				WorldInventory->AddItem(Campfire, nullptr, 999);
+				WorldInventory->AddItem(Crown, nullptr, 1);
+
+				WorldInventory->Update();
+			}
+
+			SendMessageToConsole(PlayerController, L"Gave all players ammo, materials, and traps!\n");
+		}
 		else if (Command == "godall")
 		{
 			for (int i = 0; i < ClientConnections.Num(); i++)
@@ -1699,7 +1816,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		FString HelpMessage = LR"(
 cheat giveitem <ShortWID> <Count=1> - Gives a weapon to the executing player, if inventory is full drops a pickup on the player.
 cheat grant <name_rarity> (ex: rocket_sr) - Gives a weapon using a shortcut name, without ID.
-cheat summon/spawn <BlueprintClassPathName> <Count=1> - Summons the specified blueprint class at the executing player's location. Note: There is a limit on the count.
+cheat summon <BlueprintClassPathName> <Count=1> - Summons the specified blueprint class at the executing player's location. Note: There is a limit on the count.
 cheat bugitgo <X> <Y> <Z> - Teleport to a location.
 cheat launch/fling <X> <Y> <Z> - Launches a player.
 cheat listplayers - Gives you all players names.
@@ -1720,6 +1837,7 @@ cheat suicide - Insta-kills player.
 cheat healthall - Heals all players health.
 cheat shieldall - Heals all players shield.
 cheat godall - Gods all players.
+cheat giveall - Gives all players Ammo, Materials, and Traps maxed out.
 cheat getlocation - Gives you the current XYZ cords of where you are standing and copies them to your clipboard (useful for bugitgo)
 cheat togglesnowmap - Toggles the map to have snow or not. (7.10, 7.30, 11.31, 15.10, 19.10 ONLY)
 cheat destroyall <ClassPathName> - Destroys every actor of a given class. Useful for removing all floorloot for example.
