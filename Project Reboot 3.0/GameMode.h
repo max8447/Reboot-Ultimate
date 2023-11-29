@@ -2,11 +2,20 @@
 
 #include "GameModeBase.h"
 
+#include "FortPlayerControllerAthena.h"
+
 class AGameMode : public AGameModeBase
 {
 public:
 
 	void RestartGame();
+
+	UAthenaBattleBusItemDefinition* GetDefaultBattleBusSkin()
+	{
+		static auto DefaultBattleBusSkinOffset = Fortnite_Version < 10 ? FindOffsetStruct("/Script/FortniteGame/GameDataCosmetics", "DefaultBattleBusSkin") :
+			FindOffsetStruct("/Script/FortniteGame.AthenaGameData", "DefaultBattleBusSkin");
+		return *(UAthenaBattleBusItemDefinition**)(__int64(this) + DefaultBattleBusSkinOffset);
+	}
 
 	class AGameState*& GetGameState()
 	{

@@ -287,3 +287,13 @@ public:
 		return Class;
 	}
 };
+
+class UAthenaCosmeticItemDefinition : public UFortItemDefinition // UFortAccountItemDefinition
+{
+public:
+};
+
+class UAthenaBattleBusItemDefinition : public UAthenaCosmeticItemDefinition
+{
+public:
+};

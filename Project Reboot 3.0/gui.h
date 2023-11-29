@@ -43,6 +43,7 @@
 #include "vendingmachine.h"
 #include "die.h"
 #include "calendar.h"
+#include "GameMode.h"
 
 #define GAME_TAB 1
 #define PLAYERS_TAB 2
@@ -160,6 +161,34 @@ static inline void Restart() // todo move?
 	*/
 
 	// UGameplayStatics::OpenLevel(GetWorld(), UKismetStringLibrary::Conv_StringToName(LevelA), true, FString());
+}
+
+static inline void OverrideBattleBus(AGameMode* GameMode, AFortGameStateAthena* GameState,UObject* OverrideBattleBusSkin)
+{
+	static auto DefaultBattleBusSkin = GameMode->GetDefaultBattleBusSkin();
+
+	static auto DefaultBattleBusOffset = GameState->GetOffset("DefaultBattleBus");
+	GameState->Get(DefaultBattleBusOffset) = OverrideBattleBusSkin;
+
+	static auto FortAthenaAircraftClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAircraft");
+	auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
+
+	for (int i = 0; i < AllAircrafts.Num(); i++)
+	{
+		auto Aircraft = AllAircrafts.at(i);
+
+		static auto DefaultBusSkinOffset = Aircraft->GetOffset("DefaultBusSkin");
+		Aircraft->Get(DefaultBusSkinOffset) = OverrideBattleBusSkin;
+
+		static auto SpawnedCosmeticActorOffset = Aircraft->GetOffset("SpawnedCosmeticActor");
+		auto SpawnedCosmeticActor = Aircraft->Get<AActor*>(SpawnedCosmeticActorOffset);
+
+		if (SpawnedCosmeticActor)
+		{
+			static auto ActiveSkinOffset = SpawnedCosmeticActor->GetOffset("ActiveSkin");
+			SpawnedCosmeticActor->Get(ActiveSkinOffset) = OverrideBattleBusSkin;
+		}
+	}
 }
 
 static inline std::string wstring_to_utf8(const std::wstring& str)
@@ -862,43 +891,7 @@ static inline void MainUI()
 
 								if (OverrideBattleBusSkin)
 								{
-									static auto AssetManagerOffset = GetEngine()->GetOffset("AssetManager");
-									auto AssetManager = GetEngine()->Get(AssetManagerOffset);
-
-									if (AssetManager)
-									{
-										static auto AthenaGameDataOffset = AssetManager->GetOffset("AthenaGameData");
-										auto AthenaGameData = AssetManager->Get(AthenaGameDataOffset);
-
-										if (AthenaGameData)
-										{
-											static auto DefaultBattleBusSkinOffset = AthenaGameData->GetOffset("DefaultBattleBusSkin");
-											AthenaGameData->Get(DefaultBattleBusSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
-
-									static auto DefaultBattleBusOffset = GameState->GetOffset("DefaultBattleBus");
-									GameState->Get(DefaultBattleBusOffset) = OverrideBattleBusSkin;
-
-									static auto FortAthenaAircraftClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAircraft");
-									auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
-
-									for (int i = 0; i < AllAircrafts.Num(); i++)
-									{
-										auto Aircraft = AllAircrafts.at(i);
-
-										static auto DefaultBusSkinOffset = Aircraft->GetOffset("DefaultBusSkin");
-										Aircraft->Get(DefaultBusSkinOffset) = OverrideBattleBusSkin;
-
-										static auto SpawnedCosmeticActorOffset = Aircraft->GetOffset("SpawnedCosmeticActor");
-										auto SpawnedCosmeticActor = Aircraft->Get<AActor*>(SpawnedCosmeticActorOffset);
-
-										if (SpawnedCosmeticActor)
-										{
-											static auto ActiveSkinOffset = SpawnedCosmeticActor->GetOffset("ActiveSkin");
-											SpawnedCosmeticActor->Get(ActiveSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
+									OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);
 								}
 							}
 							else if (Fortnite_Version == 14.20 || Fortnite_Version == 18.00) // Birthday
@@ -908,43 +901,7 @@ static inline void MainUI()
 
 								if (OverrideBattleBusSkin)
 								{
-									static auto AssetManagerOffset = GetEngine()->GetOffset("AssetManager");
-									auto AssetManager = GetEngine()->Get(AssetManagerOffset);
-
-									if (AssetManager)
-									{
-										static auto AthenaGameDataOffset = AssetManager->GetOffset("AthenaGameData");
-										auto AthenaGameData = AssetManager->Get(AthenaGameDataOffset);
-
-										if (AthenaGameData)
-										{
-											static auto DefaultBattleBusSkinOffset = AthenaGameData->GetOffset("DefaultBattleBusSkin");
-											AthenaGameData->Get(DefaultBattleBusSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
-
-									static auto DefaultBattleBusOffset = GameState->GetOffset("DefaultBattleBus");
-									GameState->Get(DefaultBattleBusOffset) = OverrideBattleBusSkin;
-
-									static auto FortAthenaAircraftClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAircraft");
-									auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
-
-									for (int i = 0; i < AllAircrafts.Num(); i++)
-									{
-										auto Aircraft = AllAircrafts.at(i);
-
-										static auto DefaultBusSkinOffset = Aircraft->GetOffset("DefaultBusSkin");
-										Aircraft->Get(DefaultBusSkinOffset) = OverrideBattleBusSkin;
-
-										static auto SpawnedCosmeticActorOffset = Aircraft->GetOffset("SpawnedCosmeticActor");
-										auto SpawnedCosmeticActor = Aircraft->Get<AActor*>(SpawnedCosmeticActorOffset);
-
-										if (SpawnedCosmeticActor)
-										{
-											static auto ActiveSkinOffset = SpawnedCosmeticActor->GetOffset("ActiveSkin");
-											SpawnedCosmeticActor->Get(ActiveSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
+									OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);
 								}
 							}
 							else if (Fortnite_Version == 11.10 || Fortnite_Version == 14.40 || Fortnite_Version == 18.20) // Fortnitemares
@@ -954,43 +911,7 @@ static inline void MainUI()
 
 								if (OverrideBattleBusSkin)
 								{
-									static auto AssetManagerOffset = GetEngine()->GetOffset("AssetManager");
-									auto AssetManager = GetEngine()->Get(AssetManagerOffset);
-
-									if (AssetManager)
-									{
-										static auto AthenaGameDataOffset = AssetManager->GetOffset("AthenaGameData");
-										auto AthenaGameData = AssetManager->Get(AthenaGameDataOffset);
-
-										if (AthenaGameData)
-										{
-											static auto DefaultBattleBusSkinOffset = AthenaGameData->GetOffset("DefaultBattleBusSkin");
-											AthenaGameData->Get(DefaultBattleBusSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
-
-									static auto DefaultBattleBusOffset = GameState->GetOffset("DefaultBattleBus");
-									GameState->Get(DefaultBattleBusOffset) = OverrideBattleBusSkin;
-
-									static auto FortAthenaAircraftClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAircraft");
-									auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
-
-									for (int i = 0; i < AllAircrafts.Num(); i++)
-									{
-										auto Aircraft = AllAircrafts.at(i);
-
-										static auto DefaultBusSkinOffset = Aircraft->GetOffset("DefaultBusSkin");
-										Aircraft->Get(DefaultBusSkinOffset) = OverrideBattleBusSkin;
-
-										static auto SpawnedCosmeticActorOffset = Aircraft->GetOffset("SpawnedCosmeticActor");
-										auto SpawnedCosmeticActor = Aircraft->Get<AActor*>(SpawnedCosmeticActorOffset);
-
-										if (SpawnedCosmeticActor)
-										{
-											static auto ActiveSkinOffset = SpawnedCosmeticActor->GetOffset("ActiveSkin");
-											SpawnedCosmeticActor->Get(ActiveSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
+									OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);
 								}
 							}
 
@@ -1022,43 +943,7 @@ static inline void MainUI()
 
 								if (OverrideBattleBusSkin)
 								{
-									static auto AssetManagerOffset = GetEngine()->GetOffset("AssetManager");
-									auto AssetManager = GetEngine()->Get(AssetManagerOffset);
-
-									if (AssetManager)
-									{
-										static auto AthenaGameDataOffset = AssetManager->GetOffset("AthenaGameData");
-										auto AthenaGameData = AssetManager->Get(AthenaGameDataOffset);
-
-										if (AthenaGameData)
-										{
-											static auto DefaultBattleBusSkinOffset = AthenaGameData->GetOffset("DefaultBattleBusSkin");
-											AthenaGameData->Get(DefaultBattleBusSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
-
-									static auto DefaultBattleBusOffset = GameState->GetOffset("DefaultBattleBus");
-									GameState->Get(DefaultBattleBusOffset) = OverrideBattleBusSkin;
-
-									static auto FortAthenaAircraftClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAircraft");
-									auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
-
-									for (int i = 0; i < AllAircrafts.Num(); i++)
-									{
-										auto Aircraft = AllAircrafts.at(i);
-
-										static auto DefaultBusSkinOffset = Aircraft->GetOffset("DefaultBusSkin");
-										Aircraft->Get(DefaultBusSkinOffset) = OverrideBattleBusSkin;
-
-										static auto SpawnedCosmeticActorOffset = Aircraft->GetOffset("SpawnedCosmeticActor");
-										auto SpawnedCosmeticActor = Aircraft->Get<AActor*>(SpawnedCosmeticActorOffset);
-
-										if (SpawnedCosmeticActor)
-										{
-											static auto ActiveSkinOffset = SpawnedCosmeticActor->GetOffset("ActiveSkin");
-											SpawnedCosmeticActor->Get(ActiveSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
+									OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);
 								}
 							}
 							else if (Fortnite_Version == 5.10 || Fortnite_Version == 9.41) // Birthday
@@ -1068,43 +953,7 @@ static inline void MainUI()
 
 								if (OverrideBattleBusSkin)
 								{
-									static auto AssetManagerOffset = GetEngine()->GetOffset("AssetManager");
-									auto AssetManager = GetEngine()->Get(AssetManagerOffset);
-
-									if (AssetManager)
-									{
-										static auto AthenaGameDataOffset = AssetManager->GetOffset("AthenaGameData");
-										auto AthenaGameData = AssetManager->Get(AthenaGameDataOffset);
-
-										if (AthenaGameData)
-										{
-											static auto DefaultBattleBusSkinOffset = AthenaGameData->GetOffset("DefaultBattleBusSkin");
-											AthenaGameData->Get(DefaultBattleBusSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
-
-									static auto DefaultBattleBusOffset = GameState->GetOffset("DefaultBattleBus");
-									GameState->Get(DefaultBattleBusOffset) = OverrideBattleBusSkin;
-
-									static auto FortAthenaAircraftClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAircraft");
-									auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
-
-									for (int i = 0; i < AllAircrafts.Num(); i++)
-									{
-										auto Aircraft = AllAircrafts.at(i);
-
-										static auto DefaultBusSkinOffset = Aircraft->GetOffset("DefaultBusSkin");
-										Aircraft->Get(DefaultBusSkinOffset) = OverrideBattleBusSkin;
-
-										static auto SpawnedCosmeticActorOffset = Aircraft->GetOffset("SpawnedCosmeticActor");
-										auto SpawnedCosmeticActor = Aircraft->Get<AActor*>(SpawnedCosmeticActorOffset);
-
-										if (SpawnedCosmeticActor)
-										{
-											static auto ActiveSkinOffset = SpawnedCosmeticActor->GetOffset("ActiveSkin");
-											SpawnedCosmeticActor->Get(ActiveSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
+									OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);
 								}
 							}
 							else if (Fortnite_Version == 1.8 || Fortnite_Version == 6.20) // Fortnitemares
