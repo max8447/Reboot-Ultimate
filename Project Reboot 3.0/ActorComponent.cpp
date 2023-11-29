@@ -9,3 +9,11 @@ AActor* UActorComponent::GetOwner()
 	this->ProcessEvent(GetOwnerFn, &Owner);
 	return Owner;
 }
+
+void UFortHeldObjectComponent::OnThrowCompleteHook()
+{
+	static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortHeldObjectComponent.OnThrowComplete");
+	this->ProcessEvent(fn, nullptr);
+
+	LOG_INFO(LogGame, "Called OnThrowComplete!");
+}

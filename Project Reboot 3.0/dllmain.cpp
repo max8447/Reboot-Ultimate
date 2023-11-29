@@ -1010,6 +1010,11 @@ DWORD WINAPI Main(LPVOID)
         }
     }
 
+    static auto FortHeldObjectComponentDefault = FindObject<UFortHeldObjectComponent>(L"/Script/FortniteGame.Default__FortHeldObjectComponent");
+
+    //Hooking::MinHook::Hook(FortHeldObjectComponentDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortHeldObjectComponent.OnThrowComplete"),
+      //  UFortHeldObjectComponent::OnThrowCompleteHook, nullptr, false);
+
     Hooking::MinHook::Hook((PVOID)Addresses::GetPlayerViewpoint, (PVOID)AFortPlayerControllerAthena::GetPlayerViewPointHook, (PVOID*)&AFortPlayerControllerAthena::GetPlayerViewPointOriginal);
 
     Hooking::MinHook::Hook((PVOID)Addresses::TickFlush, (PVOID)UNetDriver::TickFlushHook, (PVOID*)&UNetDriver::TickFlushOriginal);
