@@ -1846,7 +1846,7 @@ cheat damagetarget <Damage=0.f> - Damages the Actor in front of you by the speci
 cheat mang <CheatCommand> - Executes the given cheat command from Fortnite's built in CheatManager on the executing player (Ignore if you don't know what this does).
 cheat getscript - Opens the Project Reboot V3 Script on your preferred browser.
 cheat killserver - Ends the running task of the hosting window.
-cheat startairctaft - Starts the bus.
+cheat startaircraft - Starts the bus.
 
 If you want to execute a command on a certain player, surround their name (case sensitive) with \, and put the param with their name anywhere. Example: cheat sethealth \Milxnor\ 100
 )";
