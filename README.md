@@ -17,6 +17,7 @@
 - Backbling, Glider, and Wrap Commands
 - cheat applycid (cheat skin) gives HID as well
 - More gun commands/wordings of existing gun commands in cheat grant
+- Add stutter (we might have what causes it now)
 
 # Links
 
