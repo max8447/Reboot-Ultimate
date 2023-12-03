@@ -945,7 +945,7 @@ static inline void MainUI()
 									OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);
 								}
 							}
-							else if (Fortnite_Version == 12.30 || Fortnite_Version == 12.40 || Fortnite_Version == 12.41 || Fortnite_Version == 12.50 || Fortnite_Version == 12.60 || Fortnite_Version == 12.61) // Deadpool
+							else if (Fortnite_Version >= 12.30 && Fortnite_Version <= 12.61) // Deadpool
 							{
 								static auto OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_DonutBus.BBID_DonutBus");
 								LOG_INFO(LogDev, "OverrideBattleBusSkin: {}", __int64(OverrideBattleBusSkin));
