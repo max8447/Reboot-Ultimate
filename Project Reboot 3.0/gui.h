@@ -921,7 +921,7 @@ static inline void MainUI()
 							auto GameMode = (AFortGameMode*)GetWorld()->GetGameMode();
 							auto GameState = Cast<AFortGameStateAthena>(GameMode->GetGameState());
 
-							AmountOfPlayersWhenBusStart = GameState->GetPlayersLeft(); // scuffed!!!!
+							AmountOfPlayersWhenBusStart = GameState->GetPlayersLeft();
 
 							static UObject* OverrideBattleBusSkin = nullptr;
 

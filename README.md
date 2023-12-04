@@ -12,16 +12,16 @@
 
 ## To Do:
 
-- Fix 19.10 Teams
-- Remove Traps if 19.10
+- Fix Vehicle Crash on versions < 8
 - Vehicle Command (similar to cheat grant)
 - Backbling, Glider, and Wrap Commands
 - cheat applycid (cheat skin) gives HID as well
 - More gun commands/wordings of existing gun commands in cheat grant
+- Add stutter (we might have what causes it now)
 
 # Links
 
-- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1178876481854775416/RebootUltimate.dll?ex=6577bd47&is=65654847&hm=96677508fba533c1f1e8638e50d1e867bb24f17bb2c69b91f10ff34e96476700&)
+- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1179583307613208596/RebootUltimate.dll?ex=657a4f90&is=6567da90&hm=8d54e9cf9a424628c3d0afff17996ce2780f970fa54f200c87e8a967583ea437&)
 
 - [Original Project Reboot 3.0 Github](https://github.com/Milxnor/Project-Reboot-3.0)
 

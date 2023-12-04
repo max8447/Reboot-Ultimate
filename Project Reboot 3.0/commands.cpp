@@ -5,6 +5,48 @@
 #include "moderation.h"
 #include "gui.h"
 
+bool Summon(AFortPlayerControllerAthena* PlayerController, std::string Class, int Count)
+{
+	auto Pawn = PlayerController->GetPawn();
+
+	if (!Pawn)
+	{
+		SendMessageToConsole(PlayerController, L"No pawn to spawn class at!");
+		return false;
+	}
+
+	static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
+	static auto ClassClass = FindObject<UClass>(L"/Script/CoreUObject.Class");
+	auto ClassObj = Class.contains("/Script/") ? FindObject<UClass>(Class, ClassClass) : LoadObject<UClass>(Class, BGAClass); // scuffy
+
+	if (ClassObj)
+	{
+		int AmountSpawned = 0;
+
+		for (int i = 0; i < Count; i++)
+		{
+			auto Loc = Pawn->GetActorLocation();
+			Loc.Z += 1000;
+			auto NewActor = GetWorld()->SpawnActor<AActor>(ClassObj, Loc, FQuat(), FVector(1, 1, 1));
+
+			if (!NewActor)
+			{
+				SendMessageToConsole(PlayerController, L"Failed to spawn an actor!");
+			}
+			else
+			{
+				AmountSpawned++;
+			}
+		}
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+
 void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 {
 	if (!Msg.Data.Data || Msg.Data.Num() <= 0)
@@ -241,6 +283,14 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Boss_Adventure_AR";
 			}
+			else if (weaponName == "minigun_vr")
+			{
+				weaponName = "WID_Assault_LMG_Athena_VR_Ore_T03";
+			}
+			else if (weaponName == "minigun_sr")
+			{
+				weaponName = "WID_Assault_LMG_Athena_SR_Ore_T03";
+			}
 			else if (weaponName == "godgun")
 			{
 				weaponName = "TestGod";
@@ -269,7 +319,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Pistol_Flintlock_Athena_UC";
 			}
-			else if (weaponName == "flight")
+			else if (weaponName == "flight" || weaponName == "flightknock" || weaponName == "yeetpistol")
 			{
 				weaponName = "Builder_WID_YEETknock_UR";
 			}
@@ -553,10 +603,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_HighTower_Date_ChainLightning_CoreBR";
 			}
-			else if (weaponName == "ironman" || weaponName == "iron-man")
-			{
-				weaponName = "AGID_AshtonPack_Indigo";
-			}
 			else if (weaponName == "dub")
 			{
 				weaponName = "WID_WaffleTruck_Dub";
@@ -623,7 +669,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			}
 			else if (weaponName == "grappler" || weaponName == "grap" || weaponName == "grapple")
 			{
-				if (Fortnite_Version < 7)
+				if (Fortnite_Version < 7.10)
 				{
 					weaponName = "WID_Hook_Gun_VR_Ore_T03";
 				}
@@ -654,6 +700,17 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 					weaponName = "AGID_SneakySnowmanV2";
 				}
 			}
+			else if (weaponName == "ironman" || weaponName == "iron-man")
+			{
+				if (Fortnite_Version < 14.00 || Fortnite_Version > 14.60)
+				{
+					weaponName = "AGID_AshtonPack_Indigo";
+				}
+				else
+				{
+					weaponName = "WID_HighTower_Tomato_Repulsor_CoreBR";
+				}
+			}
 
 			auto WID = Cast<UFortWorldItemDefinition>(FindObject(weaponName, nullptr, ANY_PACKAGE));
 
@@ -670,6 +727,27 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				WorldInventory->Update();
 
 			SendMessageToConsole(PlayerController, L"Granted item!");
+		}
+		else if (Command == "vehicle")
+				{
+					if (NumArgs < 1)
+					{
+						SendMessageToConsole(ReceivingController, L"Please provide a vehicle name.");
+						return;
+					}
+
+					std::string vehicle = GetVehicle(Arguments[1]);
+
+					if (
+
+						(ReceivingController, vehicle, 1))
+					{
+						SendMessageToConsole(ReceivingController, L"Vehicle spawned successfully!");
+					}
+					else
+					{
+						SendMessageToConsole(ReceivingController, L"Failed to spawn the vehicle, make sure you have the right name, and it exists in your Fortnite Version.");
+					}
 		}
 		else if (Command == "togglesnowmap")
 		{
@@ -1022,7 +1100,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		{
 			if (bStartedBus)
 				SendMessageToConsole(ReceivingController, L"Bus has already started!");
-				return;
+			return;
 
 			UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"startaircraft", ReceivingController);
 
@@ -1494,7 +1572,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"pausesafezone", nullptr);
 			// GameMode->PauseSafeZone(GameState->IsSafeZonePaused() == 0);
 		}
-		else if (Command == "teleport" || Command == "tp")
+		else if (Command == "teleport" || Command == "tp" || Command == "to")
 		{
 			auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
 
@@ -1846,7 +1924,7 @@ cheat damagetarget <Damage=0.f> - Damages the Actor in front of you by the speci
 cheat mang <CheatCommand> - Executes the given cheat command from Fortnite's built in CheatManager on the executing player (Ignore if you don't know what this does).
 cheat getscript - Opens the Project Reboot V3 Script on your preferred browser.
 cheat killserver - Ends the running task of the hosting window.
-cheat startairctaft - Starts the bus.
+cheat startaircraft - Starts the bus.
 
 If you want to execute a command on a certain player, surround their name (case sensitive) with \, and put the param with their name anywhere. Example: cheat sethealth \Milxnor\ 100
 )";
