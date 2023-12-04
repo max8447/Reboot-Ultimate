@@ -165,6 +165,12 @@ static inline void Restart() // todo move?
 
 static inline void OverrideBattleBus(AGameMode* GameMode, AFortGameStateAthena* GameState,UObject* OverrideBattleBusSkin)
 {
+	if (!OverrideBattleBusSkin)
+	{
+		LOG_WARN(LogGame, "OverrideBattleBus not found! Equipping default battle bus.");
+		return;
+	}
+
 	static auto DefaultBattleBusSkin = GameMode->GetDefaultBattleBusSkin();
 
 	static auto DefaultBattleBusOffset = GameState->GetOffset("DefaultBattleBus");
@@ -884,36 +890,17 @@ static inline void MainUI()
 
 							AmountOfPlayersWhenBusStart = GameState->GetPlayersLeft();
 
-							if (Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.10) // Winterfest
-							{
-								static auto OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus");
-								LOG_INFO(LogDev, "OverrideBattleBusSkin: {}", __int64(OverrideBattleBusSkin));
+							static UObject* OverrideBattleBusSkin = nullptr;
 
-								if (OverrideBattleBusSkin)
-								{
-									OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);
-								}
-							}
-							else if (Fortnite_Version == 14.20 || Fortnite_Version == 18.00) // Birthday
-							{
-								static auto OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_BirthdayBus.BBID_BirthdayBus");
-								LOG_INFO(LogDev, "OverrideBattleBusSkin: {}", __int64(OverrideBattleBusSkin));
+							if (Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.10)
+								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus"); // Winterfest
+							else if (Fortnite_Version == 14.20 || Fortnite_Version == 18.00)
+								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_BirthdayBus.BBID_BirthdayBus"); // Birthday
+							else if (Fortnite_Version == 11.10 || Fortnite_Version == 14.40 || Fortnite_Version == 18.20)
+								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_HalloweenBus.BBID_HalloweenBus"); // Fortnitemares
 
-								if (OverrideBattleBusSkin)
-								{
-									OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);
-								}
-							}
-							else if (Fortnite_Version == 11.10 || Fortnite_Version == 14.40 || Fortnite_Version == 18.20) // Fortnitemares
-							{
-								static auto OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_HalloweenBus.BBID_HalloweenBus");
-								LOG_INFO(LogDev, "OverrideBattleBusSkin: {}", __int64(OverrideBattleBusSkin));
-
-								if (OverrideBattleBusSkin)
-								{
-									OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);
-								}
-							}
+							if (OverrideBattleBusSkin)
+								OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);
 
 							if (Globals::bLateGame.load())
 							{
@@ -936,118 +923,19 @@ static inline void MainUI()
 
 							AmountOfPlayersWhenBusStart = GameState->GetPlayersLeft(); // scuffed!!!!
 
-							if (Fortnite_Version == 1.11 || Fortnite_Version == 7.30) // Winterfest
-							{
-								static auto OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus");
-								LOG_INFO(LogDev, "OverrideBattleBusSkin: {}", __int64(OverrideBattleBusSkin));
+							static UObject* OverrideBattleBusSkin = nullptr;
 
-								if (OverrideBattleBusSkin)
-								{
-									OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);
-								}
-							}
-							else if (Fortnite_Version == 5.10 || Fortnite_Version == 9.41) // Birthday
-							{
-								static auto OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_BirthdayBus.BBID_BirthdayBus");
-								LOG_INFO(LogDev, "OverrideBattleBusSkin: {}", __int64(OverrideBattleBusSkin));
+							if (Fortnite_Version == 1.11 || Fortnite_Version == 7.30)
+								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus"); // Winterfest
+							else if (Fortnite_Version == 5.10 || Fortnite_Version == 9.41)
+								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_BirthdayBus2nd.BBID_BirthdayBus2nd"); // Birthday
+							else if (Fortnite_Version == 1.8 || Fortnite_Version == 6.20)
+								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_HalloweenBus.BBID_HalloweenBus"); // Fortnitemares
+							else if (Fortnite_Version == 9.30)
+								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WorldCupBus.BBID_WorldCupBus"); // World Cup
 
-								if (OverrideBattleBusSkin)
-								{
-									OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);
-								}
-							}
-							else if (Fortnite_Version == 1.8 || Fortnite_Version == 6.20) // Fortnitemares
-							{
-								static auto OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_HalloweenBus.BBID_HalloweenBus");
-								LOG_INFO(LogDev, "OverrideBattleBusSkin: {}", __int64(OverrideBattleBusSkin));
-
-								if (OverrideBattleBusSkin)
-								{
-									static auto AssetManagerOffset = GetEngine()->GetOffset("AssetManager");
-									auto AssetManager = GetEngine()->Get(AssetManagerOffset);
-
-									if (AssetManager)
-									{
-										static auto AthenaGameDataOffset = AssetManager->GetOffset("AthenaGameData");
-										auto AthenaGameData = AssetManager->Get(AthenaGameDataOffset);
-
-										if (AthenaGameData)
-										{
-											static auto DefaultBattleBusSkinOffset = AthenaGameData->GetOffset("DefaultBattleBusSkin");
-											AthenaGameData->Get(DefaultBattleBusSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
-
-									static auto DefaultBattleBusOffset = GameState->GetOffset("DefaultBattleBus");
-									GameState->Get(DefaultBattleBusOffset) = OverrideBattleBusSkin;
-
-									static auto FortAthenaAircraftClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAircraft");
-									auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
-
-									for (int i = 0; i < AllAircrafts.Num(); i++)
-									{
-										auto Aircraft = AllAircrafts.at(i);
-
-										static auto DefaultBusSkinOffset = Aircraft->GetOffset("DefaultBusSkin");
-										Aircraft->Get(DefaultBusSkinOffset) = OverrideBattleBusSkin;
-
-										static auto SpawnedCosmeticActorOffset = Aircraft->GetOffset("SpawnedCosmeticActor");
-										auto SpawnedCosmeticActor = Aircraft->Get<AActor*>(SpawnedCosmeticActorOffset);
-
-										if (SpawnedCosmeticActor)
-										{
-											static auto ActiveSkinOffset = SpawnedCosmeticActor->GetOffset("ActiveSkin");
-											SpawnedCosmeticActor->Get(ActiveSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
-								}
-							}
-							else if (Fortnite_Version == 9.30) // World Cup
-							{
-								static auto OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WorldCupBus.BBID_WorldCupBus");
-								LOG_INFO(LogDev, "OverrideBattleBusSkin: {}", __int64(OverrideBattleBusSkin));
-
-								if (OverrideBattleBusSkin)
-								{
-									static auto AssetManagerOffset = GetEngine()->GetOffset("AssetManager");
-									auto AssetManager = GetEngine()->Get(AssetManagerOffset);
-
-									if (AssetManager)
-									{
-										static auto AthenaGameDataOffset = AssetManager->GetOffset("AthenaGameData");
-										auto AthenaGameData = AssetManager->Get(AthenaGameDataOffset);
-
-										if (AthenaGameData)
-										{
-											static auto DefaultBattleBusSkinOffset = AthenaGameData->GetOffset("DefaultBattleBusSkin");
-											AthenaGameData->Get(DefaultBattleBusSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
-
-									static auto DefaultBattleBusOffset = GameState->GetOffset("DefaultBattleBus");
-									GameState->Get(DefaultBattleBusOffset) = OverrideBattleBusSkin;
-
-									static auto FortAthenaAircraftClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAircraft");
-									auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
-
-									for (int i = 0; i < AllAircrafts.Num(); i++)
-									{
-										auto Aircraft = AllAircrafts.at(i);
-
-										static auto DefaultBusSkinOffset = Aircraft->GetOffset("DefaultBusSkin");
-										Aircraft->Get(DefaultBusSkinOffset) = OverrideBattleBusSkin;
-
-										static auto SpawnedCosmeticActorOffset = Aircraft->GetOffset("SpawnedCosmeticActor");
-										auto SpawnedCosmeticActor = Aircraft->Get<AActor*>(SpawnedCosmeticActorOffset);
-
-										if (SpawnedCosmeticActor)
-										{
-											static auto ActiveSkinOffset = SpawnedCosmeticActor->GetOffset("ActiveSkin");
-											SpawnedCosmeticActor->Get(ActiveSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
-								}
-								}
+							if (OverrideBattleBusSkin)
+								OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);
 
 							static auto WarmupCountdownEndTimeOffset = GameState->GetOffset("WarmupCountdownEndTime");
 							// GameState->Get<float>(WarmupCountdownEndTimeOffset) = UGameplayStatics::GetTimeSeconds(GetWorld()) + 10;
@@ -1141,6 +1029,14 @@ static inline void MainUI()
 					bFirst ? Calendar::SetSnow(NoSnowValue) : Calendar::SetSnow(FullSnowValue);
 
 					bFirst = !bFirst;
+				}
+			}
+
+			else if (Fortnite_Version == 12.61)
+			{
+				if (ImGui::Button("Toggle Water Storm"))
+				{
+					Calendar::SetWaterStorm();
 				}
 			}
 

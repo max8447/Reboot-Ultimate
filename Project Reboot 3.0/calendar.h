@@ -131,4 +131,9 @@ namespace Calendar
 			WL->ProcessEvent(OnRep_CurrentWaterLevel);
 		}
 	}
+
+	static inline void SetWaterStorm()
+	{
+		// TODO Find the damn files // ok i might've found them
+	}
 }
