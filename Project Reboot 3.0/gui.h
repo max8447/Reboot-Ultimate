@@ -895,8 +895,8 @@ static inline void MainUI()
 							if (Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.10)
 								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus"); // Winterfest
 							else if (Fortnite_Version == 14.20 || Fortnite_Version == 18.00)
-								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_BirthdayBus.BBID_BirthdayBus"); // Birthday
-							else if (Fortnite_Version == 11.10 || Fortnite_Version == 14.40 || Fortnite_Version == 18.20)
+								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_BirthdayBus2nd.BBID_BirthdayBus2nd"); // Birthday
+							else if (Fortnite_Version == 11.10 || Fortnite_Version == 14.40 || Fortnite_Version == 18.21)
 								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_HalloweenBus.BBID_HalloweenBus"); // Fortnitemares
 							else if (Fortnite_Version >= 12.30 && Fortnite_Version <= 12.61)
 								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_DonutBus.BBID_DonutBus"); // Deadpool
@@ -927,11 +927,11 @@ static inline void MainUI()
 
 							static UObject* OverrideBattleBusSkin = nullptr;
 
-							if (Fortnite_Version == 1.11 || Fortnite_Version == 7.30)
+							if (Fortnite_Version == 1.11 || Fortnite_Version == 7.10 || Fortnite_Version == 7.20 || Fortnite_Version == 7.30)
 								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus"); // Winterfest
 							else if (Fortnite_Version == 5.10 || Fortnite_Version == 9.41)
 								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_BirthdayBus2nd.BBID_BirthdayBus2nd"); // Birthday
-							else if (Fortnite_Version == 1.8 || Fortnite_Version == 6.20)
+							else if (Fortnite_Version == 1.8 || Fortnite_Version == 6.20 || Fortnite_Version == 6.21)
 								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_HalloweenBus.BBID_HalloweenBus"); // Fortnitemares
 							else if (Fortnite_Version == 9.30)
 								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WorldCupBus.BBID_WorldCupBus"); // World Cup
