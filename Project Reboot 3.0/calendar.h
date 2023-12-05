@@ -134,6 +134,13 @@ namespace Calendar
 
 	static inline void SetWaterStorm()
 	{
-		// TODO Find the damn files // ok i might've found them
+		static auto ApplyStormFXFn = FindObject<UFunction>("/Fritter/Content/BP_Fritter_Experience.ApplyStormFX");
+
+		static auto Fritter_Experience = FindObject("/Fritter/Content/BP_Fritter_Experience.BP_Fritter_Experience_C");
+
+		if (ApplyStormFXFn)
+		{
+			Fritter_Experience->ProcessEvent(ApplyStormFXFn);
+		}
 	}
 }

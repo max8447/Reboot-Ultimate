@@ -728,27 +728,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Granted item!");
 		}
-		else if (Command == "vehicle")
-				{
-					if (NumArgs < 1)
-					{
-						SendMessageToConsole(ReceivingController, L"Please provide a vehicle name.");
-						return;
-					}
-
-					std::string vehicle = GetVehicle(Arguments[1]);
-
-					if (
-
-						(ReceivingController, vehicle, 1))
-					{
-						SendMessageToConsole(ReceivingController, L"Vehicle spawned successfully!");
-					}
-					else
-					{
-						SendMessageToConsole(ReceivingController, L"Failed to spawn the vehicle, make sure you have the right name, and it exists in your Fortnite Version.");
-					}
-		}
 		else if (Command == "togglesnowmap")
 		{
 			if (Calendar::HasSnowModification())
@@ -1366,6 +1345,34 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			}
 
 			SendMessageToConsole(PlayerController, L"Applied CID!");
+		}
+		else if (Command == "applyhid" || Command == "hero")
+		{
+			auto PlayerState = Cast<AFortPlayerState>(ReceivingController->GetPlayerState());
+
+			if (!PlayerState) // ???
+			{
+				SendMessageToConsole(PlayerController, L"No playerstate!");
+				return;
+			}
+
+			auto Pawn = Cast<AFortPlayerPawn>(ReceivingController->GetMyFortPawn());
+
+			std::string HIDStr = Arguments[1];
+			auto HIDDef = FindObject(HIDStr, nullptr, ANY_PACKAGE);
+			// auto CIDDef = UObject::FindObject<UAthenaHeroItemDefinition>(HIDStr);
+
+			if (!HIDDef)
+			{
+				SendMessageToConsole(PlayerController, L"Invalid hero item definition!");
+				return;
+			}
+
+			LOG_INFO(LogDev, "Applying {}", HIDDef->GetFullName());
+
+			ApplyHID(Pawn, HIDDef);
+
+			SendMessageToConsole(PlayerController, L"Applied HID!");
 		}
 		else if (Command == "suicide")
 		{

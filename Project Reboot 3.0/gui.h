@@ -898,6 +898,8 @@ static inline void MainUI()
 								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_BirthdayBus.BBID_BirthdayBus"); // Birthday
 							else if (Fortnite_Version == 11.10 || Fortnite_Version == 14.40 || Fortnite_Version == 18.20)
 								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_HalloweenBus.BBID_HalloweenBus"); // Fortnitemares
+							else if (Fortnite_Version >= 12.30 && Fortnite_Version <= 12.61)
+								OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_DonutBus.BBID_DonutBus"); // Deadpool
 
 							if (OverrideBattleBusSkin)
 								OverrideBattleBus(GameMode, GameState, OverrideBattleBusSkin);

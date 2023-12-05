@@ -54,8 +54,6 @@ public:
 
 	void ClientReportDamagedResourceBuilding(ABuildingSMActor* BuildingSMActor, EFortResourceType PotentialResourceType, int PotentialResourceCount, bool bDestroyed, bool bJustHitWeakspot);
 
-	class AFortPlayerPawn* MyFortPawn;                                        // 0x6B8(0x8)(ZeroConstructor, Transient, IsPlainOldData, NoDestructor, Protected, HasGetValueTypeHash, NativeAccessSpecifierProtected)
-
 	AFortInventory*& GetWorldInventory()
 	{
 		static auto WorldInventoryOffset = GetOffset("WorldInventory");
