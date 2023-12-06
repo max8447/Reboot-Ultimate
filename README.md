@@ -13,7 +13,6 @@
 ## To Do:
 
 - Fix Vehicle Crash on versions < 8
-- Vehicle Command (similar to cheat grant)
 - Backbling, Glider, and Wrap Commands
 - cheat applycid (cheat skin) gives HID as well
 - More gun commands/wordings of existing gun commands in cheat grant
