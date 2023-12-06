@@ -1034,7 +1034,15 @@ static inline void MainUI()
 				}
 			}
 
-			else if (Fortnite_Version == 12.61)
+			if (Calendar::HasNYE())
+			{
+				if (ImGui::Button("Start New Years Eve Event"))
+				{
+					Calendar::StartNYE();
+				}
+			}
+
+			if (Fortnite_Version == 12.61)
 			{
 				if (ImGui::Button("Toggle Water Storm"))
 				{
@@ -1042,7 +1050,7 @@ static inline void MainUI()
 				}
 			}
 
-			else if (std::floor(Fortnite_Version) == 13)
+			if (std::floor(Fortnite_Version) == 13)
 			{
 				static UObject* WL = FindObject("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Apollo_WaterSetup_2");
 				static auto last = AmountOfRestarts;

@@ -8,7 +8,7 @@ namespace Calendar
 {
 	static inline bool HasSnowModification()
 	{
-		return Fortnite_Version == 7.10 || Fortnite_Version == 7.30 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.10;
+		return Fortnite_Version == 7.30 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.10;
 	}
 
 	static inline UObject* GetSnowSetup()
@@ -141,6 +141,26 @@ namespace Calendar
 		if (ApplyStormFXFn)
 		{
 			Fritter_Experience->ProcessEvent(ApplyStormFXFn);
+		}
+	}
+
+	static inline bool HasNYE()
+	{
+		return Fortnite_Version == 7.10 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.01;
+	}
+
+	static inline void StartNYE()
+	{
+		static auto NewYearTimer = FindObject<UObject>("/Game/Athena/Maps/Streaming/Athena_NYE_Celebration.Athena_NYE_Celebration.PersistentLevel.BP_NewYearTimer_2") ? FindObject<UObject>("/Game/Athena/Maps/Streaming/Athena_NYE_Celebration.Athena_NYE_Celebration.PersistentLevel.BP_NewYearTimer_2") :
+			FindObject<UObject>("/NewYears/Content/Levels/Apollo_NYE_Celebration.PersistentLevel.BP_NewYearTimer_2") ? FindObject<UObject>("/NewYears/Content/Levels/Apollo_NYE_Celebration.PersistentLevel.BP_NewYearTimer_2") :
+			FindObject<UObject>("/NewYears/Content/Levels/Artemis_NYE_Celebration.PersistentLevel.BP_NewYearTimer_2");
+
+		static auto StartNYE = FindObject<UFunction>("/Game/Athena/Events/NewYear/BP_NewYearTimer.BP_NewYearTimer.startNYE") ? FindObject<UFunction>("/Game/Athena/Events/NewYear/BP_NewYearTimer.BP_NewYearTimer.startNYE") :
+			FindObject<UFunction>("/NewYears/Blueprints/BP_NewYearTimer.BP_NewYearTimer.startNYE");
+
+		if (NewYearTimer && StartNYE)
+		{
+			NewYearTimer->ProcessEvent(StartNYE);
 		}
 	}
 }
