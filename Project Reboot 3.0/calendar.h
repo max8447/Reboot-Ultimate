@@ -152,15 +152,19 @@ namespace Calendar
 	static inline void StartNYE()
 	{
 		static auto NewYearTimer = FindObject<UObject>("/Game/Athena/Maps/Streaming/Athena_NYE_Celebration.Athena_NYE_Celebration.PersistentLevel.BP_NewYearTimer_2") ? FindObject<UObject>("/Game/Athena/Maps/Streaming/Athena_NYE_Celebration.Athena_NYE_Celebration.PersistentLevel.BP_NewYearTimer_2") :
-			FindObject<UObject>("/NewYears/Content/Levels/Apollo_NYE_Celebration.PersistentLevel.BP_NewYearTimer_2") ? FindObject<UObject>("/NewYears/Content/Levels/Apollo_NYE_Celebration.PersistentLevel.BP_NewYearTimer_2") :
-			FindObject<UObject>("/NewYears/Content/Levels/Artemis_NYE_Celebration.PersistentLevel.BP_NewYearTimer_2");
+			FindObject<UObject>("/NewYears/Content/Levels/Apollo_NYE_Celebration.Apollo_NYE_Celebration.PersistentLevel.BP_NewYearTimer_2") ? FindObject<UObject>("/NewYears/Content/Levels/Apollo_NYE_Celebration.Apollo_NYE_Celebration.PersistentLevel.BP_NewYearTimer_2") :
+			FindObject<UObject>("/NewYears/Content/Levels/Artemis_NYE_Celebration.Artemis_NYE_Celebration.PersistentLevel.BP_NewYearTimer_2");
 
-		static auto StartNYE = FindObject<UFunction>("/Game/Athena/Events/NewYear/BP_NewYearTimer.BP_NewYearTimer.startNYE") ? FindObject<UFunction>("/Game/Athena/Events/NewYear/BP_NewYearTimer.BP_NewYearTimer.startNYE") :
-			FindObject<UFunction>("/NewYears/Blueprints/BP_NewYearTimer.BP_NewYearTimer.startNYE");
+		LOG_INFO(LogDev, "NewYearTimer: {}", NewYearTimer->IsValidLowLevel() ? NewYearTimer->GetFullName() : "BadRead");
+
+		static auto StartNYE = FindObject<UFunction>("/Game/Athena/Events/NewYear/BP_NewYearTimer.BP_NewYearTimer_C.startNYE") ? FindObject<UFunction>("/Game/Athena/Events/NewYear/BP_NewYearTimer.BP_NewYearTimer_C.startNYE") :
+			FindObject<UFunction>("/NewYears/Blueprints/BP_NewYearTimer.BP_NewYearTimer_C.startNYE");
+
+		LOG_INFO(LogDev, "StartNYE: {}", StartNYE->IsValidLowLevel() ? StartNYE->GetFullName() : "BadRead");
 
 		if (NewYearTimer && StartNYE)
 		{
-			NewYearTimer->ProcessEvent(StartNYE);
+			NewYearTimer->ProcessEvent(StartNYE, nullptr);
 		}
 	}
 }
