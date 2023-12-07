@@ -279,7 +279,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Assault_AutoHigh_Athena_SR_Ore_T03";
 			}
-			else if (weaponName == "ar_ur" || weaponName == "scar_ur")
+			else if (weaponName == "ar_ur" || weaponName == "scar_ur" || weaponName == "skyesar" || weaponName == "skyear")
 			{
 				weaponName = "WID_Boss_Adventure_AR";
 			}
@@ -507,7 +507,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "Athena_Rift_Item";
 			}
-			else if (weaponName == "crashpad")
+			else if (weaponName == "crashpad" || weaponName == "crashes" || weaponName == "crash" || weaponName == "crashpads")
 			{
 				weaponName = "WID_Athena_AppleSun";
 			}
@@ -631,7 +631,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Boss_GrapplingHoot";
 			}
-			else if (weaponName == "skyesgrappler" || weaponName == "skye" || weaponName == "skyegrap")
+			else if (weaponName == "skyesgrappler" || weaponName == "skye" || weaponName == "skyegrap" || weaponName == "skyes" || weaponName == "skyesgrap")
 			{
 				weaponName = "WID_Boss_Adventure_GH";
 			}
