@@ -134,13 +134,17 @@ namespace Calendar
 
 	static inline void SetWaterStorm()
 	{
-		static auto ApplyStormFXFn = FindObject<UFunction>("/Fritter/Content/BP_Fritter_Experience.ApplyStormFX");
+		static auto ApplyStormFX = FindObject<UFunction>("/Fritter/Content/BP_Fritter_Experience.BP_Fritter_Experience_C.ApplyStormFX");
 
-		static auto Fritter_Experience = FindObject("/Fritter/Content/BP_Fritter_Experience.BP_Fritter_Experience_C");
+		LOG_INFO(LogDev, "ApplyStormFX: {}", ApplyStormFX->IsValidLowLevel() ? ApplyStormFX->GetFullName() : "BadRead");
 
-		if (ApplyStormFXFn)
+		static auto Fritter_Experience = FindObject<UObject>("/Fritter/Content/BP_Fritter_Experience.BP_Fritter_Experience_C");
+
+		LOG_INFO(LogDev, "Fritter_Experience: {}", Fritter_Experience->IsValidLowLevel() ? Fritter_Experience->GetFullName() : "BadRead");
+
+		if (ApplyStormFX)
 		{
-			Fritter_Experience->ProcessEvent(ApplyStormFXFn);
+			Fritter_Experience->ProcessEvent(ApplyStormFX);
 		}
 	}
 
