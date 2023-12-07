@@ -180,7 +180,7 @@ static inline std::vector<Event> Events =
 
 		"/Game/Athena/Prototype/Blueprints/Cattus/BP_CattusDoggus_Scripting.BP_CattusDoggus_Scripting_C",
 		"/Game/Athena/Playlists/Music/Playlist_Music_High.Playlist_Music_High",
-		9.41, // also 9.41
+		9.41,
 		false
 	),
 	Event

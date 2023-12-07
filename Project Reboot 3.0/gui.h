@@ -107,6 +107,14 @@ static inline LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 template <typename T>
 T* Get(void* addr, uint64_t off) { return (T*)(__int64(addr) + off); }
 
+template<typename T> // ChatGPT ahh shit but I cba
+T GetRandomItem(const std::vector<T>& vec) {
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis(0, static_cast<int>(vec.size()) - 1);
+	return vec[dis(gen)];
+}
+
 static inline void SetIsLategame(bool Value)
 {
 	Globals::bLateGame.store(Value);
@@ -696,16 +704,98 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 		static auto Crown = FindObject<UFortItemDefinition>(
 			L"/VictoryCrownsGameplay/Items/AGID_VictoryCrown.AGID_VictoryCrown");
 
-		static auto Sniper = FindObject<UFortItemDefinition>(
-			L"");
-		static auto Secondary = FindObject<UFortItemDefinition>(
-			L"");
-		static auto Tertiary = FindObject<UFortItemDefinition>(
-			L"");
-		static auto Consumable1 = FindObject<UFortItemDefinition>(
-			L"");
-		static auto Consumable2 = FindObject<UFortItemDefinition>(
-			L"");
+		static std::vector Tertiaries = {
+			"WID_Sniper_NoScope_Athena_SR_Ore_T03",
+			"WID_Sniper_NoScope_Athena_VR_Ore_T03",
+			"WID_Sniper_NoScope_Athena_R_Ore_T03",
+			"WID_Sniper_NoScope_Athena_UC_Ore_T03"
+			"WID_Sniper_Heavy_Athena_SR_Ore_T03",
+			"WID_Sniper_Heavy_Athena_VR_Ore_T03",
+			"WID_Sniper_Heavy_Athena_R_Ore_T03",
+			"WID_Sniper_BoltAction_Scope_Athena_SR_Ore_T03",
+			"WID_Sniper_BoltAction_Scope_Athena_VR_Ore_T03",
+			"WID_Sniper_BoltAction_Scope_Athena_R_Ore_T03",
+			"WID_Sniper_BoltAction_Scope_Athena_UC_Ore_T03",
+			"WID_Sniper_BoltAction_Scope_Athena_C_Ore_T03",
+			"WID_Sniper_Standard_Scope_Athena_SuperRare_Ore_T03",
+			"WID_Sniper_Standard_Scope_Athena_VeryRare_Ore_T03",
+			"WID_Sniper_Standard_Scope_Athena_SR_Ore_T03",
+			"WID_Sniper_Standard_Scope_Athena_VR_Ore_T03",
+			"WID_Pistol_AutoHeavySuppressed_Athena_UC_Ore_T03",
+			"WID_Pistol_AutoHeavySuppressed_Athena_R_Ore_T03",
+			"WID_Pistol_AutoHeavyPDW_Athena_UC_Ore_T03",
+			"WID_Pistol_AutoHeavyPDW_Athena_R_Ore_T03"
+		};
+
+		static std::vector Secondaries = {
+			"WID_Shotgun_Standard_Athena_C_Ore_T03",
+			"WID_Shotgun_Standard_Athena_UC_Ore_T03",
+			"WID_Shotgun_Standard_Athena_VR_Ore_T03",
+			"WID_Shotgun_Standard_Athena_SR_Ore_T03",
+			"WID_Shotgun_SemiAuto_Athena_R_Ore_T03",
+			"WID_Shotgun_SemiAuto_Athena_VR_Ore_T03",
+			"WID_Shotgun_HighSemiAuto_Athena_VR_Ore_T03",
+			"WID_Shotgun_HighSemiAuto_Athena_SR_Ore_T03",
+			"WID_Shotgun_SlugFire_Athena_VR",
+			"WID_Shotgun_SlugFire_Athena_SR",
+			"WID_Shotgun_BreakBarrel_Athena_VR_Ore_T03",
+			"WID_Shotgun_BreakBarrel_Athena_SR_Ore_T03"
+		};
+
+		static std::vector Primaries = {
+			"WID_Assault_Auto_Athena_UC_Ore_T03",
+			"WID_Assault_Auto_Athena_R_Ore_T03",
+			"WID_Assault_AutoHigh_Athena_VR_Ore_T03",
+			"WID_Assault_AutoHigh_Athena_SR_Ore_T03",
+			"WID_Assault_SemiAuto_Athena_UC_Ore_T03",
+			"WID_Assault_SemiAuto_Athena_R_Ore_T03",
+			"WID_Assault_SemiAuto_Athena_VR_Ore_T03",
+			"WID_Assault_SemiAuto_Athena_SR_Ore_T03",
+			"WID_Assault_Suppressed_Athena_VR_Ore_T03",
+			"WID_Assault_Suppressed_Athena_SR_Ore_T03",
+			"WID_Assault_Infantry_Athena_UC",
+			"WID_Assault_Infantry_Athena_R",
+			"WID_Assault_Infantry_Athena_VR",
+			"WID_Assault_Infantry_Athena_SR"
+		};
+
+		static std::vector Consumables1 = {
+			"Athena_ShockGrenade",
+			"WID_Hook_Gun_VR_Ore_T03",
+			"Athena_KnockGrenade",
+			"Athena_Rift_Item",
+			"Athena_GasGrenade",
+			"Athena_Balloons_Consumable",
+			"Athena_TowerGrenade",
+			"Athena_DanceGrenade",
+			"Athena_StickyGrenade",
+			"WID_Pistol_Flintlock_Athena_C",
+			"WID_Pistol_Flintlock_Athena_UC"
+		};
+
+		static std::vector Consumables2 = {
+			"Athena_ShieldSmall",
+			"Athena_Shields",
+			"Athena_SuperMedkit",
+			"Athena_Medkit",
+			"Athena_PurpleStuff",
+		};
+
+		static auto Primary = FindObject<UFortItemDefinition>(GetRandomItem(Primaries), nullptr, ANY_PACKAGE);
+		while (!Primary)
+			Primary = FindObject<UFortItemDefinition>(GetRandomItem(Primaries), nullptr, ANY_PACKAGE);
+		static auto Secondary = FindObject<UFortItemDefinition>(GetRandomItem(Secondaries), nullptr, ANY_PACKAGE);
+		while (!Secondary)
+			Secondary = FindObject<UFortItemDefinition>(GetRandomItem(Secondaries), nullptr, ANY_PACKAGE);
+		static auto Tertiary = FindObject<UFortItemDefinition>(GetRandomItem(Tertiaries), nullptr, ANY_PACKAGE);
+		while (!Tertiary)
+			Tertiary = FindObject<UFortItemDefinition>(GetRandomItem(Tertiaries), nullptr, ANY_PACKAGE);
+		static auto Consumable1 = FindObject<UFortItemDefinition>(GetRandomItem(Consumables1), nullptr, ANY_PACKAGE);
+		while (!Consumable1)
+			Consumable1 = FindObject<UFortItemDefinition>(GetRandomItem(Consumables1), nullptr, ANY_PACKAGE);
+		static auto Consumable2 = FindObject<UFortItemDefinition>(GetRandomItem(Consumables2), nullptr, ANY_PACKAGE);
+		while (!Consumable2)
+			Consumable2 = FindObject<UFortItemDefinition>(GetRandomItem(Consumables2), nullptr, ANY_PACKAGE);
 
 		static auto Bouncer = FindObject<UFortItemDefinition>(
 			L"/Game/Athena/Items/Traps/TID_Context_BouncePad_Athena.TID_Context_BouncePad_Athena");
@@ -743,7 +833,7 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 		WorldInventory->AddItem(StoneItemData, nullptr, 999);
 		WorldInventory->AddItem(MetalItemData, nullptr, 999);
 		WorldInventory->AddItem(Gold, nullptr, 10000);
-		WorldInventory->AddItem(Sniper, nullptr, 1);
+		WorldInventory->AddItem(Primary, nullptr, 1);
 		WorldInventory->AddItem(Secondary, nullptr, 1);
 		WorldInventory->AddItem(Tertiary, nullptr, 1);
 		WorldInventory->AddItem(Consumable1, nullptr, 1);
@@ -760,7 +850,7 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 		WorldInventory->AddItem(Bouncer, nullptr, 999);
 		WorldInventory->AddItem(LaunchPad, nullptr, 999);
 		WorldInventory->AddItem(DirBouncePad, nullptr, 999);
-		WorldInventory->AddItem(FreezeTrap, nullptr, 999);
+		WorldInventory->AddItem(FreezeTrap, nullptr, 3);
 		WorldInventory->AddItem(SpeedBoost, nullptr, 999);
 		WorldInventory->AddItem(Campfire, nullptr, 999);
 		WorldInventory->AddItem(Crown, nullptr, 1);

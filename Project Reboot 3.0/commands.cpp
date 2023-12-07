@@ -1614,6 +1614,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 					uint8_t MovementMode = CharMovement->Get<uint8_t>(MovementOffset);
 					static auto SetMovementModeFn = FindObject<UFunction>(L"/Script/Engine.CharacterMovementComponent.SetMovementMode");
 					uint8_t NewMode = 1;
+
 					if (MovementMode != 5)
 					{
 						NewMode = 5;
@@ -1653,15 +1654,16 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				return;
 			}
 
-			static auto SetMovementSpeedFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPawn.SetMovementSpeed");
-			SetMovementSpeedFn = SetMovementSpeedFn ? SetMovementSpeedFn : FindObject<UFunction>(L"/Script/FortniteGame.FortPawn.SetMovementSpeedMultiplier"); // extremely clean code that totally works
+			static auto SetMovementSpeedFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPawn.SetMovementSpeed") ? FindObject<UFunction>(L"/Script/FortniteGame.FortPawn.SetMovementSpeed") :
+				FindObject<UFunction>(L"/Script/FortniteGame.FortPawn.SetMovementSpeedMultiplier");
+
 			if (!SetMovementSpeedFn)
 			{
 				SendMessageToConsole(PlayerController, L"Function not found!");
 				return;
 			}
 			Pawn->ProcessEvent(SetMovementSpeedFn, &Speed);
-			}
+		}
 		else if (Command == "wipequickbar" || Command == "wipequickbars")
 		{
 			bool bWipePrimary = false;
