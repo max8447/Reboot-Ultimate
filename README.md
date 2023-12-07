@@ -14,13 +14,12 @@
 
 - Fix Vehicle Crash on versions < 8
 - Backbling, Glider, and Wrap Commands
-- cheat applycid (cheat skin) gives HID as well
-- More gun commands/wordings of existing gun commands in cheat grant
+- cheat hero gives icon as well.
 - Add stutter (we might have what causes it now)
 
 # Links
 
-- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1179583307613208596/RebootUltimate.dll?ex=657a4f90&is=6567da90&hm=8d54e9cf9a424628c3d0afff17996ce2780f970fa54f200c87e8a967583ea437&)
+- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1182413295488077926/RebootUltimate.dll?ex=65849b31&is=65722631&hm=4017857c7edb18fcfc11d3c4547a4629a13437568259ba4db132e6694369ea63&)
 
 - [Original Project Reboot 3.0 Github](https://github.com/Milxnor/Project-Reboot-3.0)
 
