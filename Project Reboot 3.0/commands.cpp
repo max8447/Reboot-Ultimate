@@ -1593,6 +1593,75 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			CheatManager = nullptr;
 			SendMessageToConsole(PlayerController, L"Teleported!");
 		}
+		else if (Command == "fly")
+		{
+			auto Pawn = Cast<APawn>(ReceivingController->GetPawn());
+
+			if (!Pawn)
+			{
+				SendMessageToConsole(PlayerController, L"No pawn found!");
+				return;
+			}
+
+			static auto CharMovementOffset = Pawn->GetOffset("CharacterMovement");
+			if (CharMovementOffset != -1)
+			{
+				auto CharMovement = Pawn->Get<UObject*>(CharMovementOffset);
+
+				static auto MovementOffset = CharMovement->GetOffset("MovementMode", false);
+				if (MovementOffset != -1)
+				{
+					uint8_t MovementMode = CharMovement->Get<uint8_t>(MovementOffset);
+					static auto SetMovementModeFn = FindObject<UFunction>(L"/Script/Engine.CharacterMovementComponent.SetMovementMode");
+					uint8_t NewMode = 1;
+					if (MovementMode != 5)
+					{
+						NewMode = 5;
+					}
+					if (SetMovementModeFn)
+					{
+						CharMovement->ProcessEvent(SetMovementModeFn, &NewMode);
+					}
+				}
+				else
+				{
+					SendMessageToConsole(PlayerController, L"Movement mode not found!");
+					return;
+				}
+			}
+			else
+			{
+				SendMessageToConsole(PlayerController, L"Character movement not found!");
+				return;
+			}
+		}
+		else if (Command == "setspeed")
+		{
+			float Speed = 1.0f;
+
+			if (Arguments.size() > 1 && Arguments[1] != " ")
+			{
+				try { Speed = std::stof(Arguments[1]); }
+				catch (...) {}
+			}
+
+			auto Pawn = Cast<APawn>(ReceivingController->GetPawn());
+
+			if (!Pawn)
+			{
+				SendMessageToConsole(PlayerController, L"No pawn to set speed!");
+				return;
+			}
+
+			static auto SetMovementSpeedFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPawn.SetMovementSpeed");
+			SetMovementSpeedFn = SetMovementSpeedFn ? SetMovementSpeedFn : FindObject<UFunction>(L"/Script/FortniteGame.FortPawn.SetMovementSpeedMultiplier"); // extremely clean code that totally works
+			if (!SetMovementSpeedFn)
+			{
+				SendMessageToConsole(PlayerController, L"Function not found!");
+				return;
+			}
+			Pawn->ProcessEvent(SetMovementSpeedFn, &Speed);
+			}
 		else if (Command == "wipequickbar" || Command == "wipequickbars")
 		{
 			bool bWipePrimary = false;
@@ -1904,6 +1973,8 @@ cheat grant <name_rarity> (ex: rocket_sr) - Gives a weapon using a shortcut name
 cheat summon <BlueprintClassPathName> <Count=1> - Summons the specified blueprint class at the executing player's location. Note: There is a limit on the count.
 cheat bugitgo <X> <Y> <Z> - Teleport to a location.
 cheat launch/fling <X> <Y> <Z> - Launches a player.
+cheat fly - Toggles creative flying.
+cheat setspeed - Changes player's movement speed (buggy running but works with cheat fly)
 cheat listplayers - Gives you all players names.
 cheat kick - Kicks the player from the game.
 cheat ban - Permanently bans the player from the game.
