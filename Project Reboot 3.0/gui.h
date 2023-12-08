@@ -717,8 +717,8 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 			"WID_Sniper_BoltAction_Scope_Athena_R_Ore_T03",
 			"WID_Sniper_BoltAction_Scope_Athena_UC_Ore_T03",
 			"WID_Sniper_BoltAction_Scope_Athena_C_Ore_T03",
-			"WID_Sniper_Standard_Scope_Athena_SuperRare_Ore_T03",
-			"WID_Sniper_Standard_Scope_Athena_VeryRare_Ore_T03",
+			"WID_Sniper_Suppressed_Scope_Athena_VR_Ore_T03",
+			"WID_Sniper_Suppressed_Scope_Athena_SR_Ore_T03",
 			"WID_Sniper_Standard_Scope_Athena_SR_Ore_T03",
 			"WID_Sniper_Standard_Scope_Athena_VR_Ore_T03",
 			"WID_Pistol_AutoHeavySuppressed_Athena_UC_Ore_T03",
@@ -757,6 +757,8 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 			"WID_Assault_Infantry_Athena_R",
 			"WID_Assault_Infantry_Athena_VR",
 			"WID_Assault_Infantry_Athena_SR"
+			"WID_Assault_Heavy_Athena_UC_Ore_T03"
+			"WID_Assault_Heavy_Athena_R_Ore_T03"
 		};
 
 		static std::vector Consumables1 = {
@@ -768,9 +770,17 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 			"Athena_Balloons_Consumable",
 			"Athena_TowerGrenade",
 			"Athena_DanceGrenade",
-			"Athena_StickyGrenade",
+			"Athena_IceGrenade",
 			"WID_Pistol_Flintlock_Athena_C",
 			"WID_Pistol_Flintlock_Athena_UC"
+	 		"WID_Pistol_HandCannon_Athena_VR_Ore_T03"
+	  		"WID_Pistol_HandCannon_Athena_SR_Ore_T03"
+	 		"WID_Launcher_Rocket_Athena_R_Ore_T03",
+	  		"WID_Launcher_Rocket_Athena_VR_Ore_T03",
+	  		"WID_Launcher_Rocket_Athena_SR_Ore_T03",
+	  		"WID_Launcher_Grenade_Athena_R_Ore_T03",
+	  		"WID_Launcher_Grenade_Athena_VR_Ore_T03",
+	  		"WID_Launcher_Grenade_Athena_SR_Ore_T03",
 		};
 
 		static std::vector Consumables2 = {
@@ -779,6 +789,7 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 			"Athena_SuperMedkit",
 			"Athena_Medkit",
 			"Athena_PurpleStuff",
+ 			"Athena_ChillBronco",
 		};
 
 		static auto Primary = FindObject<UFortItemDefinition>(GetRandomItem(Primaries), nullptr, ANY_PACKAGE);
