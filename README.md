@@ -12,6 +12,7 @@
 
 ## To Do:
 
+- Remove (or fix) Trash Islands on season 13, also *maybe* remove fishing holes if s13
 - Fix Vehicle Crash on versions < 8
 - Backbling, Glider, and Wrap Commands
 - cheat hero gives icon as well.
@@ -19,7 +20,7 @@
 
 # Links
 
-- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1182413295488077926/RebootUltimate.dll?ex=65849b31&is=65722631&hm=4017857c7edb18fcfc11d3c4547a4629a13437568259ba4db132e6694369ea63&)
+- [Instant Download DLL](https://cdn.discordapp.com/attachments/1174151696973312020/1182495495457878026/RebootUltimate.dll?ex=6584e7bf&is=657272bf&hm=50f0e951380fcd486cdacb2a3707f5439290e1691b062a3ca9f5935532a07828&)
 
 - [Original Project Reboot 3.0 Github](https://github.com/Milxnor/Project-Reboot-3.0)
 
