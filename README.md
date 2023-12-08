@@ -12,11 +12,14 @@
 
 ## To Do:
 
-- Remove (or fix) Trash Islands on season 13, also *maybe* remove fishing holes if s13
+- Remove Trash Islands & Fishing Holes on S13
+- Remove Cannon animation (fmod cannons?)
 - Fix Vehicle Crash on versions < 8
 - Backbling, Glider, and Wrap Commands
-- cheat hero gives icon as well.
+- cheat hero gives icon as well?
 - Add stutter (we might have what causes it now)
+
+do most of this and I think we can release ngl
 
 # Links
 
