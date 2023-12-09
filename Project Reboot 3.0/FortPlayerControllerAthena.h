@@ -123,6 +123,31 @@ static bool ApplyCID(AFortPlayerPawn* Pawn, UObject* CID, bool bUseServerChooseP
 	return true;
 }
 
+static void ApplyCCP(AFortPlayerState *PlayerState, std::string CCPStr)
+{
+	auto PlayerStateAthena = Cast<AFortPlayerStateAthena>(PlayerState);
+
+	static auto CharacterPartsOffset = PlayerStateAthena->GetOffset("CharacterParts", false);
+	auto CharacterParts = PlayerStateAthena->GetPtr<__int64>(CharacterPartsOffset);
+
+	static auto PartsOffset = FindOffsetStruct("/Script/FortniteGame.CustomCharacterParts", "Parts", false);
+	auto Parts = (UObject**)(__int64(CharacterParts) + PartsOffset); // UCustomCharacterPart* Parts[0x6]
+
+	static auto CustomCharacterPartClass = FindObject<UClass>(L"/Script/FortniteGame.CustomCharacterPart");
+
+	auto CCP = FindObject<UObject>(CCPStr, nullptr, ANY_PACKAGE);
+
+	auto PartTypeOffset = CCP->GetOffset("CharacterPartType");
+	auto PartType = CCP->Get<EFortCustomPartType>(PartTypeOffset);
+
+	Parts[(int)PartType] = CCP;
+
+	static auto OnRep_CharacterPartsFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerState.OnRep_CharacterParts");
+	//PlayerStateAthena->ProcessEvent(OnRep_CharacterPartsFn);
+
+	LOG_INFO(LogCommands, "no crash omg");
+}
+
 struct FGhostModeRepData
 {
 	bool& IsInGhostMode()

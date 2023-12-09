@@ -88,6 +88,7 @@ inline void InitLogger()
     MakeLogger("LogRebooting");
     MakeLogger("LogObjectViewer");
     MakeLogger("LogLateGame");
+    MakeLogger("LogCommands");
 }
 
 #define LOG_DEBUG(loggerName, ...)                                            \

@@ -1328,7 +1328,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			std::string CIDStr = Arguments[1];
 			auto CIDDef = FindObject(CIDStr, nullptr, ANY_PACKAGE);
-			// auto CIDDef = UObject::FindObject<UAthenaCharacterItemDefinition>(CIDStr);
 
 			if (!CIDDef)
 			{
@@ -1360,7 +1359,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			std::string HIDStr = Arguments[1];
 			auto HIDDef = FindObject(HIDStr, nullptr, ANY_PACKAGE);
-			// auto CIDDef = UObject::FindObject<UAthenaHeroItemDefinition>(HIDStr);
 
 			if (!HIDDef)
 			{
@@ -1374,7 +1372,29 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Applied HID!");
 		}
-		else if (Command == "suicide")
+		else if (Command == "applybackbling" || Command == "backbling" || Command == "applybackpack" || Command == "backpack" || Command == "applyglider" || Command == "glider")
+		{
+			auto PlayerState = Cast<AFortPlayerState>(ReceivingController->GetPlayerState());
+
+			if (!PlayerState) // ???
+			{
+				SendMessageToConsole(PlayerController, L"No playerstate!");
+				return;
+			}
+
+			auto Pawn = Cast<AFortPlayerPawn>(ReceivingController->GetMyFortPawn());
+
+			std::string CCPStr = Arguments[1];
+
+			ApplyCCP(PlayerState, CCPStr);
+
+			SendMessageToConsole(PlayerController, L"Applied!");
+		}
+		else if (Command == "applywrap" || Command == "wrap")
+		{
+			// TODO
+		}
+		else if (Command == "suicide" || Command == "frenchpeople")
 		{
 			static auto ServerSuicideFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerController.ServerSuicide");
 			ReceivingController->ProcessEvent(ServerSuicideFn);
@@ -1662,6 +1682,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				SendMessageToConsole(PlayerController, L"Function not found!");
 				return;
 			}
+
 			Pawn->ProcessEvent(SetMovementSpeedFn, &Speed);
 		}
 		else if (Command == "wipequickbar" || Command == "wipequickbars")

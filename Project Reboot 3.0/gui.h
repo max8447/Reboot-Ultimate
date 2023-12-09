@@ -107,14 +107,6 @@ static inline LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 template <typename T>
 T* Get(void* addr, uint64_t off) { return (T*)(__int64(addr) + off); }
 
-template<typename T> // ChatGPT ahh shit but I cba
-T GetRandomItem(const std::vector<T>& vec) {
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_int_distribution<> dis(0, static_cast<int>(vec.size()) - 1);
-	return vec[dis(gen)];
-}
-
 static inline void SetIsLategame(bool Value)
 {
 	Globals::bLateGame.store(Value);
@@ -204,6 +196,92 @@ static inline void OverrideBattleBus(AGameMode* GameMode, AFortGameStateAthena* 
 		}
 	}
 }
+
+template<typename T>
+static inline T GetRandomItem(std::vector<T>& Vector, int ConnectionIndex)
+{
+	std::srand(static_cast<unsigned>(std::time(0) + ConnectionIndex));
+	int RandomIndex = std::rand() % Vector.size();
+	// LOG_INFO(LogDev, "RandomIndex: {}", __int64(RandomIndex));
+	return Vector[RandomIndex];
+}
+
+static std::vector Tertiaries = {
+	"WID_Sniper_NoScope_Athena_SR_Ore_T03",
+	"WID_Sniper_NoScope_Athena_VR_Ore_T03",
+	"WID_Sniper_NoScope_Athena_R_Ore_T03",
+	"WID_Sniper_NoScope_Athena_UC_Ore_T03"
+	"WID_Sniper_Heavy_Athena_SR_Ore_T03",
+	"WID_Sniper_Heavy_Athena_VR_Ore_T03",
+	"WID_Sniper_Heavy_Athena_R_Ore_T03",
+	"WID_Sniper_BoltAction_Scope_Athena_SR_Ore_T03",
+	"WID_Sniper_BoltAction_Scope_Athena_VR_Ore_T03",
+	"WID_Sniper_BoltAction_Scope_Athena_R_Ore_T03",
+	"WID_Sniper_BoltAction_Scope_Athena_UC_Ore_T03",
+	"WID_Sniper_BoltAction_Scope_Athena_C_Ore_T03",
+	"WID_Sniper_Standard_Scope_Athena_SuperRare_Ore_T03",
+	"WID_Sniper_Standard_Scope_Athena_VeryRare_Ore_T03",
+	"WID_Sniper_Standard_Scope_Athena_SR_Ore_T03",
+	"WID_Sniper_Standard_Scope_Athena_VR_Ore_T03",
+	"WID_Pistol_AutoHeavySuppressed_Athena_UC_Ore_T03",
+	"WID_Pistol_AutoHeavySuppressed_Athena_R_Ore_T03",
+	"WID_Pistol_AutoHeavyPDW_Athena_UC_Ore_T03",
+	"WID_Pistol_AutoHeavyPDW_Athena_R_Ore_T03"
+};
+
+static std::vector Secondaries = {
+	"WID_Shotgun_Standard_Athena_C_Ore_T03",
+	"WID_Shotgun_Standard_Athena_UC_Ore_T03",
+	"WID_Shotgun_Standard_Athena_VR_Ore_T03",
+	"WID_Shotgun_Standard_Athena_SR_Ore_T03",
+	"WID_Shotgun_SemiAuto_Athena_R_Ore_T03",
+	"WID_Shotgun_SemiAuto_Athena_VR_Ore_T03",
+	"WID_Shotgun_HighSemiAuto_Athena_VR_Ore_T03",
+	"WID_Shotgun_HighSemiAuto_Athena_SR_Ore_T03",
+	"WID_Shotgun_SlugFire_Athena_VR",
+	"WID_Shotgun_SlugFire_Athena_SR",
+	"WID_Shotgun_BreakBarrel_Athena_VR_Ore_T03",
+	"WID_Shotgun_BreakBarrel_Athena_SR_Ore_T03"
+};
+
+static std::vector Primaries = {
+	"WID_Assault_Auto_Athena_UC_Ore_T03",
+	"WID_Assault_Auto_Athena_R_Ore_T03",
+	"WID_Assault_AutoHigh_Athena_VR_Ore_T03",
+	"WID_Assault_AutoHigh_Athena_SR_Ore_T03",
+	"WID_Assault_SemiAuto_Athena_UC_Ore_T03",
+	"WID_Assault_SemiAuto_Athena_R_Ore_T03",
+	"WID_Assault_SemiAuto_Athena_VR_Ore_T03",
+	"WID_Assault_SemiAuto_Athena_SR_Ore_T03",
+	"WID_Assault_Suppressed_Athena_VR_Ore_T03",
+	"WID_Assault_Suppressed_Athena_SR_Ore_T03",
+	"WID_Assault_Infantry_Athena_UC",
+	"WID_Assault_Infantry_Athena_R",
+	"WID_Assault_Infantry_Athena_VR",
+	"WID_Assault_Infantry_Athena_SR"
+};
+
+static std::vector Consumables1 = {
+	"Athena_ShockGrenade",
+	"WID_Hook_Gun_VR_Ore_T03",
+	"Athena_KnockGrenade",
+	"Athena_Rift_Item",
+	"Athena_GasGrenade",
+	"Athena_Balloons_Consumable",
+	"Athena_TowerGrenade",
+	"Athena_DanceGrenade",
+	"Athena_StickyGrenade",
+	"WID_Pistol_Flintlock_Athena_C",
+	"WID_Pistol_Flintlock_Athena_UC"
+};
+
+static std::vector Consumables2 = {
+	"Athena_ShieldSmall",
+	"Athena_Shields",
+	"Athena_SuperMedkit",
+	"Athena_Medkit",
+	"Athena_PurpleStuff",
+};
 
 static inline std::string wstring_to_utf8(const std::wstring& str)
 {
@@ -704,98 +782,40 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 		static auto Crown = FindObject<UFortItemDefinition>(
 			L"/VictoryCrownsGameplay/Items/AGID_VictoryCrown.AGID_VictoryCrown");
 
-		static std::vector Tertiaries = {
-			"WID_Sniper_NoScope_Athena_SR_Ore_T03",
-			"WID_Sniper_NoScope_Athena_VR_Ore_T03",
-			"WID_Sniper_NoScope_Athena_R_Ore_T03",
-			"WID_Sniper_NoScope_Athena_UC_Ore_T03"
-			"WID_Sniper_Heavy_Athena_SR_Ore_T03",
-			"WID_Sniper_Heavy_Athena_VR_Ore_T03",
-			"WID_Sniper_Heavy_Athena_R_Ore_T03",
-			"WID_Sniper_BoltAction_Scope_Athena_SR_Ore_T03",
-			"WID_Sniper_BoltAction_Scope_Athena_VR_Ore_T03",
-			"WID_Sniper_BoltAction_Scope_Athena_R_Ore_T03",
-			"WID_Sniper_BoltAction_Scope_Athena_UC_Ore_T03",
-			"WID_Sniper_BoltAction_Scope_Athena_C_Ore_T03",
-			"WID_Sniper_Standard_Scope_Athena_SuperRare_Ore_T03",
-			"WID_Sniper_Standard_Scope_Athena_VeryRare_Ore_T03",
-			"WID_Sniper_Standard_Scope_Athena_SR_Ore_T03",
-			"WID_Sniper_Standard_Scope_Athena_VR_Ore_T03",
-			"WID_Pistol_AutoHeavySuppressed_Athena_UC_Ore_T03",
-			"WID_Pistol_AutoHeavySuppressed_Athena_R_Ore_T03",
-			"WID_Pistol_AutoHeavyPDW_Athena_UC_Ore_T03",
-			"WID_Pistol_AutoHeavyPDW_Athena_R_Ore_T03"
-		};
+		static UFortItemDefinition* Primary = nullptr;
 
-		static std::vector Secondaries = {
-			"WID_Shotgun_Standard_Athena_C_Ore_T03",
-			"WID_Shotgun_Standard_Athena_UC_Ore_T03",
-			"WID_Shotgun_Standard_Athena_VR_Ore_T03",
-			"WID_Shotgun_Standard_Athena_SR_Ore_T03",
-			"WID_Shotgun_SemiAuto_Athena_R_Ore_T03",
-			"WID_Shotgun_SemiAuto_Athena_VR_Ore_T03",
-			"WID_Shotgun_HighSemiAuto_Athena_VR_Ore_T03",
-			"WID_Shotgun_HighSemiAuto_Athena_SR_Ore_T03",
-			"WID_Shotgun_SlugFire_Athena_VR",
-			"WID_Shotgun_SlugFire_Athena_SR",
-			"WID_Shotgun_BreakBarrel_Athena_VR_Ore_T03",
-			"WID_Shotgun_BreakBarrel_Athena_SR_Ore_T03"
-		};
+		do
+		{
+			Primary = FindObject<UFortItemDefinition>(GetRandomItem(Primaries, z), nullptr, ANY_PACKAGE);
+		} while (!Primary);
 
-		static std::vector Primaries = {
-			"WID_Assault_Auto_Athena_UC_Ore_T03",
-			"WID_Assault_Auto_Athena_R_Ore_T03",
-			"WID_Assault_AutoHigh_Athena_VR_Ore_T03",
-			"WID_Assault_AutoHigh_Athena_SR_Ore_T03",
-			"WID_Assault_SemiAuto_Athena_UC_Ore_T03",
-			"WID_Assault_SemiAuto_Athena_R_Ore_T03",
-			"WID_Assault_SemiAuto_Athena_VR_Ore_T03",
-			"WID_Assault_SemiAuto_Athena_SR_Ore_T03",
-			"WID_Assault_Suppressed_Athena_VR_Ore_T03",
-			"WID_Assault_Suppressed_Athena_SR_Ore_T03",
-			"WID_Assault_Infantry_Athena_UC",
-			"WID_Assault_Infantry_Athena_R",
-			"WID_Assault_Infantry_Athena_VR",
-			"WID_Assault_Infantry_Athena_SR"
-		};
+		static UFortItemDefinition* Secondary = nullptr;
 
-		static std::vector Consumables1 = {
-			"Athena_ShockGrenade",
-			"WID_Hook_Gun_VR_Ore_T03",
-			"Athena_KnockGrenade",
-			"Athena_Rift_Item",
-			"Athena_GasGrenade",
-			"Athena_Balloons_Consumable",
-			"Athena_TowerGrenade",
-			"Athena_DanceGrenade",
-			"Athena_StickyGrenade",
-			"WID_Pistol_Flintlock_Athena_C",
-			"WID_Pistol_Flintlock_Athena_UC"
-		};
+		do
+		{
+			Secondary = FindObject<UFortItemDefinition>(GetRandomItem(Secondaries, z), nullptr, ANY_PACKAGE);
+		} while (!Secondary);
 
-		static std::vector Consumables2 = {
-			"Athena_ShieldSmall",
-			"Athena_Shields",
-			"Athena_SuperMedkit",
-			"Athena_Medkit",
-			"Athena_PurpleStuff",
-		};
+		static UFortItemDefinition* Tertiary = nullptr;
 
-		static auto Primary = FindObject<UFortItemDefinition>(GetRandomItem(Primaries), nullptr, ANY_PACKAGE);
-		while (!Primary)
-			Primary = FindObject<UFortItemDefinition>(GetRandomItem(Primaries), nullptr, ANY_PACKAGE);
-		static auto Secondary = FindObject<UFortItemDefinition>(GetRandomItem(Secondaries), nullptr, ANY_PACKAGE);
-		while (!Secondary)
-			Secondary = FindObject<UFortItemDefinition>(GetRandomItem(Secondaries), nullptr, ANY_PACKAGE);
-		static auto Tertiary = FindObject<UFortItemDefinition>(GetRandomItem(Tertiaries), nullptr, ANY_PACKAGE);
-		while (!Tertiary)
-			Tertiary = FindObject<UFortItemDefinition>(GetRandomItem(Tertiaries), nullptr, ANY_PACKAGE);
-		static auto Consumable1 = FindObject<UFortItemDefinition>(GetRandomItem(Consumables1), nullptr, ANY_PACKAGE);
-		while (!Consumable1)
-			Consumable1 = FindObject<UFortItemDefinition>(GetRandomItem(Consumables1), nullptr, ANY_PACKAGE);
-		static auto Consumable2 = FindObject<UFortItemDefinition>(GetRandomItem(Consumables2), nullptr, ANY_PACKAGE);
-		while (!Consumable2)
-			Consumable2 = FindObject<UFortItemDefinition>(GetRandomItem(Consumables2), nullptr, ANY_PACKAGE);
+		do
+		{
+			Tertiary = FindObject<UFortItemDefinition>(GetRandomItem(Tertiaries, z), nullptr, ANY_PACKAGE);
+		} while (!Tertiary);
+
+		static UFortItemDefinition* Consumable1 = nullptr;
+
+		do
+		{
+			Consumable1 = FindObject<UFortItemDefinition>(GetRandomItem(Consumables1, z), nullptr, ANY_PACKAGE);
+		} while (!Consumable1);
+
+		static UFortItemDefinition* Consumable2 = nullptr;
+
+		do
+		{
+			Consumable2 = FindObject<UFortItemDefinition>(GetRandomItem(Consumables2, z), nullptr, ANY_PACKAGE);
+		} while (!Consumable2);
 
 		static auto Bouncer = FindObject<UFortItemDefinition>(
 			L"/Game/Athena/Items/Traps/TID_Context_BouncePad_Athena.TID_Context_BouncePad_Athena");
@@ -836,8 +856,8 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 		WorldInventory->AddItem(Primary, nullptr, 1);
 		WorldInventory->AddItem(Secondary, nullptr, 1);
 		WorldInventory->AddItem(Tertiary, nullptr, 1);
-		WorldInventory->AddItem(Consumable1, nullptr, 1);
-		WorldInventory->AddItem(Consumable2, nullptr, 10);
+		WorldInventory->AddItem(Consumable1, nullptr, Consumable1->GetMaxStackSize());
+		WorldInventory->AddItem(Consumable2, nullptr, Consumable2->GetMaxStackSize());
 		WorldInventory->AddItem(ShellsAmmo, nullptr, 999);
 		WorldInventory->AddItem(HeavyAmmo, nullptr, 999);
 		WorldInventory->AddItem(MediumAmmo, nullptr, 999);
@@ -940,9 +960,9 @@ static inline void MainUI()
 				}
 				*/
 
-				if (!bIsInAutoRestart && Engine_Version < 424 && ImGui::Button("Restart"))
+				if (!bIsInAutoRestart && Engine_Version <= 424 && ImGui::Button("Restart"))
 				{
-					if (Engine_Version < 424)
+					if (Engine_Version <= 424)
 					{
 						Restart();
 						LOG_INFO(LogGame, "Restarting!");
