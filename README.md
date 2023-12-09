@@ -2,24 +2,28 @@
 
 ## What's Different?
 
-- Added several custom commands, such as cheat godall, cheat healthall/shieldall, cheat getlocation, and more!
+- Added several custom commands, such as cheat godall, cheat fly, cheat getlocation, and much more!
 - Added multiple shortcut ways to type existing commands! Try things like: cheat bot, cheat health, cheat to, and others.
 - Added a new way to give yourself items without having to use a script! Typing "cheat grant" and the item you want's name and rarity (if a weapon) will give you the gun! Ex: "cheat grant rocket_sr"
-- Added a new UI section called "Calender Events", which can be used for snow maps, or water levels if on the right version.
-- Several things from Project Reboot have been fixed in this version such as 9.10 volcano, 9.40 live event, and working bots on versions before 9!
+- Added a new UI section called "Calender Events", which can be used for snow maps, water levels, or even mid-game events if you're on the right version.
+- Several bugs from Project Reboot have been fixed on Reboot Ultimate such as 9.10 volcano, 9.40 live event, and working bots on versions before 9!
 - When injecting the DLL, all buttons you'll need are already selected (besides gamemode), as well as the amount of time it takes to start has been increased from 5 seconds to 15.
-- Lategame loot automatically starts up with all of the Ammo, Materials, and Traps you'd ever need in order to play! Hop in and start trickshotting immedietely!
+- Lategame now gives completely random weapons! This means that every player has a unique loadout, allowing you to fight with unique weapons each round. (note: the weapons chosen for ranodmization are made for chapter 1, meaning no chapter 2+ items are added yet)
 
 ## To Do:
 
+- Remove Trash Islands & Fishing Holes on S13
+- Remove Cannon animation (fmod cannons?)
 - Fix Vehicle Crash on versions < 8
 - Backbling, Glider, and Wrap Commands
-- cheat hero gives icon as well.
+- cheat hero gives icon as well?
 - Add stutter (we might have what causes it now)
+
+do most of this and I think we can release ngl
 
 # Links
 
-- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1182413295488077926/RebootUltimate.dll?ex=65849b31&is=65722631&hm=4017857c7edb18fcfc11d3c4547a4629a13437568259ba4db132e6694369ea63&)
+- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1182499551081402368/Reboot_Ultimate.dll?ex=6584eb86&is=65727686&hm=5c165f6afba2f24fa74fceefca93b175a52400973907ffe81a66e9be2620c616&)
 
 - [Original Project Reboot 3.0 Github](https://github.com/Milxnor/Project-Reboot-3.0)
 
