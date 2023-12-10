@@ -1,6 +1,7 @@
 #pragma once
 
 #include "reboot.h"
+#include "Object.h"
 
 class UAttributeSet : public UObject
 {
@@ -44,5 +45,9 @@ struct FGameplayAttributeData
 
 struct FFortGameplayAttributeData : public FGameplayAttributeData
 {
-	
+	float& GetMinimum()
+	{
+		static auto MinimumOffset = FindOffsetStruct("/Script/FortniteGame.FortGameplayAttributeData", "Minimum");
+		return *(float*)(__int64(this) + MinimumOffset);
+	}
 };

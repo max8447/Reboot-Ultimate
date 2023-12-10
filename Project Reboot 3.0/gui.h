@@ -283,6 +283,14 @@ static std::vector Consumables2 = {
 	"Athena_PurpleStuff",
 };
 
+static std::vector Traps = {
+	"TID_Context_BouncePad_Athena",
+	"TID_Floor_Player_Launch_Pad_Athena",
+	"TID_Context_Freeze_Athena",
+	"TID_Floor_Player_Campfire_Athena",
+	"TID_ContextTrap_Athena"
+};
+
 static inline std::string wstring_to_utf8(const std::wstring& str)
 {
 	if (str.empty()) return {};
@@ -817,18 +825,12 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 			Consumable2 = FindObject<UFortItemDefinition>(GetRandomItem(Consumables2, z), nullptr, ANY_PACKAGE);
 		} while (!Consumable2);
 
-		static auto Bouncer = FindObject<UFortItemDefinition>(
-			L"/Game/Athena/Items/Traps/TID_Context_BouncePad_Athena.TID_Context_BouncePad_Athena");
-		static auto LaunchPad = FindObject<UFortItemDefinition>(
-			L"/Game/Athena/Items/Traps/TID_Floor_Player_Launch_Pad_Athena.TID_Floor_Player_Launch_Pad_Athena");
-		static auto DirBouncePad = FindObject<UFortItemDefinition>(
-			L"/Game/Athena/Items/Traps/TID_Floor_Player_Jump_Pad_Free_Direction_Athena.TID_Floor_Player_Jump_Pad_Free_Direction_Athena");
-		static auto FreezeTrap = FindObject<UFortItemDefinition>(
-			L"/Game/Athena/Items/Traps/TID_Context_Freeze_Athena.TID_Context_Freeze_Athena");
-		static auto SpeedBoost = FindObject<UFortItemDefinition>(
-			L"/Game/Athena/Items/Traps/TID_Context_SpeedBoost.TID_Context_SpeedBoost");
-		static auto Campfire = FindObject<UFortItemDefinition>(
-			L"/Game/Athena/Items/Traps/TID_Floor_Player_Campfire_Athena.TID_Floor_Player_Campfire_Athena");
+		static UFortItemDefinition* Trap = nullptr;
+
+		do
+		{
+			Trap = FindObject<UFortItemDefinition>(GetRandomItem(Traps, z), nullptr, ANY_PACKAGE);
+		} while (!Trap);
 
 		static auto HeavyAmmo = FindObject<UFortItemDefinition>(
 			L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsHeavy.AthenaAmmoDataBulletsHeavy");
@@ -867,12 +869,7 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 		WorldInventory->AddItem(EnergyCells, nullptr, 999);
 		WorldInventory->AddItem(Arrows, nullptr, 30);
 		WorldInventory->AddItem(ReconAmmo, nullptr, 999);
-		WorldInventory->AddItem(Bouncer, nullptr, 999);
-		WorldInventory->AddItem(LaunchPad, nullptr, 999);
-		WorldInventory->AddItem(DirBouncePad, nullptr, 999);
-		WorldInventory->AddItem(FreezeTrap, nullptr, 3);
-		WorldInventory->AddItem(SpeedBoost, nullptr, 999);
-		WorldInventory->AddItem(Campfire, nullptr, 999);
+		WorldInventory->AddItem(Trap, nullptr, (std::rand() % 6) + 1);
 		WorldInventory->AddItem(Crown, nullptr, 1);
 
 		WorldInventory->Update();

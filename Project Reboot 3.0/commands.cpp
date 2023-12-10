@@ -1372,28 +1372,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Applied HID!");
 		}
-		else if (Command == "applybackbling" || Command == "backbling" || Command == "applybackpack" || Command == "backpack" || Command == "applyglider" || Command == "glider")
-		{
-			auto PlayerState = Cast<AFortPlayerState>(ReceivingController->GetPlayerState());
-
-			if (!PlayerState) // ???
-			{
-				SendMessageToConsole(PlayerController, L"No playerstate!");
-				return;
-			}
-
-			auto Pawn = Cast<AFortPlayerPawn>(ReceivingController->GetMyFortPawn());
-
-			std::string CCPStr = Arguments[1];
-
-			ApplyCCP(PlayerState, CCPStr);
-
-			SendMessageToConsole(PlayerController, L"Applied!");
-		}
-		else if (Command == "applywrap" || Command == "wrap")
-		{
-			// TODO
-		}
 		else if (Command == "suicide" || Command == "frenchpeople")
 		{
 			static auto ServerSuicideFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerController.ServerSuicide");

@@ -3,6 +3,23 @@
 #include "Pawn.h"
 #include "FortWeapon.h"
 #include "FortDecoItemDefinition.h"
+#include "AttributeSet.h"
+
+class UFortHealthSet : public UAttributeSet //public UFortAttributeSet
+{
+public:
+	FFortGameplayAttributeData GetHealth()
+	{
+		static auto HealthOffset = GetOffset("Health");
+		return Get<FFortGameplayAttributeData>(HealthOffset);
+	}
+
+	void OnRep_Health()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortHealthSet.OnRep_Health");
+		this->ProcessEvent(fn, nullptr);
+	}
+};
 
 class AFortPawn : public APawn
 {
@@ -24,6 +41,12 @@ public:
 
 	AFortWeapon* EquipWeaponDefinition(UFortWeaponItemDefinition* WeaponData, const FGuid& ItemEntryGuid);
 	bool PickUpActor(AActor* PickupTarget, UFortDecoItemDefinition* PlacementDecoItemDefinition);
+
+	UFortHealthSet* GetHealthSet()
+	{
+		static auto HealthSetOffset = GetOffset("HealthSet");
+		return Get<UFortHealthSet*>(HealthSetOffset);
+	}
 
 	AFortWeapon*& GetCurrentWeapon()
 	{
