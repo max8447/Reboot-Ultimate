@@ -23,7 +23,7 @@ do most of this and I think we can release ngl
 
 # Links
 
-- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1182499551081402368/Reboot_Ultimate.dll?ex=6584eb86&is=65727686&hm=5c165f6afba2f24fa74fceefca93b175a52400973907ffe81a66e9be2620c616&)
+- [Instant Download DLL](https://cdn.discordapp.com/attachments/1116448359390122095/1183520129917653073/RebootUltimate.dll?ex=6588a203&is=65762d03&hm=b35db8f7eaade531c0abab21bae0b0d59235a85eaf7216aff61e670cc2df594b&)
 
 - [Original Project Reboot 3.0 Github](https://github.com/Milxnor/Project-Reboot-3.0)
 
