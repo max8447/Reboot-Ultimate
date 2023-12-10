@@ -28,7 +28,7 @@ namespace Globals
 extern inline int NumToSubtractFromSquadId = 0; // I think 2?
 
 extern inline std::string PlaylistName =
-"/Game/Athena/Playlists/Playlist_DefaultSolo.Playlist_DefaultSolo";
+"/Game/Athena/Playlists/Vamp/Playlist_Vamp_Solo.Playlist_Vamp_Solo";
 // "/Game/Athena/Playlists/gg/Playlist_Gg_Reverse.Playlist_Gg_Reverse";
 // "/Game/Athena/Playlists/Playlist_DefaultDuo.Playlist_DefaultDuo";
 // "/Game/Athena/Playlists/Playground/Playlist_Playground.Playlist_Playground";
