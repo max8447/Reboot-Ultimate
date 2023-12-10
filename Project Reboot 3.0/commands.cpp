@@ -279,6 +279,18 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Assault_AutoHigh_Athena_SR_Ore_T03";
 			}
+			else if (weaponName == "tacar_r")
+			{
+				weaponName = "WID_Assault_PistolCaliber_AR_Athena_R_Ore_T03";
+			}
+			else if (weaponName == "tacar_vr")
+			{
+				weaponName = "WID_Assault_PistolCaliber_AR_Athena_VR_Ore_T03";
+			}
+			else if (weaponName == "tacar_sr")
+			{
+				weaponName = "WID_Assault_PistolCaliber_AR_Athena_SR_Ore_T03";
+			}
 			else if (weaponName == "ar_ur" || weaponName == "scar_ur" || weaponName == "skyesar" || weaponName == "skyear")
 			{
 				weaponName = "WID_Boss_Adventure_AR";
@@ -310,6 +322,22 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			else if (weaponName == "pump_sr")
 			{
 				weaponName = "WID_Shotgun_Standard_Athena_SR_Ore_T03";
+			}
+			else if (weaponName == "tac_uc")
+			{
+				weaponName = "WID_Shotgun_SemiAuto_Athena_R_Ore_T03";
+			}
+			else if (weaponName == "tac_r")
+			{
+				weaponName = "WID_Shotgun_SemiAuto_Athena_VR_Ore_T03";
+			}
+			else if (weaponName == "tac_vr")
+			{
+				weaponName = "WID_Shotgun_HighSemiAuto_Athena_VR_Ore_T03";
+			}
+			else if (weaponName == "tac_sr")
+			{
+				weaponName = "WID_Shotgun_HighSemiAuto_Athena_SR_Ore_T03";
 			}
 			else if (weaponName == "flint_c")
 			{
@@ -666,6 +694,14 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			else if (weaponName == "grabitron")
 			{
 				weaponName = "WID_GravyGoblinV2_Athena";
+			}
+			else if (weaponName == "bouncer" || weaponName == "bouncers")
+			{
+				weaponName = "TID_Context_BouncePad_Athena";
+			}
+			else if (weaponName == "launchpad" || weaponName == "launch" || weaponName == "pad")
+			{
+				weaponName = "TID_Floor_Player_Launch_Pad_Athena";
 			}
 			else if (weaponName == "grappler" || weaponName == "grap" || weaponName == "grapple")
 			{
