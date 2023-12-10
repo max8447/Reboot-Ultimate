@@ -907,7 +907,7 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 		WorldInventory->AddItem(EnergyCells, nullptr, 999);
 		WorldInventory->AddItem(Arrows, nullptr, 30);
 		WorldInventory->AddItem(ReconAmmo, nullptr, 999);
-		WorldInventory->AddItem(Trap, nullptr, (std::rand() % 6) + 1);
+		WorldInventory->AddItem(Trap, nullptr, (std::rand() % 5) + 2);
 		WorldInventory->AddItem(Crown, nullptr, 1);
 
 		WorldInventory->Update();
