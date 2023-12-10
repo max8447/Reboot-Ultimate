@@ -1685,7 +1685,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			Pawn->ProcessEvent(SetMovementSpeedFn, &Speed);
 		}
-		else if (Command == "wipequickbar" || Command == "wipequickbars")
+		else if (Command == "wipequickbar" || Command == "wipequickbars" || Command == "wipe" || Command == "wipeinv")
 		{
 			bool bWipePrimary = false;
 			bool bWipeSecondary = false;
@@ -2010,8 +2010,7 @@ cheat tp - Teleports to what the player is looking at.
 cheat bot <Amount=1> - Spawns a bot at the player (experimental).
 cheat pickaxe <PickaxeID> - Set player's pickaxe. Can be either the PID or WID
 cheat destroytarget - Destroys the actor that the player is looking at.
-cheat wipequickbar <Primary|Secondary> <RemoveUndroppables=false> - Wipes the specified quickbar (parameters is not case sensitive).
-cheat wipequickbars <RemoveUndroppables=false> - Wipes primary and secondary quickbar of targeted player (parameter is not case sensitive).
+cheat wipe <Primary|Secondary> - Wipes the specified quickbar (parameters is not case sensitive).
 cheat suicide - Insta-kills player.
 cheat healthall - Heals all players health.
 cheat shieldall - Heals all players shield.
