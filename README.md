@@ -12,12 +12,10 @@
 
 ## To Do:
 
+- Vehicle Command
 - Remove Trash Islands & Fishing Holes on S13
-- Remove Cannon animation (fmod cannons?)
 - Fix Vehicle Crash on versions < 8
-- Backbling, Glider, and Wrap Commands
-- cheat hero gives icon as well?
-- Add stutter (we might have what causes it now)
+- Add Pickaxe Stutter (we might have what causes it now)
 
 do most of this and I think we can release ngl
 
