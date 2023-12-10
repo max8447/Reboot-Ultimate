@@ -1670,7 +1670,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				return;
 			}
 		}
-		else if (Command == "setspeed")
+		else if (Command == "setspeed" || Command == "speed")
 		{
 			float Speed = 1.0f;
 
@@ -1693,7 +1693,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			if (!SetMovementSpeedFn)
 			{
-				SendMessageToConsole(PlayerController, L"Function not found!");
+				SendMessageToConsole(PlayerController, L"SetMovementSpeed not found!");
 				return;
 			}
 
