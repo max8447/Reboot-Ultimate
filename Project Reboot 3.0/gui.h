@@ -228,7 +228,6 @@ static std::vector Tertiaries = {
 	"WID_Sniper_Weather_Athena_VR",
 	"WID_Sniper_Weather_Athena_SR",
 	"WID_WaffleTruck_Sniper_StormScout",
-	"WID_WaffleTruck_Sniper_DragonBreath"
 };
 
 static std::vector Secondaries = {
@@ -253,7 +252,6 @@ static std::vector Secondaries = {
 	"WID_Shotgun_Swing_Athena_R",
 	"WID_Shotgun_Swing_Athena_VR",
 	"WID_Shotgun_Swing_Athena_SR",
-	"WID_WaffleTruck_Dub"
 };
 
 static std::vector Primaries = {
@@ -279,7 +277,6 @@ static std::vector Primaries = {
 	"WID_Assault_Stark_Athena_R_Ore_T03",
 	"WID_Assault_Stark_Athena_VR_Ore_T03",
 	"WID_Assault_Stark_Athena_SR_Ore_T03",
-	"WID_WaffleTruck_HopRockDualies"
 };
 
 static std::vector Consumables1 = {
