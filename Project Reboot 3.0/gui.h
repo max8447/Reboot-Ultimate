@@ -210,7 +210,7 @@ static std::vector Tertiaries = {
 	"WID_Sniper_NoScope_Athena_SR_Ore_T03",
 	"WID_Sniper_NoScope_Athena_VR_Ore_T03",
 	"WID_Sniper_NoScope_Athena_R_Ore_T03",
-	"WID_Sniper_NoScope_Athena_UC_Ore_T03"
+	"WID_Sniper_NoScope_Athena_UC_Ore_T03",
 	"WID_Sniper_Heavy_Athena_SR_Ore_T03",
 	"WID_Sniper_Heavy_Athena_VR_Ore_T03",
 	"WID_Sniper_Heavy_Athena_R_Ore_T03",
@@ -223,10 +223,12 @@ static std::vector Tertiaries = {
 	"WID_Sniper_Standard_Scope_Athena_VeryRare_Ore_T03",
 	"WID_Sniper_Standard_Scope_Athena_SR_Ore_T03",
 	"WID_Sniper_Standard_Scope_Athena_VR_Ore_T03",
-	"WID_Pistol_AutoHeavySuppressed_Athena_UC_Ore_T03",
-	"WID_Pistol_AutoHeavySuppressed_Athena_R_Ore_T03",
-	"WID_Pistol_AutoHeavyPDW_Athena_UC_Ore_T03",
-	"WID_Pistol_AutoHeavyPDW_Athena_R_Ore_T03"
+	"WID_Sniper_Suppressed_Scope_Athena_SR_Ore_T03",
+	"WID_Sniper_Suppressed_Scope_Athena_VR_Ore_T03",
+	"WID_Sniper_Weather_Athena_VR",
+	"WID_Sniper_Weather_Athena_SR",
+	"WID_WaffleTruck_Sniper_StormScout",
+	"WID_WaffleTruck_Sniper_DragonBreath"
 };
 
 static std::vector Secondaries = {
@@ -240,8 +242,18 @@ static std::vector Secondaries = {
 	"WID_Shotgun_HighSemiAuto_Athena_SR_Ore_T03",
 	"WID_Shotgun_SlugFire_Athena_VR",
 	"WID_Shotgun_SlugFire_Athena_SR",
-	"WID_Shotgun_BreakBarrel_Athena_VR_Ore_T03",
-	"WID_Shotgun_BreakBarrel_Athena_SR_Ore_T03"
+	"WID_Shotgun_Charge_Athena_UC_Ore_T03",
+	"WID_Shotgun_Charge_Athena_R_Ore_T03",
+	"WID_Shotgun_Charge_Athena_VR_Ore_T03",
+	"WID_Shotgun_Charge_Athena_SR_Ore_T03",
+	"WID_Shotgun_Combat_Athena_R_Ore_T03",
+	"WID_Shotgun_Combat_Athena_VR_Ore_T03",
+	"WID_Shotgun_Combat_Athena_SR_Ore_T03",
+	"WID_Shotgun_Swing_Athena_UC",
+	"WID_Shotgun_Swing_Athena_R",
+	"WID_Shotgun_Swing_Athena_VR",
+	"WID_Shotgun_Swing_Athena_SR",
+	"WID_WaffleTruck_Dub"
 };
 
 static std::vector Primaries = {
@@ -255,24 +267,47 @@ static std::vector Primaries = {
 	"WID_Assault_SemiAuto_Athena_SR_Ore_T03",
 	"WID_Assault_Suppressed_Athena_VR_Ore_T03",
 	"WID_Assault_Suppressed_Athena_SR_Ore_T03",
-	"WID_Assault_Infantry_Athena_UC",
-	"WID_Assault_Infantry_Athena_R",
 	"WID_Assault_Infantry_Athena_VR",
-	"WID_Assault_Infantry_Athena_SR"
+	"WID_Assault_Infantry_Athena_SR",
+	"WID_Assault_Heavy_Athena_UC_Ore_T03",
+	"WID_Assault_Heavy_Athena_R_Ore_T03",
+	"WID_Assault_Heavy_Athena_VR_Ore_T03",
+	"WID_Assault_Heavy_Athena_SR_Ore_T03",
+	"WID_Assault_PistolCaliber_AR_Athena_R_Ore_T03",
+	"WID_Assault_PistolCaliber_AR_Athena_VR_Ore_T03",
+	"WID_Assault_PistolCaliber_AR_Athena_SR_Ore_T03",
+	"WID_Assault_Stark_Athena_R_Ore_T03",
+	"WID_Assault_Stark_Athena_VR_Ore_T03",
+	"WID_Assault_Stark_Athena_SR_Ore_T03",
+	"WID_WaffleTruck_HopRockDualies"
 };
 
 static std::vector Consumables1 = {
 	"Athena_ShockGrenade",
 	"WID_Hook_Gun_VR_Ore_T03",
+	"WID_Athena_HappyGhost",
 	"Athena_KnockGrenade",
 	"Athena_Rift_Item",
 	"Athena_GasGrenade",
+	"Athena_SilverBlazer_V2",
+	"Athena_HolidayGiftBox",
+	"Athena_GiftBox",
 	"Athena_Balloons_Consumable",
+	"Athena_Balloons",
 	"Athena_TowerGrenade",
+	"WID_Athena_AppleSun",
 	"Athena_DanceGrenade",
-	"Athena_StickyGrenade",
+	"Athena_IceGrenade",
+	"WID_Athena_Bucket_Old",
+	"ID_ValetMod_Tires_OffRoad_Thrown",
 	"WID_Pistol_Flintlock_Athena_C",
-	"WID_Pistol_Flintlock_Athena_UC"
+	"WID_Pistol_Flintlock_Athena_UC",
+	"WID_Launcher_Rocket_Athena_R_Ore_T03",
+	"WID_Launcher_Rocket_Athena_VR_Ore_T03",
+	"WID_Launcher_Rocket_Athena_SR_Ore_T03",
+	"WID_Launcher_Grenade_Athena_R_Ore_T03",
+	"WID_Launcher_Grenade_Athena_VR_Ore_T03",
+	"WID_Launcher_Grenade_Athena_SR_Ore_T03"
 };
 
 static std::vector Consumables2 = {
@@ -281,6 +316,12 @@ static std::vector Consumables2 = {
 	"Athena_SuperMedkit",
 	"Athena_Medkit",
 	"Athena_PurpleStuff",
+	"Athena_ChillBronco",
+	"WID_Athena_SpicySoda",
+	"WID_Athena_ShieldHops",
+	"WID_Athena_Flopper",
+	"WID_Athena_Flopper_Effective",
+	"WID_Athena_Flopper_HopFlopper"
 };
 
 static inline std::string wstring_to_utf8(const std::wstring& str)
@@ -870,7 +911,7 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 		WorldInventory->AddItem(Bouncer, nullptr, 999);
 		WorldInventory->AddItem(LaunchPad, nullptr, 999);
 		WorldInventory->AddItem(DirBouncePad, nullptr, 999);
-		WorldInventory->AddItem(FreezeTrap, nullptr, 3);
+		WorldInventory->AddItem(FreezeTrap, nullptr, 999);
 		WorldInventory->AddItem(SpeedBoost, nullptr, 999);
 		WorldInventory->AddItem(Campfire, nullptr, 999);
 		WorldInventory->AddItem(Crown, nullptr, 1);
