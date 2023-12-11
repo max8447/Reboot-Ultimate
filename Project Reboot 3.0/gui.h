@@ -1219,6 +1219,9 @@ static inline void MainUI()
 
 		else if (Tab == ZONE_TAB)
 		{
+			auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+			auto SafeZoneIndicator = GameMode->GetSafeZoneIndicator();
+
 			if (ImGui::Button("Start Safe Zone"))
 			{
 				UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"startsafezone", nullptr);
@@ -1241,14 +1244,25 @@ static inline void MainUI()
 
 			if (ImGui::Button("Skip Shrink Safe Zone"))
 			{
-				auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
-				auto SafeZoneIndicator = GameMode->GetSafeZoneIndicator();
-
 				if (SafeZoneIndicator)
 				{
 					SafeZoneIndicator->SkipShrinkSafeZone();
 				}
 			}
+
+			static auto NextCenterOffset = FindOffsetStruct("/Script/FortniteGame.FortSafeZoneIndicator", "NextCenter");
+			auto NextCenter = (FVector*)(__int64(SafeZoneIndicator) + NextCenterOffset);
+			ImGui::SliderFloat("Next Center X", &NextCenter->X, 1, 100000);
+			ImGui::SliderFloat("Next Center Y", &NextCenter->Y, 1, 100000);
+
+			static auto NextRadiusOffset = FindOffsetStruct("/Script/FortniteGame.FortSafeZoneIndicator", "NextRadius");
+			ImGui::SliderFloat("NextRadius", (float*)(__int64(SafeZoneIndicator) + NextRadiusOffset), 1, 200000);
+
+			static auto SafeZoneFinishShrinkTimeOffset = FindOffsetStruct("/Script/FortniteGame.FortSafeZoneIndicator", "SafeZoneFinishShrinkTime");
+			ImGui::SliderFloat("SafeZoneFinishShrinkTime", (float*)(__int64(SafeZoneIndicator) + SafeZoneFinishShrinkTimeOffset), 1, 10000);
+
+			static auto SafeZoneStartShrinkTimeOffset = FindOffsetStruct("/Script/FortniteGame.FortSafeZoneIndicator", "SafeZoneStartShrinkTime");
+			ImGui::SliderFloat("SafeZoneStartShrinkTime", (float*)(__int64(SafeZoneIndicator) + SafeZoneStartShrinkTimeOffset), 1, 10000);
 		}
 
 		else if (Tab == DUMP_TAB)

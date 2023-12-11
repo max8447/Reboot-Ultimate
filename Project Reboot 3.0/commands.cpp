@@ -1371,6 +1371,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			static auto ServerSuicideFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerController.ServerSuicide");
 			ReceivingController->ProcessEvent(ServerSuicideFn);
 		}
+		else if (Command == "imfrench")
+		{
+			exit(0);
+		}
 		else if (Command == "summon")
 		{
 			if (Arguments.size() <= 1)
