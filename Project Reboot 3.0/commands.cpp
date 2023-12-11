@@ -5,48 +5,6 @@
 #include "moderation.h"
 #include "gui.h"
 
-bool Summon(AFortPlayerControllerAthena* PlayerController, std::string Class, int Count)
-{
-	auto Pawn = PlayerController->GetPawn();
-
-	if (!Pawn)
-	{
-		SendMessageToConsole(PlayerController, L"No pawn to spawn class at!");
-		return false;
-	}
-
-	static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
-	static auto ClassClass = FindObject<UClass>(L"/Script/CoreUObject.Class");
-	auto ClassObj = Class.contains("/Script/") ? FindObject<UClass>(Class, ClassClass) : LoadObject<UClass>(Class, BGAClass); // scuffy
-
-	if (ClassObj)
-	{
-		int AmountSpawned = 0;
-
-		for (int i = 0; i < Count; i++)
-		{
-			auto Loc = Pawn->GetActorLocation();
-			Loc.Z += 1000;
-			auto NewActor = GetWorld()->SpawnActor<AActor>(ClassObj, Loc, FQuat(), FVector(1, 1, 1));
-
-			if (!NewActor)
-			{
-				SendMessageToConsole(PlayerController, L"Failed to spawn an actor!");
-			}
-			else
-			{
-				AmountSpawned++;
-			}
-		}
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-
 void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 {
 	if (!Msg.Data.Data || Msg.Data.Num() <= 0)
@@ -1484,6 +1442,76 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				SendMessageToConsole(PlayerController, L"Not a valid class!");
 			}
 		}
+		else if (Command == "vehicle")
+		{
+			if (Arguments.size() <= 1)
+			{
+				SendMessageToConsole(PlayerController, L"Please provide a vehicle!\n");
+				return;
+			}
+
+			auto& VehicleName = Arguments[1];
+
+			auto Pawn = ReceivingController->GetPawn();
+
+			if (!Pawn)
+			{
+				SendMessageToConsole(PlayerController, L"No pawn to spawn vehicle at!");
+				return;
+			}
+
+			int Count = 1;
+
+			if (Arguments.size() >= 3)
+			{
+				try { Count = std::stod(Arguments[2]); }
+				catch (...) {}
+			}
+
+			constexpr int Max = 100;
+
+			if (Count > Max)
+			{
+				SendMessageToConsole(PlayerController, (std::wstring(L"You went over the limit! Only spawning ") + std::to_wstring(Max) + L".").c_str());
+				Count = Max;
+			}
+
+			if (VehicleName == "driftboard")
+				VehicleName = "/Game/Athena/DrivableVehicles/JackalVehicle_Athena.JackalVehicle_Athena_C";
+			else if (VehicleName == "surfboard")
+				VehicleName = "/Game/Athena/DrivableVehicles/SurfboardVehicle_Athena.SurfboardVehicle_Athena_C";
+
+			static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
+			static auto ClassClass = FindObject<UClass>(L"/Script/CoreUObject.Class");
+			auto ClassObj = VehicleName.contains("/Script/") ? FindObject<UClass>(VehicleName, ClassClass) : LoadObject<UClass>(VehicleName, BGAClass); // scuffy
+
+			if (ClassObj)
+			{
+				int AmountSpawned = 0;
+
+				for (int i = 0; i < Count; i++)
+				{
+					auto Loc = Pawn->GetActorLocation();
+					Loc.Z += 250;
+					auto NewActor = GetWorld()->SpawnActor<AActor>(ClassObj, Loc, FQuat(), FVector(1, 1, 1));
+
+					if (!NewActor)
+					{
+						SendMessageToConsole(PlayerController, L"Failed to spawn an actor!");
+					}
+					else
+					{
+						AmountSpawned++;
+					}
+				}
+
+				SendMessageToConsole(PlayerController, L"Summoned!");
+			}
+			else
+			{
+				SendMessageToConsole(PlayerController, L"Not a valid class!");
+			}
+			}
 		else if (Command == "spawnbottest")
 		{
 			// /Game/Athena/AI/MANG/BotData/
