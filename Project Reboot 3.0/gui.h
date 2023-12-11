@@ -1250,19 +1250,30 @@ static inline void MainUI()
 				}
 			}
 
-			static auto NextCenterOffset = FindOffsetStruct("/Script/FortniteGame.FortSafeZoneIndicator", "NextCenter");
-			auto NextCenter = (FVector*)(__int64(SafeZoneIndicator) + NextCenterOffset);
+			/* TODO Might fix in the future, but not right now.
+			
+			//static auto NextCenterOffset = FindOffsetStruct("/Script/FortniteGame.FortSafeZoneIndicator", "NextCenter");
+			//auto NextCenter = *(FVector**)(__int64(SafeZoneIndicator) + NextCenterOffset);
+			static auto NextCenterOffset = SafeZoneIndicator->GetOffset("NextCenter");
+			auto NextCenter = SafeZoneIndicator->Get<FVector*>(NextCenterOffset);
+
+			LOG_INFO(LogZone, "NextCenter: {}", __int64(NextCenter));
+			LOG_INFO(LogZone, "NextCenterOffset: {}", __int64(NextCenterOffset));
 			ImGui::SliderFloat("Next Center X", &NextCenter->X, 1, 100000);
 			ImGui::SliderFloat("Next Center Y", &NextCenter->Y, 1, 100000);
 
 			static auto NextRadiusOffset = FindOffsetStruct("/Script/FortniteGame.FortSafeZoneIndicator", "NextRadius");
-			ImGui::SliderFloat("NextRadius", (float*)(__int64(SafeZoneIndicator) + NextRadiusOffset), 1, 200000);
+			ImGui::SliderFloat("NextRadius", *(float**)(__int64(SafeZoneIndicator) + NextRadiusOffset), 1, 200000);
 
 			static auto SafeZoneFinishShrinkTimeOffset = FindOffsetStruct("/Script/FortniteGame.FortSafeZoneIndicator", "SafeZoneFinishShrinkTime");
-			ImGui::SliderFloat("SafeZoneFinishShrinkTime", (float*)(__int64(SafeZoneIndicator) + SafeZoneFinishShrinkTimeOffset), 1, 10000);
+			auto SafeZoneFinishShrinkTime = *(float**)(__int64(SafeZoneIndicator) + SafeZoneFinishShrinkTimeOffset);
+			ImGui::SliderFloat("SafeZoneFinishShrinkTime", SafeZoneFinishShrinkTime, 1, 10000);
 
 			static auto SafeZoneStartShrinkTimeOffset = FindOffsetStruct("/Script/FortniteGame.FortSafeZoneIndicator", "SafeZoneStartShrinkTime");
-			ImGui::SliderFloat("SafeZoneStartShrinkTime", (float*)(__int64(SafeZoneIndicator) + SafeZoneStartShrinkTimeOffset), 1, 10000);
+			auto SafeZoneStartShrinkTime = *(float**)(__int64(SafeZoneIndicator) + SafeZoneStartShrinkTimeOffset);
+			ImGui::SliderFloat("SafeZoneStartShrinkTime", SafeZoneStartShrinkTime, 1, 10000);
+
+			*/
 		}
 
 		else if (Tab == DUMP_TAB)
