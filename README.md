@@ -12,10 +12,10 @@
 
 ## To Do:
 
-- Vehicle Command
-- Remove Trash Islands & Fishing Holes on S13
-- Fix Vehicle Crash on versions < 8
-- Add Pickaxe Stutter (we might have what causes it now)
+- Vehicle Command - DONE
+- Remove Trash Islands & Fishing Holes on S13 - Keep dreaming (actually maybe who knows)
+- Fix Vehicle Crash on versions < 8 - If you know how, sure
+- Add Pickaxe Stutter (we might have what causes it now) - (We don't)
 
 do most of this and I think we can release ngl
 
