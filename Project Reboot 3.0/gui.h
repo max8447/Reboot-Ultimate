@@ -87,7 +87,7 @@ extern inline bool bEnableBotTick = true;
 extern inline bool bZoneReversing = false;
 extern inline bool bEnableCombinePickup = false;
 extern inline int AmountOfBotsToSpawn = 0;
-extern inline bool bEnableRebooting = false;
+extern inline bool bEnableRebooting = true;
 extern inline bool bEngineDebugLogs = false;
 extern inline bool bStartedBus = false;
 extern inline int AmountOfHealthSiphon = 50;
@@ -1250,7 +1250,7 @@ static inline void MainUI()
 				}
 			}
 
-			/* TODO Might fix in the future, but not right now.
+			// TODO Might fix in the future, but not right now.
 			
 			//static auto NextCenterOffset = FindOffsetStruct("/Script/FortniteGame.FortSafeZoneIndicator", "NextCenter");
 			//auto NextCenter = *(FVector**)(__int64(SafeZoneIndicator) + NextCenterOffset);
@@ -1273,7 +1273,7 @@ static inline void MainUI()
 			auto SafeZoneStartShrinkTime = *(float**)(__int64(SafeZoneIndicator) + SafeZoneStartShrinkTimeOffset);
 			ImGui::SliderFloat("SafeZoneStartShrinkTime", SafeZoneStartShrinkTime, 1, 10000);
 
-			*/
+			
 		}
 
 		else if (Tab == DUMP_TAB)

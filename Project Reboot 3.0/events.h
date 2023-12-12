@@ -6,6 +6,7 @@
 #include "reboot.h"
 #include "GameplayStatics.h"
 #include "FortPlaylistAthena.h"
+#include "FortWeaponMeleeItemDefinition.h"
 
 struct Event
 {
@@ -825,14 +826,14 @@ static inline void StartEvent()
 			auto PlayerController = Cast<AFortPlayerController>(ClientConnections.at(i)->GetPlayerController());
 
 			if (!PlayerController->IsValidLowLevel())
-				LOG_INFO(LogEvents, "Somebody doesn't have a playercontroller!");
+				LOG_INFO(LogEvent, "Somebody doesn't have a playercontroller!");
 				break;
 
 			auto WorldInventory = PlayerController->GetWorldInventory();
 
 			if (!WorldInventory->IsValidLowLevel())
 			{
-				LOG_INFO(LogEvents, "No WorldInventory for {}", Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetPlayerName().ToString());
+				LOG_INFO(LogEvent, "No WorldInventory for {}", Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetPlayerName().ToString());
 				break;
 			}
 

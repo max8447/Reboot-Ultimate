@@ -144,7 +144,7 @@ APawn* AGameModeBase::SpawnDefaultPawnForHook(AGameModeBase* GameMode, AControll
 
 	if (PlayerAbilitySet && ASC)
 	{
-		PlayerAbilitySet->ApplyGrantedGameplayAffectsToAbilitySystem(ASC);
+		PlayerAbilitySet->ApplyGrantedGameplayEffectsToAbilitySystem(ASC);
 	}
 
 	if (!bIsRespawning)
