@@ -5,7 +5,7 @@
 #include "moderation.h"
 #include "gui.h"
 
-enum class EMovementMode : uint8
+enum class EMovementMode : uint8_t
 {
 	MOVE_None = 0,
 	MOVE_Walking = 1,
@@ -1734,13 +1734,14 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				if (MovementOffset != -1)
 				{
 					EMovementMode MovementMode = CharMovement->Get<EMovementMode>(MovementOffset);
-					static auto SetMovementModeFn = FindObject<UFunction>(L"/Script/Engine.CharacterMovementComponent.SetMovementMode");
-					auto NewMode = EMovementMode::MOVE_Walking;
+					EMovementMode NewMode = EMovementMode::MOVE_Walking;
 
 					if (MovementMode != EMovementMode::MOVE_Flying)
 					{
 						NewMode = EMovementMode::MOVE_Flying;
 					}
+
+					static auto SetMovementModeFn = FindObject<UFunction>(L"/Script/Engine.CharacterMovementComponent.SetMovementMode");
 
 					if (SetMovementModeFn)
 					{
