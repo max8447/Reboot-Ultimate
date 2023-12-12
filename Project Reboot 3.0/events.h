@@ -810,6 +810,43 @@ static inline void StartEvent()
 			EventScripting->ProcessEvent(StartEventUFunc, &StartEventFunc.second);
 		}
 	}
+
+	if (Fortnite_Version > 11)
+	{
+		static auto AthenaPickaxeItemDefinitionClass = FindObject<UClass>(L"/Script/FortniteGame.AthenaPickaxeItemDefinition");
+		static auto HarvestDef = FindObject<UFortWeaponMeleeItemDefinition>("/EventMode/Content/Items/WID_EventMode_Activator.WID_EventMode_Activator");
+
+		static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
+		auto WorldNetDriver = GetWorld()->Get<UNetDriver*>(World_NetDriverOffset);
+		auto& ClientConnections = WorldNetDriver->GetClientConnections();
+
+		for (int i = 0; i < ClientConnections.Num(); i++)
+		{
+			auto PlayerController = Cast<AFortPlayerController>(ClientConnections.at(i)->GetPlayerController());
+
+			if (!PlayerController->IsValidLowLevel())
+				LOG_INFO(LogEvents, "Somebody doesn't have a playercontroller!");
+				break;
+
+			auto WorldInventory = PlayerController->GetWorldInventory();
+
+			if (!WorldInventory->IsValidLowLevel())
+			{
+				LOG_INFO(LogEvents, "No WorldInventory for {}", Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetPlayerName().ToString());
+				break;
+			}
+
+			auto PickaxeInstance = WorldInventory->GetPickaxeInstance();
+
+			if (PickaxeInstance)
+			{
+				WorldInventory->RemoveItem(PickaxeInstance->GetItemEntry()->GetItemGuid(), nullptr, PickaxeInstance->GetItemEntry()->GetCount(), true);
+			}
+
+			WorldInventory->AddItem(HarvestDef, nullptr, 1);
+			WorldInventory->Update();
+		}
+	}
 }
 
 static inline bool DoesEventRequireLoading()
