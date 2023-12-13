@@ -230,6 +230,9 @@ void AFortPlayerController::ServerLoadingScreenDroppedHook(UObject* Context, FFr
 
 	PlayerController->ApplyCosmeticLoadout();
 
+	PlayerController->GetXPComponent()->IsRegisteredWithQuestManager() = true;
+	PlayerController->GetXPComponent()->OnRep_bRegisteredWithQuestManager();
+
 	return ServerLoadingScreenDroppedOriginal(Context, Stack, Ret);
 }
 

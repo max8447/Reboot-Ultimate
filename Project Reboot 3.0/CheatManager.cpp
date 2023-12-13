@@ -47,14 +47,14 @@ void UCheatManager::DamageTarget(float DamageAmount)
 
 void UCheatManager::DestroyAll(TSubclassOf<class AActor> AClass)
 {
-	static auto DamageTargetFn = FindObject<UFunction>("/Script/Engine.CheatManager.DestroyAll");
+	static auto DestroyAllFn = FindObject<UFunction>("/Script/Engine.CheatManager.DestroyAll");
 
 	struct
 	{
 		TSubclassOf<class AActor>          AClass;                                                           //(Parm, ZeroConstructor, IsPlainOldData, NoDestructor, UObjectWrapper, HasGetValueTypeHash, NativeAccessSpecifierPublic)ic)
 	}UCheatManager_DestroyAll_Params{ AClass };
 
-	this->ProcessEvent(DamageTargetFn, &UCheatManager_DestroyAll_Params);
+	this->ProcessEvent(DestroyAllFn, &UCheatManager_DestroyAll_Params);
 }
 
 void UCheatManager::Mang(std::string Cmd)

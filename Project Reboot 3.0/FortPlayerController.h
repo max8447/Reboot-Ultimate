@@ -7,6 +7,7 @@
 #include "Rotator.h"
 #include "BuildingSMActor.h"
 #include "Stack.h"
+#include "ActorComponent.h"
 
 struct FFortAthenaLoadout
 {
@@ -40,6 +41,22 @@ struct FFortAthenaLoadout
 	}
 };
 
+class UFortPlayerControllerAthenaXPComponent : public UActorComponent //UFortControllerComponent
+{
+public:
+	bool& IsRegisteredWithQuestManager()
+	{
+		static auto IsRegisteredWithQuestManagerOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "bRegisteredWithQuestManager");
+		return *(bool*)(__int64(this) + IsRegisteredWithQuestManagerOffset);
+	}
+
+	void OnRep_bRegisteredWithQuestManager()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnRep_bRegisteredWithQuestManager");
+		this->ProcessEvent(fn, nullptr);
+	}
+};
+
 class AFortPlayerController : public APlayerController
 {
 public:
@@ -53,6 +70,12 @@ public:
 	static inline void (*ServerAttemptAircraftJumpOriginal)(AFortPlayerController* PC, FRotator ClientRotation);
 
 	void ClientReportDamagedResourceBuilding(ABuildingSMActor* BuildingSMActor, EFortResourceType PotentialResourceType, int PotentialResourceCount, bool bDestroyed, bool bJustHitWeakspot);
+
+	UFortPlayerControllerAthenaXPComponent* GetXPComponent()
+	{
+		static auto XPComponentOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthena", "XPComponent");
+		return *(UFortPlayerControllerAthenaXPComponent**)(__int64(this) + XPComponentOffset);
+	}
 
 	AFortInventory*& GetWorldInventory()
 	{
