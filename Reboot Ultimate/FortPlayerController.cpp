@@ -1242,6 +1242,8 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 		auto DeathInfo = DeadPlayerState->GetDeathInfo(); // Alloc<void>(DeathInfoStructSize);
 		DeadPlayerState->ClearDeathInfo();
 
+		auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+
 		auto/*&*/ Tags = MemberOffsets::FortPlayerPawn::CorrectTags == 0 ? FGameplayTagContainer()
 			: DeadPawn->Get<FGameplayTagContainer>(MemberOffsets::FortPlayerPawn::CorrectTags);
 		// *(FGameplayTagContainer*)(__int64(DeathReport) + MemberOffsets::DeathReport::Tags);
@@ -1290,13 +1292,51 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 		if (KillerPlayerState && KillerPlayerState != DeadPlayerState)
 		{
+			int KillScore;
+			int TeamKillScore;
+
 			if (MemberOffsets::FortPlayerStateAthena::KillScore != -1)
+			{
 				KillerPlayerState->Get<int>(MemberOffsets::FortPlayerStateAthena::KillScore)++;
+				KillScore = KillerPlayerState->Get<int>(MemberOffsets::FortPlayerStateAthena::KillScore);
+			}
 
 			if (MemberOffsets::FortPlayerStateAthena::TeamKillScore != -1)
+			{
 				KillerPlayerState->Get<int>(MemberOffsets::FortPlayerStateAthena::TeamKillScore)++;
+				TeamKillScore = KillerPlayerState->Get<int>(MemberOffsets::FortPlayerStateAthena::TeamKillScore);
+			}
 
 			KillerPlayerState->ClientReportKill(DeadPlayerState);
+
+			if (Globals::bEnableScoringSystem)
+			{
+				static auto ScoreOffset = KillerPlayerState->GetOffset("Score");
+				static auto TeamScoreOffset = KillerPlayerState->GetOffset("TeamScore");
+				static auto TeamScorePlacementOffset = KillerPlayerState->GetOffset("TeamScorePlacement");
+				static auto OldTotalScoreStatOffset = KillerPlayerState->GetOffset("OldTotalScoreStat");
+				static auto TotalPlayerScoreOffset = KillerPlayerState->GetOffset("TotalPlayerScore");
+
+				*(float*)(__int64(KillerPlayerState) + ScoreOffset) = KillScore;
+				*(int32*)(__int64(KillerPlayerState) + TeamScoreOffset) = KillScore;
+				int32& KillerStatePlacement = *(int32*)(__int64(KillerPlayerState) + TeamScorePlacementOffset);
+
+				KillerStatePlacement = 1;
+				*(int32*)(__int64(KillerPlayerState) + OldTotalScoreStatOffset) = KillScore;
+				*(int32*)(__int64(KillerPlayerState) + TotalPlayerScoreOffset) = KillScore;
+				GameState->GetCurrentHighScoreTeam() = 3;
+				GameState->GetCurrentHighScore() = KillScore;
+				GameState->OnRep_CurrentHighScore();
+				GameState->GetWinningScore() = KillScore;
+				GameState->GetWinningTeam() = 3;
+				GameState->OnRep_WinningTeam();
+				GameState->OnRep_WinningScore();
+				KillerPlayerState->OnRep_Score();
+				KillerPlayerState->OnRep_TeamScore();
+				KillerPlayerState->OnRep_TeamScorePlacement();
+				KillerPlayerState->OnRep_TotalPlayerScore();
+				KillerPlayerState->UpdateScoreStatChanged();
+			}
 
 			/* LoopMutators([&](AFortAthenaMutator* Mutator) {
 				if (auto TDM_Mutator = Cast<AFortAthenaMutator_TDM>(Mutator))
@@ -1467,6 +1507,14 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 					}
 
 					RemoveFromAlivePlayers(GameMode, PlayerController, KillerPlayerState == DeadPlayerState ? nullptr : KillerPlayerState, KillerPawn, KillerWeaponDef, DeathCause, 0);
+
+					static auto TeamsOffset = GameState->GetOffset("Teams");
+					auto& Teams = GameState->Get<TArray<UObject*>>(TeamsOffset);
+
+					if (Teams.Num() <= 1)
+					{
+						GameMode->EndMatch(); // Slomo fix (scuffed)
+					}
 
 					/*
 

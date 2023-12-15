@@ -4,6 +4,7 @@
 #include "TSubclassOf.h"
 #include "moderation.h"
 #include "gui.h"
+#include "xp.h"
 
 enum class EMovementMode : uint8_t
 {
@@ -140,7 +141,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		auto& Command = Arguments[0];
 		std::transform(Command.begin(), Command.end(), Command.begin(), ::tolower);
 
-		if (Command == "giveitem")
+		if (Command == "giveitem" || Command == "give")
 		{
 			if (NumArgs < 1)
 			{
@@ -734,6 +735,58 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Granted item!");
 		}
+		else if (Command == "testwin")
+		{
+			auto pawn = ReceivingController->GetMyFortPawn();
+			auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+
+			ReceivingController->PlayWinEffects(pawn, FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Vehicles/WID_Octopus_Weapon.WID_Octopus_Weapon"), EDeathCause::Rifle, false);
+			ReceivingController->ClientNotifyWon(pawn, FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Vehicles/WID_Octopus_Weapon.WID_Octopus_Weapon"), EDeathCause::Rifle);
+			GameMode->EndMatch();
+		}
+		else if (Command == "gamemodesay")
+		{
+			auto SayMessage = L"test";
+			auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+
+			if (NumArgs > 0)
+				SayMessage = std::wstring(Arguments[1].begin(), Arguments[1].end()).c_str();
+
+			GameMode->Say(SayMessage);
+		}
+		else if (Command == "changeclipsize")
+		{
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(ReceivingController, L"Please provide a valid clip size!");
+				return;
+			}
+
+			auto WorldInventory = ReceivingController->GetWorldInventory();
+
+			if (!WorldInventory)
+			{
+				SendMessageToConsole(PlayerController, L"No world inventory!");
+				return;
+			}
+
+			static auto WeaponDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_SR_Ore_T03.WID_Shotgun_Standard_Athena_SR_Ore_T03");
+
+			int NewClipSize = WeaponDef->GetClipSize();
+
+			try { NewClipSize = std::stoi(Arguments[1]); }
+			catch (...) {}
+
+			WeaponDef->GetClipSize() = NewClipSize;
+
+			bool bShouldUpdate = false;
+			WorldInventory->AddItem(WeaponDef, &bShouldUpdate);
+
+			if (bShouldUpdate)
+				WorldInventory->Update();
+
+			SendMessageToConsole(PlayerController, L"Granted item!");
+		}
 		else if (Command == "togglesnowmap")
 		{
 			if (Calendar::HasSnowModification())
@@ -1081,11 +1134,36 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			Pawn->CopyToClipboard(Loc);
 		}
+		else if (Command == "givexptest")
+		{
+			static auto KillScoreOffset = ReceivingPlayerState->GetOffset("KillScore");
+			int Kills = *(int*)(__int64(ReceivingPlayerState) + KillScoreOffset);
+
+			auto TimeAlive = UGameplayStatics::GetTimeSeconds(GetWorld());
+
+			int CombatXP = Kills * 100;
+			int SurvivalXP = TimeAlive * 100;
+			int BonusMedalXP = 0;
+			int ChallengeXP = 0;
+			int MatchXP = 0;
+
+			GiveXP(ReceivingController, CombatXP, SurvivalXP, BonusMedalXP, ChallengeXP, MatchXP);
+
+			FString a = std::to_wstring(CombatXP).c_str();
+			FString b = std::to_wstring(SurvivalXP).c_str();
+			FString c = std::to_wstring(BonusMedalXP).c_str();
+			FString d = std::to_wstring(ChallengeXP).c_str();
+			FString e = std::to_wstring(MatchXP).c_str();
+
+			SendMessageToConsole(ReceivingController, (L"Gave XP: {}, {}, {}, {}, {}", a, b, c, d, e));
+		}
 		else if (Command == "startaircraft")
 		{
 			if (bStartedBus)
+			{
 				SendMessageToConsole(ReceivingController, L"Bus has already started!");
-			return;
+				return;
+			}
 
 			UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"startaircraft", ReceivingController);
 

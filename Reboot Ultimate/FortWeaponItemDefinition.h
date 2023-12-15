@@ -5,7 +5,7 @@
 class UFortWeaponItemDefinition : public UFortWorldItemDefinition
 {
 public:
-	int GetClipSize();
+	int& GetClipSize();
 	UFortWorldItemDefinition* GetAmmoData();
 
 	static UClass* StaticClass();

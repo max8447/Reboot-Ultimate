@@ -41,6 +41,22 @@ struct FFortAthenaLoadout
 	}
 };
 
+struct FAthenaLevelInfo
+{
+public:
+	int32& GetLevelXp()
+	{
+		static auto LevelXpOffset = FindOffsetStruct("/Script/FortniteGame.AthenaLevelInfo", "LevelXp");
+		return *(int32*)(__int64(this) + LevelXpOffset);
+	}
+
+	int32& GetBookLevelXp()
+	{
+		static auto BookLevelXpOffset = FindOffsetStruct("/Script/FortniteGame.AthenaLevelInfo", "BookLevelXp");
+		return *(int32*)(__int64(this) + BookLevelXpOffset);
+	}
+};
+
 class UFortPlayerControllerAthenaXPComponent : public UActorComponent //UFortControllerComponent
 {
 public:
@@ -48,6 +64,66 @@ public:
 	{
 		static auto IsRegisteredWithQuestManagerOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "bRegisteredWithQuestManager");
 		return *(bool*)(__int64(this) + IsRegisteredWithQuestManagerOffset);
+	}
+
+	int32& GetCombatXp()
+	{
+		static auto CombatXpOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "CombatXp");
+		return *(int32*)(__int64(this) + CombatXpOffset);
+	}
+
+	int32& GetSurvivalXp()
+	{
+		static auto SurvivalXpOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "SurvivalXp");
+		return *(int32*)(__int64(this) + SurvivalXpOffset);
+	}
+
+	int32& GetMedalBonusXP()
+	{
+		static auto MedalBonusXPOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "MedalBonusXP");
+		return *(int32*)(__int64(this) + MedalBonusXPOffset);
+	}
+
+	int32& GetChallengeXp()
+	{
+		static auto ChallengeXpOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "ChallengeXp");
+		return *(int32*)(__int64(this) + ChallengeXpOffset);
+	}
+
+	int32& GetMatchXp()
+	{
+		static auto MatchXpOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "MatchXp");
+		return *(int32*)(__int64(this) + MatchXpOffset);
+	}
+
+	int32& GetTotalXpEarned()
+	{
+		static auto TotalXpEarnedOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "TotalXpEarned");
+		return *(int32*)(__int64(this) + TotalXpEarnedOffset);
+	}
+
+	FAthenaLevelInfo& GetCachedLevelInfo()
+	{
+		static auto CachedLevelInfoOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "CachedLevelInfo");
+		return *(FAthenaLevelInfo*)(__int64(this) + CachedLevelInfoOffset);
+	}
+
+	void OnXpUpdated(int32 InCombatXp, int32 InServivalXp, int32 InBonusMedalXp, int32 InChallengeXp, int32 InMatchXp, int32 InTotalXp)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnXpUpdated");
+
+		struct
+		{
+			int32                              InCombatXp;                                                      // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+			int32                              InServivalXp;                                                    // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+			int32                              InBonusMedalXp;                                                  // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+			int32                              InChallengeXp;                                                   // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+			int32                              InMatchXp;                                                       // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+			int32                              InTotalXp;                                                       // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+
+		}params{ InCombatXp , InServivalXp , InBonusMedalXp , InChallengeXp , InMatchXp , InTotalXp };
+
+		this->ProcessEvent(fn, &params);
 	}
 
 	void OnRep_bRegisteredWithQuestManager()

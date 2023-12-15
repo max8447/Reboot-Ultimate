@@ -20,6 +20,7 @@
 #include "discord.h"
 #include "BuildingGameplayActorSpawnMachine.h"
 #include "BP_IslandScripting.h"
+#include "FortAthenaSupplyDrop.h"
 
 #include "vehicles.h"
 #include "globals.h"
@@ -185,6 +186,61 @@ void AFortGameModeAthena::StartAircraftPhase()
 	else
 	{
 		UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"startaircraft", nullptr);
+	}
+}
+
+void AFortGameModeAthena::OverrideBattleBus(AFortGameStateAthena* GameState, UObject* OverrideBattleBusSkin)
+{
+	if (!OverrideBattleBusSkin)
+	{
+		LOG_WARN(LogGame, "OverrideBattleBus not found! Equipping default battle bus.");
+		return;
+	}
+
+	static auto DefaultBattleBusOffset = GameState->GetOffset("DefaultBattleBus");
+	GameState->Get(DefaultBattleBusOffset) = OverrideBattleBusSkin;
+
+	static auto FortAthenaAircraftClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAircraft");
+	auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
+
+	for (int i = 0; i < AllAircrafts.Num(); i++)
+	{
+		auto Aircraft = AllAircrafts.at(i);
+
+		static auto DefaultBusSkinOffset = Aircraft->GetOffset("DefaultBusSkin");
+		Aircraft->Get(DefaultBusSkinOffset) = OverrideBattleBusSkin;
+
+		static auto SpawnedCosmeticActorOffset = Aircraft->GetOffset("SpawnedCosmeticActor");
+		auto SpawnedCosmeticActor = Aircraft->Get<AActor*>(SpawnedCosmeticActorOffset);
+
+		if (SpawnedCosmeticActor)
+		{
+			static auto ActiveSkinOffset = SpawnedCosmeticActor->GetOffset("ActiveSkin");
+			SpawnedCosmeticActor->Get(ActiveSkinOffset) = OverrideBattleBusSkin;
+		}
+	}
+}
+
+void AFortGameModeAthena::OverrideSupplyDrop(AFortGameStateAthena* GameState, UClass* OverrideSupplyDropBusClass)
+{
+	if (!OverrideSupplyDropBusClass)
+	{
+		LOG_WARN(LogGame, "OverrideSuppyDrop not found! Equipping default supply drop.");
+		return;
+	}
+
+	static auto MapInfoOffset = GameState->GetOffset("MapInfo");
+	auto MapInfo = GameState->Get<AFortAthenaMapInfo*>(MapInfoOffset);
+
+	static auto SupplyDropInfoListOffset = MapInfo->GetOffset("SupplyDropInfoList");
+	auto SupplyDropInfoList = MapInfo->Get<TArray<UFortSupplyDropInfo*>>(SupplyDropInfoListOffset);
+
+	for (int i = 0; i < SupplyDropInfoList.Num(); i++)
+	{
+		static auto SupplyDropClassOffset = SupplyDropInfoList[i]->GetOffset("SupplyDropClass");
+		SupplyDropInfoList[i]->Get<TSubclassOf<AFortAthenaSupplyDrop*>>(SupplyDropClassOffset) = OverrideSupplyDropBusClass;
+
+		LOG_INFO(LogGame, "override supply drop called and done");
 	}
 }
 
@@ -728,6 +784,12 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 	if (Teams.Num() <= 0)
 		return false;
 
+	auto CurrentPlaylist = GameState->GetCurrentPlaylist();
+	auto WinConditionTypeOffset = CurrentPlaylist->GetOffset("WinConditionType");
+	auto WinConditionType = CurrentPlaylist->Get<EAthenaWinCondition>(WinConditionTypeOffset);
+
+	WinConditionType == EAthenaWinCondition::MutatorControlledGoalScore ? Globals::bEnableScoringSystem = true : Globals::bEnableScoringSystem = false;
+
 	static int LastNum3 = 1;
 
 	if (AmountOfRestarts != LastNum3)
@@ -1155,6 +1217,46 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 
 			LOG_INFO(LogDev, "Auto starting bus in {}.", AutoBusStartSeconds);
 		}
+	}
+
+	static UObject* OverrideBattleBusSkin = nullptr;
+	static UClass* OverrideSupplyDropClass = nullptr;
+
+	if (Fortnite_Version == 1.11 || Fortnite_Version == 7.30 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.10)
+	{
+		OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus"); // Winterfest
+		OverrideSupplyDropClass = FindObject<UClass>(L"/Game/Athena/SupplyDrops/AthenaSupplyDrop_Holiday.AthenaSupplyDrop_Holiday_C");
+	}
+	else if (Fortnite_Version == 5.10 || Fortnite_Version == 9.41 || Fortnite_Version == 14.20 || Fortnite_Version == 18.00)
+	{
+		OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_BirthdayBus2nd.BBID_BirthdayBus2nd"); // Birthday
+		OverrideSupplyDropClass = FindObject<UClass>(L"/Game/Athena/SupplyDrops/AthenaSupplyDrop_BDay.AthenaSupplyDrop_BDay_C");
+	}
+	else if (Fortnite_Version == 1.8 || Fortnite_Version == 6.20 || Fortnite_Version == 6.21 || Fortnite_Version == 11.10 || Fortnite_Version == 14.40 || Fortnite_Version == 18.21)
+	{
+		OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_HalloweenBus.BBID_HalloweenBus"); // Fortnitemares
+	}
+	else if (Fortnite_Version >= 12.30 && Fortnite_Version <= 12.61)
+	{
+		OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_DonutBus.BBID_DonutBus"); // Deadpool
+		OverrideSupplyDropClass = FindObject<UClass>(L"/Game/Athena/SupplyDrops/AthenaSupplyDrop_Donut.AthenaSupplyDrop_Donut_C");
+	}
+	else if (Fortnite_Version == 9.30)
+	{
+		OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WorldCupBus.BBID_WorldCupBus"); // World Cup
+	}
+
+	if (OverrideBattleBusSkin)
+		OverrideBattleBus(GameState, OverrideBattleBusSkin);
+
+	if (OverrideSupplyDropClass)
+	{
+		OverrideSupplyDrop(GameState, OverrideSupplyDropClass);
+		LOG_INFO(LogGame, "override supplydrop called in hook");
+	}
+	else
+	{
+		LOG_INFO(LogGame, "override supplydrop NOT called in hook");
 	}
 
 	// if (Engine_Version < 427)

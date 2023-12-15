@@ -3,15 +3,17 @@
 #include "DataTable.h"
 #include "SoftObjectPtr.h"
 
-int UFortWeaponItemDefinition::GetClipSize()
+int& UFortWeaponItemDefinition::GetClipSize()
 {
+	static int INVALID_RET = 0;
+
 	static auto WeaponStatHandleOffset = GetOffset("WeaponStatHandle");
 	auto& WeaponStatHandle = Get<FDataTableRowHandle>(WeaponStatHandleOffset);
 
 	auto Table = WeaponStatHandle.DataTable;
 
 	if (!Table)
-		return 0;
+		return INVALID_RET;
 
 	auto& RowMap = Table->GetRowMap();
 
@@ -29,7 +31,7 @@ int UFortWeaponItemDefinition::GetClipSize()
 	}
 
 	if (!Row)
-		return 0;
+		return INVALID_RET;
 
 	static auto ClipSizeOffset = FindOffsetStruct("/Script/FortniteGame.FortBaseWeaponStats", "ClipSize");
 	return *(int*)(__int64(Row) + ClipSizeOffset);

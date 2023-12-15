@@ -93,6 +93,51 @@ public:
 class AFortGameStateAthena : public AGameState
 {
 public:
+	int32& GetCurrentHighScoreTeam()
+	{
+		static auto CurrentHighScoreTeamOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "CurrentHighScoreTeam");
+		return *(int32*)(__int64(this) + CurrentHighScoreTeamOffset);
+	}
+
+	int32& GetCurrentHighScore()
+	{
+		static auto CurrentHighScoreOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "CurrentHighScore");
+		return *(int32*)(__int64(this) + CurrentHighScoreOffset);
+	}
+
+	int32& GetWinningScore()
+	{
+		static auto WinningScoreOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "WinningScore");
+		return *(int32*)(__int64(this) + WinningScoreOffset);
+	}
+
+	int32& GetWinningTeam()
+	{
+		static auto WinningTeamOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "WinningTeam");
+		return *(int32*)(__int64(this) + WinningTeamOffset);
+	}
+
+	void OnRep_CurrentHighScore()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortGameStateAthena.OnRep_CurrentHighScore");
+		if (fn)
+			this->ProcessEvent(fn, nullptr);
+	}
+
+	void OnRep_WinningTeam()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortGameStateAthena.OnRep_WinningTeam");
+		if (fn)
+			this->ProcessEvent(fn, nullptr);
+	}
+
+	void OnRep_WinningScore()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortGameStateAthena.OnRep_WinningScore");
+		if (fn)
+			this->ProcessEvent(fn, nullptr);
+	}
+
 	int& GetPlayersLeft()
 	{
 		static auto PlayersLeftOffset = GetOffset("PlayersLeft");

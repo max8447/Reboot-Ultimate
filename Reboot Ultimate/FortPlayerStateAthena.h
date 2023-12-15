@@ -53,7 +53,7 @@ class AFortPlayerStateAthena : public AFortPlayerState
 {
 public:
 	static inline void (*ServerSetInAircraftOriginal)(UObject* Context, FFrame& Stack, void* Ret);
-	
+
 	uint8& GetSquadId()
 	{
 		static auto SquadIdOffset = GetOffset("SquadId");
@@ -116,6 +116,24 @@ public:
 		{
 			this->ProcessEvent(OnRep_DeathInfoFn);
 		}
+	}
+
+	void OnRep_TeamScore()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerStateAthena.OnRep_TeamScore");
+		this->ProcessEvent(fn);
+	}
+
+	void OnRep_TeamScorePlacement()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerStateAthena.OnRep_TeamScorePlacement");
+		this->ProcessEvent(fn);
+	}
+
+	void OnRep_TotalPlayerScore()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerStateAthena.OnRep_TotalPlayerScore");
+		this->ProcessEvent(fn);
 	}
 
 	FDeathInfo* GetDeathInfo()

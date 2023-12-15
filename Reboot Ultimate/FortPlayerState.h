@@ -19,6 +19,8 @@ public:
 		return this->Get<int>(WorldPlayerIdOffset);
 	}
 
+	void UpdateScoreStatChanged();
+
 	void EndDBNOAbilities();
 
 	static bool AreUniqueIDsIdentical(FUniqueNetIdRepl* A, FUniqueNetIdRepl* B);

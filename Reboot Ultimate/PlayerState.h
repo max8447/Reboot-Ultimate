@@ -13,4 +13,5 @@ public:
 	bool IsBot();
 	void SetIsBot(bool NewValue);
 	void OnRep_PlayerName();
+	void OnRep_Score();
 };

@@ -16,6 +16,19 @@ enum class EQuitPreference : uint8
 	EQuitPreference_MAX = 2,
 };
 
+enum class EAthenaWinCondition : uint8
+{
+	LastManStanding = 0,
+	LastManStandingIncludingAllies = 1,
+	TimedTeamFinalFight = 2,
+	FirstToGoalScore = 3,
+	TimedLastMenStanding = 4,
+	MutatorControlled = 5,
+	MutatorControlledGoalScore = 6,
+	MutatorControlledChinaSupported = 7,
+	EAthenaWinCondition_MAX = 8,
+};
+
 static void ApplyHID(AFortPlayerPawn* Pawn, UObject* HeroDefinition, bool bUseServerChoosePart = false)
 {
 	using UFortHeroSpecialization = UObject;
@@ -138,6 +151,62 @@ struct FGhostModeRepData
 	}
 };
 
+enum class EDeathCause : uint8
+{
+	OutsideSafeZone = 0,
+	FallDamage = 1,
+	Pistol = 2,
+	Shotgun = 3,
+	Rifle = 4,
+	SMG = 5,
+	Sniper = 6,
+	SniperNoScope = 7,
+	Melee = 8,
+	InfinityBlade = 9,
+	Grenade = 10,
+	C4 = 11,
+	GrenadeLauncher = 12,
+	RocketLauncher = 13,
+	Minigun = 14,
+	Bow = 15,
+	Trap = 16,
+	DBNOTimeout = 17,
+	Banhammer = 18,
+	RemovedFromGame = 19,
+	MassiveMelee = 20,
+	MassiveDiveBomb = 21,
+	MassiveRanged = 22,
+	Vehicle = 23,
+	ShoppingCart = 24,
+	ATK = 25,
+	QuadCrasher = 26,
+	Biplane = 27,
+	BiplaneGun = 28,
+	LMG = 29,
+	GasGrenade = 30,
+	InstantEnvironmental = 31,
+	InstantEnvironmentalFellOutOfWorld = 32,
+	InstantEnvironmentalUnderLandscape = 33,
+	Turret = 34,
+	ShipCannon = 35,
+	Cube = 36,
+	Balloon = 37,
+	StormSurge = 38,
+	Lava = 39,
+	BasicFiend = 40,
+	EliteFiend = 41,
+	RangedFiend = 42,
+	BasicBrute = 43,
+	EliteBrute = 44,
+	MegaBrute = 45,
+	SilentSwitchingToSpectate = 46,
+	LoggedOut = 47,
+	TeamSwitchSuicide = 48,
+	WonMatch = 49,
+	Unspecified = 50,
+	EDeathCause_MAX = 51,
+};
+
 class AFortPlayerControllerAthena : public AFortPlayerController
 {
 public:
@@ -147,6 +216,35 @@ public:
 	static inline void (*EnterAircraftOriginal)(UObject* PC, AActor* Aircraft);
 	static inline void (*StartGhostModeOriginal)(UObject* Context, FFrame* Stack, void* Ret);
 	static inline void (*EndGhostModeOriginal)(AFortPlayerControllerAthena* PlayerController);
+
+	void PlayWinEffects(class APawn* FinisherPawn, class UFortWeaponItemDefinition* FinishingWeapon, enum class EDeathCause DeathCause, bool bAudioOnly)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthena.PlayWinEffects");
+
+		struct
+		{
+			APawn* FinisherPawn;
+			UFortWeaponItemDefinition* FinishingWeapon;
+			EDeathCause DeathCause;
+			bool bAudioOnly;
+		}params{FinisherPawn,FinishingWeapon,DeathCause,bAudioOnly};
+
+		this->ProcessEvent(fn, &params);
+	}
+
+	void ClientNotifyWon(class APawn* FinisherPawn, class UFortWeaponItemDefinition* FinishingWeapon, enum class EDeathCause DeathCause)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthena.ClientNotifyWon");
+
+		struct
+		{
+			APawn* FinisherPawn;
+			UFortWeaponItemDefinition* FinishingWeapon;
+			EDeathCause DeathCause;
+		}params{ FinisherPawn,FinishingWeapon,DeathCause};
+
+		this->ProcessEvent(fn, &params);
+	}
 
 	void SpectateOnDeath() // actually in zone
 	{

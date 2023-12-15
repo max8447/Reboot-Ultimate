@@ -489,6 +489,7 @@
     <ClInclude Include="WeakObjectPtr.h" />
     <ClInclude Include="WeakObjectPtrTemplates.h" />
     <ClInclude Include="World.h" />
+    <ClInclude Include="xp.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DelegateSignatureImpl.inl" />
