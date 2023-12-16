@@ -45,8 +45,6 @@ void AFortPlayerControllerAthena::ProgressQuest(AFortPlayerControllerAthena* PC,
 	}
 	auto QuestItem = PC->GetQuestManager(ESubGame::Athena)->GetQuestWithDefinition(QuestDef);
 
-	FText SingleLineDescription = UKismetTextLibrary::Conv_StringToText(L"Search the hidden 'T' in the Trick Shot Loading Screen");
-
 	FXPEventEntry test{};
 	test.EventXpValue = 5000;//still skunked i will make it so it gets real xp value from datatable
 	test.QuestDef = QuestDef;

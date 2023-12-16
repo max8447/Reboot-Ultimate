@@ -37,9 +37,9 @@ int& UFortWeaponItemDefinition::GetClipSize()
 	return *(int*)(__int64(Row) + ClipSizeOffset);
 }
 
-int& UFortWeaponItemDefinition::GetSpread()
+float& UFortWeaponItemDefinition::GetSpread()
 {
-	static int INVALID_RET = 0;
+	static float INVALID_RET = 0.f;
 
 	static auto WeaponStatHandleOffset = GetOffset("WeaponStatHandle");
 	auto& WeaponStatHandle = Get<FDataTableRowHandle>(WeaponStatHandleOffset);
@@ -68,7 +68,7 @@ int& UFortWeaponItemDefinition::GetSpread()
 		return INVALID_RET;
 
 	static auto SpreadOffset = FindOffsetStruct("/Script/FortniteGame.FortRangedWeaponStats", "Spread");
-	return *(int*)(__int64(Row) + SpreadOffset);
+	return *(float*)(__int64(Row) + SpreadOffset);
 }
 
 TArray<int>& UFortWeaponItemDefinition::GetDamage()

@@ -6,7 +6,7 @@ class UFortWeaponItemDefinition : public UFortWorldItemDefinition
 {
 public:
 	int& GetClipSize();
-	int& GetSpread();
+	float& GetSpread();
 	TArray<int>& GetDamage();
 	UFortWorldItemDefinition* GetAmmoData();
 

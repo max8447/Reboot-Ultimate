@@ -4,7 +4,6 @@
 #include "TSubclassOf.h"
 #include "moderation.h"
 #include "gui.h"
-#include "xp.h"
 
 enum class EMovementMode : uint8_t
 {
