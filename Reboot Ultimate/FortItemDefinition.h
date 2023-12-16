@@ -3,6 +3,7 @@
 #include "FortItem.h"
 #include "Object.h"
 #include "Class.h"
+#include "Text.h"
 
 #include "reboot.h"
 
@@ -17,6 +18,17 @@ public:
 		static auto bAllowMultipleStacksOffset = GetOffset("bAllowMultipleStacks");
 		static auto bAllowMultipleStacksFieldMask = GetFieldMask(GetProperty("bAllowMultipleStacks"));
 		return ReadBitfieldValue(bAllowMultipleStacksOffset, bAllowMultipleStacksFieldMask);
+	}
+
+	FText GetSingleLineDescription()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortItemDefinition.GetSingleLineDescription");
+
+		FText ReturnValue;
+
+		this->ProcessEvent(fn, &ReturnValue);
+
+		return ReturnValue;
 	}
 
 	static UClass* StaticClass()

@@ -13,6 +13,58 @@
 #include "FortGadgetItemDefinition.h"
 #include "gui.h"
 
+void AFortPlayerControllerAthena::GiveXP(AFortPlayerControllerAthena* PC, int CombatXP, int SurvivalXP, int BonusMedalXP, int ChallengeXP, int MatchXP)
+{
+	UFortPlayerControllerAthenaXPComponent* XPComponent = PC->GetXPComponent();
+
+	if (XPComponent)
+	{
+		XPComponent->GetCombatXp() += CombatXP;
+		XPComponent->GetSurvivalXp() += SurvivalXP;
+		XPComponent->GetMedalBonusXP() += BonusMedalXP;
+		XPComponent->GetChallengeXp() += ChallengeXP;
+		XPComponent->GetMatchXp() += MatchXP;
+		XPComponent->GetTotalXpEarned() += (CombatXP + SurvivalXP + BonusMedalXP + ChallengeXP + MatchXP);
+		XPComponent->GetCachedLevelInfo().GetLevelXp() += XPComponent->GetTotalXpEarned();
+		XPComponent->GetCachedLevelInfo().GetBookLevelXp() += XPComponent->GetTotalXpEarned();
+		XPComponent->OnXpUpdated(CombatXP, SurvivalXP, BonusMedalXP, ChallengeXP, MatchXP, XPComponent->GetTotalXpEarned());
+	}
+}
+
+void AFortPlayerControllerAthena::ProgressQuest(AFortPlayerControllerAthena* PC, UFortQuestItemDefinition* QuestDef, FName BackendName)
+{
+	PC->GetQuestManager(ESubGame::Athena)->SelfCompletedUpdatedQuest(PC, QuestDef, BackendName, 1, 1, nullptr, true, false);
+	AFortPlayerStateAthena* PlayerState = (AFortPlayerStateAthena*)PC->GetPlayerState();
+	for (size_t i = 0; i < PlayerState->GetPlayerTeam()->GetTeamMembers().Num(); i++)
+	{
+		auto pc = (AFortPlayerControllerAthena*)PlayerState->GetPlayerTeam()->GetTeamMembers()[i];
+		if (pc && pc != PC)
+		{
+			pc->GetQuestManager(ESubGame::Athena)->SelfCompletedUpdatedQuest(PC, QuestDef, BackendName, 1, 1, PlayerState, true, false);
+		}
+	}
+	auto QuestItem = PC->GetQuestManager(ESubGame::Athena)->GetQuestWithDefinition(QuestDef);
+
+	FText SingleLineDescription = UKismetTextLibrary::Conv_StringToText(L"Search the hidden 'T' in the Trick Shot Loading Screen");
+
+	FXPEventEntry test{};
+	test.EventXpValue = 5000;//still skunked i will make it so it gets real xp value from datatable
+	test.QuestDef = QuestDef;
+	test.Time = UGameplayStatics::GetTimeSeconds(GetWorld());
+	PC->GetXPComponent()->GetChallengeXp() += test.EventXpValue;
+	PC->GetXPComponent()->GetTotalXpEarned() += test.EventXpValue;
+	test.TotalXpEarnedInMatch = PC->GetXPComponent()->GetTotalXpEarned();
+	test.SimulatedXpEvent = QuestDef->GetSingleLineDescription();
+	PC->GetXPComponent()->GetRestXP() += test.EventXpValue;
+	PC->GetXPComponent()->GetInMatchProfileVer()++;
+	PC->GetXPComponent()->OnInMatchProfileUpdate(PC->GetXPComponent()->GetInMatchProfileVer());
+	PC->GetXPComponent()->OnProfileUpdated();
+	PC->GetXPComponent()->OnXpUpdated(PC->GetXPComponent()->GetCombatXp(), PC->GetXPComponent()->GetSurvivalXp(), PC->GetXPComponent()->GetMedalBonusXP(), PC->GetXPComponent()->GetChallengeXp(), PC->GetXPComponent()->GetMatchXp(), PC->GetXPComponent()->GetTotalXpEarned());
+	PC->GetXPComponent()->GetWaitingQuestXp().Add(test);
+
+	PC->GetXPComponent()->HighPrioXPEvent(test);
+}
+
 void AFortPlayerControllerAthena::StartGhostModeHook(UObject* Context, FFrame* Stack, void* Ret)
 {
 	LOG_INFO(LogDev, __FUNCTION__);

@@ -9,6 +9,47 @@
 #include "Stack.h"
 #include "ActorComponent.h"
 
+class UProperty : public UField
+{
+public:
+	uint8                                        Pad_14[0x4];                                       // Fixing Size After Last (Predefined) Property  [ Dumper-7 ]
+	int32                                        ElementSize;                                       // (0x34[0x04]) NOT AUTO-GENERATED PROPERTY
+	uint64                                       PropertyFlags;                                     // (0x38[0x08]) NOT AUTO-GENERATED PROPERTY
+	uint8                                        Pad_15[0x4];                                       // Fixing Size After Last (Predefined) Property  [ Dumper-7 ]
+	int32                                        Offset;                                            // (0x44[0x04]) NOT AUTO-GENERATED PROPERTY
+	uint8                                        Pad_16[0x28];                                      // Fixing Size Of Struct [ Dumper-7 ]
+};
+
+struct FPrimaryAssetType
+{
+public:
+	FName                                  Name;                                              // 0x0(0x8)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+};
+
+struct FPrimaryAssetId
+{
+public:
+	FPrimaryAssetType                     PrimaryAssetType;                                  // 0x0(0x8)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	FName                                  PrimaryAssetName;                                  // 0x8(0x8)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+};
+
+struct FXPEventEntry : public FFastArraySerializerItem
+{
+public:
+	uint8                                        Pad_4665[0x4];                                     // Fixing Size After Last Property  [ Dumper-7 ]
+	class FText                                  SimulatedXpEvent;                                  // 0x10(0x18)(NativeAccessSpecifierPublic)
+	class UFortQuestItemDefinition* QuestDef;                                          // 0x28(0x8)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	struct FPrimaryAssetId                       Accolade;                                          // 0x30(0x10)(ZeroConstructor, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	float                                        Time;                                              // 0x40(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	int32                                        EventXpValue;                                      // 0x44(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	int32                                        TotalXpEarnedInMatch;                              // 0x48(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	uint8                                        Pad_4666[0x4];                                     // Fixing Size Of Struct [ Dumper-7 ]
+};
+
+static UClass* LettersClass = nullptr;
+static UProperty* QuestItem = nullptr;
+static UProperty* BackendNameProp = nullptr;
+
 struct FFortAthenaLoadout
 {
 	static UStruct* GetStruct()
@@ -102,10 +143,46 @@ public:
 		return *(int32*)(__int64(this) + TotalXpEarnedOffset);
 	}
 
+	int32& GetRestXP()
+	{
+		static auto RestXPOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "RestXP");
+		return *(int32*)(__int64(this) + RestXPOffset);
+	}
+
+	int64& GetInMatchProfileVer()
+	{
+		static auto InMatchProfileVerOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "InMatchProfileVer");
+		return *(int64*)(__int64(this) + InMatchProfileVerOffset);
+	}
+
+	TArray<FXPEventEntry>& GetWaitingQuestXp()
+	{
+		static auto WaitingQuestXpOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "WaitingQuestXp");
+		return *(TArray<FXPEventEntry>*)(__int64(this) + WaitingQuestXpOffset);
+	}
+
 	FAthenaLevelInfo& GetCachedLevelInfo()
 	{
 		static auto CachedLevelInfoOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "CachedLevelInfo");
 		return *(FAthenaLevelInfo*)(__int64(this) + CachedLevelInfoOffset);
+	}
+
+	void OnProfileUpdated()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnProfileUpdated");
+		this->ProcessEvent(fn, nullptr);
+	}
+
+	void HighPrioXPEvent(const struct FXPEventEntry& HighPrioXPEvent)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.HighPrioXPEvent");
+
+		struct
+		{
+			struct FXPEventEntry               HighPrioXPEvent;
+		}params{ HighPrioXPEvent };
+
+		this->ProcessEvent(fn, &params);
 	}
 
 	void OnXpUpdated(int32 InCombatXp, int32 InServivalXp, int32 InBonusMedalXp, int32 InChallengeXp, int32 InMatchXp, int32 InTotalXp)
@@ -122,6 +199,18 @@ public:
 			int32                              InTotalXp;                                                       // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 
 		}params{ InCombatXp , InServivalXp , InBonusMedalXp , InChallengeXp , InMatchXp , InTotalXp };
+
+		this->ProcessEvent(fn, &params);
+	}
+
+	void OnInMatchProfileUpdate(int64 ProfileRevision)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnInMatchProfileUpdate");
+
+		struct
+		{
+			int64                              ProfileRevision;
+		}params{ ProfileRevision };
 
 		this->ProcessEvent(fn, &params);
 	}

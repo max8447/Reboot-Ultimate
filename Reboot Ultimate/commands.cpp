@@ -787,6 +787,111 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Granted item!");
 		}
+		else if (Command == "changedamage")
+		{
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(ReceivingController, L"Please provide a valid clip size!");
+				return;
+			}
+
+			auto WorldInventory = ReceivingController->GetWorldInventory();
+
+			if (!WorldInventory)
+			{
+				SendMessageToConsole(PlayerController, L"No world inventory!");
+				return;
+			}
+
+			static auto WeaponDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_SR_Ore_T03.WID_Shotgun_Standard_Athena_SR_Ore_T03");
+
+			TArray<int> DamageArray = WeaponDef->GetDamage();
+
+			int NewDamage = 0;
+
+			try { NewDamage = std::stoi(Arguments[1]); }
+			catch (...) {}
+
+			for (int i = 0; i < DamageArray.Num(); i++)
+			{
+				DamageArray[i] = NewDamage;
+			}
+
+			bool bShouldUpdate = false;
+			WorldInventory->AddItem(WeaponDef, &bShouldUpdate);
+
+			if (bShouldUpdate)
+				WorldInventory->Update();
+
+			SendMessageToConsole(PlayerController, L"Granted item!");
+		}
+		else if (Command == "changespread")
+		{
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(ReceivingController, L"Please provide a valid clip size!");
+				return;
+			}
+
+			auto WorldInventory = ReceivingController->GetWorldInventory();
+
+			if (!WorldInventory)
+			{
+				SendMessageToConsole(PlayerController, L"No world inventory!");
+				return;
+			}
+
+			static auto WeaponDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/WID_Sniper_BoltAction_Scope_Athena_SR_Ore_T03.WID_Sniper_BoltAction_Scope_Athena_SR_Ore_T03");
+			static auto WeaponDef2 = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/WID_Assault_Heavy_Athena_R_Ore_T03.WID_Assault_Heavy_Athena_R_Ore_T03");
+
+			int NewSpread = WeaponDef->GetSpread();
+
+			try { NewSpread = std::stoi(Arguments[1]); }
+			catch (...) {}
+
+			WeaponDef->GetSpread() = NewSpread;
+			WeaponDef2->GetSpread() = NewSpread;
+
+			bool bShouldUpdate = false;
+			WorldInventory->AddItem(WeaponDef, &bShouldUpdate);
+			WorldInventory->AddItem(WeaponDef2, &bShouldUpdate);
+
+			if (bShouldUpdate)
+				WorldInventory->Update();
+
+			SendMessageToConsole(PlayerController, L"Granted item!");
+		}
+		else if (Command == "renametest")
+		{
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(ReceivingController, L"Please provide a name!");
+				return;
+			}
+
+			auto WorldInventory = ReceivingController->GetWorldInventory();
+
+			if (!WorldInventory)
+			{
+				SendMessageToConsole(PlayerController, L"No world inventory!");
+				return;
+			}
+
+			static auto WeaponDef = FindObject<UFortItemDefinition>("/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_SR_Ore_T03.WID_Shotgun_Standard_Athena_SR_Ore_T03");
+
+			auto NewName = std::wstring(Arguments[1].begin(), Arguments[1].end()).c_str();
+
+			static auto NameOffset = WeaponDef->GetOffset("DisplayName");
+			UKismetTextLibrary::Conv_TextToString(WeaponDef->Get<FText>(NameOffset)) = NewName;
+
+			bool bShouldUpdate = false;
+			WorldInventory->AddItem(WeaponDef, &bShouldUpdate);
+
+			if (bShouldUpdate)
+				WorldInventory->Update();
+
+			SendMessageToConsole(PlayerController, L"Granted item!");
+		}
 		else if (Command == "togglesnowmap")
 		{
 			if (Calendar::HasSnowModification())
@@ -1147,7 +1252,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			int ChallengeXP = 0;
 			int MatchXP = 0;
 
-			GiveXP(ReceivingController, CombatXP, SurvivalXP, BonusMedalXP, ChallengeXP, MatchXP);
+			ReceivingController->GiveXP(ReceivingController, CombatXP, SurvivalXP, BonusMedalXP, ChallengeXP, MatchXP);
 
 			FString a = std::to_wstring(CombatXP).c_str();
 			FString b = std::to_wstring(SurvivalXP).c_str();

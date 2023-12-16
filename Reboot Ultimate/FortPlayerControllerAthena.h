@@ -207,6 +207,111 @@ enum class EDeathCause : uint8
 	EDeathCause_MAX = 51,
 };
 
+enum class ESubGame : uint8
+{
+	Campaign = 0,
+	Athena = 1,
+	Invalid = 2,
+	Count = 2,
+	ESubGame_MAX = 3,
+};
+
+class UFortQuestItem : public UFortItem // UFortAccountItem
+{
+public:
+	bool HasCompletedObjectiveWithName(class FName BackendName)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestItem.HasCompletedObjectiveWithName");
+
+		struct
+		{
+			FName BackendName;
+			bool ReturnValue;
+		}params{ BackendName };
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
+	}
+
+	int32 GetNumObjectivesComplete()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestItem.GetNumObjectivesComplete");
+
+		struct
+		{
+			int32 ReturnValue;
+		}params;
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
+	}
+
+	float GetPercentageComplete()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestItem.GetPercentageComplete");
+
+		struct
+		{
+			float ReturnValue;
+		}params;
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
+	}
+};
+
+class UFortQuestItemDefinition : public UFortItemDefinition // UFortAccountItemDefinition
+{
+public:
+};
+
+class UFortQuestManager : public UObject
+{
+public:
+	UFortQuestItem* GetQuestWithDefinition(class UFortQuestItemDefinition* Definition)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestManager.GetQuestWithDefinition");
+
+		struct
+		{
+			UFortQuestItemDefinition* Definition;
+			UFortQuestItem* ReturnValue;
+		}params{ Definition };
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
+	}
+
+	void SelfCompletedUpdatedQuest(class AFortPlayerController* QuestOwner, class UFortQuestItemDefinition* QuestDef, class FName BackendName, int32 CompletionCount, int32 DeltaChange, class AFortPlayerState* AssistingPlayer, bool ObjectiveCompleted, bool QuestCompleted)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestManager.SelfCompletedUpdatedQuest");
+
+		struct
+		{
+			AFortPlayerController* QuestOwner;
+			UFortQuestItemDefinition* QuestDef;
+			FName							   BackendName;
+			int32                              CompletionCount;
+			int32                              DeltaChange;
+			AFortPlayerState* AssistingPlayer;
+			bool                               ObjectiveCompleted;
+			bool                               QuestCompleted;
+		}params{ QuestOwner , QuestDef , BackendName , CompletionCount , DeltaChange , AssistingPlayer , ObjectiveCompleted , QuestCompleted };
+
+		this->ProcessEvent(fn, &params);
+	}
+
+	void ClaimQuestReward(class UFortQuestItem* Quest)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestManager.ClaimQuestReward");
+		this->ProcessEvent(fn, nullptr);
+	}
+};
+
 class AFortPlayerControllerAthena : public AFortPlayerController
 {
 public:
@@ -216,6 +321,24 @@ public:
 	static inline void (*EnterAircraftOriginal)(UObject* PC, AActor* Aircraft);
 	static inline void (*StartGhostModeOriginal)(UObject* Context, FFrame* Stack, void* Ret);
 	static inline void (*EndGhostModeOriginal)(AFortPlayerControllerAthena* PlayerController);
+
+	static void GiveXP(AFortPlayerControllerAthena* PC, int CombatXP, int SurvivalXP, int BonusMedalXP, int ChallengeXP, int MatchXP);
+	static void ProgressQuest(AFortPlayerControllerAthena* PC, UFortQuestItemDefinition* QuestDef, FName Primary_BackendName);
+
+	UFortQuestManager* GetQuestManager(enum class ESubGame SubGame)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerController.GetQuestManager");
+
+		struct
+		{
+			enum class ESubGame                SubGame;
+			class UFortQuestManager* ReturnValue;
+		}params{ SubGame };
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
+	}
 
 	void PlayWinEffects(class APawn* FinisherPawn, class UFortWeaponItemDefinition* FinishingWeapon, enum class EDeathCause DeathCause, bool bAudioOnly)
 	{

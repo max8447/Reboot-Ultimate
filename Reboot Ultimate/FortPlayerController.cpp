@@ -233,6 +233,15 @@ void AFortPlayerController::ServerLoadingScreenDroppedHook(UObject* Context, FFr
 	PlayerController->GetXPComponent()->IsRegisteredWithQuestManager() = true;
 	PlayerController->GetXPComponent()->OnRep_bRegisteredWithQuestManager();
 
+	static bool First = false;
+	if (!First)//1:1 fr
+	{
+		First = true;
+		LettersClass = FindObject<UClass>("/Game/Athena/Items/QuestInteractables/FortnightLetters/FortniteLettersBPs/Prop_QuestInteractable_Letters_Parent.Prop_QuestInteractable_Letters_Parent_C");
+		QuestItem = FindObject<UProperty>("/Game/Athena/Items/QuestInteractables/Generic/Prop_QuestInteractable_Parent.Prop_QuestInteractable_Parent_C.QuestItem");
+		BackendNameProp = FindObject<UProperty>("/Game/Athena/Items/QuestInteractables/Generic/Prop_QuestInteractable_Parent.Prop_QuestInteractable_Parent_C.QuestBackendObjectiveName");
+	}
+
 	return ServerLoadingScreenDroppedOriginal(Context, Stack, Ret);
 }
 
@@ -630,6 +639,14 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 			ItemCollector->ProcessEvent(DoVendDeath);
 			ItemCollector->K2_DestroyActor();
 		}
+	}
+	else if (ReceivingActor->IsA(LettersClass))
+	{
+		LOG_INFO(LogGame, "Letter!");
+
+		FName BackendName = *(FName*)(__int64(ReceivingActor) + BackendNameProp->Offset);
+		UFortQuestItemDefinition* QuestDef = *(UFortQuestItemDefinition**)(__int64(ReceivingActor) + QuestItem->Offset);
+		PlayerController->ProgressQuest(PlayerController, QuestDef, BackendName);
 	}
 
 	return ServerAttemptInteractOriginal(Context, Stack, Ret);
@@ -1530,7 +1547,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 					// FAthenaMatchStats.Stats[ERewardSource] // hmm
 
-					/*
+					/**/
 
 					// We need to check if their entire team is dead then I think we send it????
 
@@ -1552,7 +1569,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 						}
 					}
 
-					*/
+					/**/
 
 					LOG_INFO(LogDev, "Removed!");
 				}

@@ -15,3 +15,11 @@ public:
 
 	static void OnCapsuleBeginOverlapHook(UObject* Context, FFrame* Stack, void* Ret);
 };
+
+namespace OnCapsuleBeginOverlap
+{
+	using UPrimitiveComponent = UActorComponent; // USceneComponent
+
+	static void (*OnCapsuleBeginOverlapOG)(UObject* Pawn, UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, FHitResult SweepResult);
+	void OnCapsuleBeginOverlapHook(AFortPlayerPawnAthena* Pawn, UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, FHitResult SweepResult);
+}

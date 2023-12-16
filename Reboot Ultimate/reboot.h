@@ -140,6 +140,22 @@ static __forceinline T* Cast(UObject* Object, bool bCheckType = true)
 	return nullptr;
 }
 
+static std::string SplitString(bool SecondString, std::string delim, std::string strtosplit)
+{
+	auto start = 0U;
+	auto end = strtosplit.find(delim);
+	if (SecondString)
+	{
+		while (end != std::string::npos)
+		{
+			start = end + delim.length();
+			end = strtosplit.find(delim, start);
+		}
+	}
+
+	return strtosplit.substr(start, end);
+}
+
 extern inline int AmountOfRestarts = 0; // DO NOT CHANGE
 extern inline FRandomStream ReplicationRandStream = (0);
 extern inline int32 GSRandSeed = 0;
