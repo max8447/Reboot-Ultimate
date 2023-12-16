@@ -234,7 +234,7 @@ void AFortPlayerController::ServerLoadingScreenDroppedHook(UObject* Context, FFr
 	PlayerController->GetXPComponent()->OnRep_bRegisteredWithQuestManager();
 
 	static bool First = false;
-	if (!First)//1:1 fr
+	if (!First) // 1:1 fr
 	{
 		First = true;
 		LettersClass = FindObject<UClass>("/Game/Athena/Items/QuestInteractables/FortnightLetters/FortniteLettersBPs/Prop_QuestInteractable_Letters_Parent.Prop_QuestInteractable_Letters_Parent_C");
@@ -446,7 +446,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	if (!ReceivingActor)
 		return;
 
-	// LOG_INFO(LogInteraction, "ReceivingActor Name: {}", ReceivingActor->GetFullName());
+	LOG_INFO(LogInteraction, "ReceivingActor Name: {}", ReceivingActor->GetFullName());
 
 	FVector LocationToSpawnLoot = ReceivingActor->GetActorLocation() + ReceivingActor->GetActorRightVector() * 70.f + FVector{ 0, 0, 50 };
 

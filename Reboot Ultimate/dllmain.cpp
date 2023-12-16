@@ -870,6 +870,9 @@ DWORD WINAPI Main(LPVOID)
    // Hooking::MinHook::Hook(FortPlayerPawnAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawnAthena.OnCapsuleBeginOverlap") ? FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawnAthena.OnCapsuleBeginOverlap") : FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawn.OnCapsuleBeginOverlap"),
       // AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook, (PVOID*)&AFortPlayerPawnAthena::OnCapsuleBeginOverlapOriginal, false, true);
 
+    // Hooking::MinHook::Hook(FortPlayerPawnAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawnAthena.OnCapsuleBeginOverlap") ? FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawnAthena.OnCapsuleBeginOverlap") : FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawn.OnCapsuleBeginOverlap"),
+       // OnCapsuleBeginOverlap::OnCapsuleBeginOverlapHook, (PVOID*)&OnCapsuleBeginOverlap::OnCapsuleBeginOverlapOG, false, true);
+
     // MH_CreateHook((LPVOID)(__int64(GetModuleHandleW(0)) + 0x1DCF3E0), OnCapsuleBeginOverlap::OnCapsuleBeginOverlapHook, (LPVOID*)&OnCapsuleBeginOverlap::OnCapsuleBeginOverlapOG);
     // MH_EnableHook((LPVOID)(__int64(GetModuleHandleW(0)) + 0x1DCF3E0));
 

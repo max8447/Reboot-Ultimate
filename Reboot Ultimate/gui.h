@@ -1194,6 +1194,9 @@ static inline void MainUI()
 			
 			//static auto NextCenterOffset = FindOffsetStruct("/Script/FortniteGame.FortSafeZoneIndicator", "NextCenter");
 			//auto NextCenter = *(FVector**)(__int64(SafeZoneIndicator) + NextCenterOffset);
+
+			/*
+			
 			static auto NextCenterOffset = SafeZoneIndicator->GetOffset("NextCenter");
 			auto NextCenter = SafeZoneIndicator->Get<FVector*>(NextCenterOffset);
 
@@ -1213,7 +1216,7 @@ static inline void MainUI()
 			auto SafeZoneStartShrinkTime = *(float**)(__int64(SafeZoneIndicator) + SafeZoneStartShrinkTimeOffset);
 			ImGui::SliderFloat("SafeZoneStartShrinkTime", SafeZoneStartShrinkTime, 1, 10000);
 
-			
+			*/
 		}
 
 		else if (Tab == DUMP_TAB)

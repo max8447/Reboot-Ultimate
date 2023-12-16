@@ -1407,6 +1407,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			CheatManager->ChangeSize(F);
 			CheatManager = nullptr;
+
+			ReceivingController->GetMyFortPawn()->ForceNetUpdate();
+
+			SendMessageToConsole(PlayerController, L"Changed size!");
 		}
 		else if (Command == "damagetarget")
 		{
@@ -1895,7 +1899,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			CheatManager->Teleport();
 			CheatManager = nullptr;
-			SendMessageToConsole(PlayerController, L"Teleported!");
+			// SendMessageToConsole(PlayerController, L"Teleported!");
 		}
 		else if (Command == "fly")
 		{

@@ -139,7 +139,7 @@ void OnCapsuleBeginOverlap::OnCapsuleBeginOverlapHook(AFortPlayerPawnAthena* Paw
 		PC->ProgressQuest(PC, QuestDef, BackendName);
 		OtherActor->ProcessEvent(Func, nullptr);
 	}
-	else if (Pawn->IsInVehicle() && OtherActor->IsA(BoatTimedClass))
+	if (Pawn->IsInVehicle() && OtherActor->IsA(BoatTimedClass))
 	{
 		std::string OverlapName = OtherComp->GetName();
 		if (OverlapName.contains("CP"))
@@ -205,5 +205,5 @@ void OnCapsuleBeginOverlap::OnCapsuleBeginOverlapHook(AFortPlayerPawnAthena* Paw
 		}
 	}
 
-	// return OnCapsuleBeginOverlapOG(Pawn, OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	return OnCapsuleBeginOverlapOG(Pawn, OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 }

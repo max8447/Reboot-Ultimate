@@ -45,22 +45,22 @@ void AFortPlayerControllerAthena::ProgressQuest(AFortPlayerControllerAthena* PC,
 	}
 	auto QuestItem = PC->GetQuestManager(ESubGame::Athena)->GetQuestWithDefinition(QuestDef);
 
-	FXPEventEntry test{};
-	test.EventXpValue = 5000;//still skunked i will make it so it gets real xp value from datatable
-	test.QuestDef = QuestDef;
-	test.Time = UGameplayStatics::GetTimeSeconds(GetWorld());
-	PC->GetXPComponent()->GetChallengeXp() += test.EventXpValue;
-	PC->GetXPComponent()->GetTotalXpEarned() += test.EventXpValue;
-	test.TotalXpEarnedInMatch = PC->GetXPComponent()->GetTotalXpEarned();
-	test.SimulatedXpEvent = QuestDef->GetSingleLineDescription();
-	PC->GetXPComponent()->GetRestXP() += test.EventXpValue;
+	FXPEventEntry XPEventEntry{};
+
+	XPEventEntry.EventXpValue = 5000;//still skunked i will make it so it gets real xp value from datatable
+	XPEventEntry.QuestDef = QuestDef;
+	XPEventEntry.Time = UGameplayStatics::GetTimeSeconds(GetWorld());
+	PC->GetXPComponent()->GetChallengeXp() += XPEventEntry.EventXpValue;
+	PC->GetXPComponent()->GetTotalXpEarned() += XPEventEntry.EventXpValue;
+	XPEventEntry.TotalXpEarnedInMatch = PC->GetXPComponent()->GetTotalXpEarned();
+	XPEventEntry.SimulatedXpEvent = QuestDef->GetSingleLineDescription();
+	PC->GetXPComponent()->GetRestXP() += XPEventEntry.EventXpValue;
 	PC->GetXPComponent()->GetInMatchProfileVer()++;
 	PC->GetXPComponent()->OnInMatchProfileUpdate(PC->GetXPComponent()->GetInMatchProfileVer());
 	PC->GetXPComponent()->OnProfileUpdated();
 	PC->GetXPComponent()->OnXpUpdated(PC->GetXPComponent()->GetCombatXp(), PC->GetXPComponent()->GetSurvivalXp(), PC->GetXPComponent()->GetMedalBonusXP(), PC->GetXPComponent()->GetChallengeXp(), PC->GetXPComponent()->GetMatchXp(), PC->GetXPComponent()->GetTotalXpEarned());
-	PC->GetXPComponent()->GetWaitingQuestXp().Add(test);
-
-	PC->GetXPComponent()->HighPrioXPEvent(test);
+	PC->GetXPComponent()->GetWaitingQuestXp().Add(XPEventEntry);
+	PC->GetXPComponent()->HighPrioXPEvent(XPEventEntry);
 }
 
 void AFortPlayerControllerAthena::StartGhostModeHook(UObject* Context, FFrame* Stack, void* Ret)
