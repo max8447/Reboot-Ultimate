@@ -741,7 +741,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			ReceivingController->PlayWinEffects(pawn, FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Vehicles/WID_Octopus_Weapon.WID_Octopus_Weapon"), EDeathCause::Rifle, false);
 			ReceivingController->ClientNotifyWon(pawn, FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Vehicles/WID_Octopus_Weapon.WID_Octopus_Weapon"), EDeathCause::Rifle);
-			GameMode->EndMatch();
+			// GameMode->EndMatch();
 		}
 		else if (Command == "gamemodesay")
 		{
