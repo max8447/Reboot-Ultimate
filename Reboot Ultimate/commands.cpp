@@ -1573,6 +1573,29 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		{
 			exit(0);
 		}
+		else if (Command == "checkforfrench")
+		{
+			static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
+			auto WorldNetDriver = GetWorld()->Get<UNetDriver*>(World_NetDriverOffset);
+			auto& ClientConnections = WorldNetDriver->GetClientConnections();
+
+			for (int z = 0; z < ClientConnections.Num(); z++)
+			{
+				auto ClientConnection = ClientConnections.at(z);
+				auto FortPC = Cast<AFortPlayerControllerAthena>(ClientConnection);
+				auto PlayerState = Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState());
+
+				bool IsFrench = CheckIP(PlayerState->GetSavedNetworkAddress().ToString().c_str());
+
+				if (IsFrench)
+				{
+					FString Reason = L"You have been kicked for being french.";
+
+					static auto ClientReturnToMainMenu = FindObject<UFunction>("/Script/Engine.PlayerController.ClientReturnToMainMenu");
+					FortPC->ProcessEvent(ClientReturnToMainMenu, &Reason);
+				}
+			}
+		}
 		else if (Command == "summon")
 		{
 			if (Arguments.size() <= 1)

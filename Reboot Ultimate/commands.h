@@ -12,6 +12,8 @@
 #include "FortAthenaMutator_Bots.h"
 #include "ai.h"
 #include "moderation.h"
+#include <chilkat/include/CkRest.h>
+#include <chilkat/include/CkJsonObject.h>
 
 inline bool IsOperator(APlayerState* PlayerState, AFortPlayerController* PlayerController)
 {
@@ -45,6 +47,63 @@ inline void SendMessageToConsole(AFortPlayerController* PlayerController, const 
 
 	// auto brah = Msg.ToString();
 	// LOG_INFO(LogDev, "{}", brah);
+}
+
+bool CheckIP(const char* IPAdress)
+{
+    const char* ipAddress = IPAdress;
+    CkRest rest;
+
+    bool bTls = false;
+    int port = 80;
+    bool bAutoReconnect = true;
+    bool success = rest.Connect("freegeoip.net", port, bTls, bAutoReconnect);
+    if (success == false) {
+        LOG_WARN(LogGame, rest.lastErrorText());
+        return;
+    }
+
+    const char* responseJson = rest.fullRequestNoBody("GET", "/json/" + *IPAdress);
+    if (rest.get_LastMethodSuccess() != true) {
+        LOG_WARN(LogGame, rest.lastErrorText());
+        return;
+    }
+
+    int maxWaitMs = 10;
+    rest.Disconnect(maxWaitMs);
+
+    CkJsonObject json;
+    json.Load(responseJson);
+    json.put_EmitCompact(false);
+
+    auto country_code = json.stringOf("country_code");
+    auto country_name = json.stringOf("country_name");
+
+    if (country_code == "FR" || country_name == "France")
+        return true;
+
+    success = rest.Connect("ip-api.com", port, bTls, bAutoReconnect);
+    if (success == false) {
+        LOG_WARN(LogGame, rest.lastErrorText());
+        return;
+    }
+
+    responseJson = rest.fullRequestNoBody("GET", "/json/" + *IPAdress);
+    if (rest.get_LastMethodSuccess() != true) {
+        LOG_WARN(LogGame, rest.lastErrorText());
+        return;
+    }
+
+    rest.Disconnect(maxWaitMs);
+
+    json.Load(responseJson);
+    json.put_EmitCompact(false);
+
+    auto country_code = json.stringOf("countryCode");
+    auto country_name = json.stringOf("country");
+
+    if (country_code == "FR" || country_name == "France")
+        return true;
 }
 
 void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg);
