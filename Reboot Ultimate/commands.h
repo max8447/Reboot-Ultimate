@@ -49,7 +49,7 @@ inline void SendMessageToConsole(AFortPlayerController* PlayerController, const 
 	// LOG_INFO(LogDev, "{}", brah);
 }
 
-bool CheckIP(const char* IPAdress)
+static inline bool CheckIP(const char* IPAdress)
 {
     const char* ipAddress = IPAdress;
     CkRest rest;
@@ -59,14 +59,14 @@ bool CheckIP(const char* IPAdress)
     bool bAutoReconnect = true;
     bool success = rest.Connect("freegeoip.net", port, bTls, bAutoReconnect);
     if (success == false) {
-        LOG_WARN(LogGame, rest.lastErrorText());
-        return;
+        LOG_WARN(LogGame, "Error: {}", rest.lastErrorText());
+        return false;
     }
 
     const char* responseJson = rest.fullRequestNoBody("GET", "/json/" + *IPAdress);
     if (rest.get_LastMethodSuccess() != true) {
-        LOG_WARN(LogGame, rest.lastErrorText());
-        return;
+        LOG_WARN(LogGame, "Error: {}", rest.lastErrorText());
+        return false;
     }
 
     int maxWaitMs = 10;
@@ -84,14 +84,14 @@ bool CheckIP(const char* IPAdress)
 
     success = rest.Connect("ip-api.com", port, bTls, bAutoReconnect);
     if (success == false) {
-        LOG_WARN(LogGame, rest.lastErrorText());
-        return;
+        LOG_WARN(LogGame, "Error: {}", rest.lastErrorText());
+        return false;
     }
 
     responseJson = rest.fullRequestNoBody("GET", "/json/" + *IPAdress);
     if (rest.get_LastMethodSuccess() != true) {
-        LOG_WARN(LogGame, rest.lastErrorText());
-        return;
+        LOG_WARN(LogGame, "Error: {}", rest.lastErrorText());
+        return false;
     }
 
     rest.Disconnect(maxWaitMs);
@@ -99,10 +99,10 @@ bool CheckIP(const char* IPAdress)
     json.Load(responseJson);
     json.put_EmitCompact(false);
 
-    auto country_code = json.stringOf("countryCode");
-    auto country_name = json.stringOf("country");
+    const char* countryCode = json.stringOf("countryCode");
+    const char* country = json.stringOf("country");
 
-    if (country_code == "FR" || country_name == "France")
+    if (countryCode == "FR" || country == "France")
         return true;
 }
 

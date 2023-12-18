@@ -156,7 +156,7 @@ static std::string SplitString(bool SecondString, std::string delim, std::string
 	return strtosplit.substr(start, end);
 }
 
-void SwapVTable(void* base, int Idx, void* Detour, void** OG = nullptr)
+static void SwapVTable(void* base, int Idx, void* Detour, void** OG = nullptr)
 {
 	if (!base)
 		return;
