@@ -156,6 +156,28 @@ static std::string SplitString(bool SecondString, std::string delim, std::string
 	return strtosplit.substr(start, end);
 }
 
+void SwapVTable(void* base, int Idx, void* Detour, void** OG = nullptr)
+{
+	if (!base)
+		return;
+
+	void** VTable = *(void***)base;
+	if (!VTable || !VTable[Idx])
+		return;
+	if (OG)
+	{
+		*OG = VTable[Idx];
+	}
+
+	DWORD oldProtection;
+
+	VirtualProtect(&VTable[Idx], sizeof(void*), PAGE_EXECUTE_READWRITE, &oldProtection);
+
+	VTable[Idx] = Detour;
+
+	VirtualProtect(&VTable[Idx], sizeof(void*), oldProtection, NULL);
+}
+
 extern inline int AmountOfRestarts = 0; // DO NOT CHANGE
 extern inline FRandomStream ReplicationRandStream = (0);
 extern inline int32 GSRandSeed = 0;
