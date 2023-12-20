@@ -62,6 +62,12 @@ namespace EFortPickupSpawnSource
 		static auto SupplyDropValue = GetEnum() ? GetEnum()->GetValue("SupplyDrop") : -1;
 		return SupplyDropValue;
 	}
+
+	static inline int64 GetUnsetValue()
+	{
+		static auto UnsetValue = GetEnum() ? GetEnum()->GetValue("Unset") : -1;
+		return UnsetValue;
+	}
 }
 
 struct PickupCreateData
