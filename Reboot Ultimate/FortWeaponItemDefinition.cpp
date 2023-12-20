@@ -121,6 +121,18 @@ TArray<int>& UFortWeaponItemDefinition::GetDamage()
 	return DamageArray;
 }
 
+EFortRarity& UFortWeaponItemDefinition::GetRarity()
+{
+	static auto RarityOffset = FindOffsetStruct("/Script/FortniteGame.FortItemDefinition", "Rarity");
+	return *(EFortRarity*)(__int64(this) + RarityOffset);
+}
+
+EFortItemTier& UFortWeaponItemDefinition::GetTier()
+{
+	static auto RarityOffset = FindOffsetStruct("/Script/FortniteGame.FortItemDefinition", "Tier");
+	return *(EFortItemTier*)(__int64(this) + RarityOffset);
+}
+
 UFortWorldItemDefinition* UFortWeaponItemDefinition::GetAmmoData()
 {
 	static auto AmmoDataOffset = GetOffset("AmmoData");

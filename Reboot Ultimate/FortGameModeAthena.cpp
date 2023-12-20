@@ -790,8 +790,8 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 
 	WinConditionType == EAthenaWinCondition::MutatorControlledGoalScore ? Globals::bEnableScoringSystem = true : Globals::bEnableScoringSystem = false;
 
-	static auto MeatBallVehicleClass = FindObject<UClass>("/Game/Athena/DrivableVehicles/Meatball/Meatball_Large/MeatballVehicle_L.MeatballVehicle_L_C");
-	SwapVTable(MeatBallVehicleClass->VFTable, 0xED, ServerVehicleUpdate);
+	UClass* MeatballClass = FindObject<UClass>("/Game/Athena/DrivableVehicles/Meatball/Meatball_Large/MeatballVehicle_L.MeatballVehicle_L_C");
+	SwapVTable(MeatballClass, 0xED, ServerVehicleUpdate);
 
 	static int LastNum3 = 1;
 

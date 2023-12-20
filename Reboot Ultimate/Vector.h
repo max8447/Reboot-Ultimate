@@ -25,6 +25,11 @@ public:
 		return Result;
 	}
 
+	bool IsEmpty()
+	{
+		return X == 0 && Y == 0 && Z == 0;
+	}
+
 	bool CompareVectors(const FVector& A)
 	{
 		return X == A.X && Y == A.Y && Z == A.Z;

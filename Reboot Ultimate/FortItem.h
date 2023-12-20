@@ -30,6 +30,37 @@ enum class EFortItemEntryState : uint8_t // this changes but its fineee
 	EFortItemEntryState_MAX = 15
 };
 
+enum class EFortItemTier : uint8
+{
+	No_Tier = 0,
+	I = 1,
+	II = 2,
+	III = 3,
+	IV = 4,
+	V = 5,
+	VI = 6,
+	VII = 7,
+	VIII = 8,
+	IX = 9,
+	X = 10,
+	NumItemTierValues = 11,
+	EFortItemTier_MAX = 12,
+};
+
+enum class EFortRarity : uint8
+{
+	Common = 0,
+	Uncommon = 1,
+	Rare = 2,
+	Epic = 3,
+	Legendary = 4,
+	Mythic = 5,
+	Transcendent = 6,
+	Unattainable = 7,
+	NumRarityValues = 8,
+	EFortRarity_MAX = 9,
+};
+
 #define MAX_DURABILITY 0x3F800000
 
 struct FFortItemEntryStateValue

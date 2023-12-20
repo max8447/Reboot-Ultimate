@@ -9,6 +9,8 @@ public:
 	float& GetSpread();
 	TArray<int>& GetDamage();
 	UFortWorldItemDefinition* GetAmmoData();
+	EFortRarity& GetRarity();
+	EFortItemTier& GetTier();
 
 	static UClass* StaticClass();
 };

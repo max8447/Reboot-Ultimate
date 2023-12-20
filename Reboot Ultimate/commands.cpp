@@ -741,9 +741,9 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			ReceivingController->PlayWinEffects(pawn, FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Vehicles/WID_Octopus_Weapon.WID_Octopus_Weapon"), EDeathCause::Rifle, false);
 			ReceivingController->ClientNotifyWon(pawn, FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Vehicles/WID_Octopus_Weapon.WID_Octopus_Weapon"), EDeathCause::Rifle);
-			// GameMode->EndMatch();
+			GameMode->EndMatch();
 		}
-		else if (Command == "gamemodesay")
+		else if (Command == "gamemodesaytest")
 		{
 			auto SayMessage = L"test";
 			auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
@@ -777,6 +777,43 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			catch (...) {}
 
 			WeaponDef->GetClipSize() = NewClipSize;
+
+			bool bShouldUpdate = false;
+			WorldInventory->AddItem(WeaponDef, &bShouldUpdate);
+
+			if (bShouldUpdate)
+				WorldInventory->Update();
+
+			SendMessageToConsole(PlayerController, L"Granted item!");
+		}
+		else if (Command == "changerarity")
+		{
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(ReceivingController, L"Please provide a valid clip size!");
+				return;
+			}
+
+			auto WorldInventory = ReceivingController->GetWorldInventory();
+
+			if (!WorldInventory)
+			{
+				SendMessageToConsole(PlayerController, L"No world inventory!");
+				return;
+			}
+
+			static auto WeaponDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_SR_Ore_T03.WID_Shotgun_Standard_Athena_SR_Ore_T03");
+
+			int NewRarity;
+
+			try { NewRarity = std::stoi(Arguments[1]); }
+			catch (...) {}
+
+			if (static_cast<EFortRarity>(NewRarity) < EFortRarity::EFortRarity_MAX)
+			{
+				WeaponDef->GetRarity() = static_cast<EFortRarity>(NewRarity);
+				WeaponDef->GetTier() = static_cast<EFortItemTier>(NewRarity);
+			}
 
 			bool bShouldUpdate = false;
 			WorldInventory->AddItem(WeaponDef, &bShouldUpdate);

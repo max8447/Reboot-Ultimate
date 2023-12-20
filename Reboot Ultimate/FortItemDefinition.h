@@ -24,11 +24,14 @@ public:
 	{
 		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortItemDefinition.GetSingleLineDescription");
 
-		FText ReturnValue;
+		struct
+		{
+			class FText                                  ReturnValue;                                       // 0x0(0x18)(Parm, OutParm, ReturnParm, NativeAccessSpecifierPublic)
+		}params;
+		
+		ProcessEvent(fn, &params);
 
-		this->ProcessEvent(fn, &ReturnValue);
-
-		return ReturnValue;
+		return params.ReturnValue;
 	}
 
 	static UClass* StaticClass()

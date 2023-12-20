@@ -1406,6 +1406,50 @@ static inline void MainUI()
 				}
 			}
 
+			std::string SpawnBotCoordsStr;
+
+			ImGui::InputText("", &SpawnBotCoordsStr);
+
+			std::istringstream ss(SpawnBotCoordsStr);
+
+			std::vector<float> Coordinates;
+
+			float Coord;
+
+			while (ss >> Coord) {
+				Coordinates.push_back(Coord);
+
+				if (ss.peek() == ',')
+					ss.ignore();
+			}
+
+			FVector SpawnBotCoords;
+			if (Coordinates.size() >= 3) {
+				SpawnBotCoords.X = Coordinates[0];
+				SpawnBotCoords.Y = Coordinates[1];
+				SpawnBotCoords.Z = Coordinates[2];
+			}
+			else {
+				LOG_WARN(LogBots, "Incorrect coordinates provided.");
+			}
+
+			if (ImGui::Button("Spawn Bot at coordinates"))
+			{
+				if (!SpawnBotCoords.IsEmpty())
+				{
+					FTransform Transform;
+					Transform.Translation = SpawnBotCoords;
+					Transform.Scale3D = FVector(1, 1, 1);
+
+					auto NewActor = Bots::SpawnBot(Transform);
+
+					if (!NewActor)
+					{
+						LOG_WARN(LogBots, "Failed to spawn bot at location!");
+					}
+				}
+			}
+
 			auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
 
 			if (GameState)
