@@ -1913,7 +1913,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		{
 			FString TOD = std::wstring(Arguments[1].begin(), Arguments[1].end()).c_str();
 
-			UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), (L"pausesafezone {}", TOD), nullptr);
+			UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), (L"settimeofday {}", TOD), nullptr);
 		}
 		else if (Command == "spawnbotsatplayerstarts")
 		{
