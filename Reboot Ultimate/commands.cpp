@@ -1911,9 +1911,20 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		}
 		else if (Command == "settimeofday")
 		{
-			FString TOD = std::wstring(Arguments[1].begin(), Arguments[1].end()).c_str();
+			static auto SetTimeOfDayFn = FindObject<UFunction>("/Script/FortniteGame.FortKismetLibrary.SetTimeOfDay");
 
-			UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), (L"settimeofday {}", TOD), nullptr);
+			float NewTimeOfDay = 0.f;
+
+			try { NewTimeOfDay = std::stoi(Arguments[1]); }
+			catch (...) {}
+
+			struct
+			{
+				UObject* WorldContextObject;
+				float                              TimeOfDay;
+			}params{ GetWorld() , NewTimeOfDay };
+
+			UFortKismetLibrary::StaticClass()->ProcessEvent(SetTimeOfDayFn, &params);
 		}
 		else if (Command == "spawnbotsatplayerstarts")
 		{

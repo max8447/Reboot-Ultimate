@@ -44,6 +44,7 @@
 #include "die.h"
 #include "calendar.h"
 #include "GameMode.h"
+#include "bots.h"
 
 #define GAME_TAB 1
 #define PLAYERS_TAB 2
