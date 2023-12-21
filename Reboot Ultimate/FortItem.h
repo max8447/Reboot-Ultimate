@@ -281,5 +281,11 @@ public:
 		return GetPtr<FFortItemEntry>(ItemEntryOffset);
 	}
 
+	static UClass* StaticClass()
+	{
+		static auto Class = FindObject<UClass>("/Script/FortniteGame.FortItem");
+		return Class;
+	}
+
 	void SetOwningControllerForTemporaryItem(UObject* Controller);
 };

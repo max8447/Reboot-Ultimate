@@ -140,53 +140,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		auto& Command = Arguments[0];
 		std::transform(Command.begin(), Command.end(), Command.begin(), ::tolower);
 
-		if (Command == "giveitem" || Command == "give")
-		{
-			if (NumArgs < 1)
-			{
-				SendMessageToConsole(PlayerController, L"Please provide a WID!");
-				return;
-			}
-
-			auto WorldInventory = ReceivingController->GetWorldInventory();
-
-			if (!WorldInventory)
-			{
-				SendMessageToConsole(PlayerController, L"No world inventory!");
-				return;
-			}
-
-			auto& weaponName = Arguments[1];
-			int count = 1;
-
-			try
-			{
-				if (NumArgs >= 2)
-					count = std::stoi(Arguments[2]);
-			}
-			catch (...)
-			{
-			}
-
-			// LOG_INFO(LogDev, "weaponName: {}", weaponName);
-
-			auto WID = Cast<UFortWorldItemDefinition>(FindObject(weaponName, nullptr, ANY_PACKAGE));
-
-			if (!WID)
-			{
-				SendMessageToConsole(PlayerController, L"Invalid WID!");
-				return;
-			}
-
-			bool bShouldUpdate = false;
-			WorldInventory->AddItem(WID, &bShouldUpdate, count);
-
-			if (bShouldUpdate)
-				WorldInventory->Update();
-
-			SendMessageToConsole(PlayerController, L"Granted item!");
-		}
-		else if (Command == "printsimulatelootdrops")
+		if (Command == "printsimulatelootdrops")
 		{
 			if (NumArgs < 1)
 			{
@@ -205,7 +159,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Printed!");
 		}
-		else if (Command == "grant")
+		else if (Command == "grant" || Command == "giveitem" || Command == "give")
 		{
 			if (NumArgs < 1)
 			{

@@ -189,6 +189,49 @@ static inline void Restart() // todo move?
 	// UGameplayStatics::OpenLevel(GetWorld(), UKismetStringLibrary::Conv_StringToName(LevelA), true, FString());
 }
 
+static void LoopReplicatedEntries(APlayerController* Controller, std::function<bool(FFortItemEntry*)> func)
+{
+	auto Inventory = Cast<AFortPlayerController>(Controller)->GetWorldInventory();
+
+	auto ReplicatedEntries = Inventory->GetItemList().GetReplicatedEntries();
+
+	for (int i = 0; i < ReplicatedEntries.Num(); i++)
+	{
+		auto CurrentReplicatedEntry = ReplicatedEntries.AtPtr(i, FFortItemEntry::GetStructSize());
+
+		if (CurrentReplicatedEntry)
+		{
+			if (func(CurrentReplicatedEntry))
+				return;
+		}
+	}
+}
+
+static void SetLoadedAmmo(FFortItemEntry* Entry, APlayerController* Controller, int NewLoadedAmmo)
+{
+	Entry->GetLoadedAmmo() = NewLoadedAmmo;
+
+	auto Inventory = Cast<AFortPlayerController>(Controller)->GetWorldInventory();
+
+	Inventory->GetItemList().MarkItemDirty((FFastArraySerializerItem*)Entry);
+
+	auto EntryGuid = Entry->GetItemGuid();
+
+	auto ahah = [&Inventory, &EntryGuid, &NewLoadedAmmo](FFortItemEntry* currentEntry) -> bool
+		{
+			if (currentEntry->GetItemGuid() == EntryGuid)
+			{
+				currentEntry->GetLoadedAmmo() = NewLoadedAmmo;
+				Inventory->GetItemList().MarkItemDirty((FFastArraySerializerItem*)currentEntry);
+				return true;
+			}
+
+			return false;
+		};
+
+	LoopReplicatedEntries(Controller, ahah);
+}
+
 template<typename T>
 static inline T GetRandomItem(std::vector<T>& Vector, int ConnectionIndex)
 {
@@ -1825,7 +1868,7 @@ static inline void MainUI()
 				FString NameFStr;
 
 				auto Connection = CurrentPair.second;
-				auto RequestURL = *GetRequestURL(Connection);
+				auto RequestURL = *GetRequestURL(Connection); // If it works don't fix it
 
 				if (RequestURL.Data.Data)
 				{
@@ -1833,7 +1876,8 @@ static inline void MainUI()
 
 					std::size_t pos = RequestURLStr.find("Name=");
 
-					if (pos != std::string::npos) {
+					if (pos != std::string::npos)
+					{
 						std::size_t end_pos = RequestURLStr.find('?', pos);
 
 						if (end_pos != std::string::npos)
@@ -1845,56 +1889,18 @@ static inline void MainUI()
 
 					if (playerTabTab == MAIN_PLAYERTAB)
 					{
-						static std::string WID;
 						static std::string KickReason = "You have been kicked!";
-						static int stud = 0;
 
-						ImGui::InputText("WID To Give", &WID);
 						ImGui::InputText("Kick Reason", &KickReason);
 
-						if (CurrentPawn)
+						if (ImGui::Button("Kick"))
 						{
-							auto CurrentWeapon = CurrentPawn->Get<UFortItemDefinition>(CurrentPawn->GetOffset("CurrentWeapon"));
-							static auto AmmoCountOffset = FindOffsetStruct("/Script/FortniteGame.FortWeapon", "AmmoCount");
+							std::wstring wstr = std::wstring(KickReason.begin(), KickReason.end());
+							FString Reason;
+							Reason.Set(wstr.c_str());
 
-							auto AmmoCountPtr = (int*)(__int64(&CurrentWeapon) + AmmoCountOffset);
-
-							if (ImGui::InputInt("Ammo Count of CurrentWeapon", &CurrentWeapon ? AmmoCountPtr : &stud))
-							{
-								/* if (CurrentWeapon)
-								{
-									FFortItemEntry::SetLoadedAmmo(Inventory::GetEntryFromWeapon(CurrentController, CurrentWeapon), CurrentController, *AmmoCountPtr);
-								} */
-							}
-
-							if (ImGui::Button("Spawn Pickup with WID"))
-							{
-								std::string cpywid = WID;
-
-								if (cpywid.find(".") == std::string::npos)
-									cpywid = std::format("{}.{}", cpywid, cpywid);
-
-								if (cpywid.find(" ") != std::string::npos)
-									cpywid = cpywid.substr(cpywid.find(" ") + 1);
-
-								auto wid = FindObject<UFortItem>(cpywid);
-
-								if (wid)
-								{
-									PickupCreateData CreateData;
-									CreateData.bToss = true;
-									// CreateData.PawnOwner = CurrentPawn;
-									CreateData.ItemEntry = FFortItemEntry::MakeItemEntry(Cast<UFortItemDefinition>(wid), 1, -1, MAX_DURABILITY, Cast<UFortWorldItemDefinition>(wid)->GetFinalLevel(Cast<AFortGameStateAthena>(GetWorld()->GetGameState())->GetWorldLevel()));
-									CreateData.SpawnLocation = CurrentPawn->GetActorLocation();
-									CreateData.SourceType = EFortPickupSourceTypeFlag::GetPlayerValue();
-									CreateData.bRandomRotation = true;
-									CreateData.bShouldFreeItemEntryWhenDeconstructed = true;
-
-									AFortPickup::SpawnPickup(CreateData);
-								}
-								else
-									LOG_WARN(LogGame, "Unable to find WID!");
-							}
+							static auto ClientReturnToMainMenu = FindObject<UFunction>("/Script/Engine.PlayerController.ClientReturnToMainMenu");
+							CurrentController->ProcessEvent(ClientReturnToMainMenu, &Reason);
 						}
 
 						if (ImGui::Button("Ban"))
@@ -1906,113 +1912,114 @@ static inline void MainUI()
 							static auto ClientReturnToMainMenu = FindObject<UFunction>("/Script/Engine.PlayerController.ClientReturnToMainMenu");
 							CurrentController->ProcessEvent(ClientReturnToMainMenu, &Reason);
 						}
-
-						if (ImGui::Button("Give Item"))
-						{
-							if (!WID.empty())
-							{
-								std::string cpywid = WID;
-
-								if (cpywid.find(".") == std::string::npos)
-									cpywid = std::format("{}.{}", cpywid, cpywid);
-
-								if (cpywid.find(" ") != std::string::npos)
-									cpywid = cpywid.substr(cpywid.find(" ") + 1);
-
-								auto wid = FindObject<UFortItem>(cpywid);
-								auto wid2 = Cast<UFortWeaponItemDefinition>(wid);
-
-								auto Inventory = CurrentController->GetWorldInventory();
-
-								if (wid)
-									Inventory->AddItem(wid->GetItemEntry(), nullptr, wid2->GetClipSize());
-								else
-									LOG_WARN(LogGame, "Unable to find WID!");
-							}
-						}
-
-						if (ImGui::Button("Spawn Llama"))
-						{
-							if (CurrentPawn)
-							{
-								static auto LlamaClass = FindObject<UClass>("/Game/Athena/SupplyDrops/Llama/AthenaSupplyDrop_Llama.AthenaSupplyDrop_Llama_C");
-
-								if (LlamaClass)
-								{
-									FTransform Transform;
-									Transform.Translation = CurrentPawn->GetActorLocation();
-									Transform.Scale3D = FVector{ 1, 1, 1 };
-									Transform.Rotation = FQuat();
-
-									auto Llama = GetWorld()->SpawnActor<AActor>(LlamaClass, Transform);
-								}
-							}
-						}
-
-						if (ImGui::Button("Spawn Bot"))
-						{
-							FTransform Transform{};
-							Transform.Translation = CurrentPawn->GetActorLocation();
-							Transform.Scale3D = FVector{ 1, 1, 1 };
-							Transform.Rotation = FQuat();
-
-							Bots::SpawnBot(Transform);
-						}
-
-						if (ImGui::Button("Kick"))
-						{
-							std::wstring wstr = std::wstring(KickReason.begin(), KickReason.end());
-							FString Reason;
-							Reason.Set(wstr.c_str());
-
-							static auto ClientReturnToMainMenu = FindObject<UFunction>("/Script/Engine.PlayerController.ClientReturnToMainMenu");
-							CurrentController->ProcessEvent(ClientReturnToMainMenu, &Reason);
-						}
 					}
 					else if (playerTabTab == INVENTORY_PLAYERTAB)
 					{
 						// for (int i = 6; i < fmax(ItemInstances->Num(), 11); i++)
+
+						static std::string WIDStr;
+						static int* stud = 0;
+
+						ImGui::InputText("WID To Give", &WIDStr);
+
+						if (CurrentPawn)
+						{
+							static auto CurrentWeaponOffset = CurrentPawn->GetOffset("CurrentWeapon");
+							auto CurrentWeapon = CurrentPawn->Get<UFortItemDefinition*>(CurrentWeaponOffset);
+
+							static auto AmmoCountOffset = FindOffsetStruct("/Script/FortniteGame.FortWeapon", "AmmoCount");
+							auto AmmoCountPtr = *(int**)(__int64(CurrentWeapon) + AmmoCountOffset);
+
+							auto Inventory = CurrentController->GetWorldInventory();
+
+							auto CurrentEntry = Cast<UFortItem>(CurrentWeapon)->GetItemEntry();
+
+							if (ImGui::InputInt("Ammo Count of CurrentWeapon", CurrentWeapon ? AmmoCountPtr : stud))
+							{
+								SetLoadedAmmo(CurrentEntry, CurrentController, *AmmoCountPtr);
+							}
+
+							if (ImGui::Button("Give Item"))
+							{
+								if (!WIDStr.empty())
+								{
+									auto WID = FindObject<UFortItem>(WIDStr, nullptr, ANY_PACKAGE);
+
+									if (WID)
+									{
+										Inventory->AddItem(WID->GetItemEntry(), nullptr, 1);
+									}
+									else
+									{
+										LOG_WARN(LogGame, "Unable to find WID!");
+									}
+								}
+							}
+
+							if (ImGui::Button("Spawn Pickup with WID"))
+							{
+								auto WID = FindObject<UFortItem>(WIDStr, nullptr, ANY_PACKAGE);
+
+								if (WID)
+								{
+									PickupCreateData CreateData;
+									CreateData.ItemEntry = FFortItemEntry::MakeItemEntry(Cast<UFortItemDefinition>(WID), 1, -1, MAX_DURABILITY, Cast<UFortWorldItemDefinition>(WID)->GetFinalLevel(Cast<AFortGameStateAthena>(GetWorld()->GetGameState())->GetWorldLevel()));
+									CreateData.SpawnLocation = CurrentPawn->GetActorLocation();
+									CreateData.bShouldFreeItemEntryWhenDeconstructed = true;
+
+									AFortPickup::SpawnPickup(CreateData);
+								}
+								else
+								{
+									LOG_WARN(LogGame, "Unable to find WID!");
+								}
+							}
+						}
 					}
 					else if (playerTabTab == LOADOUT_PLAYERTAB)
 					{
 						auto CosmeticLoadoutPC = CurrentController->GetCosmeticLoadout();
 
-						static auto CharacterOffset = FindOffsetStruct("/Script/FortniteGame.FortAthenaLoadout", "Character");
-						auto actualCharacterPtr = Get<UObject*>(CosmeticLoadoutPC, CharacterOffset);
+						std::string CharacterFullName;
+						std::string GliderFullName;
 
-						static std::string CharacterFullName = (*actualCharacterPtr)->GetPathName();
+						LOG_ERROR(LogGame, "1");
+
 						ImGui::InputText("Character", &CharacterFullName);
 
-						static auto GliderOffset = FindOffsetStruct("/Script/FortniteGame.FortAthenaLoadout", "Glider");
-						auto actualGliderPtr = Get<UObject*>(CosmeticLoadoutPC, GliderOffset);
-
-						static std::string GliderFullName = (*actualGliderPtr)->GetPathName();
 						ImGui::InputText("Glider", &GliderFullName);
+
+						LOG_ERROR(LogGame, "2");
 
 						if (ImGui::Button("Apply"))
 						{
-							auto newCharacter = FindObject(CharacterFullName);
-							auto newGlider = FindObject(GliderFullName);
+							auto NewCharacter = FindObject(CharacterFullName, nullptr, ANY_PACKAGE);
+							auto NewGlider = FindObject(GliderFullName, nullptr, ANY_PACKAGE);
 
-							if (!newCharacter)
+							LOG_ERROR(LogGame, "3");
+
+							if (!NewCharacter && !CharacterFullName.empty())
 								LOG_WARN(LogGame, "Unable to find inputted character!");
 
-							if (!newGlider)
+							if (!NewGlider && !GliderFullName.empty())
 								LOG_WARN(LogGame, "Unable to find inputted glider!");
 
-							*actualCharacterPtr = newCharacter;
-							*actualGliderPtr = newGlider;
+							LOG_ERROR(LogGame, "4");
+
+							static auto GliderOffset = FindOffsetStruct("/Script/FortniteGame.FortAthenaLoadout", "Glider");
+							auto ActualGlider = *(UObject**)(__int64(CosmeticLoadoutPC + GliderOffset));
+
+							LOG_ERROR(LogGame, "5");
+
+							ActualGlider = NewGlider;
+
+							LOG_ERROR(LogGame, "6");
 
 							if (CurrentPawn)
 							{
-								auto CosmeticLoadoutPawn = CurrentController->GetCosmeticLoadout();
-
-								*Get<UObject*>(CosmeticLoadoutPawn, CharacterOffset) = *actualCharacterPtr;
-								*Get<UObject*>(CosmeticLoadoutPawn, GliderOffset) = *actualGliderPtr;
-
-								if (*actualCharacterPtr)
+								if (!ApplyCID(Cast<AFortPlayerPawn>(CurrentPawn), NewCharacter))
 								{
-									ApplyCID(Cast<AFortPlayerPawn>(CurrentPawn), *actualCharacterPtr);
+									LOG_WARN(LogGame, "Failed to apply CID!");
 								}
 							}
 						}
@@ -2077,6 +2084,34 @@ static inline void MainUI()
 									}
 								}
 							}
+						}
+
+						if (ImGui::Button("Spawn Llama"))
+						{
+							if (CurrentPawn)
+							{
+								static auto LlamaClass = FindObject<UClass>("/Game/Athena/SupplyDrops/Llama/AthenaSupplyDrop_Llama.AthenaSupplyDrop_Llama_C");
+
+								if (LlamaClass)
+								{
+									FTransform Transform;
+									Transform.Translation = CurrentPawn->GetActorLocation();
+									Transform.Scale3D = FVector{ 1, 1, 1 };
+									Transform.Rotation = FQuat();
+
+									auto Llama = GetWorld()->SpawnActor<AActor>(LlamaClass, Transform);
+								}
+							}
+						}
+
+						if (ImGui::Button("Spawn Bot"))
+						{
+							FTransform Transform{};
+							Transform.Translation = CurrentPawn->GetActorLocation();
+							Transform.Scale3D = FVector{ 1, 1, 1 };
+							Transform.Rotation = FQuat();
+
+							Bots::SpawnBot(Transform);
 						}
 					}
 				}
