@@ -1884,7 +1884,7 @@ static inline void MainUI()
 									PickupCreateData CreateData;
 									CreateData.bToss = true;
 									// CreateData.PawnOwner = CurrentPawn;
-									CreateData.ItemEntry = FFortItemEntry::MakeItemEntry(Cast<UFortItemDefinition>(wid), 1, -1, MAX_DURABILITY, Cast<UFortItemDefinition>(wid)->GetFinalLevel(Cast<AFortGameStateAthena>(GetWorld()->GetGameState())->GetWorldLevel()));
+									CreateData.ItemEntry = FFortItemEntry::MakeItemEntry(Cast<UFortItemDefinition>(wid), 1, -1, MAX_DURABILITY, Cast<UFortWorldItemDefinition>(wid)->GetFinalLevel(Cast<AFortGameStateAthena>(GetWorld()->GetGameState())->GetWorldLevel()));
 									CreateData.SpawnLocation = CurrentPawn->GetActorLocation();
 									CreateData.SourceType = EFortPickupSourceTypeFlag::GetPlayerValue();
 									CreateData.bRandomRotation = true;
