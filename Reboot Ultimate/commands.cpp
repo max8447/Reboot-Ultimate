@@ -1543,7 +1543,19 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			}
 
 			Pawn->LaunchURL(L"https://pastebin.com/4pmMgegz");
+		}
+		else if (Command == "tutorial")
+		{
+			auto Pawn = ReceivingController->GetMyFortPawn();
+
+			if (!Pawn)
+			{
+				SendMessageToConsole(PlayerController, L"No pawn!");
+				return;
 			}
+
+			Pawn->LaunchURL(L"https://youtu.be/f9PHq9FUHbw?si=SYcONbJ2DSAKG8wZ");
+		}
 		else if (Command == "killserver")
 		{
 			bool bIgnorePlatformRestrictions = true;
@@ -2398,8 +2410,10 @@ cheat changesize <Size=1.f> - Changes the player's size (the hitbox will change 
 cheat damagetarget <Damage=0.f> - Damages the Actor in front of you by the specified amount.
 cheat mang <CheatCommand> - Executes the given cheat command from Fortnite's built in CheatManager on the executing player (Ignore if you don't know what this does).
 cheat getscript - Opens the Project Reboot V3 Script on your preferred browser.
+cheat tutorial - Opens the Project Reboot V3 Tutorial (made by Ralzify).
 cheat killserver - Ends the running task of the hosting window.
 cheat startaircraft - Starts the bus.
+cheat settimeofday <1-24> - Changes the time of day in game to a 24H time period.
 
 If you want to execute a command on a certain player, surround their name (case sensitive) with \, and put the param with their name anywhere. Example: cheat sethealth \Milxnor\ 100
 )";
