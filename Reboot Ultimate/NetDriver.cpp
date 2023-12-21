@@ -52,6 +52,32 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 		}
 	}
 
+	if (ActorsToSpawn.size() > 0)
+	{
+		for (int i = 0; i < ActorsToSpawn.size(); i++)
+		{
+			auto& Actor = ActorsToSpawn.at(i);
+
+			auto loaded = FindObject<UClass>(Actor.ClassToSpawn, Actor.ClassOfClass);
+
+			if (loaded)
+			{
+				FTransform SpawnTransform{};
+				SpawnTransform.Translation = Actor.SpawnLocation;
+				SpawnTransform.Scale3D = FVector{ 1, 1, 1 };
+				SpawnTransform.Rotation = FQuat();
+
+				GetWorld()->SpawnActor<AActor>(loaded, SpawnTransform);
+			}
+			else
+			{
+				std::cout << "Failed to find: " << Actor.ClassToSpawn << '\n';
+			}
+
+			ActorsToSpawn.erase(ActorsToSpawn.begin() + i);
+		}
+	}
+
 	return TickFlushOriginal(NetDriver);
 }
 
