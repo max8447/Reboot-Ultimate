@@ -140,7 +140,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		auto& Command = Arguments[0];
 		std::transform(Command.begin(), Command.end(), Command.begin(), ::tolower);
 
-		if (Command == "giveitem")
+		if (Command == "giveitem" || Command == "give")
 		{
 			if (NumArgs < 1)
 			{
@@ -205,7 +205,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Printed!");
 		}
-		else if (Command == "grant" || Command == "give")
+		else if (Command == "grant")
 		{
 			if (NumArgs < 1)
 			{
