@@ -1928,7 +1928,7 @@ static inline void MainUI()
 							auto CurrentWeapon = CurrentPawn->Get<UFortItemDefinition*>(CurrentWeaponOffset);
 
 							static auto AmmoCountOffset = FindOffsetStruct("/Script/FortniteGame.FortWeapon", "AmmoCount");
-							auto AmmoCountPtr = *(int**)(__int64(CurrentWeapon) + AmmoCountOffset);
+							auto AmmoCountPtr = (int*)(__int64(CurrentWeapon) + AmmoCountOffset);
 
 							auto Inventory = CurrentController->GetWorldInventory();
 
@@ -1936,7 +1936,7 @@ static inline void MainUI()
 
 							if (ImGui::InputInt("Ammo Count of CurrentWeapon", CurrentWeapon ? AmmoCountPtr : stud))
 							{
-								SetLoadedAmmo(CurrentEntry, CurrentController, *AmmoCountPtr);
+								// SetLoadedAmmo(CurrentEntry, CurrentController, *AmmoCountPtr);
 							}
 
 							if (ImGui::Button("Give Item"))
@@ -1983,20 +1983,14 @@ static inline void MainUI()
 						std::string CharacterFullName;
 						std::string GliderFullName;
 
-						LOG_ERROR(LogGame, "1");
-
 						ImGui::InputText("Character", &CharacterFullName);
 
 						ImGui::InputText("Glider", &GliderFullName);
-
-						LOG_ERROR(LogGame, "2");
 
 						if (ImGui::Button("Apply"))
 						{
 							auto NewCharacter = FindObject(CharacterFullName, nullptr, ANY_PACKAGE);
 							auto NewGlider = FindObject(GliderFullName, nullptr, ANY_PACKAGE);
-
-							LOG_ERROR(LogGame, "3");
 
 							if (!NewCharacter && !CharacterFullName.empty())
 								LOG_WARN(LogGame, "Unable to find inputted character!");
@@ -2004,19 +1998,15 @@ static inline void MainUI()
 							if (!NewGlider && !GliderFullName.empty())
 								LOG_WARN(LogGame, "Unable to find inputted glider!");
 
-							LOG_ERROR(LogGame, "4");
-
 							static auto GliderOffset = FindOffsetStruct("/Script/FortniteGame.FortAthenaLoadout", "Glider");
 							auto ActualGlider = *(UObject**)(__int64(CosmeticLoadoutPC + GliderOffset));
 
-							LOG_ERROR(LogGame, "5");
-
 							ActualGlider = NewGlider;
-
-							LOG_ERROR(LogGame, "6");
 
 							if (CurrentPawn)
 							{
+								LOG_INFO(LogDev, "Applying {}", NewCharacter->GetFullName());
+
 								if (!ApplyCID(Cast<AFortPlayerPawn>(CurrentPawn), NewCharacter))
 								{
 									LOG_WARN(LogGame, "Failed to apply CID!");
