@@ -697,11 +697,17 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		}
 		else if (Command == "testwin")
 		{
-			auto pawn = ReceivingController->GetMyFortPawn();
+			auto Pawn = ReceivingController->GetMyFortPawn();
 			auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
 
-			ReceivingController->PlayWinEffects(pawn, FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Vehicles/WID_Octopus_Weapon.WID_Octopus_Weapon"), EDeathCause::Rifle, false);
-			ReceivingController->ClientNotifyWon(pawn, FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Vehicles/WID_Octopus_Weapon.WID_Octopus_Weapon"), EDeathCause::Rifle);
+			FAthenaRewardResult Result;
+			UFortPlayerControllerAthenaXPComponent* XPComponent = ReceivingController->GetXPComponent();
+			Result.TotalBookXpGained = XPComponent->GetTotalXpEarned();
+			Result.TotalSeasonXpGained = XPComponent->GetTotalXpEarned();
+
+			ReceivingController->PlayWinEffects(Pawn, FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Vehicles/WID_Octopus_Weapon.WID_Octopus_Weapon"), EDeathCause::Rifle, false);
+			ReceivingController->ClientNotifyWon(Pawn, FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Vehicles/WID_Octopus_Weapon.WID_Octopus_Weapon"), EDeathCause::Rifle);
+			ReceivingController->ClientSendEndBattleRoyaleMatchForPlayer(true, Result);
 			GameMode->EndMatch();
 		}
 		else if (Command == "gamemodesaytest")

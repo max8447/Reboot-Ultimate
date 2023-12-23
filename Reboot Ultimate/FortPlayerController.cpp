@@ -24,6 +24,7 @@
 #include "gui.h"
 #include "FortAthenaMutator_InventoryOverride.h"
 #include "FortAthenaMutator_TDM.h"
+#include "FortAthenaMutator_GG.h"
 
 void AFortPlayerController::ClientReportDamagedResourceBuilding(ABuildingSMActor* BuildingSMActor, EFortResourceType PotentialResourceType, int PotentialResourceCount, bool bDestroyed, bool bJustHitWeakspot)
 {
@@ -1239,6 +1240,7 @@ DWORD WINAPI RestartThread(LPVOID)
 
 void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerController, void* DeathReport)
 {
+	auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
 	auto GameState = Cast<AFortGameStateAthena>(((AFortGameMode*)GetWorld()->GetGameMode())->GetGameState());
 	auto DeadPawn = Cast<AFortPlayerPawn>(PlayerController->GetPawn());
 	auto DeadPlayerState = Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState());
@@ -1353,6 +1355,58 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 				KillerPlayerState->OnRep_TeamScorePlacement();
 				KillerPlayerState->OnRep_TotalPlayerScore();
 				KillerPlayerState->UpdateScoreStatChanged();
+			}
+
+			if (Globals::bArsenal)
+			{
+				AFortAthenaMutator_GG* Mutator = (AFortAthenaMutator_GG*)GameState->GetMutatorByClass(GameMode, AFortAthenaMutator_GG::StaticClass());
+				AFortPlayerControllerAthena* KillerPC = (AFortPlayerControllerAthena*)KillerPlayerState->GetOwner();
+
+				if (KillerPC->GetWorldInventory())
+				{
+					for (size_t i = 0; i < KillerPC->GetWorldInventory()->GetItemList().GetReplicatedEntries().Num(); i++)
+					{
+						auto Mutator = (AFortAthenaMutator_GG*)GameState->GetMutatorByClass(GameMode, AFortAthenaMutator_GG::StaticClass());
+						if (Mutator->GetWeaponEntries().IsValidIndex(KillScore - 1))
+						{
+							static bool ShouldUpdate = false, * bShouldUpdate = &ShouldUpdate;
+							KillerPC->GetWorldInventory()->RemoveItem(((UFortItem*)Mutator->GetWeaponEntries()[KillScore - 1].GetWeapon())->GetItemEntry()->GetItemGuid(), bShouldUpdate, -1);
+						}
+					}
+
+					if (Mutator->GetWeaponEntries().IsValidIndex(KillScore))
+					{
+						static bool ShouldUpdate = false, * bShouldUpdate = &ShouldUpdate;
+						KillerPC->GetWorldInventory()->AddItem(Mutator->GetWeaponEntries()[KillScore].GetWeapon(), bShouldUpdate, 1, Mutator->GetWeaponEntries()[KillScore].GetWeapon()->GetClipSize());
+					}
+				}
+
+				if (KillScore == Mutator->GetScoreToWin())
+				{
+					KillerPlayerState->GetPlace() = 1;
+					KillerPlayerState->OnRep_Place();
+
+					for (size_t i = 0; i < GameMode->GetAlivePlayers().Num(); i++)
+					{
+						AFortPlayerStateAthena* PlayerState = ((AFortPlayerStateAthena*)GameMode->GetAlivePlayers()[i]->GetPlayerState());
+						int PlayerKills = *(int*)(__int64(PlayerState) + 0xE74);
+
+						if (GameMode->GetAlivePlayers()[i] != KillerPC)
+						{
+							PlayerState->GetPlace() = PlayerKills;
+							PlayerState->OnRep_Place();
+						}
+					}
+
+					GameState->GetWinningPlayerState() = KillerPlayerState;
+					GameState->GetWinningScore() = 1;
+					GameState->GetWinningTeam() = *(uint8*)(__int64(KillerPlayerState) + 0xE60);
+
+					GameState->OnRep_WinningPlayerState();
+					GameState->OnRep_WinningScore();
+					GameState->OnRep_WinningTeam();
+					GameMode->EndMatch();
+				}
 			}
 
 			/* LoopMutators([&](AFortAthenaMutator* Mutator) {
@@ -1552,6 +1606,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 					// We need to check if their entire team is dead then I think we send it????
 
 					auto DeadControllerAthena = Cast<AFortPlayerControllerAthena>(PlayerController);
+					auto KillerControllerAthena = Cast<AFortPlayerControllerAthena>(KillerPlayerState->GetOwner());
 
 					if (DeadControllerAthena && FAthenaMatchTeamStats::GetStruct())
 					{
@@ -1568,6 +1623,28 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 							DeadControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
 						}
 					}
+
+					if (KillerControllerAthena && FAthenaMatchStats::GetStruct())
+					{
+						FAthenaMatchStats Stats;
+
+						for (size_t i = 0; i < 20; i++)
+						{
+							Stats.Stats[i] = 0;
+						}
+
+						static auto KillScoreOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerStateAthena", "KillScore");
+						int KillerScore = *(int*)(__int64(KillerPlayerState) + KillScoreOffset);
+
+						Stats.Stats[3] = KillerScore;
+
+						KillerControllerAthena->ClientSendMatchStatsForPlayer(&Stats);
+					}
+
+					GameState->GetWinningPlayerState() = KillerPlayerState;
+					GameState->GetWinningTeam() = KillerPlayerState->GetTeamIndex();
+					GameState->OnRep_WinningPlayerState();
+					GameState->OnRep_WinningTeam();
 
 					/**/
 

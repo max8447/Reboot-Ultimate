@@ -7,6 +7,7 @@
 #include "ScriptInterface.h"
 #include "Interface.h"
 #include "FortAthenaMapInfo.h"
+#include "FortGameplayMutator.h"
 
 enum class EAthenaGamePhaseStep : uint8_t // idk if this changes
 {
@@ -105,6 +106,12 @@ public:
 		return *(int32*)(__int64(this) + CurrentHighScoreOffset);
 	}
 
+	APlayerState*& GetWinningPlayerState()
+	{
+		static auto WinningPlayerStateOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "WinningPlayerState");
+		return *(APlayerState**)(__int64(this) + WinningPlayerStateOffset);
+	}
+
 	int32& GetWinningScore()
 	{
 		static auto WinningScoreOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "WinningScore");
@@ -186,6 +193,28 @@ public:
 		struct { AFortPlayerPawn* PlayerPawn; bool Ret; } Params{PlayerPawn};
 		this->ProcessEvent(IsResurrectionEnabledFn, &Params);
 		return Params.Ret;
+	}
+
+	void OnRep_WinningPlayerState()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortGameStateAthena.OnRep_WinningPlayerState");
+		this->ProcessEvent(fn);
+	}
+
+	AFortGameplayMutator* GetMutatorByClass(AActor* ContextActor, TSubclassOf<AFortGameplayMutator> MutatorClass)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortGameStateAthena.GetMutatorByClass");
+
+		struct
+		{
+			AActor* ContextActor;
+			TSubclassOf<AFortGameplayMutator> MutatorClass;
+			AFortGameplayMutator* ReturnValue;
+		}params{ ContextActor , MutatorClass };
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
 	}
 
 	EAthenaGamePhaseStep& GetGamePhaseStep()

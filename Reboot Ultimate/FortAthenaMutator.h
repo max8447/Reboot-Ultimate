@@ -9,8 +9,9 @@
 #include "ScriptInterface.h"
 #include "FortGameStateAthena.h"
 #include "GameplayStatics.h"
+#include "FortGameplayMutator.h"
 
-class AFortAthenaMutator : public AActor // AFortGameplayMutator
+class AFortAthenaMutator : public AFortGameplayMutator
 {
 public:
 	static UClass* StaticClass()

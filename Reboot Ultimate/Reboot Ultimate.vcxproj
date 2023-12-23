@@ -359,6 +359,7 @@
     <ClInclude Include="FortGameModePvPBase.h" />
     <ClInclude Include="FortGameModeZone.h" />
     <ClInclude Include="FortGameplayAbilityAthena_PeriodicItemGrant.h" />
+    <ClInclude Include="FortGameplayMutator.h" />
     <ClInclude Include="FortGameSessionDedicatedAthena.h" />
     <ClInclude Include="FortGameStateAthena.h" />
     <ClInclude Include="FortInventoryInterface.h" />

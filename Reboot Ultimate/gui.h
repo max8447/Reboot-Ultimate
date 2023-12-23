@@ -89,7 +89,7 @@ extern inline bool bEnableBotTick = true;
 extern inline bool bZoneReversing = false;
 extern inline bool bEnableCombinePickup = false;
 extern inline int AmountOfBotsToSpawn = 0;
-extern inline bool bEnableRebooting = true;
+extern inline bool bEnableRebooting = false;
 extern inline bool bEngineDebugLogs = false;
 extern inline bool bStartedBus = false;
 extern inline int AmountOfHealthSiphon = 50;
@@ -187,49 +187,6 @@ static inline void Restart() // todo move?
 	*/
 
 	// UGameplayStatics::OpenLevel(GetWorld(), UKismetStringLibrary::Conv_StringToName(LevelA), true, FString());
-}
-
-static void LoopReplicatedEntries(APlayerController* Controller, std::function<bool(FFortItemEntry*)> func)
-{
-	auto Inventory = Cast<AFortPlayerController>(Controller)->GetWorldInventory();
-
-	auto ReplicatedEntries = Inventory->GetItemList().GetReplicatedEntries();
-
-	for (int i = 0; i < ReplicatedEntries.Num(); i++)
-	{
-		auto CurrentReplicatedEntry = ReplicatedEntries.AtPtr(i, FFortItemEntry::GetStructSize());
-
-		if (CurrentReplicatedEntry)
-		{
-			if (func(CurrentReplicatedEntry))
-				return;
-		}
-	}
-}
-
-static void SetLoadedAmmo(FFortItemEntry* Entry, APlayerController* Controller, int NewLoadedAmmo)
-{
-	Entry->GetLoadedAmmo() = NewLoadedAmmo;
-
-	auto Inventory = Cast<AFortPlayerController>(Controller)->GetWorldInventory();
-
-	Inventory->GetItemList().MarkItemDirty((FFastArraySerializerItem*)Entry);
-
-	auto EntryGuid = Entry->GetItemGuid();
-
-	auto ahah = [&Inventory, &EntryGuid, &NewLoadedAmmo](FFortItemEntry* currentEntry) -> bool
-		{
-			if (currentEntry->GetItemGuid() == EntryGuid)
-			{
-				currentEntry->GetLoadedAmmo() = NewLoadedAmmo;
-				Inventory->GetItemList().MarkItemDirty((FFastArraySerializerItem*)currentEntry);
-				return true;
-			}
-
-			return false;
-		};
-
-	LoopReplicatedEntries(Controller, ahah);
 }
 
 template<typename T>
@@ -1564,50 +1521,6 @@ static inline void MainUI()
 				}
 			}
 
-			std::string SpawnBotCoordsStr;
-
-			ImGui::InputText("", &SpawnBotCoordsStr);
-
-			std::istringstream ss(SpawnBotCoordsStr);
-
-			std::vector<float> Coordinates;
-
-			float Coord;
-
-			while (ss >> Coord) {
-				Coordinates.push_back(Coord);
-
-				if (ss.peek() == ',')
-					ss.ignore();
-			}
-
-			FVector SpawnBotCoords;
-			if (Coordinates.size() >= 3) {
-				SpawnBotCoords.X = Coordinates[0];
-				SpawnBotCoords.Y = Coordinates[1];
-				SpawnBotCoords.Z = Coordinates[2];
-			}
-			else {
-				LOG_WARN(LogBots, "Incorrect coordinates provided.");
-			}
-
-			if (ImGui::Button("Spawn Bot at coordinates"))
-			{
-				if (!SpawnBotCoords.IsEmpty())
-				{
-					FTransform Transform;
-					Transform.Translation = SpawnBotCoords;
-					Transform.Scale3D = FVector(1, 1, 1);
-
-					auto NewActor = Bots::SpawnBot(Transform);
-
-					if (!NewActor)
-					{
-						LOG_WARN(LogBots, "Failed to spawn bot at location!");
-					}
-				}
-			}
-
 			auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
 
 			if (GameState)
@@ -1927,17 +1840,7 @@ static inline void MainUI()
 							static auto CurrentWeaponOffset = CurrentPawn->GetOffset("CurrentWeapon");
 							auto CurrentWeapon = CurrentPawn->Get<UFortItemDefinition*>(CurrentWeaponOffset);
 
-							static auto AmmoCountOffset = FindOffsetStruct("/Script/FortniteGame.FortWeapon", "AmmoCount");
-							auto AmmoCountPtr = (int*)(__int64(CurrentWeapon) + AmmoCountOffset);
-
 							auto Inventory = CurrentController->GetWorldInventory();
-
-							auto CurrentEntry = Cast<UFortItem>(CurrentWeapon)->GetItemEntry();
-
-							if (ImGui::InputInt("Ammo Count of CurrentWeapon", CurrentWeapon ? AmmoCountPtr : stud))
-							{
-								// SetLoadedAmmo(CurrentEntry, CurrentController, *AmmoCountPtr);
-							}
 
 							if (ImGui::Button("Give Item"))
 							{

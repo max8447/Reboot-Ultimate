@@ -312,6 +312,21 @@ public:
 	}
 };
 
+struct FAthenaRewardResult
+{
+public:
+	int32                                        LevelsGained;                                      // 0x0(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	int32                                        BookLevelsGained;                                  // 0x4(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	int32                                        TotalSeasonXpGained;                               // 0x8(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	int32                                        TotalBookXpGained;                                 // 0xC(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	int32                                        PrePenaltySeasonXpGained;                          // 0x10(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	uint8                                        Pad_423A[0x4];                                     // Fixing Size After Last Property  [ Dumper-7 ]
+	TArray<struct FAthenaMatchXpMultiplierGroup> XpMultipliers;                                     // 0x18(0x10)(ZeroConstructor, NativeAccessSpecifierPublic)
+	TArray<struct FAthenaAwardGroup>             Rewards;                                           // 0x28(0x10)(ZeroConstructor, NativeAccessSpecifierPublic)
+	float                                        AntiAddictionMultiplier;                           // 0x38(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	uint8                                        Pad_423B[0x4];                                     // Fixing Size Of Struct [ Dumper-7 ]
+};
+
 class AFortPlayerControllerAthena : public AFortPlayerController
 {
 public:
@@ -324,6 +339,19 @@ public:
 
 	static void GiveXP(AFortPlayerControllerAthena* PC, int CombatXP, int SurvivalXP, int BonusMedalXP, int ChallengeXP, int MatchXP);
 	static void ProgressQuest(AFortPlayerControllerAthena* PC, UFortQuestItemDefinition* QuestDef, FName Primary_BackendName);
+
+	void ClientSendEndBattleRoyaleMatchForPlayer(bool bSuccess, struct FAthenaRewardResult& Result)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthena.ClientSendEndBattleRoyaleMatchForPlayer");
+
+		struct
+		{
+			bool                               bSuccess;
+			FAthenaRewardResult         Result;
+		}params{ bSuccess , Result };
+
+		this->ProcessEvent(fn, &params);
+	}
 
 	UFortQuestManager* GetQuestManager(enum class ESubGame SubGame)
 	{
@@ -444,6 +472,19 @@ public:
 		memcpy_s(Params, ParamSize, TeamStats, TeamStats->GetStructSize());
 
 		this->ProcessEvent(ClientSendTeamStatsForPlayerFn, Params);
+
+		free(Params);
+	}
+
+	void ClientSendMatchStatsForPlayer(FAthenaMatchStats* Stats)
+	{
+		static auto ClientSendMatchStatsForPlayerFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthena.ClientSendMatchStatsForPlayer");
+		static auto ParamSize = ClientSendMatchStatsForPlayerFn->GetPropertiesSize();
+		auto Params = malloc(ParamSize);
+
+		memcpy_s(Params, ParamSize, Stats, Stats->GetStructSize());
+
+		this->ProcessEvent(ClientSendMatchStatsForPlayerFn, Params);
 
 		free(Params);
 	}

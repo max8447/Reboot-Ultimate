@@ -136,6 +136,12 @@ public:
 		this->ProcessEvent(fn);
 	}
 
+	void OnRep_Place()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerStateAthena.OnRep_Place");
+		this->ProcessEvent(fn);
+	}
+
 	FDeathInfo* GetDeathInfo()
 	{
 		return GetPtr<FDeathInfo>(MemberOffsets::FortPlayerStateAthena::DeathInfo);

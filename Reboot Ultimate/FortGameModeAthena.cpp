@@ -790,8 +790,7 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 
 	WinConditionType == EAthenaWinCondition::MutatorControlledGoalScore ? Globals::bEnableScoringSystem = true : Globals::bEnableScoringSystem = false;
 
-	UClass* MeatballClass = FindObject<UClass>("/Game/Athena/DrivableVehicles/Meatball/Meatball_Large/MeatballVehicle_L.MeatballVehicle_L_C");
-	SwapVTable(MeatballClass, 0xED, ServerVehicleUpdate);
+	CurrentPlaylist->GetFullName().contains("Playlist_Gg_Reverse") ? Globals::bArsenal = true : Globals::bArsenal = false;
 
 	static int LastNum3 = 1;
 
