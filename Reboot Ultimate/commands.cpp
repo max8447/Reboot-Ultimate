@@ -459,7 +459,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "Athena_IceGrenade";
 			}
-			else if (weaponName == "can" || weaponName == "rustycan")
+			else if (weaponName == "can" || weaponName == "rustycan" || weaponName == "cans")
 			{
 				weaponName = "WID_Athena_Bucket_Old";
 			}
@@ -514,6 +514,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			else if (weaponName == "pizza")
 			{
 				weaponName = "WID_Athena_PizzaParty";
+			}
+			else if (weaponName == "keg" || weaponName == "shieldkeg")
+			{
+				weaponName = "WID_Athena_ShieldGenerator";
 			}
 			else if (weaponName == "thermalflopper" || weaponName == "thermalfish")
 			{
