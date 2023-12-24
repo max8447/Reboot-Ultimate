@@ -431,6 +431,35 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 			auto OldPlaylist = GetPlaylistForOldVersion();
 		}
 
+		auto CurrentPlaylist = GameState->GetCurrentPlaylist();
+		auto WinConditionTypeOffset = CurrentPlaylist->GetOffset("WinConditionType");
+		auto WinConditionType = CurrentPlaylist->Get<EAthenaWinCondition>(WinConditionTypeOffset);
+
+		WinConditionType == EAthenaWinCondition::MutatorControlledGoalScore ? Globals::bEnableScoringSystem = true : Globals::bEnableScoringSystem = false;
+
+		static auto DefaultGliderRedeployCanRedeployOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "DefaultGliderRedeployCanRedeploy", false);
+		bool bEnableGliderRedeploy = false;
+
+		TArray<TSoftObjectPtr<UFortGameplayModifierItemDefinition>> ModifierList = CurrentPlaylist->GetModifierList();
+
+		for (int i = 0; i < ModifierList.Num(); i++)
+		{
+			auto Modifier = ModifierList.at(i);
+
+			if (Modifier.SoftObjectPtr.ObjectID.AssetPathName.ToString().contains("Glider"))
+				bEnableGliderRedeploy = true;
+		}
+
+		GameState->Get<float>(DefaultGliderRedeployCanRedeployOffset) = bEnableGliderRedeploy;
+
+		Globals::bTravis = Fortnite_Version == 12.41 && Globals::bGoingToPlayEvent ? true : false;
+
+		Globals::bArsenal = CurrentPlaylist->GetFullName().contains("Playlist_Gg_Reverse") ? true : false;
+
+		Globals::bStormKing = CurrentPlaylist->GetFullName().contains("DADBRO") ? true : false;
+
+		Globals::bTeamRumble = CurrentPlaylist->GetFullName().contains("Playlist_Respawn") ? true : false;
+
 		auto Fortnite_Season = std::floor(Fortnite_Version);
 
 		// if (false) // Manual foundation showing
@@ -525,6 +554,11 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_5x5_Galileo_Ferry_4"));
 					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_5x5_Galileo_Ferry_5"));
 				}
+			}
+
+			if (Globals::bStormKing)
+			{
+				// TODO: Find Stormking island foundation
 			}
 
 			GET_PLAYLIST(GameState);
@@ -801,35 +835,6 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 
 	if (Teams.Num() <= 0)
 		return false;
-
-	auto CurrentPlaylist = GameState->GetCurrentPlaylist();
-	auto WinConditionTypeOffset = CurrentPlaylist->GetOffset("WinConditionType");
-	auto WinConditionType = CurrentPlaylist->Get<EAthenaWinCondition>(WinConditionTypeOffset);
-
-	WinConditionType == EAthenaWinCondition::MutatorControlledGoalScore ? Globals::bEnableScoringSystem = true : Globals::bEnableScoringSystem = false;
-
-	static auto DefaultGliderRedeployCanRedeployOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "DefaultGliderRedeployCanRedeploy", false);
-	bool bEnableGliderRedeploy = false;
-
-	TArray<TSoftObjectPtr<UFortGameplayModifierItemDefinition>> ModifierList = CurrentPlaylist->GetModifierList();
-
-	for (int i = 0; i < ModifierList.Num(); i++)
-	{
-		auto Modifier = ModifierList.at(i);
-
-		if (Modifier.SoftObjectPtr.ObjectID.AssetPathName.ToString().contains("Glider"))
-			bEnableGliderRedeploy = true;
-	}
-
-	GameState->Get<float>(DefaultGliderRedeployCanRedeployOffset) = bEnableGliderRedeploy;
-
-	Globals::bTravis = Fortnite_Version == 12.41 && Globals::bGoingToPlayEvent ? true : false;
-
-	Globals::bArsenal = CurrentPlaylist->GetFullName().contains("Playlist_Gg_Reverse") ? true : false;
-
-	Globals::bStormKing = CurrentPlaylist->GetFullName().contains("DADBRO") ? true : false;
-
-	Globals::bTeamRumble = CurrentPlaylist->GetFullName().contains("Playlist_Respawn") ? true : false;
 
 	static int LastNum3 = 1;
 
