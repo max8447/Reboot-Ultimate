@@ -277,6 +277,12 @@ struct FWinConditionScoreData
 class UFortPlaylist : public UObject
 {
 public:
+	TArray<UFortItemDefinition*> GetItemsToFullyLoad()
+	{
+		static auto ItemsToFullyLoadOffset = FindOffsetStruct("/Script/FortniteGame.FortPlaylist", "ItemsToFullyLoad");
+		return *(TArray<UFortItemDefinition*>*)(__int64(this) + ItemsToFullyLoadOffset);
+	}
+
 	TArray<TSoftObjectPtr<UFortGameplayModifierItemDefinition>>& GetModifierList()
 	{
 		static auto ModifierListOffset = this->GetOffset("ModifierList");

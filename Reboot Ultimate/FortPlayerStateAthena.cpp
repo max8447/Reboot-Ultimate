@@ -1,9 +1,13 @@
 #include "FortPlayerStateAthena.h"
 #include "Stack.h"
 #include "FortPlayerControllerAthena.h"
+#include "FortAthenaMutator_GG.h"
+#include "FortGameModeAthena.h"
 
 void AFortPlayerStateAthena::ServerSetInAircraftHook(UObject* Context, FFrame& Stack, void* Ret)
 {
+	LOG_INFO(LogDev, "ServerSetInAircraftHook!");
+
 	/* LOG_INFO(LogDev, "bLateGame: {}", Globals::bLateGame)
 
 	if (Globals::bLateGame)

@@ -8,6 +8,9 @@ namespace Globals
 {
 	extern inline bool bCreative = false;
 	extern inline bool bArsenal = false;
+	extern inline bool bTeamRumble = false;
+	extern inline bool bStormKing = false;
+	extern inline bool bTravis = false;
 	extern inline bool bGoingToPlayEvent = false;
 	extern inline bool bEnableAGIDs = true;
 	extern inline bool bNoMCP = Fortnite_Version >= 19;

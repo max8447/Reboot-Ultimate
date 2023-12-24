@@ -71,6 +71,12 @@ struct FFortItemList : public FFastArraySerializer
 class AFortInventory : public AActor
 {
 public:
+	bool& RequiresLocalUpdate()
+	{
+		static auto bRequiresLocalUpdateOffset = FindOffsetStruct("/Script/FortniteGame.FortInventory", "bRequiresLocalUpdate");
+		return *(bool*)(__int64(this) + bRequiresLocalUpdateOffset);
+	}
+
 	FFortItemList& GetItemList()
 	{
 		static auto InventoryOffset = GetOffset("Inventory");

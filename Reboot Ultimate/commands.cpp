@@ -2031,7 +2031,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			Pawn->ProcessEvent(SetMovementSpeedFn, &Speed);
 		}
-		else if (Command == "wipequickbar" || Command == "wipeall" || Command == "wipe" || Command == "clear")
+		else if (Command == "wipequickbar" || Command == "wipeall" || Command == "wipe" || Command == "clear" || Command == "clearall")
 		{
 			bool bWipePrimary = false;
 			bool bWipeSecondary = false;

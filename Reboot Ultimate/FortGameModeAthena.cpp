@@ -790,7 +790,28 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 
 	WinConditionType == EAthenaWinCondition::MutatorControlledGoalScore ? Globals::bEnableScoringSystem = true : Globals::bEnableScoringSystem = false;
 
-	CurrentPlaylist->GetFullName().contains("Playlist_Gg_Reverse") ? Globals::bArsenal = true : Globals::bArsenal = false;
+	static auto DefaultGliderRedeployCanRedeployOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "DefaultGliderRedeployCanRedeploy", false);
+	bool bEnableGliderRedeploy = false;
+
+	TArray<TSoftObjectPtr<UFortGameplayModifierItemDefinition>> ModifierList = CurrentPlaylist->GetModifierList();
+
+	for (int i = 0; i < ModifierList.Num(); i++)
+	{
+		auto Modifier = ModifierList.at(i);
+
+		if (Modifier.SoftObjectPtr.ObjectID.AssetPathName.ToString().contains("Glider"))
+			bEnableGliderRedeploy = true;
+	}
+
+	GameState->Get<float>(DefaultGliderRedeployCanRedeployOffset) = bEnableGliderRedeploy;
+
+	Globals::bTravis = Fortnite_Version == 12.41 && Globals::bGoingToPlayEvent ? true : false;
+
+	Globals::bArsenal = CurrentPlaylist->GetFullName().contains("Playlist_Gg_Reverse") ? true : false;
+
+	Globals::bStormKing = CurrentPlaylist->GetFullName().contains("DADBRO") ? true : false;
+
+	Globals::bTeamRumble = CurrentPlaylist->GetFullName().contains("Playlist_Respawn") ? true : false;
 
 	static int LastNum3 = 1;
 

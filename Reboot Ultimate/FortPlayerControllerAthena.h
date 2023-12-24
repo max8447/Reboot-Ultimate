@@ -8,6 +8,7 @@
 #include "AthenaMarkerComponent.h"
 #include "FortVolume.h"
 #include "AthenaPlayerMatchReport.h"
+#include "FortItem.h"
 
 enum class EQuitPreference : uint8
 {

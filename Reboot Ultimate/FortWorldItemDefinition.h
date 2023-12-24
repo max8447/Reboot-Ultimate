@@ -37,6 +37,17 @@ public:
 		return Get<int>(DropCountOffset);
 	}
 
+	UFortWorldItemDefinition* GetAmmoWorldItemDefinition_BP()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortWorldItemDefinition.GetAmmoWorldItemDefinition_BP");
+
+		UFortWorldItemDefinition* ReturnValue;
+
+		this->ProcessEvent(fn, &ReturnValue);
+
+		return ReturnValue;
+	}
+
 	int PickLevel(int PreferredLevel) // well min level and maxlevel is sometimes in ufortowrlditemdeifnit9 then on older versions ufortitemdefinitoj so idk wher tyo put this
 	{
 		static auto MinLevelOffset = GetOffset("MinLevel");

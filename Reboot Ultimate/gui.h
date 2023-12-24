@@ -29,6 +29,7 @@
 #include "Vector.h"
 #include "reboot.h"
 #include "FortGameModeAthena.h"
+#include "FortGameStateAthena.h"
 #include "UnrealString.h"
 #include "KismetTextLibrary.h"
 #include "KismetSystemLibrary.h"
@@ -1084,8 +1085,6 @@ static inline void MainUI()
 						}
 					}
 				}
-
-				// ImGui::Checkbox("Enable Scoring System", &Globals::bEnableScoringSystem);
 			}
 		}
 

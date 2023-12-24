@@ -12,6 +12,7 @@
 #include "FortAthenaMutator_InventoryOverride.h"
 #include "FortGadgetItemDefinition.h"
 #include "gui.h"
+#include "FortAthenaMutator_GG.h"
 
 void AFortPlayerControllerAthena::GiveXP(AFortPlayerControllerAthena* PC, int CombatXP, int SurvivalXP, int BonusMedalXP, int ChallengeXP, int MatchXP)
 {
@@ -189,11 +190,14 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 	if (!PlayerController)
 		return;
 
-	// LOG_INFO(LogDev, "EnterAircraftHook");
+	LOG_INFO(LogDev, "EnterAircraftHook");
 
 	EnterAircraftOriginal(PC, Aircraft);
 
 	// TODO Check if the player successfully got in the aircraft.
+
+	auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+	auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
 
 	auto WorldInventory = PlayerController->GetWorldInventory();
 
@@ -300,6 +304,95 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 	};
 
 	LoopMutators(AddInventoryOverrideTeamLoadouts);
+
+	if (Globals::bTeamRumble)
+	{
+		static UFortWeaponItemDefinition* ArDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/WID_Assault_Auto_Athena_UC_Ore_T03.WID_Assault_Auto_Athena_UC_Ore_T03");
+		static UFortWeaponItemDefinition* PumpDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_C_Ore_T03.WID_Shotgun_Standard_Athena_C_Ore_T03");
+
+		WorldInventory->AddItem(PumpDef, nullptr, 1, 5);
+		WorldInventory->AddItem(ArDef, nullptr, 1, 30);
+		WorldInventory->AddItem(PumpDef->GetAmmoWorldItemDefinition_BP(), nullptr, 15);
+		WorldInventory->AddItem(ArDef->GetAmmoWorldItemDefinition_BP(), nullptr, 60);
+	}
+
+	if (Globals::bArsenal)
+	{
+		static UFortItemDefinition* WoodDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+		static UFortItemDefinition* StoneDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+		static UFortItemDefinition* MetalDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+
+		WorldInventory->AddItem(WoodDef, nullptr, 9999);
+		WorldInventory->AddItem(StoneDef, nullptr, 9999);
+		WorldInventory->AddItem(MetalDef, nullptr, 9999);
+
+		AFortAthenaMutator_GG* Mutator = (AFortAthenaMutator_GG*)GameState->GetMutatorByClass(GameMode, AFortAthenaMutator_GG::StaticClass());
+
+		if (Mutator && Mutator->GetWeaponEntries()[0].GetWeapon())
+		{
+			WorldInventory->AddItem(Mutator->GetWeaponEntries()[0].GetWeapon(), nullptr, 1, Cast<UFortWeaponItemDefinition>(Mutator->GetWeaponEntries()[0].GetWeapon())->GetClipSize());
+		}
+	}
+
+	if (Globals::bStormKing)
+	{
+		static UFortItemDefinition* WoodDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+		static UFortItemDefinition* StoneDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+		static UFortItemDefinition* MetalDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+		static UFortWeaponItemDefinition* ScarDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Boss/WID_Boss_Adventure_AR.WID_Boss_Adventure_AR");
+		static UFortWeaponItemDefinition* DrumgunDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Boss/WID_Boss_Midas.WID_Boss_Midas");
+		static UFortWeaponItemDefinition* SlurpFishDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Consumables/Flopper/Effective/WID_Athena_Flopper_Effective.WID_Athena_Flopper_Effective");
+		static UFortWeaponItemDefinition* SmallShieldDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Consumables/ShieldSmall/Athena_ShieldSmall.Athena_ShieldSmall");
+
+		static UFortWeaponItemDefinition* GraveDiggerDef = FindObject<UFortWeaponItemDefinition>("/Game/Items/Weapons/Ranged/Assault/Auto/WID_Assault_Auto_Halloween_SR_Ore_T01.WID_Assault_Auto_Halloween_SR_Ore_T01");
+		static UFortWeaponItemDefinition* NocturnoDef = FindObject<UFortWeaponItemDefinition>("/Game/Items/Weapons/Ranged/Assault/Auto_High/WID_Assault_Auto_Founders_SR_Ore_T05.WID_Assault_Auto_Founders_SR_Ore_T05");
+		static UFortWeaponItemDefinition* MeleeDef1 = FindObject<UFortWeaponItemDefinition>("/Game/Items/Weapons/Melee/Edged/Sword_NeonGlow/WID_Edged_Sword_NeonGlow_SR_Ore_T05.WID_Edged_Sword_NeonGlow_SR_Ore_T05");
+		static UFortWeaponItemDefinition* MeleeDef2 = FindObject<UFortWeaponItemDefinition>("/Game/Items/Weapons/Melee/Edged/Sword_Medium_Laser/WID_Edged_Sword_Medium_Laser_Founders_SR_Crystal_T05.WID_Edged_Sword_Medium_Laser_Founders_SR_Crystal_T05");
+
+		WorldInventory->AddItem(WoodDef, nullptr, 9999);
+		WorldInventory->AddItem(StoneDef, nullptr, 9999);
+		WorldInventory->AddItem(MetalDef, nullptr, 9999);
+		//WorldInventory->AddItem(ScarDef, nullptr, 1, 30);
+		//WorldInventory->AddItem(GraveDiggerDef, nullptr, 1, 0, 144);
+		//WorldInventory->AddItem(NocturnoDef, nullptr, 1, 0, 86);
+		WorldInventory->AddItem(SlurpFishDef, nullptr, 3);
+		WorldInventory->AddItem(SmallShieldDef, nullptr, 6);
+		//WorldInventory->AddItem(MeleeDef1, nullptr, 1);
+		//WorldInventory->AddItem(MeleeDef2, nullptr, 1);
+		WorldInventory->AddItem(ScarDef, nullptr, 1, 30);
+		WorldInventory->AddItem(DrumgunDef, nullptr, 1, 40);
+		//WorldInventory->AddItem(NocturnoDef->GetAmmoWorldItemDefinition_BP(), nullptr, 9999);
+		//WorldInventory->AddItem(GraveDiggerDef->GetAmmoWorldItemDefinition_BP(), nullptr, 9999);
+		WorldInventory->AddItem(ScarDef->GetAmmoWorldItemDefinition_BP(), nullptr, 9999);
+
+		auto Aircraft = GameState->GetAircraft(0);
+		auto PoiManager = GameState->GetPoiManager();
+
+		if (PoiManager)
+		{
+			Aircraft->GetFlightInfo().GetFlightSpeed() = 1500.f;
+			FVector Loc = (GameState->GetPoiManager()->GetAllPoiVolumes()[0]->GetActorLocation() - (GameState->GetPoiManager()->GetAllPoiVolumes()[0]->GetActorForwardVector() * 5000));
+			Loc.Z = 15000;
+			Aircraft->GetFlightInfo().GetFlightStartLocation() = (FVector_NetQuantize100)Loc;
+			BusLocation = GameState->GetPoiManager()->GetAllPoiVolumes()[0]->GetActorLocation();
+			BusLocation.Z = 0;
+		}
+	}
+
+	if (Globals::bTravis)
+	{
+		LOG_INFO(LogGame, "Travis!!!");
+
+		//X: 62590.7 Y : -75501.8 Z : 13982.4
+		auto Aircraft = GameState->GetAircraft(0);
+		FVector Loc = FVector(62590, -75501, 13982);
+		Aircraft->GetFlightInfo().GetFlightStartLocation() = (FVector_NetQuantize100)Loc;
+		Aircraft->GetFlightInfo().GetFlightSpeed() = 1000;
+		Aircraft->GetFlightInfo().GetTimeTillDropStart() = 1;
+		Aircraft->GetDropStartTime() = UGameplayStatics::GetTimeSeconds(GetWorld()) + 1;
+		GameState->AircraftIsLocked() = false;
+		BusLocation = Loc;
+	}
 
 	WorldInventory->Update();
 	

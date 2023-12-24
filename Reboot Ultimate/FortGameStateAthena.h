@@ -8,6 +8,8 @@
 #include "Interface.h"
 #include "FortAthenaMapInfo.h"
 #include "FortGameplayMutator.h"
+// #include "FortGameModeAthena.h"
+#include "Actor.h"
 
 enum class EAthenaGamePhaseStep : uint8_t // idk if this changes
 {
@@ -37,6 +39,38 @@ enum class EAthenaGamePhase : uint8_t
 	EndGame = 5,
 	Count = 6,
 	EAthenaGamePhase_MAX = 7
+};
+
+struct FAircraftFlightInfo
+{
+	float& GetTimeTillDropStart()
+	{
+		static auto TimeTillDropStartOffset = FindOffsetStruct("/Script/FortniteGame.AircraftFlightInfo", "TimeTillDropStart");
+		return *(float*)(__int64(this) + TimeTillDropStartOffset);
+	}
+
+	FVector& GetFlightStartLocation()
+	{
+		static auto FlightStartLocationOffset = FindOffsetStruct("/Script/FortniteGame.AircraftFlightInfo", "FlightStartLocation");
+		return *(FVector*)(__int64(this) + FlightStartLocationOffset);
+	}
+
+	float& GetFlightSpeed()
+	{
+		static auto FlightSpeedOffset = FindOffsetStruct("/Script/FortniteGame.AircraftFlightInfo", "FlightSpeed");
+		return *(float*)(__int64(this) + FlightSpeedOffset);
+	}
+
+	static UStruct* GetStruct()
+	{
+		static auto Struct = FindObject<UStruct>("/Script/FortniteGame.AircraftFlightInfo");
+		return Struct;
+	}
+
+	static int GetStructSize()
+	{
+		return GetStruct()->GetPropertiesSize();
+	}
 };
 
 class UFortSafeZoneInterface : public UInterface
@@ -91,9 +125,52 @@ public:
 	}
 };
 
+class AFortAthenaAircraft : public AActor // AFortAircraft
+{
+public:
+	FAircraftFlightInfo GetFlightInfo()
+	{
+		static auto FlightInfoOffset = FindOffsetStruct("/Script/FortniteGame.FortAthenaAircraft", "FlightInfo");
+		return *(FAircraftFlightInfo*)(__int64(this) + FlightInfoOffset);
+	}
+
+	float& GetDropStartTime()
+	{
+		static auto DropStartTimeOffset = FindOffsetStruct("/Script/FortniteGame.FortAthenaAircraft", "DropStartTime");
+		return *(float*)(__int64(this) + DropStartTimeOffset);
+	}
+};
+
+class AFortPoiVolume : public AActor // AVolume
+{
+public:
+};
+
+class AFortPoiManager : public AActor
+{
+public:
+	TArray<AFortPoiVolume*> GetAllPoiVolumes()
+	{
+		static auto AllPoiVolumesOffset = FindOffsetStruct("/Script/FortniteGame.FortPoiManager", "AllPoiVolumes");
+		return *(TArray<AFortPoiVolume*>*)(__int64(this) + AllPoiVolumesOffset);
+	}
+};
+
 class AFortGameStateAthena : public AGameState
 {
 public:
+	AFortPoiManager* GetPoiManager()
+	{
+		static auto PoiManagerOffset = FindOffsetStruct("/Script/FortniteGame.FortGameState", "PoiManager");
+		return *(AFortPoiManager**)(__int64(this) + PoiManagerOffset);
+	}
+
+	uint8& AircraftIsLocked()
+	{
+		static auto bAircraftIsLockedOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "bAircraftIsLocked");
+		return *(uint8*)(__int64(this) + bAircraftIsLockedOffset);
+	}
+
 	int32& GetCurrentHighScoreTeam()
 	{
 		static auto CurrentHighScoreTeamOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "CurrentHighScoreTeam");
@@ -161,6 +238,21 @@ public:
 	{
 		static auto WorldLevelOffset = GetOffset("WorldLevel");
 		return Get<int>(WorldLevelOffset);
+	}
+
+	AFortAthenaAircraft* GetAircraft(int32 AircraftIndex)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortGameStateAthena.GetAircraft");
+
+		struct
+		{
+			int32                              AircraftIndex;
+			AFortAthenaAircraft* ReturnValue;
+		}params{ AircraftIndex };
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
 	}
 
 	EAthenaGamePhase& GetGamePhase()

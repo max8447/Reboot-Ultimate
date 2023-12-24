@@ -49,6 +49,13 @@ struct FDeathInfo
 	}
 };
 
+static FVector BusLocation;
+
+struct FVector_NetQuantize100 : public FVector
+{
+public:
+};
+
 class AFortPlayerStateAthena : public AFortPlayerState
 {
 public:
