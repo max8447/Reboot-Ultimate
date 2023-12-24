@@ -515,7 +515,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Athena_PizzaParty";
 			}
-			else if (weaponName == "keg" || weaponName == "shieldkeg")
+			else if (weaponName == "keg" || weaponName == "shieldkeg" || weaponName == "sprinkler" || Command == "shieldsprinkler")
 			{
 				weaponName = "WID_Athena_ShieldGenerator";
 			}
