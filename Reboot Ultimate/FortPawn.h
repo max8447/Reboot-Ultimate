@@ -42,6 +42,17 @@ public:
 	AFortWeapon* EquipWeaponDefinition(UFortWeaponItemDefinition* WeaponData, const FGuid& ItemEntryGuid);
 	bool PickUpActor(AActor* PickupTarget, UFortDecoItemDefinition* PlacementDecoItemDefinition);
 
+	bool IsDead()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPawn.IsDead");
+
+		bool                               ReturnValue;
+
+		this->ProcessEvent(fn, &ReturnValue);
+
+		return ReturnValue;
+	}
+
 	UFortHealthSet* GetHealthSet()
 	{
 		static auto HealthSetOffset = GetOffset("HealthSet");

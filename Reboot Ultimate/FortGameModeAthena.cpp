@@ -36,6 +36,7 @@
 #include "calendar.h"
 #include "gui.h"
 #include <random>
+#include "FortAthenaMutator_DadBro.h"
 
 static UFortPlaylistAthena* GetPlaylistToUse()
 {
@@ -274,6 +275,23 @@ void AFortGameModeAthena::OnAircraftEnteredDropZoneHook(AFortGameModeAthena* Gam
 	{
 		auto GameState = Cast<AFortGameStateAthena>(GameModeAthena->GetGameState());
 		GameState->SkipAircraft();
+	}
+
+	if (Globals::bStormKing)
+	{
+		auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+
+		UClass* DadBroPawnClass = FindObject<UClass>("/Game/Athena/DADBRO/DADBRO_Pawn.DADBRO_Pawn_C");
+		AFortAthenaMutator_DadBro* Mutator = (AFortAthenaMutator_DadBro*)GameState->GetMutatorByClass(GameModeAthena, AFortAthenaMutator_DadBro::StaticClass());
+		Mutator->GetDadBroSpawnLocation().Z = -193.048096f;
+		DadBroPawn = GetWorld()->SpawnActor<AFortAIPawn>(DadBroPawnClass, Mutator->GetDadBroSpawnLocation(), FQuat(), FVector(1, 1, 1), CreateSpawnParameters(ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
+
+		Mutator->GetDadBroPawn() = DadBroPawn;
+		Mutator->GetDadBroCodeState() = EDadBroState::Active;
+		Mutator->OnRep_DadBroPawn();
+		Mutator->OnRep_DadBroCodeState();
+
+		new std::thread(DadBroHealthTest);
 	}
 }
 

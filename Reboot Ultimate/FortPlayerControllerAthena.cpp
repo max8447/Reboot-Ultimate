@@ -310,10 +310,10 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 		static UFortWeaponItemDefinition* ArDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/WID_Assault_Auto_Athena_UC_Ore_T03.WID_Assault_Auto_Athena_UC_Ore_T03");
 		static UFortWeaponItemDefinition* PumpDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_C_Ore_T03.WID_Shotgun_Standard_Athena_C_Ore_T03");
 
-		WorldInventory->AddItem(PumpDef, nullptr, 1, 5);
 		WorldInventory->AddItem(ArDef, nullptr, 1, 30);
-		WorldInventory->AddItem(PumpDef->GetAmmoWorldItemDefinition_BP(), nullptr, 15);
+		WorldInventory->AddItem(PumpDef, nullptr, 1, 5);
 		WorldInventory->AddItem(ArDef->GetAmmoWorldItemDefinition_BP(), nullptr, 60);
+		WorldInventory->AddItem(PumpDef->GetAmmoWorldItemDefinition_BP(), nullptr, 15);
 	}
 
 	if (Globals::bArsenal)
@@ -339,8 +339,10 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 		static UFortItemDefinition* WoodDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
 		static UFortItemDefinition* StoneDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
 		static UFortItemDefinition* MetalDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
-		static UFortWeaponItemDefinition* ScarDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Boss/WID_Boss_Adventure_AR.WID_Boss_Adventure_AR");
-		static UFortWeaponItemDefinition* DrumgunDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Boss/WID_Boss_Midas.WID_Boss_Midas");
+		static UFortWeaponItemDefinition* ScarDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Boss/WID_Boss_Adventure_AR.WID_Boss_Adventure_AR") ? FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Boss/WID_Boss_Adventure_AR.WID_Boss_Adventure_AR") :
+			FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/WID_Assault_AutoHigh_Athena_SR_Ore_T03.WID_Assault_AutoHigh_Athena_SR_Ore_T03");
+		static UFortWeaponItemDefinition* DrumgunDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Boss/WID_Boss_Midas.WID_Boss_Midas") ? FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Boss/WID_Boss_Midas.WID_Boss_Midas") :
+			FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/WID_Assault_AutoDrum_Athena_R_Ore_T03.WID_Assault_AutoDrum_Athena_R_Ore_T03");
 		static UFortWeaponItemDefinition* SlurpFishDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Consumables/Flopper/Effective/WID_Athena_Flopper_Effective.WID_Athena_Flopper_Effective");
 		static UFortWeaponItemDefinition* SmallShieldDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Consumables/ShieldSmall/Athena_ShieldSmall.Athena_ShieldSmall");
 
@@ -363,7 +365,7 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 		WorldInventory->AddItem(DrumgunDef, nullptr, 1, 40);
 		//WorldInventory->AddItem(NocturnoDef->GetAmmoWorldItemDefinition_BP(), nullptr, 9999);
 		//WorldInventory->AddItem(GraveDiggerDef->GetAmmoWorldItemDefinition_BP(), nullptr, 9999);
-		WorldInventory->AddItem(ScarDef->GetAmmoWorldItemDefinition_BP(), nullptr, 9999);
+		//WorldInventory->AddItem(ScarDef->GetAmmoWorldItemDefinition_BP(), nullptr, 9999);
 
 		auto Aircraft = GameState->GetAircraft(0);
 		auto PoiManager = GameState->GetPoiManager();
@@ -381,8 +383,6 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 
 	if (Globals::bTravis)
 	{
-		LOG_INFO(LogGame, "Travis!!!");
-
 		//X: 62590.7 Y : -75501.8 Z : 13982.4
 		auto Aircraft = GameState->GetAircraft(0);
 		FVector Loc = FVector(62590, -75501, 13982);

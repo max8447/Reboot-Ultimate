@@ -1264,7 +1264,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 	auto KillerPawn = Cast<AFortPlayerPawn>(*(AFortPawn**)(__int64(DeathReport) + MemberOffsets::DeathReport::KillerPawn));
 	auto KillerPlayerState = Cast<AFortPlayerStateAthena>(*(AFortPlayerState**)(__int64(DeathReport) + MemberOffsets::DeathReport::KillerPlayerState));
 
-	if (!DeadPawn || !GameState || !DeadPlayerState)
+	if (!DeadPawn || !GameState || !DeadPlayerState || Globals::bStormKing)
 		return ClientOnPawnDiedOriginal(PlayerController, DeathReport);
 
 	auto DeathLocation = DeadPawn->GetActorLocation();
@@ -1424,7 +1424,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 					for (size_t i = 0; i < GameMode->GetAlivePlayers().Num(); i++)
 					{
 						AFortPlayerStateAthena* PlayerState = ((AFortPlayerStateAthena*)GameMode->GetAlivePlayers()[i]->GetPlayerState());
-						int PlayerKills = *(int*)(__int64(PlayerState) + 0xE74);
+						int PlayerKills = PlayerState->Get<int>(MemberOffsets::FortPlayerStateAthena::KillScore);
 
 						if (GameMode->GetAlivePlayers()[i] != KillerPC)
 						{
@@ -1435,7 +1435,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 					GameState->GetWinningPlayerState() = KillerPlayerState;
 					GameState->GetWinningScore() = 1;
-					GameState->GetWinningTeam() = *(uint8*)(__int64(KillerPlayerState) + 0xE60);
+					GameState->GetWinningTeam() = KillerPlayerState->GetTeamIndex();
 
 					GameState->OnRep_WinningPlayerState();
 					GameState->OnRep_WinningScore();

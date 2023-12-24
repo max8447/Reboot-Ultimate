@@ -334,6 +334,7 @@
     <ClInclude Include="FortAthenaMutator.h" />
     <ClInclude Include="FortAthenaMutator_Barrier.h" />
     <ClInclude Include="FortAthenaMutator_Bots.h" />
+    <ClInclude Include="FortAthenaMutator_DadBro.h" />
     <ClInclude Include="FortAthenaMutator_Disco.h" />
     <ClInclude Include="FortAthenaMutator_GG.h" />
     <ClInclude Include="FortAthenaMutator_GiveItemsAtGamePhaseStep.h" />

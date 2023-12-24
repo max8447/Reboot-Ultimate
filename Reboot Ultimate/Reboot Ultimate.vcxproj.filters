@@ -966,6 +966,9 @@
     <ClInclude Include="FortGameplayMutator.h">
       <Filter>FortniteGame\Source\FortniteGame\Public\Athena</Filter>
     </ClInclude>
+    <ClInclude Include="FortAthenaMutator_DadBro.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\Athena\Modifiers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">
