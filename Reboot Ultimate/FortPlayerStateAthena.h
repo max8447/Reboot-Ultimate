@@ -61,6 +61,18 @@ class AFortPlayerStateAthena : public AFortPlayerState
 public:
 	static inline void (*ServerSetInAircraftOriginal)(UObject* Context, FFrame& Stack, void* Ret);
 
+	int32& GetSeasonLevelUIDisplay()
+	{
+		static auto SeasonLevelUIDisplayOffset = GetOffset("SeasonLevelUIDisplay");
+		return Get<int32>(SeasonLevelUIDisplayOffset);
+	}
+
+	void OnRep_SeasonLevelUIDisplay()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerStateAthena.OnRep_SeasonLevelUIDisplay");
+		this->ProcessEvent(fn);
+	}
+
 	uint8& GetSquadId()
 	{
 		static auto SquadIdOffset = GetOffset("SquadId");

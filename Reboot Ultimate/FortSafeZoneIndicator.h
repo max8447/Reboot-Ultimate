@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Actor.h"
+#include "FortPlayerStateAthena.h"
 
 enum class EFortSafeZoneState : uint8_t
 {
@@ -26,6 +27,18 @@ public:
 	{
 		static auto SafeZoneFinishShrinkTimeOffset = GetOffset("SafeZoneFinishShrinkTime");
 		return Get<float>(SafeZoneFinishShrinkTimeOffset);
+	}
+
+	FVector_NetQuantize100& GetNextCenter()
+	{
+		static auto NextCenterOffset = GetOffset("NextCenter");
+		return Get<FVector_NetQuantize100>(NextCenterOffset);
+	}
+
+	FVector_NetQuantize100& GetNextNextCenter()
+	{
+		static auto NextNextCenterOffset = GetOffset("NextNextCenter");
+		return Get<FVector_NetQuantize100>(NextNextCenterOffset);
 	}
 
 	void SkipShrinkSafeZone();

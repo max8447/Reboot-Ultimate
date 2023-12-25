@@ -45,6 +45,7 @@
 #include "FortAthenaVehicleSpawner.h"
 #include "FortGameSessionDedicatedAthena.h"
 #include "FortAIEncounterInfo.h"
+#include "FortAthenaMutator_DadBro.h"
 
 enum class EMeshNetworkNodeType : uint8_t
 {

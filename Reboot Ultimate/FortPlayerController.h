@@ -101,6 +101,12 @@ public:
 class UFortPlayerControllerAthenaXPComponent : public UActorComponent //UFortControllerComponent
 {
 public:
+	int32 GetCurrentLevel()
+	{
+		static auto CurrentLevelOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "CurrentLevel");
+		return *(int32*)(__int64(this) + CurrentLevelOffset);
+	}
+
 	bool& IsRegisteredWithQuestManager()
 	{
 		static auto IsRegisteredWithQuestManagerOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "bRegisteredWithQuestManager");

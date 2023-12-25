@@ -5,6 +5,7 @@
 #include "Pawn.h"
 #include "FortAthenaMutator.h"
 #include "Vector.h"
+#include "FortGameModeAthena.h"
 
 class AFortAIPawn : public AFortPawn
 {

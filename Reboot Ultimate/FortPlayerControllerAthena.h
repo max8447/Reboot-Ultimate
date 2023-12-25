@@ -272,6 +272,18 @@ public:
 class UFortQuestManager : public UObject
 {
 public:
+	void InitializeQuestAbilities(APawn* PlayerPawn)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestManager.InitializeQuestAbilities");
+
+		struct
+		{
+			APawn* PlayerPawn;
+		}params{ PlayerPawn };
+
+		this->ProcessEvent(fn, &params);
+	}
+
 	UFortQuestItem* GetQuestWithDefinition(class UFortQuestItemDefinition* Definition)
 	{
 		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestManager.GetQuestWithDefinition");

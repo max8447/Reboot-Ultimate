@@ -280,6 +280,7 @@ void AFortGameModeAthena::OnAircraftEnteredDropZoneHook(AFortGameModeAthena* Gam
 	if (Globals::bStormKing)
 	{
 		auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+		auto SafeZoneIndicator = GameModeAthena->GetSafeZoneIndicator();
 
 		UClass* DadBroPawnClass = FindObject<UClass>("/Game/Athena/DADBRO/DADBRO_Pawn.DADBRO_Pawn_C");
 		AFortAthenaMutator_DadBro* Mutator = (AFortAthenaMutator_DadBro*)GameState->GetMutatorByClass(GameModeAthena, AFortAthenaMutator_DadBro::StaticClass());
@@ -290,6 +291,9 @@ void AFortGameModeAthena::OnAircraftEnteredDropZoneHook(AFortGameModeAthena* Gam
 		Mutator->GetDadBroCodeState() = EDadBroState::Active;
 		Mutator->OnRep_DadBroPawn();
 		Mutator->OnRep_DadBroCodeState();
+
+		SafeZoneIndicator->GetNextCenter() = (FVector_NetQuantize100)Mutator->GetDadBroSpawnLocation();
+		SafeZoneIndicator->GetNextNextCenter() = (FVector_NetQuantize100)Mutator->GetDadBroSpawnLocation();
 
 		new std::thread(DadBroHealthTest);
 	}
