@@ -259,7 +259,7 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 					LOG_INFO(LogDev, "[{}] Out2: {} ItemToGive.ItemToDrop: {}", j, Out2, ItemToGive->GetItemToDrop()->IsValidLowLevel() ? ItemToGive->GetItemToDrop()->GetFullName() : "BadRead");
 
 					if (!Out2) // ?
-						continue;
+						Out2 = 0;
 
 					WorldInventory->AddItem(ItemToGive->GetItemToDrop(), nullptr, Out2);
 				}

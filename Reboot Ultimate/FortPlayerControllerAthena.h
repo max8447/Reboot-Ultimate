@@ -487,7 +487,8 @@ public:
 
 		this->ProcessEvent(ClientSendMatchStatsForPlayerFn, Params);
 
-		free(Params);
+		try { free(Params); }
+		catch (...) {}
 	}
 
 	void RespawnPlayerAfterDeath(bool bEnterSkydiving)
