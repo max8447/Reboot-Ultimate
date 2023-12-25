@@ -339,7 +339,6 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 		static UFortItemDefinition* WoodDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
 		static UFortItemDefinition* StoneDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
 		static UFortItemDefinition* MetalDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
-		static UFortItemDefinition* ARAmmo = FindObject<UFortItemDefinition>("/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsMedium");
 		static UFortWeaponItemDefinition* ScarDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Boss/WID_Boss_Adventure_AR.WID_Boss_Adventure_AR") ? FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Boss/WID_Boss_Adventure_AR.WID_Boss_Adventure_AR") :
 			FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/WID_Assault_AutoHigh_Athena_SR_Ore_T03.WID_Assault_AutoHigh_Athena_SR_Ore_T03");
 		static UFortWeaponItemDefinition* DrumgunDef = FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Boss/WID_Boss_Midas.WID_Boss_Midas") ? FindObject<UFortWeaponItemDefinition>("/Game/Athena/Items/Weapons/Boss/WID_Boss_Midas.WID_Boss_Midas") :
@@ -355,7 +354,6 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 		WorldInventory->AddItem(WoodDef, nullptr, 9999);
 		WorldInventory->AddItem(StoneDef, nullptr, 9999);
 		WorldInventory->AddItem(MetalDef, nullptr, 9999);
-		WorldInventory->AddItem(ARAmmo, nullptr, 9999);
 		//WorldInventory->AddItem(ScarDef, nullptr, 1, 30);
 		//WorldInventory->AddItem(GraveDiggerDef, nullptr, 1, 0, 144);
 		//WorldInventory->AddItem(NocturnoDef, nullptr, 1, 0, 86);
