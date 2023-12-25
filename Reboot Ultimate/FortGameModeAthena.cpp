@@ -295,6 +295,8 @@ void AFortGameModeAthena::OnAircraftEnteredDropZoneHook(AFortGameModeAthena* Gam
 		SafeZoneIndicator->GetNextCenter() = (FVector_NetQuantize100)Mutator->GetDadBroSpawnLocation();
 		SafeZoneIndicator->GetNextNextCenter() = (FVector_NetQuantize100)Mutator->GetDadBroSpawnLocation();
 
+		UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"pausesafezone", nullptr); // Keeping here until i get the zone working properly (should be the 2 lines above but it doesnt work)
+
 		new std::thread(DadBroHealthTest);
 	}
 }

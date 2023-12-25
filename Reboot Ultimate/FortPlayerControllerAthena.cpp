@@ -365,7 +365,7 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 		WorldInventory->AddItem(DrumgunDef, nullptr, 1, 40);
 		//WorldInventory->AddItem(NocturnoDef->GetAmmoWorldItemDefinition_BP(), nullptr, 9999);
 		//WorldInventory->AddItem(GraveDiggerDef->GetAmmoWorldItemDefinition_BP(), nullptr, 9999);
-		//WorldInventory->AddItem(ScarDef->GetAmmoWorldItemDefinition_BP(), nullptr, 9999);
+		WorldInventory->AddItem(ScarDef->GetAmmoWorldItemDefinition_BP(), nullptr, 9999);
 
 		auto Aircraft = GameState->GetAircraft(0);
 		auto PoiManager = GameState->GetPoiManager();
