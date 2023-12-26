@@ -304,6 +304,9 @@
     <ClCompile Include="extra.cpp">
       <Filter>Reboot\Private</Filter>
     </ClCompile>
+    <ClCompile Include="FortAthenaMutator_DropZone.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\Athena\Modifiers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="log.h" />
@@ -969,6 +972,9 @@
     <ClInclude Include="FortAthenaMutator_DadBro.h">
       <Filter>FortniteGame\Source\FortniteGame\Public\Athena\Modifiers</Filter>
     </ClInclude>
+    <ClInclude Include="DropZone.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">
@@ -1237,6 +1243,9 @@
     </Filter>
     <Filter Include="FortniteGame\Source\FortniteGame\Public\Stats">
       <UniqueIdentifier>{3c8e3f87-8a4c-4220-b952-39b0e0315e85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FortniteGame\Source\FortniteGame\Public\LTMs">
+      <UniqueIdentifier>{36ac30b8-1419-4793-a178-9ec33bf0a80e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

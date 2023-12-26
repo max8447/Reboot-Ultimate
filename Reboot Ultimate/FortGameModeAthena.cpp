@@ -441,7 +441,7 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 		auto WinConditionTypeOffset = CurrentPlaylist->GetOffset("WinConditionType");
 		auto WinConditionType = CurrentPlaylist->Get<EAthenaWinCondition>(WinConditionTypeOffset);
 
-		WinConditionType == EAthenaWinCondition::MutatorControlledGoalScore ? Globals::bEnableScoringSystem = true : Globals::bEnableScoringSystem = false;
+		Globals::bEnableScoringSystem = WinConditionType == EAthenaWinCondition::MutatorControlledGoalScore ? true : false;
 
 		static auto DefaultGliderRedeployCanRedeployOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "DefaultGliderRedeployCanRedeploy", false);
 		bool bEnableGliderRedeploy = false;
@@ -462,9 +462,11 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 
 		Globals::bArsenal = CurrentPlaylist->GetFullName().contains("Playlist_Gg_Reverse") ? true : false;
 
+		Globals::bDropZone = CurrentPlaylist->GetFullName().contains("Playlist_Respawn_Op") ? true : false;
+
 		Globals::bStormKing = CurrentPlaylist->GetFullName().contains("DADBRO") ? true : false;
 
-		Globals::bTeamRumble = CurrentPlaylist->GetFullName().contains("Playlist_Respawn") ? true : false;
+		Globals::bTeamRumble = CurrentPlaylist->GetFullName().contains("Playlists/Playlist_Respawn") ? true : false;
 
 		auto Fortnite_Season = std::floor(Fortnite_Version);
 

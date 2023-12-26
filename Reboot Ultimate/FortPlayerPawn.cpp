@@ -56,6 +56,8 @@ void AFortPlayerPawn::ServerReviveFromDBNOHook(AFortPlayerPawn* Pawn, AControlle
 	if (!PlayerController)
 		return;
 
+	ReviveCounts[PlayerController]++;
+
 	auto PlayerState = Cast<AFortPlayerState>(PlayerController->GetPlayerState());
 
 	if (!PlayerState)

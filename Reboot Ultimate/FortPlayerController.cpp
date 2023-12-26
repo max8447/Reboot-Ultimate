@@ -235,10 +235,15 @@ void AFortPlayerController::ServerLoadingScreenDroppedHook(UObject* Context, FFr
 
 	PlayerController->ApplyCosmeticLoadout();
 
-	PlayerController->GetXPComponent()->IsRegisteredWithQuestManager() = true;
-	PlayerController->GetXPComponent()->OnRep_bRegisteredWithQuestManager();
-	PlayerState->GetSeasonLevelUIDisplay() = PlayerController->GetXPComponent()->GetCurrentLevel();
-	PlayerState->OnRep_SeasonLevelUIDisplay();
+	if (Fortnite_Version >= 11)
+	{
+		LOG_INFO(LogDev, "Putting XP bar.");
+
+		PlayerController->GetXPComponent()->IsRegisteredWithQuestManager() = true;
+		PlayerController->GetXPComponent()->OnRep_bRegisteredWithQuestManager();
+		PlayerState->GetSeasonLevelUIDisplay() = PlayerController->GetXPComponent()->GetCurrentLevel();
+		PlayerState->OnRep_SeasonLevelUIDisplay();
+	}
 
 	if (Globals::bArsenal)
 	{
@@ -1462,43 +1467,80 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 			auto DeadControllerAthena = Cast<AFortPlayerControllerAthena>(PlayerController);
 			auto KillerControllerAthena = Cast<AFortPlayerControllerAthena>(KillerPlayerState->GetOwner());
 
-			if (DeadControllerAthena && FAthenaMatchTeamStats::GetStruct())
+			if (FAthenaMatchTeamStats::GetStruct() && FAthenaMatchStats::GetStruct())
 			{
-				auto MatchReport = DeadControllerAthena->GetMatchReport();
-
-				LOG_INFO(LogDev, "MatchReport: {}", __int64(MatchReport));
-
-				if (MatchReport)
+				if (DeadControllerAthena)
 				{
-					MatchReport->GetTeamStats()->GetPlace() = DeadPlayerState->GetPlace();
-					MatchReport->GetTeamStats()->GetTotalPlayers() = AmountOfPlayersWhenBusStart; // hmm
-					MatchReport->HasTeamStats() = true;
+					auto MatchReport = DeadControllerAthena->GetMatchReport();
 
-					DeadControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
+					LOG_INFO(LogDev, "MatchReport: {}", __int64(MatchReport));
+
+					if (MatchReport)
+					{
+						MatchReport->GetTeamStats()->GetPlace() = DeadPlayerState->GetPlace();
+						MatchReport->GetTeamStats()->GetTotalPlayers() = AmountOfPlayersWhenBusStart; // hmm
+						MatchReport->HasTeamStats() = true;
+
+						DeadControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
+					}
+
+					FAthenaMatchStats Stats;
+
+					for (size_t i = 0; i < 20; i++)
+					{
+						Stats.Stats[i] = 0;
+					}
+
+					static auto SomethingOffset = 0xFDA;
+					auto Something = *(uint16*)(__int64(DeadPlayerState) + 0xFDA); // Idfk bro
+
+					static auto KillScoreOffset = DeadPlayerState->GetOffset("KillScore");
+					auto KillerScore = *(int*)(__int64(DeadPlayerState) + KillScoreOffset);
+
+					Stats.Stats[3] = KillerScore;
+					Stats.Stats[7] = ReviveCounts[DeadControllerAthena];
+					Stats.Stats[8] = Something;
+
+					DeadControllerAthena->ClientSendMatchStatsForPlayer(&Stats);
 				}
-			}
 
-			if (KillerControllerAthena && FAthenaMatchStats::GetStruct())
-			{
-				FAthenaMatchStats Stats;
-
-				for (size_t i = 0; i < 20; i++)
+				if (KillerControllerAthena)
 				{
-					Stats.Stats[i] = 0;
+					auto MatchReport = KillerControllerAthena->GetMatchReport();
+
+					LOG_INFO(LogDev, "MatchReport: {}", __int64(MatchReport));
+
+					if (MatchReport)
+					{
+						MatchReport->GetTeamStats()->GetPlace() = KillerPlayerState->GetPlace();
+						MatchReport->GetTeamStats()->GetTotalPlayers() = AmountOfPlayersWhenBusStart; // hmm
+						MatchReport->HasTeamStats() = true;
+
+						KillerControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
+					}
+
+					FAthenaMatchStats Stats;
+
+					for (size_t i = 0; i < 20; i++)
+					{
+						Stats.Stats[i] = 0;
+					}
+
+					static auto SomethingOffset = 0xFDA;
+					auto Something = *(uint16*)(__int64(KillerPlayerState) + 0xFDA); // Idfk bro
+
+					Stats.Stats[3] = KillScore;
+					Stats.Stats[7] = ReviveCounts[KillerControllerAthena];
+					Stats.Stats[8] = Something;
+
+					KillerControllerAthena->ClientSendMatchStatsForPlayer(&Stats);
 				}
 
-				static auto KillScoreOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerStateAthena", "KillScore");
-				int KillerScore = *(int*)(__int64(KillerPlayerState) + KillScoreOffset);
-
-				Stats.Stats[3] = KillerScore;
-
-				KillerControllerAthena->ClientSendMatchStatsForPlayer(&Stats);
+				GameState->GetWinningPlayerState() = KillerPlayerState;
+				GameState->GetWinningTeam() = KillerPlayerState->GetTeamIndex();
+				GameState->OnRep_WinningPlayerState();
+				GameState->OnRep_WinningTeam();
 			}
-
-			GameState->GetWinningPlayerState() = KillerPlayerState;
-			GameState->GetWinningTeam() = KillerPlayerState->GetTeamIndex();
-			GameState->OnRep_WinningPlayerState();
-			GameState->OnRep_WinningTeam();
 
 			/* LoopMutators([&](AFortAthenaMutator* Mutator) {
 				if (auto TDM_Mutator = Cast<AFortAthenaMutator_TDM>(Mutator))

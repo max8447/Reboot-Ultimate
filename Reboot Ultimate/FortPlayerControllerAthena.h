@@ -9,6 +9,7 @@
 #include "FortVolume.h"
 #include "AthenaPlayerMatchReport.h"
 #include "FortItem.h"
+#include <map>
 
 enum class EQuitPreference : uint8
 {
@@ -564,12 +565,19 @@ public:
 	}
 };
 
+static std::map<AFortPlayerControllerAthena*, int> ReviveCounts{};
+
 class UAthenaCosmeticItemDefinition : public UFortItemDefinition // UFortAccountItemDefinition
 {
 public:
 };
 
 class UAthenaBattleBusItemDefinition : public UAthenaCosmeticItemDefinition
+{
+public:
+};
+
+class UFortSpyTechItemDefinition : public UFortItemDefinition // UFortAccountItemDefinition
 {
 public:
 };

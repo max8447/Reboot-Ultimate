@@ -13,6 +13,7 @@
 #include "FortGadgetItemDefinition.h"
 #include "gui.h"
 #include "FortAthenaMutator_GG.h"
+#include "FortAthenaMutator_DropZone.h"
 
 void AFortPlayerControllerAthena::GiveXP(AFortPlayerControllerAthena* PC, int CombatXP, int SurvivalXP, int BonusMedalXP, int ChallengeXP, int MatchXP)
 {
@@ -647,7 +648,12 @@ void AFortPlayerControllerAthena::GetPlayerViewPointHook(AFortPlayerControllerAt
 
 void AFortPlayerControllerAthena::ServerReadyToStartMatchHook(AFortPlayerControllerAthena* PlayerController)
 {
+	auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+	auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+
 	LOG_INFO(LogDev, "ServerReadyToStartMatch!");
+
+	ReviveCounts[PlayerController] = 0;
 
 	if (Fortnite_Version <= 2.5) // techinally we should do this at the end of OnReadyToStartMatch
 	{
@@ -673,6 +679,43 @@ void AFortPlayerControllerAthena::ServerReadyToStartMatchHook(AFortPlayerControl
 
 			PlayerController->Get<AActor*>(QuickBarsOffset)->SetOwner(PlayerController);
 		}
+	}
+
+	if (Globals::bDropZone)
+	{
+		AFortAthenaMutator_SpyRumble* Mutator = (AFortAthenaMutator_SpyRumble*)GameState->GetMutatorByClass(GameMode, AFortAthenaMutator_SpyRumble::StaticClass());
+		AFortAthenaMutator_PerkSystemMutator* Mutator2 = (AFortAthenaMutator_PerkSystemMutator*)GameState->GetMutatorByClass(GameMode, AFortAthenaMutator_PerkSystemMutator::StaticClass());
+
+		UFortControllerComponent_PerkSystem* Comp = (UFortControllerComponent_PerkSystem*)PlayerController->GetComponentByClass(UFortControllerComponent_PerkSystem::StaticClass());
+
+		Comp->GetMutatorData() = Mutator2->GetMutatorData();
+		Comp->GetCachedFactionTag().TagName = UKismetStringLibrary::Conv_StringToName(TEXT("Athena.Faction.Ego"));
+		LOG_INFO(LogDev, "PerkSelection.Num() {}", std::to_string(Comp->GetPerkSelection().Num()));
+		Comp->GetRerollCount() = 1;
+
+		auto First = FindObject<UFortSpyTechItemDefinition>("/Game/Athena/Items/SpyTech/ItemDef/STID_PumpShotgun.STID_PumpShotgun");
+		auto Second = FindObject<UFortSpyTechItemDefinition>("/Game/Athena/Items/SpyTech/ItemDef/STID_JetPack.STID_JetPack");
+
+		Comp->GetSpyTechArray().Add(Comp->GetDefaultPerks()[0]);
+		Comp->GetSpyTechArray().Add(First);
+		Comp->GetSpyTechArray().Add(Second);
+
+		for (size_t i = 0; i < Comp->GetPerkSelection().Num(); i++)
+		{
+			Comp->GetPerkSelection()[i].Items.Free();
+			Comp->GetPerkSelection()[i].Items.Add(Comp->GetSpyTechArray()[i]);
+			Comp->GetPerkSelection()[i].Items.Add(Comp->GetSpyTechArray()[i]);
+		}
+
+		Comp->GetRoundStartCache().bDataReady = true;
+		LOG_INFO(LogDev, "FuturePerks {}", std::to_string(Comp->GetRoundStartCache().FuturePerks.Num()));
+		LOG_INFO(LogDev, "SpyTechArray {}",std::to_string(Comp->GetSpyTechArray().Num()));
+		LOG_INFO(LogDev, "AllSelectedPerks {}", std::to_string(Comp->GetAllSelectedPerks().Num()));
+		LOG_INFO(LogDev, "DefaultPerks {}", std::to_string(Comp->GetDefaultPerks().Num()));
+
+		Comp->OnRep_PerkSelection();
+		Comp->OnRep_SpyTechArray();
+		Comp->OnRep_RerollCount();
 	}
 
 	return ServerReadyToStartMatchOriginal(PlayerController);

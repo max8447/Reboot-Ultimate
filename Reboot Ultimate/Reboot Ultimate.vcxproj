@@ -161,7 +161,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>../vendor</AdditionalLibraryDirectories>
-      <AdditionalDependencies>curl/libcurl.lib;curl/zlib.lib;Oleaut32.lib;Onecore.lib;MinHook/minhook.x64.lib;chilkat/libs/ChilkatRelDll_x64.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>curl/libcurl.lib;curl/zlib.lib;Oleaut32.lib;Onecore.lib;MinHook/minhook.x64.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -202,6 +202,7 @@
     <ClCompile Include="FortAthenaMapInfo.cpp" />
     <ClCompile Include="FortAthenaMutator_Barrier.cpp" />
     <ClCompile Include="FortAthenaMutator_Disco.cpp" />
+    <ClCompile Include="FortAthenaMutator_DropZone.h" />
     <ClCompile Include="FortAthenaMutator_GiveItemsAtGamePhaseStep.cpp" />
     <ClCompile Include="FortAthenaSupplyDrop.cpp" />
     <ClCompile Include="FortAthenaVehicle.cpp" />
@@ -318,6 +319,7 @@
     <ClInclude Include="DelegateInstanceInterface.h" />
     <ClInclude Include="die.h" />
     <ClInclude Include="discord.h" />
+    <ClInclude Include="DropZone.h" />
     <ClInclude Include="EnableIf.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="EngineTypes.h" />

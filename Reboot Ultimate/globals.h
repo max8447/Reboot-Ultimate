@@ -8,6 +8,7 @@ namespace Globals
 {
 	extern inline bool bCreative = false;
 	extern inline bool bArsenal = false;
+	extern inline bool bDropZone = false;
 	extern inline bool bTeamRumble = false;
 	extern inline bool bStormKing = false;
 	extern inline bool bTravis = false;
