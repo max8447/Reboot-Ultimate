@@ -273,7 +273,7 @@ void AFortPlayerController::ServerLoadingScreenDroppedHook(UObject* Context, FFr
 	{
 		First = true;
 		LettersClass = FindObject<UClass>("/Game/Athena/Items/QuestInteractables/FortnightLetters/FortniteLettersBPs/Prop_QuestInteractable_Letters_Parent.Prop_QuestInteractable_Letters_Parent_C");
-		QuestItem = FindObject<UProperty>("/Game/Athena/Items/QuestInteractables/Generic/Prop_QuestInteractable_Parent.Prop_QuestInteractable_Parent_C.QuestItem");
+		LetterQuestItem = FindObject<UProperty>("/Game/Athena/Items/QuestInteractables/Generic/Prop_QuestInteractable_Parent.Prop_QuestInteractable_Parent_C.QuestItem");
 		BackendNameProp = FindObject<UProperty>("/Game/Athena/Items/QuestInteractables/Generic/Prop_QuestInteractable_Parent.Prop_QuestInteractable_Parent_C.QuestBackendObjectiveName");
 	}
 
@@ -458,6 +458,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	// static auto LlamaClass = FindObject<UClass>(L"/Game/Athena/SupplyDrops/Llama/AthenaSupplyDrop_Llama.AthenaSupplyDrop_Llama_C");
 	static auto FortAthenaSupplyDropClass = FindObject<UClass>(L"/Script/FortniteGame.FortAthenaSupplyDrop");
 	static auto BuildingItemCollectorActorClass = FindObject<UClass>(L"/Script/FortniteGame.BuildingItemCollectorActor");
+	static auto AthenaQuestBGAClass = FindObject<UClass>("/Game/Athena/Items/QuestInteractablesV2/Parents/AthenaQuest_BGA.AthenaQuest_BGA_C");
 
 	LOG_INFO(LogInteraction, "ServerAttemptInteract!");
 
@@ -680,8 +681,43 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 		LOG_INFO(LogGame, "Letter!");
 
 		FName BackendName = *(FName*)(__int64(ReceivingActor) + BackendNameProp->Offset);
-		UFortQuestItemDefinition* QuestDef = *(UFortQuestItemDefinition**)(__int64(ReceivingActor) + QuestItem->Offset);
+		UFortQuestItemDefinition* QuestDef = *(UFortQuestItemDefinition**)(__int64(ReceivingActor) + LetterQuestItem->Offset);
 		PlayerController->ProgressQuest(PlayerController, QuestDef, BackendName);
+	}
+	else if (ReceivingActor->IsA(AthenaQuestBGAClass))
+	{
+		LOG_INFO(LogGame, "Quest!");
+		ReceivingActor->ProcessEvent(FindObject<UFunction>("/Game/Athena/Items/QuestInteractablesV2/Parents/AthenaQuest_BGA.AthenaQuest_BGA_C.BindToQuestManagerForQuestUpdate"), &PlayerController);
+
+		static auto QuestsRequiredOnProfileOffset = ReceivingActor->GetOffset("QuestsRequiredOnProfile");
+		static auto Primary_BackendNameOffset = ReceivingActor->GetOffset("Primary_BackendName");
+		TArray<UFortQuestItemDefinition*>& QuestsRequiredOnProfile = *(TArray<UFortQuestItemDefinition*>*)(__int64(ReceivingActor) + QuestsRequiredOnProfileOffset);
+		FName& Primary_BackendName = *(FName*)(__int64(ReceivingActor) + Primary_BackendNameOffset);
+
+		PlayerController->ProgressQuest(PlayerController, QuestsRequiredOnProfile[0], Primary_BackendName);
+	}
+	else if (ReceivingActor->GetName().contains("QuestInteractable"))
+	{
+		LOG_INFO(LogGame, "Old quest so bad code wjasfhuaeguj");
+
+		static auto QuestInteractable_GEN_VARIABLEOffset = ReceivingActor->GetOffset("QuestInteractable");
+		static auto PCsOnQuestOffset = ReceivingActor->GetOffset("PCsOnQuest");
+		static auto PCsThatCompletedQuest_ServerOffset = ReceivingActor->GetOffset("PCsThatCompletedQuest_Server");
+		UQuestInteractableComponent* QuestComp = *(UQuestInteractableComponent**)(__int64(ReceivingActor) + QuestInteractable_GEN_VARIABLEOffset);
+		TArray<AFortPlayerControllerAthena*>& PCsOnQuest = *(TArray<AFortPlayerControllerAthena*>*)(__int64(ReceivingActor) + PCsThatCompletedQuest_ServerOffset);
+		TArray<AFortPlayerControllerAthena*>& PCsThatCompletedQuest_Server = *(TArray<AFortPlayerControllerAthena*>*)(__int64(ReceivingActor) + PCsThatCompletedQuest_ServerOffset);
+		QuestComp->IsReady() = true;
+		QuestComp->OnRep_Ready();
+		auto QuestManager = PlayerController->GetQuestManager(ESubGame::Athena);
+		auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+
+		PCsOnQuest.Add(PlayerController);
+		PCsThatCompletedQuest_Server.Add(PlayerController);
+		QuestComp->OnPlaylistDataReady(GameState, GameState->GetCurrentPlaylist(), *(FGameplayTagContainer*)(__int64(GameState->GetCurrentPlaylist()) + GameState->GetCurrentPlaylist()->GetOffset("GameplayTagContainer")));
+
+		PlayerController->ProgressQuest(PlayerController, QuestComp->GetQuestItemDefinition(), QuestComp->GetObjectiveBackendName());
+
+		QuestComp->OnCalendarUpdated();
 	}
 
 	return ServerAttemptInteractOriginal(Context, Stack, Ret);
@@ -1484,24 +1520,27 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 						DeadControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
 					}
 
-					FAthenaMatchStats Stats;
-
-					for (size_t i = 0; i < 20; i++)
+					if (Fortnite_Version == 11.31)
 					{
-						Stats.Stats[i] = 0;
+						FAthenaMatchStats Stats;
+
+						for (size_t i = 0; i < 20; i++)
+						{
+							Stats.Stats[i] = 0;
+						}
+
+						static auto SomethingOffset = 0xFDA;
+						auto Something = *(uint16*)(__int64(DeadPlayerState) + 0xFDA); // Idfk bro
+
+						static auto KillScoreOffset = DeadPlayerState->GetOffset("KillScore");
+						auto KillerScore = *(int*)(__int64(DeadPlayerState) + KillScoreOffset);
+
+						Stats.Stats[3] = KillerScore;
+						Stats.Stats[7] = ReviveCounts[DeadControllerAthena];
+						Stats.Stats[8] = Something;
+
+						DeadControllerAthena->ClientSendMatchStatsForPlayer(&Stats);
 					}
-
-					static auto SomethingOffset = 0xFDA;
-					auto Something = *(uint16*)(__int64(DeadPlayerState) + 0xFDA); // Idfk bro
-
-					static auto KillScoreOffset = DeadPlayerState->GetOffset("KillScore");
-					auto KillerScore = *(int*)(__int64(DeadPlayerState) + KillScoreOffset);
-
-					Stats.Stats[3] = KillerScore;
-					Stats.Stats[7] = ReviveCounts[DeadControllerAthena];
-					Stats.Stats[8] = Something;
-
-					DeadControllerAthena->ClientSendMatchStatsForPlayer(&Stats);
 				}
 
 				if (KillerControllerAthena)
@@ -1519,21 +1558,24 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 						KillerControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
 					}
 
-					FAthenaMatchStats Stats;
-
-					for (size_t i = 0; i < 20; i++)
+					if (Fortnite_Version == 11.31)
 					{
-						Stats.Stats[i] = 0;
+						FAthenaMatchStats Stats;
+
+						for (size_t i = 0; i < 20; i++)
+						{
+							Stats.Stats[i] = 0;
+						}
+
+						static auto SomethingOffset = 0xFDA;
+						auto Something = *(uint16*)(__int64(KillerPlayerState) + 0xFDA); // Idfk bro
+
+						Stats.Stats[3] = KillScore;
+						Stats.Stats[7] = ReviveCounts[KillerControllerAthena];
+						Stats.Stats[8] = Something;
+
+						KillerControllerAthena->ClientSendMatchStatsForPlayer(&Stats);
 					}
-
-					static auto SomethingOffset = 0xFDA;
-					auto Something = *(uint16*)(__int64(KillerPlayerState) + 0xFDA); // Idfk bro
-
-					Stats.Stats[3] = KillScore;
-					Stats.Stats[7] = ReviveCounts[KillerControllerAthena];
-					Stats.Stats[8] = Something;
-
-					KillerControllerAthena->ClientSendMatchStatsForPlayer(&Stats);
 				}
 
 				GameState->GetWinningPlayerState() = KillerPlayerState;

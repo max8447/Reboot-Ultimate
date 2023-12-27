@@ -55,7 +55,7 @@ void AFortPlayerControllerAthena::ProgressQuest(AFortPlayerControllerAthena* PC,
 	PC->GetXPComponent()->GetChallengeXp() += XPEventEntry.EventXpValue;
 	PC->GetXPComponent()->GetTotalXpEarned() += XPEventEntry.EventXpValue;
 	XPEventEntry.TotalXpEarnedInMatch = PC->GetXPComponent()->GetTotalXpEarned();
-	XPEventEntry.SimulatedXpEvent = QuestDef->GetSingleLineDescription();
+	XPEventEntry.SimulatedXpEvent = UKismetTextLibrary::Conv_StringToText(L"Challenge Completed!"); // I cba
 	PC->GetXPComponent()->GetRestXP() += XPEventEntry.EventXpValue;
 	PC->GetXPComponent()->GetInMatchProfileVer()++;
 	PC->GetXPComponent()->OnInMatchProfileUpdate(PC->GetXPComponent()->GetInMatchProfileVer());

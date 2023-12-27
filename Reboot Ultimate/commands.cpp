@@ -1452,7 +1452,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				return;
 			}
 
-			TSubclassOf<class AActor> AClass = FindObject<UClass>(Arguments[1]);
+			TSubclassOf<AActor> AClass = FindObject<UClass>(Arguments[1]);
 
 			auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
 
@@ -1464,6 +1464,23 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			CheatManager->DestroyAll(AClass);
 			CheatManager = nullptr;
+		}
+		else if (Command == "destroyfishingholes")
+		{
+			TSubclassOf<AActor> FishingHoleClass = FindObject<UClass>(L"/Game/Athena/Items/EnvironmentalItems/FlopperSpawn/BGA_Athena_FlopperSpawn_World.BGA_Athena_FlopperSpawn_World_C");
+
+			auto AllFishingHoles = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FishingHoleClass);
+
+			for (int i = 0; i < AllFishingHoles.Num(); i++)
+			{
+				LOG_INFO(LogDev, "AllFishingHoles.Num(): {}", AllFishingHoles.Num());
+
+				auto FishingHole = AllFishingHoles.at(i);
+
+				FishingHole->K2_DestroyActor();
+
+				LOG_INFO(LogDev, "Destroyed Fishing Hole {}", FishingHole->GetFullName());
+			}
 		}
 		else if (Command == "mang")
 		{

@@ -10,6 +10,9 @@
 #include "AthenaPlayerMatchReport.h"
 #include "FortItem.h"
 #include <map>
+#include "FortGameStateAthena.h"
+#include "FortPlaylist.h"
+#include "GameplayTagContainer.h"
 
 enum class EQuitPreference : uint8
 {
@@ -270,6 +273,54 @@ class UFortQuestItemDefinition : public UFortItemDefinition // UFortAccountItemD
 public:
 };
 
+class UQuestInteractableComponent : public UActorComponent // USceneComponent
+{
+public:
+	bool& IsReady()
+	{
+		static auto bReadyOffset = FindOffsetStruct("/Script/FortniteGame.QuestInteractableComponent", "bReady");
+		return *(bool*)(__int64(this) + bReadyOffset);
+	}
+
+	UFortQuestItemDefinition* GetQuestItemDefinition()
+	{
+		static auto QuestItemDefinitionOffset = FindOffsetStruct("/Script/FortniteGame.QuestInteractableComponent", "QuestItemDefinition");
+		return *(UFortQuestItemDefinition**)(__int64(this) + QuestItemDefinitionOffset);
+	}
+
+	FName GetObjectiveBackendName()
+	{
+		static auto ObjectiveBackendNameOffset = FindOffsetStruct("/Script/FortniteGame.QuestInteractableComponent", "ObjectiveBackendName");
+		return *(FName*)(__int64(this) + ObjectiveBackendNameOffset);
+	}
+
+	void OnPlaylistDataReady(AFortGameStateAthena* GameState, UFortPlaylist* Playlist, FGameplayTagContainer& PlaylistContextTags)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.QuestInteractableComponent.OnPlaylistDataReady");
+
+		struct
+		{
+			AFortGameStateAthena* GameState;
+			UFortPlaylist* Playlist;
+			FGameplayTagContainer       PlaylistContextTags;
+		}params{ GameState , Playlist , PlaylistContextTags };
+
+		this->ProcessEvent(fn, &params);
+	}
+
+	void OnCalendarUpdated()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.QuestInteractableComponent.OnCalendarUpdated");
+		this->ProcessEvent(fn);
+	}
+
+	void OnRep_Ready()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.QuestInteractableComponent.OnRep_Ready");
+		this->ProcessEvent(fn);
+	}
+};
+
 class UFortQuestManager : public UObject
 {
 public:
@@ -500,8 +551,7 @@ public:
 
 		this->ProcessEvent(ClientSendMatchStatsForPlayerFn, Params);
 
-		try { free(Params); }
-		catch (...) {}
+		free(Params);
 	}
 
 	void RespawnPlayerAfterDeath(bool bEnterSkydiving)

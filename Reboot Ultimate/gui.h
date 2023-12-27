@@ -1998,12 +1998,15 @@ static inline void MainUI()
 
 						if (ImGui::Button("Spawn Bot"))
 						{
-							FTransform Transform{};
-							Transform.Translation = CurrentPawn->GetActorLocation();
-							Transform.Scale3D = FVector{ 1, 1, 1 };
-							Transform.Rotation = FQuat();
+							if (CurrentPawn)
+							{
+								FTransform Transform{};
+								Transform.Translation = CurrentPawn->GetActorLocation();
+								Transform.Scale3D = FVector{ 1, 1, 1 };
+								Transform.Rotation = FQuat();
 
-							Bots::SpawnBot(Transform);
+								Bots::SpawnBot(Transform);
+							}
 						}
 					}
 				}

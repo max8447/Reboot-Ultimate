@@ -47,7 +47,7 @@ public:
 };
 
 static UClass* LettersClass = nullptr;
-static UProperty* QuestItem = nullptr;
+static UProperty* LetterQuestItem = nullptr;
 static UProperty* BackendNameProp = nullptr;
 
 struct FFortAthenaLoadout
