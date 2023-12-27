@@ -8,7 +8,7 @@ namespace Calendar
 {
 	static inline bool HasSnowModification()
 	{
-		return Fortnite_Version == 7.30 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.10;
+		return Fortnite_Version == 7.10 || Fortnite_Version == 7.30 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.10;
 	}
 
 	static inline UObject* GetSnowSetup()
