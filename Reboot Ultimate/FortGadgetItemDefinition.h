@@ -4,7 +4,6 @@
 #include "FortPlayerController.h"
 #include "AttributeSet.h"
 #include "SoftObjectPtr.h"
-#include "GameplayAttribute.h"
 
 class UFortGadgetItemDefinition : public UFortWorldItemDefinition
 {

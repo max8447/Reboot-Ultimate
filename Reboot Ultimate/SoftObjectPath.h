@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Name.h"
-#include "String.h"
+#include "NameTypes.h"
+#include "UnrealString.h"
 
 struct FSoftObjectPath
 {

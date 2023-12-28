@@ -54,9 +54,3 @@ template <typename FuncType>
 class TFunction final : public TFunctionRefBase<TFunctionStorage<false>, FuncType>
 {
 };
-
-class UFunction : public UStruct
-{
-public:
-	void*& GetFunc() { return *(void**)(__int64(this) + Offsets::Func); }
-};

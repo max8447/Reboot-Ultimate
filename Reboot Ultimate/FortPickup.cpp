@@ -9,7 +9,6 @@
 #include <memcury.h>
 #include "GameplayStatics.h"
 #include "gui.h"
-#include "FortGameplayAttributeData.h"
 
 void AFortPickup::TossPickup(FVector FinalLocation, AFortPawn* ItemOwner, int OverrideMaxStackCount, bool bToss, uint8 InPickupSourceTypeFlags, uint8 InPickupSpawnSource)
 {

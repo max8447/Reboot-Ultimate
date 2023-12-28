@@ -2,6 +2,7 @@
 
 #include "SoftObjectPtr.h"
 #include "FortWorldItemDefinition.h"
+#include "GameplayAbilityTypes.h"
 
 class UFortVehicleItemDefinition : public UFortWorldItemDefinition
 {

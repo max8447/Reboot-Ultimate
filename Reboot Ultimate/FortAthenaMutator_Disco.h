@@ -4,7 +4,11 @@
 
 #include "FortAthenaMutator.h"
 #include "Array.h"
-#include "ControlPointSpawnData.h"
+
+struct FControlPointSpawnData
+{
+
+};
 
 class AFortAthenaMutator_Disco : public AFortAthenaMutator
 {

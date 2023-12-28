@@ -3,7 +3,8 @@
 #include "Object.h"
 #include "Array.h"
 #include "Actor.h"
-#include "LatentActionInfo.h"
+#include "LatentActionManager.h"
+#include "EngineTypes.h"
 
 class UGameplayStatics : public UObject
 {

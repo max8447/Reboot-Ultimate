@@ -3,7 +3,7 @@
 #include "Quat.h"
 #include "Vector.h"
 
-#include "Math.h"
+#include "UnrealMathUtility.h"
 
 struct FRotator
 {

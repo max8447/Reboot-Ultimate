@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BuildingSMActor.h"
-#include "Frame.h"
+#include "Stack.h"
 
 /* enum class EDynamicFoundationType : uint8
 {

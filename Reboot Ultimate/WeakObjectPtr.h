@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ObjectItem.h"
+#include "UObjectArray.h"
 
 struct FWeakObjectPtr
 {

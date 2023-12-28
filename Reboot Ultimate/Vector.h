@@ -1,7 +1,7 @@
 #pragma once
 
 #include "inc.h"
-#include "String.h"
+#include "UnrealString.h"
 
 struct FVector
 {

@@ -13,21 +13,7 @@
 #include "FortGadgetItemDefinition.h"
 #include "gui.h"
 #include "FortAthenaMutator_GG.h"
-#include "FortAthenaMutator_PerkSystemMutator.h"
-#include "FortGameplayAttributeData.h"
-#include "TableRowBase.h"
-
-struct FFortQuestRewardTableRow : public FTableRowBase
-{
-public:
-	class FString                                QuestTemplateId;                                   // 0x8(0x10)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-	class FName                                  TemplateId;                                        // 0x18(0x8)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-	int32                                        Quantity;                                          // 0x20(0x4)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-	bool                                         Hidden;                                            // 0x24(0x1)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-	bool                                         Feature;                                           // 0x25(0x1)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-	bool                                         Selectable;                                        // 0x26(0x1)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-	uint8                                        Pad_4C62[0x1];                                     // Fixing Size Of Struct [ Dumper-7 ]
-};
+#include "FortAthenaMutator_DropZone.h"
 
 void AFortPlayerControllerAthena::GiveXP(AFortPlayerControllerAthena* PC, int CombatXP, int SurvivalXP, int BonusMedalXP, int ChallengeXP, int MatchXP)
 {
@@ -61,40 +47,15 @@ void AFortPlayerControllerAthena::ProgressQuest(AFortPlayerControllerAthena* PC,
 	}
 	auto QuestItem = PC->GetQuestManager(ESubGame::Athena)->GetQuestWithDefinition(QuestDef);
 
-	int XpReward = 5000;
-
-	// Bro why how wtf
-
-	/*
-
-	static auto RewardsTableOffset = QuestDef->GetOffset("RewardsTable");
-
-	if (RewardsTableOffset != -1)
-	{
-		auto& RewardsTable = QuestDef->Get(RewardsTableOffset);
-		auto RowsOffset = RewardsTable->GetOffset("Rows");
-		auto& Rows = RewardsTable->Get(RowsOffset);
-		//auto DefaultOffset = Rows->GetOffset("Default");
-		//auto& Default = Rows->Get(DefaultOffset);
-		auto QuantityOffset = Rows->GetOffset("Quantity");
-		int Quantity = Rows->Get<int>(QuantityOffset);
-
-		LOG_INFO(LogGame, "Quantity: {}", Quantity);
-
-		XpReward = Quantity;
-	}
-
-	*/
-
 	FXPEventEntry XPEventEntry{};
 
-	XPEventEntry.EventXpValue = XpReward;
+	XPEventEntry.EventXpValue = 5000;//still skunked i will make it so it gets real xp value from datatable
 	XPEventEntry.QuestDef = QuestDef;
 	XPEventEntry.Time = UGameplayStatics::GetTimeSeconds(GetWorld());
 	PC->GetXPComponent()->GetChallengeXp() += XPEventEntry.EventXpValue;
 	PC->GetXPComponent()->GetTotalXpEarned() += XPEventEntry.EventXpValue;
 	XPEventEntry.TotalXpEarnedInMatch = PC->GetXPComponent()->GetTotalXpEarned();
-	XPEventEntry.SimulatedXpEvent = UKismetTextLibrary::Conv_StringToText(L"Challenge Completed!"); // GetSingleLineDescribition crashes on some versions for no apparent reason.
+	XPEventEntry.SimulatedXpEvent = UKismetTextLibrary::Conv_StringToText(L"Challenge Completed!"); // I cba
 	PC->GetXPComponent()->GetRestXP() += XPEventEntry.EventXpValue;
 	PC->GetXPComponent()->GetInMatchProfileVer()++;
 	PC->GetXPComponent()->OnInMatchProfileUpdate(PC->GetXPComponent()->GetInMatchProfileVer());

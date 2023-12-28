@@ -4,7 +4,7 @@
 #include "Controller.h"
 #include "CheatManager.h"
 
-#include "String.h"
+#include "UnrealString.h"
 #include "Rotator.h"
 
 class APlayerController : public AController

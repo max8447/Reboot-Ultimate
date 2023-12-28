@@ -1,7 +1,7 @@
 #include "NameTypes.h"
 
 #include "reboot.h"
-#include "String.h"
+#include "UnrealString.h"
 
 #include "KismetStringLibrary.h"
 

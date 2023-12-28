@@ -3,7 +3,6 @@
 #include "Actor.h"
 #include "FortPawn.h"
 #include "Class.h"
-#include "Enum.h"
 
 namespace EFortPickupSourceTypeFlag
 {

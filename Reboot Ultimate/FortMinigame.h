@@ -3,7 +3,7 @@
 #include "reboot.h"
 
 #include "Actor.h"
-#include "Frame.h"
+#include "Stack.h"
 
 class AFortMinigame : public AActor // AInfo
 {

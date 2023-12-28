@@ -30,7 +30,7 @@
 #include "reboot.h"
 #include "FortGameModeAthena.h"
 #include "FortGameStateAthena.h"
-#include "String.h"
+#include "UnrealString.h"
 #include "KismetTextLibrary.h"
 #include "KismetSystemLibrary.h"
 #include "GameplayStatics.h"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "reboot.h"
-#include "Frame.h"
+#include "Stack.h"
 #include "Actor.h"
 #include "hooking.h"
 #include "SoftObjectPtr.h"

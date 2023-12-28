@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Object.h"
-#include "String.h"
+#include "UnrealString.h"
 
 class UKismetStringLibrary : public UObject
 {

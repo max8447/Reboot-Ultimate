@@ -2,7 +2,7 @@
 
 #include "Actor.h"
 
-#include "String.h"
+#include "UnrealString.h"
 #include "Controller.h"
 
 class AFortTeamInfo : public AActor // AInfo

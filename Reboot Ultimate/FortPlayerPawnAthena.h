@@ -1,7 +1,6 @@
 #pragma once
 
 #include "FortPlayerPawn.h"
-#include "HitResult.h"
 
 class AFortPlayerPawnAthena : public AFortPlayerPawn
 {

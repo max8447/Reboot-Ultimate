@@ -3,10 +3,6 @@
 #include "Object.h"
 #include "GameplayAbilitySpec.h"
 #include "AttributeSet.h"
-#include "PredictionKey.h"
-#include "GameplayEffectContextHandle.h"
-#include "ActiveGameplayEffectHandle.h"
-#include "GameplayAbilitySpecContainer.h"
 
 struct PadHex10 { char Pad[0x10]; };
 struct PadHex18 { char Pad[0x18]; };
@@ -20,6 +16,40 @@ struct PadHexB0 { char Pad[0xB0]; };
 using FGameplayEventData = PadHexB0;
 
 // using FGameplayEventData = __int64;
+
+struct FPredictionKey // todo move
+{
+	// __int64 real;
+
+	static UStruct* GetStruct()
+	{
+		static auto Struct = FindObject<UStruct>("/Script/GameplayAbilities.PredictionKey");
+		return Struct;
+	}
+
+	static int GetStructSize() { return GetStruct()->GetPropertiesSize(); }
+};
+
+struct FGameplayEffectContextHandle
+{
+	unsigned char                                      UnknownData00[0x18];                                      // 0x0000(0x0018) MISSED OFFSET
+};
+
+struct FActiveGameplayEffectHandle
+{
+	int                                                Handle;                                                   // 0x0000(0x0004) (ZeroConstructor, IsPlainOldData)
+	bool                                               bPassedFiltersAndWasExecuted;                             // 0x0004(0x0001) (ZeroConstructor, IsPlainOldData)
+	unsigned char                                      UnknownData00[0x3];                                       // 0x0005(0x0003) MISSED OFFSET
+};
+
+struct FGameplayAbilitySpecContainer : public FFastArraySerializer
+{
+	TArray<FGameplayAbilitySpec>& GetItems()
+	{
+		static auto ItemsOffset = FindOffsetStruct("/Script/GameplayAbilities.GameplayAbilitySpecContainer", "Items");
+		return *(TArray<FGameplayAbilitySpec>*)(__int64(this) + ItemsOffset);
+	}
+};
 
 class UAbilitySystemComponent : public UObject
 {

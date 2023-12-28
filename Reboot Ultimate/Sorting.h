@@ -30,6 +30,23 @@ struct TDereferenceWrapper<T*, PREDICATE_CLASS>
 	}
 };
 
+template <typename T>
+struct TArrayRange
+{
+	TArrayRange(T* InPtr, int32 InSize)
+		: Begin(InPtr)
+		, Size(InSize)
+	{
+	}
+
+	T* GetData() const { return Begin; }
+	int32 Num() const { return Size; }
+
+private:
+	T* Begin;
+	int32 Size;
+};
+
 template<class T, class PREDICATE_CLASS>
 void Sort(T** First, const int32 Num, const PREDICATE_CLASS& Predicate)
 {

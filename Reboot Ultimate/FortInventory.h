@@ -3,10 +3,9 @@
 #include "Actor.h"
 #include "Class.h"
 
-#include "Guid.h"
+#include "NetSerialization.h"
 #include "FortItem.h"
 #include "FortItemDefinition.h"
-#include "FastArraySerializer.h"
 
 #include "reboot.h"
 
