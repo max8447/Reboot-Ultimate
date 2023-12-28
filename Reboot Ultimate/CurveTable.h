@@ -1,41 +1,12 @@
 #pragma once
 
 #include "Object.h"
-#include "NameTypes.h"
+#include "Name.h"
 
 #include "reboot.h"
 #include "DataTable.h"
-
-enum class ECurveTableMode : unsigned char
-{
-	Empty,
-	SimpleCurves,
-	RichCurves
-};
-
-struct FSimpleCurveKey
-{
-	float                                              Time;                                                     // 0x0000(0x0004) (Edit, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-	float                                              Value;                                                    // 0x0004(0x0004) (Edit, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-};
-
-struct FIndexedCurve
-{
-
-};
-
-struct FRealCurve : public FIndexedCurve
-{
-};
-
-struct FSimpleCurve : public FRealCurve
-{
-	TArray<FSimpleCurveKey>& GetKeys()
-	{
-		static auto KeysOffset = FindOffsetStruct("/Script/Engine.SimpleCurve", "Keys");
-		return *(TArray<FSimpleCurveKey>*)(__int64(this) + KeysOffset);
-	}
-};
+#include "CurveTableMode.h"
+#include "SimpleCurveKey.h"
 
 class UCurveTable : public UObject
 {
@@ -85,10 +56,4 @@ public:
 
 		return 0.f;
 	}
-};
-
-struct FCurveTableRowHandle
-{
-	UCurveTable* CurveTable;
-	FName RowName; 
 };

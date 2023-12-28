@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UnrealString.h"
+#include "String.h"
 
 struct FStringAssetReference
 {

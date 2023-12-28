@@ -2,11 +2,7 @@
 
 #include "SharedPointer.h"
 #include "inc.h"
-
-struct ITextData
-{
-
-};
+#include "TextData.h"
 
 class FText
 {

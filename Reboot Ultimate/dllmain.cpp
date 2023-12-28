@@ -22,7 +22,7 @@
 #include "events.h"
 #include "FortKismetLibrary.h"
 #include "vehicles.h"
-#include "UObjectArray.h"
+#include "ObjectArray.h"
 #include "BuildingTrap.h"
 #include "FortAthenaCreativePortal.h"
 #include "commands.h"
@@ -46,6 +46,8 @@
 #include "FortGameSessionDedicatedAthena.h"
 #include "FortAIEncounterInfo.h"
 #include "FortAthenaMutator_DadBro.h"
+#include "EncounterEnvironmentQueryInfo.h"
+#include "FortHeldObjectComponent.h"
 
 enum class EMeshNetworkNodeType : uint8_t
 {

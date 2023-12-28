@@ -9,8 +9,6 @@
 #include "globals.h"
 #include <set>
 
-#include "NetSerialization.h"
-
 /* enum class REBOOT_ERROR : uint8
 {
 	FAILED_STRINGREF = 1,

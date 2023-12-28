@@ -2,7 +2,7 @@
 
 #include "Object.h"
 #include "CurveTable.h"
-#include "UnrealString.h"
+#include "String.h"
 
 enum class EEvaluateCurveTableResult : uint8_t
 {

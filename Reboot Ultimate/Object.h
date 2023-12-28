@@ -3,30 +3,12 @@
 #include <unordered_map>
 
 #include "ObjectMacros.h"
-#include "NameTypes.h"
+#include "Name.h"
 
 #include "addresses.h"
 
 class UClass;
 class UFunction;
-
-struct FGuid
-{
-	unsigned int A;
-	unsigned int B;
-	unsigned int C;
-	unsigned int D;
-
-	bool operator==(const FGuid& other)
-	{
-		return A == other.A && B == other.B && C == other.C && D == other.D;
-	}
-
-	bool operator!=(const FGuid& other)
-	{
-		return !(*this == other);
-	}
-};
 
 class UObject
 {

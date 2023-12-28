@@ -1,69 +1,15 @@
 #pragma once
 
-#include "EngineTypes.h"
+#include "SpawnActorCollisionHandlingMethod.h"
 #include "Transform.h"
 #include "Object.h"
 #include "Rotator.h"
 #include "Actor.h"
 #include "GameInstance.h"
-
-struct FNetworkNotify
-{
-
-};
-
-class AWorldSettings : public AActor
-{
-public:
-};
-
-struct FActorSpawnParameters
-{
-	FName Name = FName(0);
-	UObject* Template = nullptr;
-	UObject* Owner = nullptr;
-	UObject** Instigator = nullptr;
-	UObject* OverrideLevel = nullptr;
-	ESpawnActorCollisionHandlingMethod SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::Undefined;
-	uint16	bRemoteOwned : 1;
-	uint16	bNoFail : 1;
-	uint16	bDeferConstruction : 1;
-	uint16	bAllowDuringConstructionScript : 1;
-#if WITH_EDITOR
-	uint16 bTemporaryEditorActor : 1;
-#endif
-	EObjectFlags ObjectFlags;
-};
-
-struct FActorSpawnParametersUE500
-{
-	FName Name = FName(0);
-	UObject* Template = nullptr;
-	UObject* Owner = nullptr;
-	UObject** Instigator = nullptr;
-	UObject* OverrideLevel = nullptr;
-	UObject* OverrideParentComponent;
-	ESpawnActorCollisionHandlingMethod SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::Undefined;
-	uint8_t TransformScaleMethod;
-	uint16	bRemoteOwned : 1;
-	uint16	bNoFail : 1;
-	uint16	bDeferConstruction : 1;
-	uint16	bAllowDuringConstructionScript : 1;
-#if WITH_EDITOR
-	uint16 bTemporaryEditorActor : 1;
-#endif
-	enum class ESpawnActorNameMode : uint8_t
-	{
-		Required_Fatal,
-		Required_ErrorAndReturnNull,
-		Required_ReturnNull,
-		Requested
-	};
-
-	ESpawnActorNameMode NameMode;
-	EObjectFlags ObjectFlags;
-	TFunction<void(UObject*)> CustomPreSpawnInitalization; // my favorite
-};
+#include "ActorSpawnParameters_UE5.h"
+#include "ActorSpawnParameters.h"
+#include "NetworkNotify.h"
+#include "WorldSettings.h"
 
 static inline void* CreateSpawnParameters(ESpawnActorCollisionHandlingMethod SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::Undefined, bool bDeferConstruction = false, UObject* Owner = nullptr)
 {

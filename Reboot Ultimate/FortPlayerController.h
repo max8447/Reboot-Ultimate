@@ -6,7 +6,7 @@
 
 #include "Rotator.h"
 #include "BuildingSMActor.h"
-#include "Stack.h"
+#include "Frame.h"
 #include "ActorComponent.h"
 
 class UProperty : public UField

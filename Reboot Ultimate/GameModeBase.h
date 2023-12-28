@@ -4,7 +4,7 @@
 
 #include "Controller.h"
 #include "Pawn.h"
-#include "UnrealString.h"
+#include "String.h"
 
 class AGameModeBase : public AActor // AInfo
 {

@@ -6,11 +6,7 @@
 #include "FortAthenaMutator.h"
 #include "Vector.h"
 #include "FortGameModeAthena.h"
-
-class AFortAIPawn : public AFortPawn
-{
-public:
-};
+#include "FortAIPawn.h"
 
 static 	AFortAIPawn* DadBroPawn = nullptr;
 

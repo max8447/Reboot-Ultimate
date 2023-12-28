@@ -4,7 +4,7 @@
 
 #include "Actor.h"
 
-#include "GameplayAbilityTypes.h"
+#include "ScalableFloat.h"
 #include "DataTableFunctionLibrary.h"
 #include "SoftObjectPtr.h"
 

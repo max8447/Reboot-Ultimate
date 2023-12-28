@@ -2,7 +2,7 @@
 
 #include "Actor.h"
 #include "GameplayAbilitySpec.h"
-#include "Stack.h"
+#include "Frame.h"
 
 class AFortWeapon : public AActor
 {

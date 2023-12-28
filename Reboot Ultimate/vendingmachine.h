@@ -4,7 +4,6 @@
 #include "BuildingGameplayActor.h"
 #include "GameplayStatics.h"
 #include "FortLootPackage.h"
-#include "GameplayAbilityTypes.h"
 #include "KismetMathLibrary.h"
 
 using ABuildingItemCollectorActor = ABuildingGameplayActor;

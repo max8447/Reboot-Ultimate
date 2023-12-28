@@ -8,7 +8,6 @@
 #include "GameplayTagContainer.h"
 #include "BuildingActor.h"
 #include "FortPlayerPawnAthena.h"
-#include "GameplayAbilityTypes.h"
 
 struct FGameplayTagRequirements
 {

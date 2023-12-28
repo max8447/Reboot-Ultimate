@@ -2,7 +2,7 @@
 
 #include "LevelStreaming.h"
 
-#include "UnrealString.h"
+#include "String.h"
 #include "Rotator.h"
 #include "Vector.h"
 

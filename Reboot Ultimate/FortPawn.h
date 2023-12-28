@@ -4,6 +4,7 @@
 #include "FortWeapon.h"
 #include "FortDecoItemDefinition.h"
 #include "AttributeSet.h"
+#include "FortGameplayAttributeData.h"
 
 class UFortHealthSet : public UAttributeSet //public UFortAttributeSet
 {

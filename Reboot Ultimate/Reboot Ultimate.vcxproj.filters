@@ -304,8 +304,23 @@
     <ClCompile Include="extra.cpp">
       <Filter>Reboot\Private</Filter>
     </ClCompile>
-    <ClCompile Include="FortAthenaMutator_DropZone.h">
+    <ClCompile Include="FortAthenaMutator_PerkSystemMutator.h">
       <Filter>FortniteGame\Source\FortniteGame\Public\Athena\Modifiers</Filter>
+    </ClCompile>
+    <ClCompile Include="CurveTableRowHandle.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="DataTableRowHandle.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="ActorPriority.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Url.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="ActorSpawnParameters_UE5.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -314,10 +329,10 @@
     <ClInclude Include="Array.h">
       <Filter>Engine\Source\Runtime\Core\Public\Containers</Filter>
     </ClInclude>
-    <ClInclude Include="UnrealString.h">
+    <ClInclude Include="String.h">
       <Filter>Engine\Source\Runtime\Core\Public\Containers</Filter>
     </ClInclude>
-    <ClInclude Include="NameTypes.h">
+    <ClInclude Include="Name.h">
       <Filter>Engine\Source\Runtime\Core\Public\UObject</Filter>
     </ClInclude>
     <ClInclude Include="Class.h">
@@ -329,7 +344,7 @@
     <ClInclude Include="ObjectMacros.h">
       <Filter>Engine\Source\Runtime\CoreUObject\Public\UObject</Filter>
     </ClInclude>
-    <ClInclude Include="UObjectArray.h">
+    <ClInclude Include="ObjectItem.h">
       <Filter>Engine\Source\Runtime\CoreUObject\Public\UObject</Filter>
     </ClInclude>
     <ClInclude Include="UObjectGlobals.h">
@@ -338,7 +353,7 @@
     <ClInclude Include="Engine.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Stack.h">
+    <ClInclude Include="Frame.h">
       <Filter>Engine\Source\Runtime\CoreUObject\Public\UObject</Filter>
     </ClInclude>
     <ClInclude Include="OutputDevice.h">
@@ -377,7 +392,7 @@
     <ClInclude Include="Quat.h">
       <Filter>Engine\Source\Runtime\Core\Public\Math</Filter>
     </ClInclude>
-    <ClInclude Include="EngineTypes.h">
+    <ClInclude Include="TimerHandle.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
     </ClInclude>
     <ClInclude Include="hooking.h" />
@@ -393,7 +408,7 @@
     <ClInclude Include="GameSession.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\GameFramework</Filter>
     </ClInclude>
-    <ClInclude Include="NetSerialization.h">
+    <ClInclude Include="FastArraySerializer.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
     </ClInclude>
     <ClInclude Include="FortItem.h">
@@ -600,9 +615,6 @@
     <ClInclude Include="BuildingGameplayActorSpawnMachine.h">
       <Filter>FortniteGame\Source\FortniteGame\Public\Building\GameplayActors</Filter>
     </ClInclude>
-    <ClInclude Include="GameplayAbilityTypes.h">
-      <Filter>Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public</Filter>
-    </ClInclude>
     <ClInclude Include="vehicles.h">
       <Filter>Reboot\Public</Filter>
     </ClInclude>
@@ -633,7 +645,7 @@
     <ClInclude Include="NetworkGuid.h">
       <Filter>Engine\Source\Runtime\Core\Public\Misc</Filter>
     </ClInclude>
-    <ClInclude Include="UnrealMathUtility.h">
+    <ClInclude Include="Math.h">
       <Filter>Engine\Source\Runtime\Core\Public\Math</Filter>
     </ClInclude>
     <ClInclude Include="GenericPlatformTime.h">
@@ -681,7 +693,7 @@
     <ClInclude Include="IntroSort.h">
       <Filter>Engine\Source\Runtime\Core\Public\Algo</Filter>
     </ClInclude>
-    <ClInclude Include="Sorting.h">
+    <ClInclude Include="DereferenceWrapper.h">
       <Filter>Engine\Source\Runtime\Core\Public\Templates</Filter>
     </ClInclude>
     <ClInclude Include="Sort.h">
@@ -771,7 +783,7 @@
     <ClInclude Include="BuildingFoundation.h">
       <Filter>FortniteGame\Source\FortniteGame\Public\Building</Filter>
     </ClInclude>
-    <ClInclude Include="LatentActionManager.h">
+    <ClInclude Include="LatentActionInfo.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
     </ClInclude>
     <ClInclude Include="FortSafeZoneIndicator.h">
@@ -927,9 +939,6 @@
     <ClInclude Include="EnvQuery.h">
       <Filter>Engine\Source\Runtime\AIModule\Classes\EnvironmentQuery</Filter>
     </ClInclude>
-    <ClInclude Include="EnvQueryTypes.h">
-      <Filter>Engine\Source\Runtime\AIModule\Classes\EnvironmentQuery</Filter>
-    </ClInclude>
     <ClInclude Include="ScriptDisassembler.h">
       <Filter>Engine\Source\Developer\ScriptDisassembler\Public</Filter>
     </ClInclude>
@@ -973,6 +982,213 @@
       <Filter>FortniteGame\Source\FortniteGame\Public\Athena\Modifiers</Filter>
     </ClInclude>
     <ClInclude Include="DropZone.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
+    </ClInclude>
+    <ClInclude Include="PredictionKey.h">
+      <Filter>Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayEffectContextHandle.h">
+      <Filter>Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="ActiveGameplayEffectHandle.h">
+      <Filter>Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayAbilitySpecContainer.h">
+      <Filter>Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayAbilitySpecHandle.h">
+      <Filter>Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayAbilityActivationInfo.h">
+      <Filter>Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayAttribute.h">
+      <Filter>Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayAttributeData.h">
+      <Filter>Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="FortGameplayAttributeData.h">
+      <Filter>Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayAbilitySpecHandleAndPredictionKey.h">
+      <Filter>Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="ScalableFloat.h">
+      <Filter>Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="EAIParamType.h">
+      <Filter>Engine\Source\Runtime\AIModule\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvNamedValue.h">
+      <Filter>Engine\Source\Runtime\AIModule\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory.h">
+      <Filter>Engine\Source\Runtime\Core\Public\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="Pair.h">
+      <Filter>Engine\Source\Runtime\Core\Public\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="SetElement.h">
+      <Filter>Engine\Source\Runtime\Core\Public\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="SparseArrayElementOrListLink.h">
+      <Filter>Engine\Source\Runtime\Core\Public\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="TextData.h">
+      <Filter>Engine\Source\Runtime\Core\Public\Internationalization</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedReference.h">
+      <Filter>Engine\Source\Runtime\Core\Public\Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="ReferenceControllerBase.h">
+      <Filter>Engine\Source\Runtime\Core\Public\Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="ArrayRange.h">
+      <Filter>Engine\Source\Runtime\Core\Public\Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="NameEntryId.h">
+      <Filter>Engine\Source\Runtime\Core\Public\UObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Field.h">
+      <Filter>Engine\Source\Runtime\CoreUObject\Public\UObject</Filter>
+    </ClInclude>
+    <ClInclude Include="FieldPadding.h">
+      <Filter>Engine\Source\Runtime\CoreUObject\Public\UObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Struct.h">
+      <Filter>Engine\Source\Runtime\CoreUObject\Public\UObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Enum.h">
+      <Filter>Engine\Source\Runtime\CoreUObject\Public\UObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Guid.h">
+      <Filter>Engine\Source\Runtime\CoreUObject\Public\UObject</Filter>
+    </ClInclude>
+    <ClInclude Include="FixedObjectArray.h">
+      <Filter>Engine\Source\Runtime\CoreUObject\Public\UObject</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkedFixedObjectArray.h">
+      <Filter>Engine\Source\Runtime\CoreUObject\Public\UObject</Filter>
+    </ClInclude>
+    <ClInclude Include="FortHeldObjectComponent.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="CurveTableMode.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleCurveKey.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexedCurve.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RealCurve.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleCurve.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="TableRowBase.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="DataTableCategoryHandle.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="HitResult.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="SpawnActorCollisionHandlingMethod.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="ActorDestructionInfo.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkObjectInfo.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="NetViewer.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkObjectList.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="NetGuidCache.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="FastArraySerializerItem.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkNotify.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldSettings.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="ActorSpawnParameters.h">
+      <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayTag.h">
+      <Filter>Engine\Source\Runtime\GameplayTags\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="ActiveItemGrantInfo.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\Abilities</Filter>
+    </ClInclude>
+    <ClInclude Include="EncounterEnvironmentQueryInfo.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="BotNamingMode.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="BarrierTeamState.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
+    </ClInclude>
+    <ClInclude Include="FortAIPawn.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\Pawns</Filter>
+    </ClInclude>
+    <ClInclude Include="ControlPointSpawnData.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
+    </ClInclude>
+    <ClInclude Include="PerkMutatorData.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayEffect.h">
+      <Filter>Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="UserWidget.h">
+      <Filter>Engine\Plugins\Runtime\UMG\Source\UserWidget\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Widget.h">
+      <Filter>Engine\Plugins\Runtime\UMG\Source\Widget\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Visual.h">
+      <Filter>Engine\Plugins\Runtime\UMG\Source\Visual\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="PerkItemSet.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
+    </ClInclude>
+    <ClInclude Include="RoundTechDataCache.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
+    </ClInclude>
+    <ClInclude Include="FortAthenaMutator_SpyRumble.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\Athena\Modifiers</Filter>
+    </ClInclude>
+    <ClInclude Include="FortControllerComponent_PerkSystem.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
+    </ClInclude>
+    <ClInclude Include="GunGameEntry.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
+    </ClInclude>
+    <ClInclude Include="GunGamePlayerData.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemsToGive.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
+    </ClInclude>
+    <ClInclude Include="FortPieSliceSpawnData.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
+    </ClInclude>
+    <ClInclude Include="HeistExitCraftSpawnData.h">
       <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1246,6 +1462,30 @@
     </Filter>
     <Filter Include="FortniteGame\Source\FortniteGame\Public\LTMs">
       <UniqueIdentifier>{36ac30b8-1419-4793-a178-9ec33bf0a80e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Plugins\Runtime\UMG">
+      <UniqueIdentifier>{08c740cf-1118-4f93-9ec5-22386af3163c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Plugins\Runtime\UMG\Source">
+      <UniqueIdentifier>{e522e183-0191-450f-b766-38ae5a4dad86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Plugins\Runtime\UMG\Source\UserWidget">
+      <UniqueIdentifier>{96a7e552-be23-4910-ba40-57fe6e742adc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Plugins\Runtime\UMG\Source\UserWidget\Public">
+      <UniqueIdentifier>{b993c9e9-11f9-4748-b0a5-fc947ae12222}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Plugins\Runtime\UMG\Source\Widget">
+      <UniqueIdentifier>{ee2221c0-d102-42f4-bb36-690a2cf2793f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Plugins\Runtime\UMG\Source\Widget\Public">
+      <UniqueIdentifier>{405b0e91-42dc-47b0-95e1-1e3cfa4855fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Plugins\Runtime\UMG\Source\Visual">
+      <UniqueIdentifier>{f1727e90-f17a-4d20-8bd3-a60a89e753ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Plugins\Runtime\UMG\Source\Visual\Public">
+      <UniqueIdentifier>{438a07d1-74c1-45a4-baec-35ff256bd2df}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

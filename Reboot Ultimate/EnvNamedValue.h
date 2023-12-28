@@ -1,14 +1,7 @@
 #pragma once
 
-#include "NameTypes.h"
-
-enum class EAIParamType : uint8
-{
-	Float,
-	Int,
-	Bool
-	// MAX UMETA(Hidden)
-};
+#include "Name.h"
+#include "EAIParamType.h"
 
 struct FEnvNamedValue // i dont thin kthis ever changes
 {

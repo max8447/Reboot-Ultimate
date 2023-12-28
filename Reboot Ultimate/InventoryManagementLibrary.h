@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Object.h"
-#include "Stack.h"
+#include "Frame.h"
 
 class UInventoryManagementLibrary : public UObject // UBlueprintFunctionLibrary
 {

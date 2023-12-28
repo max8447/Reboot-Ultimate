@@ -1,7 +1,7 @@
 #pragma once
 
 #include "FortPlayerState.h"
-#include "Stack.h"
+#include "Frame.h"
 
 struct FFortRespawnData
 {

@@ -1,38 +1,10 @@
 #pragma once
 
 #include "Class.h"
-#include "NetSerialization.h"
 
 #include "reboot.h"
-
-struct FGameplayAbilitySpecHandle
-{
-	int Handle;
-
-	/* void GenerateNewHandle()
-	{
-		if (true)
-		{
-			Handle = rand();
-		}
-		else
-		{
-			static int GHandle = 1;
-			Handle = ++GHandle;
-		}
-	} */
-};
-
-struct FGameplayAbilityActivationInfo // TODO Move
-{
-	static UStruct* GetStruct()
-	{
-		static auto Struct = FindObject<UStruct>("/Script/GameplayAbilities.GameplayAbilityActivationInfo");
-		return Struct;
-	}
-
-	static int GetStructSize() { return GetStruct()->GetPropertiesSize(); }
-};
+#include "GameplayAbilitySpecHandle.h"
+#include "GameplayAbilityActivationInfo.h"
 
 struct FGameplayAbilitySpec : FFastArraySerializerItem
 {

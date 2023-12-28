@@ -1,14 +1,8 @@
 #pragma once
 
-#include "NameTypes.h"
+#include "Name.h"
 #include "Array.h"
-
-struct FGameplayTag
-{
-	static const int npos = -1; // lol?
-
-	FName TagName;
-};
+#include "GameplayTag.h"
 
 struct FGameplayTagContainer
 {

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Object.h"
-#include "UnrealString.h"
+#include "String.h"
 
 #include "reboot.h"
-#include "Stack.h"
+#include "Frame.h"
+#include "HitResult.h"
 
 enum class EDrawDebugTrace : uint8_t
 {

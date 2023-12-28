@@ -3,7 +3,7 @@
 #include "World.h"
 #include "NetDriver.h"
 
-#include "UnrealString.h"
+#include "String.h"
 
 class UEngine : public UObject
 {

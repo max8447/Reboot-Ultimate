@@ -4,7 +4,7 @@
 
 #include "Actor.h"
 
-#include "Stack.h"
+#include "Frame.h"
 
 #include "ScriptInterface.h"
 #include "FortGameStateAthena.h"
