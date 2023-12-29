@@ -1612,7 +1612,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		}
 		else if (Command == "getralzfullname")
 		{
-			SendMessageToConsole(ReceivingController, L"andre something something something");
+			SendMessageToConsole(ReceivingController, L"andrew something something something");
 		}
 		else if (Command == "summon")
 		{
