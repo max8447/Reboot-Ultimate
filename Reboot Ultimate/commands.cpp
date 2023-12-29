@@ -1610,10 +1610,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		{
 			exit(0);
 		}
-		else if (Command == "getralzfullname")
-		{
-			SendMessageToConsole(ReceivingController, L"andrew something something something");
-		}
 		else if (Command == "summon")
 		{
 			if (Arguments.size() <= 1)
@@ -1957,7 +1953,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			CheatManager->Teleport();
 			CheatManager = nullptr;
-			// SendMessageToConsole(PlayerController, L"Teleported!");
+			SendMessageToConsole(PlayerController, L"Teleported!");
 		}
 		else if (Command == "fly")
 		{
