@@ -3,7 +3,7 @@
 ## What's Different?
 
 - The UI has been re-worked entirely to take on a clean black & white look!
-- The amount of commands has nearly tripled! We've added a ton of new commands that make playing Reboot a lot easier, such as cheat godall, cheat fly, cheat getlocation, and much, much more!
+- The amount of commands has nearly tripled! We've added a ton of new commands that make playing Reboot a lot easier, such as cheat godall, cheat fly, cheat getlocation, and much, much more! To see all of the commands, type "cheat help" in the console.
 - Added multiple shortcut ways to type existing commands! Try things like: cheat bot, cheat health, cheat to, and others.
 - Added a new way to give yourself items without having to use a script! Typing "cheat grant" and the item you want's name and rarity (if a weapon) will give you the gun! (ex: "cheat grant rocket_sr")
 - Spawning vehicles and other BPs is now easier than ever! Typing the command "cheat spawn", and following it with a BP/vehicle will summon it! (ex: cheat spawn klombo)
