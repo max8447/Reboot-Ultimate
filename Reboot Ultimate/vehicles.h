@@ -237,7 +237,7 @@ static inline AActor* SpawnVehicleFromSpawner(AActor* VehicleSpawner)
 	return NewVehicle;
 }
 
-static inline void SpawnVehicles2()
+static inline void SpawnVehicles()
 {
 	static auto FortAthenaVehicleSpawnerClass = FindObject<UClass>(L"/Script/FortniteGame.FortAthenaVehicleSpawner");
 	TArray<AActor*> AllVehicleSpawners = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaVehicleSpawnerClass);

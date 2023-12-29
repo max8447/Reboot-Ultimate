@@ -1463,7 +1463,7 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 		}
 	}
 
-	if (Engine_Version >= 423 && Fortnite_Version <= 12.61) // 423+ we need to spawn manually and vehicle sync doesn't work on >S13.
+	if (Engine_Version >= 423/* && Fortnite_Version <= 12.61*/) // 423+ we need to spawn manually and vehicle sync doesn't work on >S13.
 	{
 		static int LastNum420 = 114;
 
@@ -1471,7 +1471,7 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 		{
 			LastNum420 = Globals::AmountOfListens;
 
-			SpawnVehicles2();
+			SpawnVehicles();
 		}
 	}
 

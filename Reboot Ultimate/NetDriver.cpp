@@ -71,7 +71,7 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 			}
 			else
 			{
-				std::cout << "Failed to find: " << Actor.ClassToSpawn << '\n';
+				LOG_WARN(LogGame, "Failed to find: {}", Actor.ClassToSpawn);
 			}
 
 			ActorsToSpawn.erase(ActorsToSpawn.begin() + i);

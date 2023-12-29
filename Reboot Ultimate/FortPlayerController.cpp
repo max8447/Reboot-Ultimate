@@ -459,6 +459,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	static auto FortAthenaSupplyDropClass = FindObject<UClass>(L"/Script/FortniteGame.FortAthenaSupplyDrop");
 	static auto BuildingItemCollectorActorClass = FindObject<UClass>(L"/Script/FortniteGame.BuildingItemCollectorActor");
 	static auto AthenaQuestBGAClass = FindObject<UClass>("/Game/Athena/Items/QuestInteractablesV2/Parents/AthenaQuest_BGA.AthenaQuest_BGA_C");
+	static auto BP_Athena_PropQuestActor_ParentClass = FindObject<UClass>("/Game/Athena/Items/QuestParents/PropQuestActor/BP_Athena_PropQuestActor_Parent.BP_Athena_PropQuestActor_Parent_C");
 
 	LOG_INFO(LogInteraction, "ServerAttemptInteract!");
 
@@ -696,7 +697,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 		PlayerController->ProgressQuest(PlayerController, QuestsRequiredOnProfile[0], Primary_BackendName);
 	}
-	else if (ReceivingActor->GetName().contains("QuestInteractable"))
+	else if (ReceivingActor->GetFullName().contains("QuestInteractable"))
 	{
 		LOG_INFO(LogGame, "Old quest so bad code wjasfhuaeguj");
 
@@ -718,6 +719,17 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 		PlayerController->ProgressQuest(PlayerController, QuestComp->GetQuestItemDefinition(), QuestComp->GetObjectiveBackendName());
 
 		QuestComp->OnCalendarUpdated();
+	}
+	else if (ReceivingActor->IsA(BP_Athena_PropQuestActor_ParentClass))
+	{
+		LOG_INFO(LogGame, "Quest!");
+
+		static auto ObjBackendNameOffset = ReceivingActor->GetOffset("ObjBackendName");
+		static auto QuestItemDefinitionOffset = ReceivingActor->GetOffset("QuestItemDefinition");
+		FName& ObjBackendName = *(FName*)(__int64(ReceivingActor) + ObjBackendNameOffset);
+		UFortQuestItemDefinition* QuestItemDefinition = *(UFortQuestItemDefinition**)(__int64(ReceivingActor) + QuestItemDefinitionOffset);
+
+		PlayerController->ProgressQuest(PlayerController, QuestItemDefinition, ObjBackendName);
 	}
 
 	return ServerAttemptInteractOriginal(Context, Stack, Ret);
@@ -1520,7 +1532,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 						DeadControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
 					}
 
-					if (Fortnite_Version == 11.31)
+					if (false)
 					{
 						FAthenaMatchStats Stats;
 
@@ -1558,7 +1570,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 						KillerControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
 					}
 
-					if (Fortnite_Version == 11.31)
+					if (false)
 					{
 						FAthenaMatchStats Stats;
 

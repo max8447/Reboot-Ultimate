@@ -77,7 +77,17 @@ void AFortPlayerPawn::ServerReviveFromDBNOHook(AFortPlayerPawn* Pawn, AControlle
 	Pawn->SetDBNO(false);
 	Pawn->SetHasPlayedDying(false);
 
-	Pawn->SetHealth(30); // TODO Get value from SetByCallerReviveHealth?
+	static auto SetByCallerReviveHealthOffset = Pawn->GetOffset("SetByCallerReviveHealth");
+	auto SetByCallerReviveHealth = Pawn->Get<FScalableFloat>(SetByCallerReviveHealthOffset);
+
+	static float HealthToGive = 30;
+
+	HealthToGive = UDataTableFunctionLibrary::EvaluateCurveTableRow(SetByCallerReviveHealth.GetCurve().CurveTable, SetByCallerReviveHealth.GetCurve().RowName, 0.f);
+
+	if (!HealthToGive)
+		HealthToGive = 30;
+
+	Pawn->SetHealth(HealthToGive); // TODO Get value from SetByCallerReviveHealth?
 
 	Pawn->OnRep_IsDBNO();
 

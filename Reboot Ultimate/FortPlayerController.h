@@ -8,6 +8,7 @@
 #include "BuildingSMActor.h"
 #include "Stack.h"
 #include "ActorComponent.h"
+#include "SoftObjectPtr.h"
 
 class UProperty : public UField
 {
@@ -33,6 +34,26 @@ public:
 	FName                                  PrimaryAssetName;                                  // 0x8(0x8)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 };
 
+enum class EXPEventPriorityType : uint8
+{
+	EXPEventPriorityType__NearReticle = 0,
+	EXPEventPriorityType__XPBarOnly = 1,
+	EXPEventPriorityType__TopCenter = 2,
+	EXPEventPriorityType__Feed = 3,
+	EXPEventPriorityType__EXPEventPriorityType_MAX = 4,
+};
+
+enum class EFortSimulatedXPSize : uint8
+{
+	EFortSimulatedXPSize__None = 0,
+	EFortSimulatedXPSize__VerySmall = 1,
+	EFortSimulatedXPSize__Small = 2,
+	EFortSimulatedXPSize__Medium = 3,
+	EFortSimulatedXPSize__Large = 4,
+	EFortSimulatedXPSize__VeryLarge = 5,
+	EFortSimulatedXPSize__EFortSimulatedXPSize_MAX = 6,
+};
+
 struct FXPEventEntry : public FFastArraySerializerItem
 {
 public:
@@ -44,6 +65,28 @@ public:
 	int32                                        EventXpValue;                                      // 0x44(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 	int32                                        TotalXpEarnedInMatch;                              // 0x48(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 	uint8                                        Pad_4666[0x4];                                     // Fixing Size Of Struct [ Dumper-7 ]
+};
+
+struct FXPEventInfo
+{
+public:
+	class FName                                  EventName;                                         // 0x0(0x4)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	uint8                                        Pad_68D4[0x4];                                     // Fixing Size After Last Property  [ Dumper-7 ]
+	class FText                                  SimulatedText;                                     // 0x8(0x18)(Edit, BlueprintVisible, BlueprintReadOnly, NativeAccessSpecifierPublic)
+	class FText                                  SimulatedName;                                     // 0x20(0x18)(Edit, BlueprintVisible, BlueprintReadOnly, NativeAccessSpecifierPublic)
+	class UFortQuestItemDefinition* QuestDef;                                          // 0x38(0x8)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	enum class EXPEventPriorityType              Priority;                                          // 0x40(0x1)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	uint8                                        Pad_68D5[0x3];                                     // Fixing Size After Last Property  [ Dumper-7 ]
+	int32                                        EventXpValue;                                      // 0x44(0x4)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	int32                                        TotalXpEarnedInMatch;                              // 0x48(0x4)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	struct FPrimaryAssetId                       Accolade;                                          // 0x4C(0x8)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	int32                                        RestedValuePortion;                                // 0x54(0x4)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	int32                                        SeasonBoostValuePortion;                           // 0x58(0x4)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	int32                                        RestedXPRemaining;                                 // 0x5C(0x4)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	class AFortPlayerController* PlayerController;                                  // 0x60(0x8)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	struct TSoftObjectPtr<class UTexture2D>             AccoladeLargePreviewImageOverride;                 // 0x68(0x28)(Edit, BlueprintVisible, BlueprintReadOnly, UObjectWrapper, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	enum class EFortSimulatedXPSize              SimulatedXpSize;                                   // 0x90(0x1)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	uint8                                        Pad_68D6[0x7];                                     // Fixing Size Of Struct [ Dumper-7 ]
 };
 
 static UClass* LettersClass = nullptr;
@@ -179,7 +222,7 @@ public:
 		this->ProcessEvent(fn, nullptr);
 	}
 
-	void HighPrioXPEvent(const struct FXPEventEntry& HighPrioXPEvent)
+	void HighPrioXPEvent(const FXPEventEntry& HighPrioXPEvent)
 	{
 		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.HighPrioXPEvent");
 
@@ -187,6 +230,18 @@ public:
 		{
 			struct FXPEventEntry               HighPrioXPEvent;
 		}params{ HighPrioXPEvent };
+
+		this->ProcessEvent(fn, &params);
+	}
+
+	void OnXpEvent(FXPEventInfo& XPEvent)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnXpEvent");
+
+		struct
+		{
+			struct FXPEventInfo                XPEvent;
+		}params{ XPEvent };
 
 		this->ProcessEvent(fn, &params);
 	}

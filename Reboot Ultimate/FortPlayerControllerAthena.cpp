@@ -35,23 +35,33 @@ void AFortPlayerControllerAthena::GiveXP(AFortPlayerControllerAthena* PC, int Co
 
 void AFortPlayerControllerAthena::ProgressQuest(AFortPlayerControllerAthena* PC, UFortQuestItemDefinition* QuestDef, FName BackendName)
 {
-	PC->GetQuestManager(ESubGame::Athena)->SelfCompletedUpdatedQuest(PC, QuestDef, BackendName, 1, 1, nullptr, true, false);
-	AFortPlayerStateAthena* PlayerState = (AFortPlayerStateAthena*)PC->GetPlayerState();
-	for (size_t i = 0; i < PlayerState->GetPlayerTeam()->GetTeamMembers().Num(); i++)
+	if (Fortnite_Version < 19)
 	{
-		auto pc = (AFortPlayerControllerAthena*)PlayerState->GetPlayerTeam()->GetTeamMembers()[i];
-		if (pc && pc != PC)
+		PC->GetQuestManager(ESubGame::Athena)->SelfCompletedUpdatedQuest(PC, QuestDef, BackendName, 1, 1, nullptr, true, false);
+		AFortPlayerStateAthena* PlayerState = (AFortPlayerStateAthena*)PC->GetPlayerState();
+		for (size_t i = 0; i < PlayerState->GetPlayerTeam()->GetTeamMembers().Num(); i++)
 		{
-			pc->GetQuestManager(ESubGame::Athena)->SelfCompletedUpdatedQuest(PC, QuestDef, BackendName, 1, 1, PlayerState, true, false);
+			auto pc = (AFortPlayerControllerAthena*)PlayerState->GetPlayerTeam()->GetTeamMembers()[i];
+			if (pc && pc != PC)
+			{
+				pc->GetQuestManager(ESubGame::Athena)->SelfCompletedUpdatedQuest(PC, QuestDef, BackendName, 1, 1, PlayerState, true, false);
+			}
 		}
 	}
 	auto QuestItem = PC->GetQuestManager(ESubGame::Athena)->GetQuestWithDefinition(QuestDef);
 
 	FXPEventEntry XPEventEntry{};
+	FXPEventInfo XPEventInfo{};
 
 	XPEventEntry.EventXpValue = 5000;//still skunked i will make it so it gets real xp value from datatable
+	XPEventInfo.EventXpValue = 5000;
 	XPEventEntry.QuestDef = QuestDef;
+	XPEventInfo.QuestDef = QuestDef;
 	XPEventEntry.Time = UGameplayStatics::GetTimeSeconds(GetWorld());
+	XPEventInfo.PlayerController = PC;
+	XPEventInfo.Priority = EXPEventPriorityType::EXPEventPriorityType__NearReticle;
+	XPEventInfo.SimulatedText = UKismetTextLibrary::Conv_StringToText(L"Challenge Completed!");
+	XPEventInfo.SimulatedXpSize = EFortSimulatedXPSize::EFortSimulatedXPSize__VeryLarge;
 	PC->GetXPComponent()->GetChallengeXp() += XPEventEntry.EventXpValue;
 	PC->GetXPComponent()->GetTotalXpEarned() += XPEventEntry.EventXpValue;
 	XPEventEntry.TotalXpEarnedInMatch = PC->GetXPComponent()->GetTotalXpEarned();
@@ -62,7 +72,11 @@ void AFortPlayerControllerAthena::ProgressQuest(AFortPlayerControllerAthena* PC,
 	PC->GetXPComponent()->OnProfileUpdated();
 	PC->GetXPComponent()->OnXpUpdated(PC->GetXPComponent()->GetCombatXp(), PC->GetXPComponent()->GetSurvivalXp(), PC->GetXPComponent()->GetMedalBonusXP(), PC->GetXPComponent()->GetChallengeXp(), PC->GetXPComponent()->GetMatchXp(), PC->GetXPComponent()->GetTotalXpEarned());
 	PC->GetXPComponent()->GetWaitingQuestXp().Add(XPEventEntry);
-	PC->GetXPComponent()->HighPrioXPEvent(XPEventEntry);
+
+	if (Fortnite_Version < 19)
+		PC->GetXPComponent()->HighPrioXPEvent(XPEventEntry);
+	else
+		PC->GetXPComponent()->OnXpEvent(XPEventInfo);
 }
 
 void AFortPlayerControllerAthena::StartGhostModeHook(UObject* Context, FFrame* Stack, void* Ret)
