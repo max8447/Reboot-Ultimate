@@ -87,7 +87,7 @@ void AFortPlayerPawn::ServerReviveFromDBNOHook(AFortPlayerPawn* Pawn, AControlle
 	if (!HealthToGive)
 		HealthToGive = 30;
 
-	Pawn->SetHealth(HealthToGive); // TODO Get value from SetByCallerReviveHealth?
+	Pawn->SetHealth(HealthToGive);
 
 	Pawn->OnRep_IsDBNO();
 

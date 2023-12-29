@@ -1610,6 +1610,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		{
 			exit(0);
 		}
+		else if (Command == "getralzfullname")
+		{
+			SendMessageToConsole(ReceivingController, L"andre something something something");
+		}
 		else if (Command == "summon")
 		{
 			if (Arguments.size() <= 1)
