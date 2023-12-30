@@ -63,7 +63,7 @@ public:
 		this->ProcessEvent(BounceContainerFn);
 	}
 
-	bool SpawnLoot(AFortPawn* Pawn);
+	bool SpawnLoot(AFortPawn* Pawn = nullptr);
 
 	static UClass* StaticClass()
 	{

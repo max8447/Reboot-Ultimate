@@ -50,6 +50,20 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 			if (auto ReplicationDriver = NetDriver->Get(ReplicationDriverOffset))
 				reinterpret_cast<void(*)(UObject*)>(ReplicationDriver->VFTable[Offsets::ServerReplicateActors])(ReplicationDriver);
 		}
+
+		auto AllBuildingContainers = UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABuildingContainer::StaticClass());
+
+		for (int i = 0; i < AllBuildingContainers.Num(); i++)
+		{
+			auto BuildingContainer = Cast<ABuildingContainer>(AllBuildingContainers.at(i));
+
+			if (BuildingContainer->IsActorBeingDestroyed())
+			{
+				LOG_INFO(LogGame, "BuildingContainer is being destroyed!");
+
+				BuildingContainer->SpawnLoot();
+			}
+		}
 	}
 
 	if (ActorsToSpawn.size() > 0)

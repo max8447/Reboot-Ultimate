@@ -1475,10 +1475,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			auto AllFishingHoles = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FishingHoleClass);
 
+			LOG_INFO(LogDev, "AllFishingHoles.Num(): {}", AllFishingHoles.Num());
+
 			for (int i = 0; i < AllFishingHoles.Num(); i++)
 			{
-				LOG_INFO(LogDev, "AllFishingHoles.Num(): {}", AllFishingHoles.Num());
-
 				auto FishingHole = AllFishingHoles.at(i);
 
 				FishingHole->K2_DestroyActor();
@@ -2032,6 +2032,38 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			}
 
 			Pawn->ProcessEvent(SetMovementSpeedFn, &Speed);
+		}
+		else if (Command == "startcreativegame")
+		{
+			bool bCanEdit = false;
+			TArray<FString> WhiteList;
+
+			for (int i = 0; i < ClientConnections.Num(); i++)
+			{
+				auto ClientConnection = ClientConnections.at(i);
+
+				auto PlayerController = ClientConnection->GetPlayerController();
+
+				auto PlayerState = PlayerController->GetPlayerState();
+
+				auto Name = PlayerState->GetPlayerName();
+
+				WhiteList.Add(Name);
+
+				LOG_INFO(LogDev, "Name added to whitelist: {}", Name.ToString());
+			}
+
+			static auto Server_SetCanEditCreativeIslandFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerStateAthena.Server_SetCanEditCreativeIsland");
+
+			struct
+			{
+				bool bCanEdit;
+				TArray<FString> WhiteList;
+			}params{ bCanEdit , WhiteList };
+
+			ReceivingController->GetPlayerState()->ProcessEvent(Server_SetCanEditCreativeIslandFn, &params);
+
+			SendMessageToConsole(ReceivingController, L"Started Game.");
 		}
 		else if (Command == "wipequickbar" || Command == "wipeall" || Command == "wipe" || Command == "clear" || Command == "clearall")
 		{

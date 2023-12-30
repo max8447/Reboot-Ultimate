@@ -500,6 +500,8 @@ void AFortPlayerControllerAthena::ServerGiveCreativeItemHook(AFortPlayerControll
 {
 	// Don't worry, the validate has a check if it is a creative enabled mode or not, but we need to add a volume check and permission check I think.
 
+	LOG_INFO(LogDev, "ServerGiveCreativeItemHook!");
+
 	auto CreativeItemPtr = &CreativeItem;
 	auto ItemDefinition = CreativeItemPtr->GetItemDefinition();
 
