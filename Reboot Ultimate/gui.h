@@ -206,14 +206,11 @@ static std::vector Tertiaries = {
 	"WID_Sniper_NoScope_Athena_UC_Ore_T03",
 	"WID_Sniper_Heavy_Athena_SR_Ore_T03",
 	"WID_Sniper_Heavy_Athena_VR_Ore_T03",
-	"WID_Sniper_Heavy_Athena_R_Ore_T03",
 	"WID_Sniper_BoltAction_Scope_Athena_SR_Ore_T03",
 	"WID_Sniper_BoltAction_Scope_Athena_VR_Ore_T03",
 	"WID_Sniper_BoltAction_Scope_Athena_R_Ore_T03",
 	"WID_Sniper_BoltAction_Scope_Athena_UC_Ore_T03",
 	"WID_Sniper_BoltAction_Scope_Athena_C_Ore_T03",
-	"WID_Sniper_Standard_Scope_Athena_SuperRare_Ore_T03",
-	"WID_Sniper_Standard_Scope_Athena_VeryRare_Ore_T03",
 	"WID_Sniper_Standard_Scope_Athena_SR_Ore_T03",
 	"WID_Sniper_Standard_Scope_Athena_VR_Ore_T03",
 	"WID_Sniper_Suppressed_Scope_Athena_SR_Ore_T03",
@@ -221,6 +218,7 @@ static std::vector Tertiaries = {
 	"WID_Sniper_Weather_Athena_VR",
 	"WID_Sniper_Weather_Athena_SR",
 	"WID_WaffleTruck_Sniper_StormScout",
+	"WID_WaffleTruck_Sniper_DragonBreath"
 };
 
 static std::vector Secondaries = {
@@ -245,6 +243,13 @@ static std::vector Secondaries = {
 	"WID_Shotgun_Swing_Athena_R",
 	"WID_Shotgun_Swing_Athena_VR",
 	"WID_Shotgun_Swing_Athena_SR",
+	"WID_Shotgun_Charge_Athena_R_Ore_T03",
+	"WID_Shotgun_Charge_Athena_VR_Ore_T03",
+	"WID_Shotgun_Charge_Athena_SR_Ore_T03",
+	"WID_Shotgun_CoreBurst_Athena_UC",
+	"WID_Shotgun_CoreBurst_Athena_R",
+	"WID_Shotgun_CoreBurst_Athena_VR",
+	"WID_Shotgun_CoreBurst_Athena_SR"
 };
 
 static std::vector Primaries = {
@@ -252,24 +257,25 @@ static std::vector Primaries = {
 	"WID_Assault_Auto_Athena_R_Ore_T03",
 	"WID_Assault_AutoHigh_Athena_VR_Ore_T03",
 	"WID_Assault_AutoHigh_Athena_SR_Ore_T03",
-	"WID_Assault_SemiAuto_Athena_UC_Ore_T03",
-	"WID_Assault_SemiAuto_Athena_R_Ore_T03",
 	"WID_Assault_SemiAuto_Athena_VR_Ore_T03",
 	"WID_Assault_SemiAuto_Athena_SR_Ore_T03",
 	"WID_Assault_Suppressed_Athena_VR_Ore_T03",
 	"WID_Assault_Suppressed_Athena_SR_Ore_T03",
 	"WID_Assault_Infantry_Athena_VR",
 	"WID_Assault_Infantry_Athena_SR",
-	"WID_Assault_Heavy_Athena_UC_Ore_T03",
 	"WID_Assault_Heavy_Athena_R_Ore_T03",
 	"WID_Assault_Heavy_Athena_VR_Ore_T03",
 	"WID_Assault_Heavy_Athena_SR_Ore_T03",
 	"WID_Assault_PistolCaliber_AR_Athena_R_Ore_T03",
 	"WID_Assault_PistolCaliber_AR_Athena_VR_Ore_T03",
 	"WID_Assault_PistolCaliber_AR_Athena_SR_Ore_T03",
+	"WID_Assault_RedDotAR_Athena_UC",
+	"WID_Assault_RedDotAR_Athena_R",
+	"WID_Assault_RedDotAR_Athena_VR",
+	"WID_Assault_RedDotAR_Athena_SR",
 	"WID_Assault_Stark_Athena_R_Ore_T03",
 	"WID_Assault_Stark_Athena_VR_Ore_T03",
-	"WID_Assault_Stark_Athena_SR_Ore_T03",
+	"WID_Assault_Stark_Athena_SR_Ore_T03"
 };
 
 static std::vector Consumables1 = {
@@ -297,7 +303,10 @@ static std::vector Consumables1 = {
 	"WID_Launcher_Rocket_Athena_SR_Ore_T03",
 	"WID_Launcher_Grenade_Athena_R_Ore_T03",
 	"WID_Launcher_Grenade_Athena_VR_Ore_T03",
-	"WID_Launcher_Grenade_Athena_SR_Ore_T03"
+	"WID_Launcher_Grenade_Athena_SR_Ore_T03",
+	"WID_HighTower_Tomato_Repulsor_CoreBR",
+	"WID_HighTower_Date_ChainLightning_CoreBR",
+	"WID_HighTower_Tapas_SkyStrike_CoreBR"
 };
 
 static std::vector Consumables2 = {
@@ -311,7 +320,10 @@ static std::vector Consumables2 = {
 	"WID_Athena_ShieldHops",
 	"WID_Athena_Flopper",
 	"WID_Athena_Flopper_Effective",
-	"WID_Athena_Flopper_HopFlopper"
+	"WID_Athena_Flopper_HopFlopper",
+	"WID_Athena_SpicySoda",
+	"WID_Athena_ShieldGenerator",
+	"WID_Athena_HealSpray"
 };
 
 static std::vector Traps = {
