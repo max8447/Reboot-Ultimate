@@ -159,6 +159,20 @@ public:
 class AFortGameStateAthena : public AGameState
 {
 public:
+	bool IsTeleportToCreativeHubAllowed()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortGameStateAthena.IsTeleportToCreativeHubAllowed");
+
+		struct
+		{
+			bool                               ReturnValue;
+		}params;
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
+	}
+
 	AFortPoiManager* GetPoiManager()
 	{
 		static auto PoiManagerOffset = FindOffsetStruct("/Script/FortniteGame.FortGameState", "PoiManager");

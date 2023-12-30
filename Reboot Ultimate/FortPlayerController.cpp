@@ -1462,10 +1462,19 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 							auto ItemInstance = ItemInstances.at(i);
 							const auto ItemDefinition = Cast<UFortWorldItemDefinition>(ItemInstance->GetItemEntry()->GetItemDefinition());
 
+							static UFortItemDefinition* WoodDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+							static UFortItemDefinition* StoneDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+							static UFortItemDefinition* MetalDef = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+
+							bool IsMatInstance = (UFortItemDefinition*)ItemDefinition == WoodDef &&
+								(UFortItemDefinition*)ItemDefinition == StoneDef &&
+								(UFortItemDefinition*)ItemDefinition == MetalDef;
+
 							if (ItemDefinition->CanBeDropped() ||
 								(!ItemDefinition->IsA(FortBuildingItemDefinitionClass) &&
 									!ItemDefinition->IsA(FortEditToolItemDefinitionClass) &&
-									ItemInstance != PickaxeInstance))
+									ItemInstance != PickaxeInstance) &&
+								!IsMatInstance)
 							{
 								GuidsAndCountsToRemove.push_back({ ItemInstance->GetItemEntry()->GetItemGuid(), ItemInstance->GetItemEntry()->GetCount() });
 							}
@@ -1771,6 +1780,8 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 					if (Teams.Num() <= 1)
 					{
+						LOG_INFO(LogDev, "AGameMode::EndMatch()");
+
 						GameMode->EndMatch(); // Slomo fix (scuffed)
 					}
 

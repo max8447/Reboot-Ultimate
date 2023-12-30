@@ -1246,6 +1246,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			Pawn->CopyToClipboard(Loc);
 		}
+		else if (Command == "logprocessevent")
+		{
+			Globals::bLogProcessEvent = !Globals::bLogProcessEvent;
+		}
 		else if (Command == "givexptest")
 		{
 			static auto KillScoreOffset = ReceivingPlayerState->GetOffset("KillScore");
@@ -1609,10 +1613,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		else if (Command == "imfrench")
 		{
 			exit(0);
-		}
-		else if (Command == "getralzfullname")
-		{
-			SendMessageToConsole(ReceivingController, L"andre something something something");
 		}
 		else if (Command == "summon")
 		{

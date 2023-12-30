@@ -401,6 +401,7 @@ public:
 	static inline void (*EnterAircraftOriginal)(UObject* PC, AActor* Aircraft);
 	static inline void (*StartGhostModeOriginal)(UObject* Context, FFrame* Stack, void* Ret);
 	static inline void (*EndGhostModeOriginal)(AFortPlayerControllerAthena* PlayerController);
+	static inline void (*ServerCreativeSetFlightSpeedIndexOriginal)(UObject* Context, FFrame& Stack, void* Ret);
 
 	static void GiveXP(AFortPlayerControllerAthena* PC, int CombatXP, int SurvivalXP, int BonusMedalXP, int ChallengeXP, int MatchXP);
 	static void ProgressQuest(AFortPlayerControllerAthena* PC, UFortQuestItemDefinition* QuestDef, FName Primary_BackendName);
@@ -607,6 +608,7 @@ public:
 	static void GetPlayerViewPointHook(AFortPlayerControllerAthena* PlayerController, FVector& Location, FRotator& Rotation);
 	static void ServerReadyToStartMatchHook(AFortPlayerControllerAthena* PlayerController);
 	static void UpdateTrackedAttributesHook(AFortPlayerControllerAthena* PlayerController);
+	static void ServerCreativeSetFlightSpeedIndexHook(UObject* Context, FFrame& Stack, void* Ret); // this just does not get called idk
 
 	static UClass* StaticClass()
 	{

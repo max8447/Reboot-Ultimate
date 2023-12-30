@@ -798,6 +798,9 @@ DWORD WINAPI Main(LPVOID)
     Hooking::MinHook::Hook(FortPlayerControllerAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerControllerAthena.ServerGiveCreativeItem"),
         AFortPlayerControllerAthena::ServerGiveCreativeItemHook, nullptr, true);
 
+    Hooking::MinHook::Hook(FortPlayerControllerAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerControllerGameplay.ServerCreativeSetFlightSpeedIndexHook"),
+        AFortPlayerControllerAthena::ServerCreativeSetFlightSpeedIndexHook, (LPVOID*)&AFortPlayerControllerAthena::ServerAttemptAircraftJumpOriginal, false, true);
+
     if (Fortnite_Version < 19) // its all screwed up idk
     {
         Hooking::MinHook::Hook(FortPlayerControllerAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerControllerAthena.ServerPlaySquadQuickChatMessage"),
@@ -1071,9 +1074,9 @@ DWORD WINAPI Main(LPVOID)
     Hooking::MinHook::Hook((PVOID)Addresses::SetZoneToIndex, (PVOID)SetZoneToIndexHook, (PVOID*)&SetZoneToIndexOriginal);
     Hooking::MinHook::Hook((PVOID)Addresses::EnterAircraft, (PVOID)AFortPlayerControllerAthena::EnterAircraftHook, (PVOID*)&AFortPlayerControllerAthena::EnterAircraftOriginal);
 
-#ifndef PROD
+// #ifndef PROD
     Hooking::MinHook::Hook((PVOID)Addresses::ProcessEvent, ProcessEventHook, (PVOID*)&UObject::ProcessEventOriginal);
-#endif
+// #endif
 
     AddVehicleHook();
 

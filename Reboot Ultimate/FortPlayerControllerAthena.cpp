@@ -523,26 +523,64 @@ void AFortPlayerControllerAthena::ServerTeleportToPlaygroundLobbyIslandHook(AFor
 	if (!Pawn)
 		return;
 
-	// TODO IsTeleportToCreativeHubAllowed
+	auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
 
-	static auto FortPlayerStartCreativeClass = FindObject<UClass>(L"/Script/FortniteGame.FortPlayerStartCreative");
-	auto AllCreativePlayerStarts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortPlayerStartCreativeClass);
+	if (!GameState)
+		return;
 
-	for (int i = 0; i < AllCreativePlayerStarts.Num(); ++i)
+	if (GameState->IsTeleportToCreativeHubAllowed())
 	{
-		auto CurrentPlayerStart = AllCreativePlayerStarts.at(i);
+		static auto FortPlayerStartCreativeClass = FindObject<UClass>(L"/Script/FortniteGame.FortPlayerStartCreative");
+		auto AllCreativePlayerStarts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortPlayerStartCreativeClass);
 
-		static auto PlayerStartTagsOffset = CurrentPlayerStart->GetOffset("PlayerStartTags");
-		auto bHasSpawnTag = CurrentPlayerStart->Get<FGameplayTagContainer>(PlayerStartTagsOffset).Contains("Playground.LobbyIsland.Spawn");
+		for (int i = 0; i < AllCreativePlayerStarts.Num(); ++i)
+		{
+			auto CurrentPlayerStart = AllCreativePlayerStarts.at(i);
 
-		if (!bHasSpawnTag)
-			continue;
+			static auto PlayerStartTagsOffset = CurrentPlayerStart->GetOffset("PlayerStartTags");
+			auto bHasSpawnTag = CurrentPlayerStart->Get<FGameplayTagContainer>(PlayerStartTagsOffset).Contains("Playground.LobbyIsland.Spawn");
 
-		Pawn->TeleportTo(CurrentPlayerStart->GetActorLocation(), Pawn->GetActorRotation());
-		break;
+			if (!bHasSpawnTag)
+				continue;
+
+			auto PlayerController = Cast<AFortPlayerControllerAthena>(Pawn->GetController());
+
+			static auto FortEditToolItemDefinitionClass = FindObject<UClass>(L"/Script/FortniteGame.FortEditToolItemDefinition");
+			static auto FortBuildingItemDefinitionClass = FindObject<UClass>(L"/Script/FortniteGame.FortBuildingItemDefinition");
+			const auto& ItemInstances = PlayerController->GetWorldInventory()->GetItemList().GetItemInstances();
+			auto PickaxeInstance = PlayerController->GetWorldInventory()->GetPickaxeInstance();
+			std::vector<std::pair<FGuid, int>> GuidsAndCountsToRemove;
+
+			if (PlayerController->GetWorldInventory())
+			{
+				for (int i = 0; i < ItemInstances.Num(); ++i)
+				{
+					auto ItemInstance = ItemInstances.at(i);
+					const auto ItemDefinition = Cast<UFortWorldItemDefinition>(ItemInstance->GetItemEntry()->GetItemDefinition());
+
+					if (ItemDefinition->CanBeDropped() ||
+						(!ItemDefinition->IsA(FortBuildingItemDefinitionClass) &&
+							!ItemDefinition->IsA(FortEditToolItemDefinitionClass) &&
+							ItemInstance != PickaxeInstance))
+					{
+						GuidsAndCountsToRemove.push_back({ ItemInstance->GetItemEntry()->GetItemGuid(), ItemInstance->GetItemEntry()->GetCount() });
+					}
+				}
+
+				for (auto& [Guid, Count] : GuidsAndCountsToRemove)
+				{
+					PlayerController->GetWorldInventory()->RemoveItem(Guid, nullptr, Count, true);
+				}
+
+				PlayerController->GetWorldInventory()->Update();
+			}
+
+			Pawn->TeleportTo(CurrentPlayerStart->GetActorLocation(), Pawn->GetActorRotation());
+			break;
+		}
+
+		AllCreativePlayerStarts.Free();
 	}
-
-	AllCreativePlayerStarts.Free();
 }
 
 void AFortPlayerControllerAthena::ServerAcknowledgePossessionHook(APlayerController* Controller, APawn* Pawn)
@@ -818,4 +856,33 @@ void AFortPlayerControllerAthena::UpdateTrackedAttributesHook(AFortPlayerControl
 
 	if (ItemInstancesToRemove.size() > 0)
 		WorldInventory->Update();
+}
+
+void AFortPlayerControllerAthena::ServerCreativeSetFlightSpeedIndexHook(UObject* Context, FFrame& Stack, void* Ret)
+{
+	LOG_INFO(LogCreative, "ServerCreativeSetFlightSpeedIndexHook!");
+
+	auto PlayerController = (AFortPlayerControllerAthena*)Context;
+
+	int Index;
+	Stack.StepCompiledIn(&Index);
+
+	LOG_INFO(LogCreative, "Index: {}", Index);
+
+	if (!PlayerController)
+	{
+		return ServerCreativeSetFlightSpeedIndexOriginal(Context, Stack, Ret);
+	}
+
+	auto Pawn = Cast<AFortPlayerPawnAthena>(PlayerController->GetPawn());
+
+	if (!Pawn)
+	{
+		return ServerCreativeSetFlightSpeedIndexOriginal(Context, Stack, Ret);
+	}
+
+	auto CharacterMovement = Pawn->GetCharacterMovement();
+	CharacterMovement->GetMaxFlySpeed() = Index;
+
+	return ServerCreativeSetFlightSpeedIndexOriginal(Context, Stack, Ret);
 }

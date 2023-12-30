@@ -4,6 +4,7 @@
 #include "FortWeapon.h"
 #include "FortDecoItemDefinition.h"
 #include "AttributeSet.h"
+#include "ActorComponent.h"
 
 class UFortHealthSet : public UAttributeSet //public UFortAttributeSet
 {
@@ -21,7 +22,27 @@ public:
 	}
 };
 
-class AFortPawn : public APawn
+class UCharacterMovementComponent : public UActorComponent // UPawnMovementComponent
+{
+public:
+	float& GetMaxFlySpeed()
+	{
+		static auto MaxFlySpeedOffset = FindOffsetStruct("/Script/Engine.CharacterMovementComponent", "MaxFlySpeed");
+		return *(float*)(__int64(this) + MaxFlySpeedOffset);
+	}
+};
+
+class ACharacter : public APawn
+{
+public:
+	UCharacterMovementComponent* GetCharacterMovement()
+	{
+		static auto CharacterMovementOffset = FindOffsetStruct("/Script/Engine.Character", "CharacterMovement");
+		return *(UCharacterMovementComponent**)(__int64(this) + CharacterMovementOffset);
+	}
+};
+
+class AFortPawn : public ACharacter
 {
 public:
 	static inline void (*NetMulticast_Athena_BatchedDamageCuesOriginal)(UObject* Context, FFrame* Stack, void* Ret);

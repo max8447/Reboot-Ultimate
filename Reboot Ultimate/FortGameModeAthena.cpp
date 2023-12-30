@@ -1635,6 +1635,17 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 				PlayersReady.AddPtr(PlayerStateUniqueId, FUniqueNetIdRepl::GetSizeOfStruct()); // im not even sure what this is for
 			}
 
+			auto IslandInfo = Portal->GetIslandInfo();
+			auto SupportCode = PlayerStateAthena->GetPlayerName().ToString() + "SupportCode";
+			auto Mnemonic = PlayerStateAthena->GetPlayerName().ToString() + "'s Island";
+
+			IslandInfo->CreatorName = PlayerStateAthena->GetPlayerName();
+			IslandInfo->Version = 1.f;
+			IslandInfo->SupportCode = std::wstring(SupportCode.begin(), SupportCode.end()).c_str();
+			IslandInfo->Mnemonic = std::wstring(Mnemonic.begin(), Mnemonic.end()).c_str();
+
+			Portal->OnRep_IslandInfo();
+
 			static auto bUserInitiatedLoadOffset = Portal->GetOffset("bUserInitiatedLoad", false);
 
 			if (bUserInitiatedLoadOffset != -1)
