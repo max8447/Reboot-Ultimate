@@ -1957,7 +1957,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			CheatManager->Teleport();
 			CheatManager = nullptr;
-			// SendMessageToConsole(PlayerController, L"Teleported!");
+			SendMessageToConsole(PlayerController, L"Teleported!");
 		}
 		else if (Command == "fly")
 		{
