@@ -16,6 +16,9 @@
 ## To Do:
 
 - Add Pickaxe Stutter
+- Fix items like Batman Grappler, Jules Grappler, & Flare Gun not dropping
+- Fix Traps on 18+
+- Fix 14.60 & 11.00 Win Crash
 
 # Links
 
