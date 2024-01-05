@@ -295,7 +295,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Sniper_NoScope_Athena_UC_Ore_T03";
 			}
-			else if (weaponName == "hunting_r" || weaponName == "hunting")
+			else if (weaponName == "hunting_r")
 			{
 				weaponName = "WID_Sniper_NoScope_Athena_R_Ore_T03";
 			}
@@ -595,11 +595,11 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Boss_Adventure_GH";
 			}
-			else if (weaponName == "captainamerica" || weaponName == "shield")
+			else if (weaponName == "captainamerica" || weaponName == "shield" || weaponName == "ca")
 			{
 				weaponName = "AGID_AshtonPack_Chicago";
 			}
-			else if (weaponName == "thorshammer" || weaponName == "thor")
+			else if (weaponName == "thorshammer" || weaponName == "thor" || weaponName == "thors")
 			{
 				weaponName = "AGID_AshtonPack_Turbo";
 			}
@@ -623,7 +623,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "TID_Context_BouncePad_Athena";
 			}
-			else if (weaponName == "launchpad" || weaponName == "launch" || weaponName == "pad")
+			else if (weaponName == "launchpad" || weaponName == "launch" || weaponName == "pad" || weaponName == "launches")
 			{
 				weaponName = "TID_Floor_Player_Launch_Pad_Athena";
 			}
@@ -680,6 +680,17 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				else
 				{
 					weaponName = "WID_HighTower_Tomato_Repulsor_CoreBR";
+				}
+			}
+			else if (weaponName == "hunting")
+			{
+				if (Fortnite_Version < 12.41)
+				{
+					weaponName = "WID_Sniper_NoScope_Athena_R_Ore_T03";
+				}
+				else
+				{
+					weaponName = "WID_Sniper_NoScope_Athena_SR_Ore_T03";
 				}
 			}
 
@@ -1767,6 +1778,12 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				VehicleName = "/Game/Athena/Environments/Blueprints/DUDEBRO/BGA_HVAC.BGA_HVAC_C";
 			else if (VehicleName == "geyser")
 				VehicleName = "/Game/Athena/Environments/Blueprints/DudeBro/BGA_DudeBro_Mini.BGA_DudeBro_Mini_C";
+			else if (VehicleName == "zeropoint")
+			        if (Fortnite_Version < 11.00) {
+		            	VehicleName = "/Game/Athena/Environments/Nexus/Blueprints/BP_ZeroPoint_Exploding.BP_ZeroPoint_Exploding_C";
+        			} 			
+				else if (Fortnite_Version > 14.60) {
+            			VehicleName = "/Game/Athena/Environments/Nexus/Blueprints/BP_ZeroPoint_2Point0.BP_ZeroPoint_2Point0_C";
 
 			static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
 			static auto ClassClass = FindObject<UClass>(L"/Script/CoreUObject.Class");
