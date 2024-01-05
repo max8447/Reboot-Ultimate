@@ -1610,90 +1610,15 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			static auto ServerSuicideFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerController.ServerSuicide");
 			ReceivingController->ProcessEvent(ServerSuicideFn);
 		}
-		else if (Command == "imfrench")
-		{
-			exit(0);
-		}
-		else if (Command == "summon")
+		else if (Command == "spawn" || Command == "summon")
 		{
 			if (Arguments.size() <= 1)
 			{
-				SendMessageToConsole(PlayerController, L"Please provide a class!\n");
+				SendMessageToConsole(PlayerController, L"Please provide a name or BP!\n");
 				return;
 			}
 
-			auto& ClassName = Arguments[1];
-
-			/* if (ClassName.contains("/Script/"))
-			{
-				SendMessageToConsole(PlayerController, L"For now, we don't allow non-blueprint classes.\n");
-				return;
-			} */
-
-			auto Pawn = ReceivingController->GetPawn();
-
-			if (!Pawn)
-			{
-				SendMessageToConsole(PlayerController, L"No pawn to spawn class at!");
-				return;
-			}
-
-			int Count = 1;
-
-			if (Arguments.size() >= 3)
-			{
-				try { Count = std::stod(Arguments[2]); }
-				catch (...) {}
-			}
-
-			constexpr int Max = 100;
-
-			if (Count > Max)
-			{
-				SendMessageToConsole(PlayerController, (std::wstring(L"You went over the limit! Only spawning ") + std::to_wstring(Max) + L".").c_str());
-				Count = Max;
-			}
-
-			static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
-			static auto ClassClass = FindObject<UClass>(L"/Script/CoreUObject.Class");
-			auto ClassObj = ClassName.contains("/Script/") ? FindObject<UClass>(ClassName, ClassClass) : LoadObject<UClass>(ClassName, BGAClass); // scuffy
-
-			if (ClassObj)
-			{
-				int AmountSpawned = 0;
-
-				for (int i = 0; i < Count; i++)
-				{
-					auto Loc = Pawn->GetActorLocation();
-					Loc.Z += 1000;
-					auto NewActor = GetWorld()->SpawnActor<AActor>(ClassObj, Loc, FQuat(), FVector(1, 1, 1));
-
-					if (!NewActor)
-					{
-						SendMessageToConsole(PlayerController, L"Failed to spawn an actor!");
-					}
-					else
-					{
-						AmountSpawned++;
-					}
-				}
-
-				SendMessageToConsole(PlayerController, L"Summoned!");
-			}
-			else
-			{
-				SendMessageToConsole(PlayerController, L"Not a valid class!");
-			}
-		}
-		else if (Command == "spawn")
-		{
-			if (Arguments.size() <= 1)
-			{
-				SendMessageToConsole(PlayerController, L"Please provide a name!\n");
-				return;
-			}
-
-			auto& VehicleName = Arguments[1];
+			auto& ActorName = Arguments[1];
 
 			auto Pawn = ReceivingController->GetPawn();
 
@@ -1711,7 +1636,9 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				catch (...) {}
 			}
 
-			constexpr int Max = 100;
+			bool SpawnBots = ActorName == "bot" || ActorName == "bots";
+
+			int Max = SpawnBots ? 99 : 100;
 
 			if (Count > Max)
 			{
@@ -1719,60 +1646,60 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				Count = Max;
 			}
 
-			if (VehicleName == "driftboard" || VehicleName == "hoverboard")
-				VehicleName = "/Game/Athena/DrivableVehicles/JackalVehicle_Athena.JackalVehicle_Athena_C";
-			else if (VehicleName == "surfboard")
-				VehicleName = "/Game/Athena/DrivableVehicles/SurfboardVehicle_Athena.SurfboardVehicle_Athena_C";
-			else if (VehicleName == "quadcrasher" || VehicleName == "quad")
-				VehicleName = "/Game/Athena/DrivableVehicles/AntelopeVehicle.AntelopeVehicle_C";
-			else if (VehicleName == "baller")
-				VehicleName = "/Game/Athena/DrivableVehicles/Octopus/OctopusVehicle.OctopusVehicle_C";
-			else if (VehicleName == "plane")
-				VehicleName = "/Game/Athena/DrivableVehicles/Biplane/BluePrints/FerretVehicle.FerretVehicle_C";
-			else if (VehicleName == "golfcart" || VehicleName == "golf")
-				VehicleName = "/Game/Athena/DrivableVehicles/Golf_Cart/Golf_Cart_Base/Blueprints/GolfCartVehicleSK.GolfCartVehicleSK_C";
-			else if (VehicleName == "cannon")
-				VehicleName = "/Game/Athena/DrivableVehicles/PushCannon.PushCannon_C";
-			else if (VehicleName == "shoppingcart" || VehicleName == "shopping")
-				VehicleName = "/Game/Athena/DrivableVehicles/ShoppingCartVehicleSK.ShoppingCartVehicleSK_C";
-			else if (VehicleName == "mech" || VehicleName == "brute")
-				VehicleName = "/Game/Athena/DrivableVehicles/Mech/TestMechVehicle.TestMechVehicle_C";
-			else if (VehicleName == "bear" || VehicleName == "truck")
-				VehicleName = "/Valet/BasicTruck/Valet_BasicTruck_Vehicle.Valet_BasicTruck_Vehicle_C";
-			else if (VehicleName == "prevelant" || VehicleName == "car")
-				VehicleName = "/Valet/BasicCar/Valet_BasicCar_Vehicle.Valet_BasicCar_Vehicle_C";
-			else if (VehicleName == "whiplash" || VehicleName == "sportscar")
-				VehicleName = "/Valet/SportsCar/Valet_SportsCar_Vehicle.Valet_SportsCar_Vehicle_C";
-			else if (VehicleName == "taxi")
-				VehicleName = "/Valet/TaxiCab/Valet_TaxiCab_Vehicle.Valet_TaxiCab_Vehicle_C";
-			else if (VehicleName == "mudflap")
-				VehicleName = "/Valet/BigRig/Valet_BigRig_Vehicle.Valet_BigRig_Vehicle_C";
-			else if (VehicleName == "stark")
-				VehicleName = "/Valet/SportsCar/Valet_SportsCar_Vehicle_HighTower.Valet_SportsCar_Vehicle_HighTower_C";
-			else if (VehicleName == "boat")
-				VehicleName = "/Game/Athena/DrivableVehicles/Meatball/Meatball_Large/MeatballVehicle_L.MeatballVehicle_L_C";
-			else if (VehicleName == "heli" || VehicleName == "helicopter")
-				VehicleName = "/Hoagie/HoagieVehicle.HoagieVehicle_C";
-			else if (VehicleName == "ufo")
-				VehicleName = "/Nevada/Blueprints/Vehicle/Nevada_Vehicle_V2.Nevada_Vehicle_V2_C";
-			else if (VehicleName == "shark")
-				VehicleName = "/SpicySake/Pawns/NPC_Pawn_SpicySake_Parent.NPC_Pawn_SpicySake_Parent_C";
-			else if (VehicleName == "klombo")
-				VehicleName = "/ButterCake/Pawns/NPC_Pawn_ButterCake_Base.NPC_Pawn_ButterCake_Base_C";
-			else if (VehicleName == "umbrella")
-				VehicleName = "/Game/Athena/Apollo/Environments/BuildingActors/Papaya/Papaya_BouncyUmbrella_C.Papaya_BouncyUmbrella_C_C";
-			else if (VehicleName == "tire")
-				VehicleName = "/Game/Building/ActorBlueprints/Prop/Prop_TirePile_04.Prop_TirePile_04_C";
-			else if (VehicleName == "airvent")
-				VehicleName = "/Game/Athena/Environments/Blueprints/DUDEBRO/BGA_HVAC.BGA_HVAC_C";
-			else if (VehicleName == "geyser")
-				VehicleName = "/Game/Athena/Environments/Blueprints/DudeBro/BGA_DudeBro_Mini.BGA_DudeBro_Mini_C";
+			if (ActorName == "driftboard" || ActorName == "hoverboard")
+				ActorName = "/Game/Athena/DrivableVehicles/JackalVehicle_Athena.JackalVehicle_Athena_C";
+			else if (ActorName == "surfboard")
+				ActorName = "/Game/Athena/DrivableVehicles/SurfboardVehicle_Athena.SurfboardVehicle_Athena_C";
+			else if (ActorName == "quadcrasher" || ActorName == "quad")
+				ActorName = "/Game/Athena/DrivableVehicles/AntelopeVehicle.AntelopeVehicle_C";
+			else if (ActorName == "baller")
+				ActorName = "/Game/Athena/DrivableVehicles/Octopus/OctopusVehicle.OctopusVehicle_C";
+			else if (ActorName == "plane")
+				ActorName = "/Game/Athena/DrivableVehicles/Biplane/BluePrints/FerretVehicle.FerretVehicle_C";
+			else if (ActorName == "golfcart" || ActorName == "golf")
+				ActorName = "/Game/Athena/DrivableVehicles/Golf_Cart/Golf_Cart_Base/Blueprints/GolfCartVehicleSK.GolfCartVehicleSK_C";
+			else if (ActorName == "cannon")
+				ActorName = "/Game/Athena/DrivableVehicles/PushCannon.PushCannon_C";
+			else if (ActorName == "shoppingcart" || ActorName == "shopping")
+				ActorName = "/Game/Athena/DrivableVehicles/ShoppingCartVehicleSK.ShoppingCartVehicleSK_C";
+			else if (ActorName == "mech" || ActorName == "brute")
+				ActorName = "/Game/Athena/DrivableVehicles/Mech/TestMechVehicle.TestMechVehicle_C";
+			else if (ActorName == "bear" || ActorName == "truck")
+				ActorName = "/Valet/BasicTruck/Valet_BasicTruck_Vehicle.Valet_BasicTruck_Vehicle_C";
+			else if (ActorName == "prevelant" || ActorName == "car")
+				ActorName = "/Valet/BasicCar/Valet_BasicCar_Vehicle.Valet_BasicCar_Vehicle_C";
+			else if (ActorName == "whiplash" || ActorName == "sportscar")
+				ActorName = "/Valet/SportsCar/Valet_SportsCar_Vehicle.Valet_SportsCar_Vehicle_C";
+			else if (ActorName == "taxi")
+				ActorName = "/Valet/TaxiCab/Valet_TaxiCab_Vehicle.Valet_TaxiCab_Vehicle_C";
+			else if (ActorName == "mudflap")
+				ActorName = "/Valet/BigRig/Valet_BigRig_Vehicle.Valet_BigRig_Vehicle_C";
+			else if (ActorName == "stark")
+				ActorName = "/Valet/SportsCar/Valet_SportsCar_Vehicle_HighTower.Valet_SportsCar_Vehicle_HighTower_C";
+			else if (ActorName == "boat")
+				ActorName = "/Game/Athena/DrivableVehicles/Meatball/Meatball_Large/MeatballVehicle_L.MeatballVehicle_L_C";
+			else if (ActorName == "heli" || ActorName == "helicopter")
+				ActorName = "/Hoagie/HoagieVehicle.HoagieVehicle_C";
+			else if (ActorName == "ufo")
+				ActorName = "/Nevada/Blueprints/Vehicle/Nevada_Vehicle_V2.Nevada_Vehicle_V2_C";
+			else if (ActorName == "shark")
+				ActorName = "/SpicySake/Pawns/NPC_Pawn_SpicySake_Parent.NPC_Pawn_SpicySake_Parent_C";
+			else if (ActorName == "klombo")
+				ActorName = "/ButterCake/Pawns/NPC_Pawn_ButterCake_Base.NPC_Pawn_ButterCake_Base_C";
+			else if (ActorName == "umbrella")
+				ActorName = "/Game/Athena/Apollo/Environments/BuildingActors/Papaya/Papaya_BouncyUmbrella_C.Papaya_BouncyUmbrella_C_C";
+			else if (ActorName == "tire")
+				ActorName = "/Game/Building/ActorBlueprints/Prop/Prop_TirePile_04.Prop_TirePile_04_C";
+			else if (ActorName == "airvent")
+				ActorName = "/Game/Athena/Environments/Blueprints/DUDEBRO/BGA_HVAC.BGA_HVAC_C";
+			else if (ActorName == "geyser")
+				ActorName = "/Game/Athena/Environments/Blueprints/DudeBro/BGA_DudeBro_Mini.BGA_DudeBro_Mini_C";
 
 			static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
 			static auto ClassClass = FindObject<UClass>(L"/Script/CoreUObject.Class");
-			auto ClassObj = VehicleName.contains("/Script/") ? FindObject<UClass>(VehicleName, ClassClass) : LoadObject<UClass>(VehicleName, BGAClass); // scuffy
+			auto ClassObj = ActorName.contains("/Script/") ? FindObject<UClass>(ActorName, ClassClass) : LoadObject<UClass>(ActorName, BGAClass); // scuffy
 
-			if (ClassObj)
+			if (ClassObj || SpawnBots )
 			{
 				int AmountSpawned = 0;
 
@@ -1780,14 +1707,20 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				{
 					auto Loc = Pawn->GetActorLocation();
 					Loc.Z += 250;
-					auto NewActor = GetWorld()->SpawnActor<AActor>(ClassObj, Loc, FQuat(), FVector(1, 1, 1));
+
+					FTransform BotSpawnTransform;
+					BotSpawnTransform.Translation = Loc;
+					BotSpawnTransform.Scale3D = FVector(1, 1, 1);
+
+					auto NewActor = SpawnBots ? Bots::SpawnBot(BotSpawnTransform) : GetWorld()->SpawnActor<AActor>(ClassObj, Loc, FQuat(), FVector(1, 1, 1));
 
 					if (!NewActor)
 					{
-						SendMessageToConsole(PlayerController, L"Failed to spawn an actor!");
+						SendMessageToConsole(PlayerController, (L"Failed to spawn a{}!", (SpawnBots ? L" bot" : L"n actor!")));
 					}
 					else
 					{
+						NewActor->ForceNetUpdate();
 						AmountSpawned++;
 					}
 				}
@@ -2227,7 +2160,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Healed all players shield!\n");
 		}
-		else if (Command == "giveall")
+		else if (Command == "giveall" || Command == "giveallammo" || Command == "giveammoall")
 		{
 			static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
 			auto WorldNetDriver = GetWorld()->Get<UNetDriver*>(World_NetDriverOffset);

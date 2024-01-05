@@ -1,4 +1,5 @@
 #include "FortDecoItemDefinition.h"
+#include "BuildingTrap.h"
 
 UClass* UFortDecoItemDefinition::StaticClass()
 {

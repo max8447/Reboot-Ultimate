@@ -1849,10 +1849,11 @@ static inline void MainUI()
 
 						if (CurrentPawn)
 						{
-							static auto CurrentWeaponOffset = CurrentPawn->GetOffset("CurrentWeapon");
-							auto CurrentWeapon = CurrentPawn->Get<UFortItemDefinition*>(CurrentWeaponOffset);
+							auto CurrentWeapon = CurrentPawn->GetCurrentWeapon();
 
 							auto Inventory = CurrentController->GetWorldInventory();
+
+							// ImGui::Text(CurrentWeapon->GetName().c_str()); // This was to test traps on s18+ but i'll do it later
 
 							if (ImGui::Button("Give Item"))
 							{

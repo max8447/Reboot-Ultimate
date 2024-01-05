@@ -716,24 +716,6 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 		Globals::bInitializedPlaylist = true;
 	}
 
-	if (std::floor(Fortnite_Version) == 13)
-	{
-		TSubclassOf<AActor> FishingHoleClass = FindObject<UClass>(L"/Game/Athena/Items/EnvironmentalItems/FlopperSpawn/BGA_Athena_FlopperSpawn_World.BGA_Athena_FlopperSpawn_World_C");
-
-		auto AllFishingHoles = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FishingHoleClass);
-
-		LOG_INFO(LogDev, "AllFishingHoles.Num(): {}", AllFishingHoles.Num());
-
-		for (int i = 0; i < AllFishingHoles.Num(); i++)
-		{
-			auto FishingHole = AllFishingHoles.at(i);
-
-			FishingHole->K2_DestroyActor();
-
-			LOG_INFO(LogDev, "Destroyed Fishing Hole {}", FishingHole->GetFullName());
-		}
-	}
-
 	static int LastNum6 = 1;
 
 	if (AmountOfRestarts != LastNum6)
@@ -910,6 +892,24 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 				}
 
 				LOG_INFO(LogDev, "Patched GameSession!");
+			}
+		}
+
+		if (std::floor(Fortnite_Version) == 13)
+		{
+			TSubclassOf<AActor> FishingHoleClass = FindObject<UClass>(L"/Game/Athena/Items/EnvironmentalItems/FlopperSpawn/BGA_Athena_FlopperSpawn_World.BGA_Athena_FlopperSpawn_World_C");
+
+			auto AllFishingHoles = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FishingHoleClass);
+
+			LOG_INFO(LogDev, "AllFishingHoles.Num(): {}", AllFishingHoles.Num());
+
+			for (int i = 0; i < AllFishingHoles.Num(); i++)
+			{
+				auto FishingHole = AllFishingHoles.at(i);
+
+				FishingHole->K2_DestroyActor();
+
+				LOG_INFO(LogDev, "Destroyed Fishing Hole {}", FishingHole->GetFullName());
 			}
 		}
 
