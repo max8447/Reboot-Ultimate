@@ -2373,7 +2373,7 @@ cheat shieldall - Heals all players shield.
 cheat godall - Gods all players.
 cheat giveall - Gives all players Ammo, Materials, and Traps maxed out.
 cheat getlocation - Gives you the current XYZ cords of where you are standing and copies them to your clipboard (useful for bugitgo)
-cheat togglesnowmap - Toggles the map to have snow or not. (7.10, 7.30, 11.31, 15.10, 19.10 ONLY)
+cheat togglesnowmap - Toggles the map to have snow or not. (7.10, 7.30, 11.31, 15.10, 19.01, & 19.10 ONLY)
 cheat destroyall <ClassPathName> - Destroys every actor of a given class. Useful for removing all floorloot for example.
 cheat changesize <Size=1.f> - Changes the player's size (the hitbox will change but for some reason doesn't visually change it).
 cheat damagetarget <Damage=0.f> - Damages the Actor in front of you by the specified amount.
@@ -2382,7 +2382,7 @@ cheat getscript - Opens the Project Reboot V3 Script on your preferred browser.
 cheat tutorial - Opens the Project Reboot V3 Tutorial (made by Ralzify).
 cheat killserver - Ends the running task of the hosting window.
 cheat startaircraft - Starts the bus.
-cheat settimeofday <1-24> - Changes the time of day in game to a 24H time period.
+cheat settimeofday <1-23> - Changes the time of day in game to a 24H time period.
 
 If you want to execute a command on a certain player, surround their name (case sensitive) with \, and put the param with their name anywhere. Example: cheat sethealth \Milxnor\ 100
 )";

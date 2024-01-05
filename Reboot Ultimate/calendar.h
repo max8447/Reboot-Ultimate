@@ -8,7 +8,7 @@ namespace Calendar
 {
 	static inline bool HasSnowModification()
 	{
-		return Fortnite_Version == 7.10 || Fortnite_Version == 7.30 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.10;
+		return Fortnite_Version == 7.10 || Fortnite_Version == 7.30 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.01 || Fortnite_Version == 19.10;
 	}
 
 	static inline UObject* GetSnowSetup()
@@ -43,7 +43,7 @@ namespace Calendar
 			// 1
 			return TimeAndValues[3].first;
 		}
-		else if (Fortnite_Version == 19.10)
+		else if (Fortnite_Version == 19.01 || Fortnite_Version == 19.10)
 		{
 			std::vector<int> Values = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
