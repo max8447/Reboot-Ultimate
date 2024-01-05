@@ -1708,7 +1708,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
 			static auto ClassClass = FindObject<UClass>(L"/Script/CoreUObject.Class");
-			auto ClassObj = ActorName.contains("/Script/") ? FindObject<UClass>(ActorName, ClassClass) : LoadObject<UClass>(ActorName, BGAClass); // scuffy
+			auto ClassObj = ActorName.contains("/Script/") ? FindObject<UClass>(ActorName, ClassClass) : LoadObject<UClass>(ActorName, BGAClass);
 
 			if (ClassObj || SpawnBots )
 			{
@@ -1836,20 +1836,51 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		}
 		else if (Command == "settimeofday")
 		{
-			static auto SetTimeOfDayFn = FindObject<UFunction>("/Script/FortniteGame.FortKismetLibrary.SetTimeOfDay");
+			static auto SetTimeOfDayInHoursFn = FindObject<UFunction>("/Script/FortniteGame.FortTimeOfDayManager.SetTimeOfDayInHours");
 
-			float NewTimeOfDay = 0.f;
+			float NewTimeOfDayInHours = 0.f;
 
-			try { NewTimeOfDay = std::stoi(Arguments[1]); }
+			try { NewTimeOfDayInHours = std::stoi(Arguments[1]); }
 			catch (...) {}
+
+			if (NewTimeOfDayInHours > 24)
+			{
+				SendMessageToConsole(PlayerController, L"Time of day can't be over 24!");
+				return;
+			}
+
+			static auto DefaultFortTimeOfDayManager = FindObject("/Script/FortniteGame.Default__FortTimeOfDayManager");
 
 			struct
 			{
-				UObject* WorldContextObject;
-				float                              TimeOfDay;
-			}params{ GetWorld() , NewTimeOfDay };
+				float                              TimeOfDayInHours;
+			}FortTimeOfDayManager_SetTimeOfDayInHours_params{ NewTimeOfDayInHours };
 
-			UFortKismetLibrary::StaticClass()->ProcessEvent(SetTimeOfDayFn, &params);
+			DefaultFortTimeOfDayManager->ProcessEvent(SetTimeOfDayInHoursFn, &FortTimeOfDayManager_SetTimeOfDayInHours_params);
+		}
+		else if (Command == "settimeofdayother")
+		{
+			static auto SetTimeOfDayInHoursFn = FindObject<UFunction>("/Script/FortniteGame.FortTimeOfDayManager.SetTimeOfDayInHours");
+
+			float NewTimeOfDayInHours = 0.f;
+
+			try { NewTimeOfDayInHours = std::stoi(Arguments[1]); }
+			catch (...) {}
+
+			if (NewTimeOfDayInHours > 24)
+			{
+				SendMessageToConsole(PlayerController, L"Time of day can't be over 24!");
+				return;
+			}
+
+			static auto FortTimeOfDayManagerStaticClass = FindObject<UClass>("/Script/FortniteGame.FortTimeOfDayManager");
+
+			struct
+			{
+				float                              TimeOfDayInHours;
+			}FortTimeOfDayManager_SetTimeOfDayInHours_params{ NewTimeOfDayInHours };
+
+			FortTimeOfDayManagerStaticClass->ProcessEvent(SetTimeOfDayInHoursFn, &FortTimeOfDayManager_SetTimeOfDayInHours_params);
 		}
 		else if (Command == "spawnbotsatplayerstarts")
 		{
