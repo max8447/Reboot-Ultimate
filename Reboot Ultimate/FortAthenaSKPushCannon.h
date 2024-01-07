@@ -4,6 +4,7 @@
 
 #include "FortAthenaVehicle.h"
 #include "reboot.h"
+#include "gui.h"
 
 class AFortAthenaSKPushCannon : public AFortAthenaVehicle // : public AFortAthenaSKPushVehicle
 {
@@ -55,7 +56,24 @@ public:
 
 		this->OnPreLaunchPawn(PawnToShoot, LaunchDir);
 		PawnToShoot->ServerOnExitVehicle(ETryExitVehicleBehavior::ForceAlways);
-		this->OnLaunchPawn(PawnToShoot, LaunchDir);
+
+		if (bEnableCannonAnimations)
+		{
+			this->OnLaunchPawn(PawnToShoot, LaunchDir);
+		}
+		else
+		{
+			static auto LaunchCharacterFn = FindObject<UFunction>(L"/Script/Engine.Character.LaunchCharacter");
+
+			struct
+			{
+				FVector											   LaunchVelocity;                                           // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+				bool                                               bXYOverride;                                              // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+				bool                                               bZOverride;                                               // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+			} ACharacter_LaunchCharacter_Params{ FVector(LaunchDir.X * 6000, LaunchDir.Y * 5000, LaunchDir.Z * 7500), false, false };
+			Cast<AFortPawn>(PawnToShoot)->ProcessEvent(LaunchCharacterFn, &ACharacter_LaunchCharacter_Params);
+		}
+
 		this->MultiCastPushCannonLaunchedPlayer();
 	}
 

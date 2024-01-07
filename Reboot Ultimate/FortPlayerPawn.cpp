@@ -258,6 +258,8 @@ void AFortPlayerPawn::UnEquipVehicleWeaponDefinition(UFortWeaponItemDefinition* 
 	if (bShouldUpdate)
 		WorldInventory->Update();
 
+	LOG_INFO(LogVehicles, "Removed VehicleWeaponDefinition: {}", VehicleWeaponDefinition->GetFullName());
+
 	auto PickaxeInstance = WorldInventory->GetPickaxeInstance();
 
 	if (!PickaxeInstance)
@@ -301,6 +303,27 @@ AActor* AFortPlayerPawn::ServerOnExitVehicleHook(AFortPlayerPawn* PlayerPawn, ET
 	auto VehicleWeaponDefinition = PlayerPawn->GetVehicleWeaponDefinition(PlayerPawn->GetVehicle());
 	LOG_INFO(LogDev, "VehicleWeaponDefinition: {}", VehicleWeaponDefinition ? VehicleWeaponDefinition->GetFullName() : "BadRead");
 	PlayerPawn->UnEquipVehicleWeaponDefinition(VehicleWeaponDefinition);
+
+	/*
+
+	if (PlayerPawn->GetVehicleSeatIndex() == 0)
+	{
+		auto PlayerController = Cast<AFortPlayerController>(PlayerPawn->GetController());
+		auto WorldInventory = PlayerController->GetWorldInventory();
+
+		WorldInventory->RemoveItem(Cast<UFortItem>(VehicleWeaponDefinition)->GetItemEntry()->GetItemGuid(), nullptr, 1);
+
+		for (int i = 0; i < WorldInventory->GetItemList().GetReplicatedEntries().Num(); i++)
+		{
+			if (WorldInventory->GetItemList().GetReplicatedEntries()[i].GetItemDefinition() == Cast<AFortPlayerControllerAthena>(PlayerController)->GetSwappingItemDefinition())
+			{
+				PlayerPawn->EquipWeaponDefinition(Cast<UFortWeaponItemDefinition>(WorldInventory->GetItemList().GetReplicatedEntries()[i].GetItemDefinition()), WorldInventory->GetItemList().GetReplicatedEntries()[i].GetItemGuid());
+				break;
+			}
+		}
+	}
+
+	*/
 
 	return ServerOnExitVehicleOriginal(PlayerPawn, ExitForceBehavior);
 }

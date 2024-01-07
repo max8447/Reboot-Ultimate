@@ -615,6 +615,33 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 		return;
 	}
+	/* else if (Cast<AFortPlayerPawn>(PlayerController->GetMyFortPawn())->IsInVehicle())
+	{
+		auto Vehicle = Cast<AFortPlayerPawn>(PlayerController->GetMyFortPawn())->GetVehicle();
+
+		LOG_INFO(LogVehicles, "Vehicle: {}", Vehicle->GetName());
+
+		if (Vehicle)
+		{
+			auto SeatIdx = Cast<AFortPlayerPawn>(PlayerController->GetMyFortPawn())->GetVehicleSeatIndex();
+			auto WeaponComponent = Vehicle->GetSeatWeaponComponent(SeatIdx);
+
+			if (WeaponComponent)
+			{
+				PlayerController->GetWorldInventory()->AddItem(WeaponComponent->GetWeaponSeatDefinitions()[SeatIdx].GetVehicleWeapon(), nullptr, 1, 9999);
+
+				for (int i = 0; PlayerController->GetWorldInventory()->GetItemList().GetReplicatedEntries().Num(); i++)
+				{
+					if (PlayerController->GetWorldInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition() == WeaponComponent->GetWeaponSeatDefinitions()[SeatIdx].GetVehicleWeapon())
+					{
+						PlayerController->GetSwappingItemDefinition() = PlayerController->GetMyFortPawn()->GetCurrentWeapon()->GetWeaponData();
+						PlayerController->ServerExecuteInventoryItemHook(Cast<AFortPlayerController>(PlayerController), PlayerController->GetWorldInventory()->GetItemList().GetReplicatedEntries()[i].GetItemGuid());
+						break;
+					}
+				}
+			}
+		}
+	} */
 	else if (ReceivingActor->IsA(BuildingItemCollectorActorClass))
 	{
 		auto WorldInventory = PlayerController->GetWorldInventory();

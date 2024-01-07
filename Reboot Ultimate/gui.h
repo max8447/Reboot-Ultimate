@@ -94,6 +94,7 @@ extern inline bool bEnableRebooting = false;
 extern inline bool bEngineDebugLogs = false;
 extern inline bool bStartedBus = false;
 extern inline int AmountOfHealthSiphon = 50;
+extern inline bool bEnableCannonAnimations = true;
 
 // THE BASE CODE IS FROM IMGUI GITHUB
 
@@ -1559,6 +1560,8 @@ static inline void MainUI()
 						CurrentPlaylist->GetRespawnType() = (EAthenaRespawnType)bRespawning;
 					}
 				}
+
+				ImGui::Checkbox("Enable Cannon Animations", &bEnableCannonAnimations);
 			}
 		}
 		else if (Tab == LATEGAME_TAB)

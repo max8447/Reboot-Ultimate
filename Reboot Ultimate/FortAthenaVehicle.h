@@ -4,10 +4,46 @@
 
 #include "reboot.h"
 #include "FortWeaponItemDefinition.h"
+#include "FortPlayerPawn.h"
+
+struct FWeaponSeatDefinition
+{
+public:
+	UFortWeaponItemDefinition* GetVehicleWeapon()
+	{
+		static auto VehicleWeaponOffset = FindOffsetStruct("/Script/FortniteGame.WeaponSeatDefinition", "VehicleWeapon");
+		return *(UFortWeaponItemDefinition**)(__int64(this) + VehicleWeaponOffset);
+	}
+};
+
+class UFortVehicleSeatWeaponComponent : public UActorComponent
+{
+public:
+	TArray<FWeaponSeatDefinition> GetWeaponSeatDefinitions()
+	{
+		static auto WeaponSeatDefinitionsOffset = FindOffsetStruct("/Script/FortniteGame.FortVehicleSeatWeaponComponent", "WeaponSeatDefinitions");
+		return *(TArray<FWeaponSeatDefinition>*)(__int64(this) + WeaponSeatDefinitionsOffset);
+	}
+};
 
 class AFortAthenaVehicle : public AActor// : public AFortPhysicsPawn // Super changes based on version
 {
 public:
+	UFortVehicleSeatWeaponComponent* GetSeatWeaponComponent(int32 SeatIndex)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortAthenaVehicle.GetSeatWeaponComponent");
+
+		struct
+		{
+			int32                              SeatIndex;
+			UFortVehicleSeatWeaponComponent* ReturnValue;
+		}params{ SeatIndex };
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
+	}
+
 	class AFortPlayerPawn* GetPawnAtSeat(int SeatIdx)
 	{
 		static auto GetPawnAtSeatFn = FindObject<UFunction>("/Script/FortniteGame.FortAthenaVehicle.GetPawnAtSeat");

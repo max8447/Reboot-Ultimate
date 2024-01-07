@@ -472,6 +472,12 @@ public:
 		this->ProcessEvent(SpectateOnDeathFn);
 	}
 
+	UFortWorldItemDefinition*& GetSwappingItemDefinition()
+	{
+		static auto SwappingItemDefinitionOffset = GetOffset("SwappingItemDefinition");
+		return Get<UFortWorldItemDefinition*>(SwappingItemDefinitionOffset);
+	}
+
 	class UAthenaResurrectionComponent*& GetResurrectionComponent()
 	{
 		static auto ResurrectionComponentOffset = GetOffset("ResurrectionComponent");

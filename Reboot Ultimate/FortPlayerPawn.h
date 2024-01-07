@@ -49,13 +49,27 @@ public:
 		return params.ReturnValue;
 	}
 
+	uint8 GetVehicleSeatIndex()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerPawn.GetVehicleSeatIndex");
+
+		struct
+		{
+			uint8                              ReturnValue;
+		}params;
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
+	}
+
 	struct FFortAthenaLoadout* GetCosmeticLoadout();
 	void ServerChoosePart(EFortCustomPartType Part, class UObject* ChosenCharacterPart);
 	void ForceLaunchPlayerZipline(); // Thanks android
 	AActor* ServerOnExitVehicle(ETryExitVehicleBehavior ExitForceBehavior); // actually returns AFortAthenaVehicle
 
-	AFortAthenaVehicle* GetVehicle();
-	UFortWeaponItemDefinition* GetVehicleWeaponDefinition(AFortAthenaVehicle* Vehicle);
+	class AFortAthenaVehicle* GetVehicle();
+	UFortWeaponItemDefinition* GetVehicleWeaponDefinition(class AFortAthenaVehicle* Vehicle);
 	void UnEquipVehicleWeaponDefinition(UFortWeaponItemDefinition* VehicleWeaponDefinition);
 	
 	static void ServerReviveFromDBNOHook(AFortPlayerPawn* Pawn, AController* EventInstigator);
