@@ -1838,51 +1838,20 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		}
 		else if (Command == "settimeofday")
 		{
-			static auto SetTimeOfDayInHoursFn = FindObject<UFunction>("/Script/FortniteGame.FortTimeOfDayManager.SetTimeOfDayInHours");
+			static auto SetTimeOfDayFn = FindObject<UFunction>("/Script/FortniteGame.FortKismetLibrary.SetTimeOfDay");
 
-			float NewTimeOfDayInHours = 0.f;
+			float NewTimeOfDay = 0.f;
 
-			try { NewTimeOfDayInHours = std::stoi(Arguments[1]); }
+			try { NewTimeOfDay = std::stoi(Arguments[1]); }
 			catch (...) {}
-
-			if (NewTimeOfDayInHours > 24)
-			{
-				SendMessageToConsole(PlayerController, L"Time of day can't be over 24!");
-				return;
-			}
-
-			static auto DefaultFortTimeOfDayManager = FindObject("/Script/FortniteGame.Default__FortTimeOfDayManager");
 
 			struct
 			{
-				float                              TimeOfDayInHours;
-			}FortTimeOfDayManager_SetTimeOfDayInHours_params{ NewTimeOfDayInHours };
+				UObject* WorldContextObject;
+				float                              TimeOfDay;
+			}params{ GetWorld() , NewTimeOfDay };
 
-			DefaultFortTimeOfDayManager->ProcessEvent(SetTimeOfDayInHoursFn, &FortTimeOfDayManager_SetTimeOfDayInHours_params);
-		}
-		else if (Command == "settimeofdayother")
-		{
-			static auto SetTimeOfDayInHoursFn = FindObject<UFunction>("/Script/FortniteGame.FortTimeOfDayManager.SetTimeOfDayInHours");
-
-			float NewTimeOfDayInHours = 0.f;
-
-			try { NewTimeOfDayInHours = std::stoi(Arguments[1]); }
-			catch (...) {}
-
-			if (NewTimeOfDayInHours > 24)
-			{
-				SendMessageToConsole(PlayerController, L"Time of day can't be over 24!");
-				return;
-			}
-
-			static auto FortTimeOfDayManagerStaticClass = FindObject<UClass>("/Script/FortniteGame.FortTimeOfDayManager");
-
-			struct
-			{
-				float                              TimeOfDayInHours;
-			}FortTimeOfDayManager_SetTimeOfDayInHours_params{ NewTimeOfDayInHours };
-
-			FortTimeOfDayManagerStaticClass->ProcessEvent(SetTimeOfDayInHoursFn, &FortTimeOfDayManager_SetTimeOfDayInHours_params);
+			UFortKismetLibrary::StaticClass()->ProcessEvent(SetTimeOfDayFn, &params);
 		}
 		else if (Command == "spawnbotsatplayerstarts")
 		{
@@ -2130,7 +2099,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Cleared!\n");
 		}
-		else if (Command == "destroytarget")
+		else if (Command == "destroytarget" || Command == "destroy")
 		{
 			auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
 
@@ -2204,7 +2173,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Healed all players shield!\n");
 		}
-		else if (Command == "giveall" || Command == "giveallammo" || Command == "giveammoall")
+		else if (Command == "giveall" || Command == "giveallammo" || Command == "giveammoall" || Command == "grantall")
 		{
 			static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
 			auto WorldNetDriver = GetWorld()->Get<UNetDriver*>(World_NetDriverOffset);
@@ -2351,6 +2320,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 cheat giveitem <ShortWID> <Count=1> - Gives a weapon to the executing player, if inventory is full drops a pickup on the player.
 cheat grant <name_rarity> (ex: rocket_sr) - Gives a weapon using a shortcut name, without ID.
 cheat summon <BlueprintClassPathName> <Count=1> - Summons the specified blueprint class at the executing player's location. Note: There is a limit on the count.
+cheat spawn <ShortBP> (ex: klombo) <Count=1> - Spawns a BP actor on player using a shorter name.
 cheat bugitgo <X> <Y> <Z> - Teleport to a location.
 cheat launch/fling <X> <Y> <Z> - Launches a player.
 cheat fly - Toggles creative flying.
@@ -2366,7 +2336,6 @@ cheat spawnpickup <ShortWID> <ItemCount=1> <PickupCount=1> - Spawns a pickup at 
 cheat tp - Teleports to what the player is looking at.
 cheat bot <Amount=1> - Spawns a bot at the player (experimental).
 cheat pickaxe <PickaxeID> - Set player's pickaxe. Can be either the PID or WID
-cheat destroytarget - Destroys the actor that the player is looking at.
 cheat wipe/clear <Primary|Secondary> - Removes the specified quickbar (parameters is not case sensitive).
 cheat wipeall/clearall - Removes the player's entire inventory.
 cheat suicide - Insta-kills player.
@@ -2376,6 +2345,7 @@ cheat godall - Gods all players.
 cheat giveall - Gives all players Ammo, Materials, and Traps maxed out.
 cheat getlocation - Gives you the current XYZ cords of where you are standing and copies them to your clipboard (useful for bugitgo)
 cheat togglesnowmap - Toggles the map to have snow or not. (7.10, 7.30, 11.31, 15.10, 19.01, & 19.10 ONLY)
+cheat destroy - Destroys the actor that the player is looking at.
 cheat destroyall <ClassPathName> - Destroys every actor of a given class. Useful for removing all floorloot for example.
 cheat changesize <Size=1.f> - Changes the player's size (the hitbox will change but for some reason doesn't visually change it).
 cheat damagetarget <Damage=0.f> - Damages the Actor in front of you by the specified amount.
