@@ -1407,7 +1407,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				SendMessageToConsole(PlayerController, std::wstring(L"God set to " + std::to_wstring(!(bool)Pawn->CanBeDamaged())).c_str());
 			}
 		}
-		else if (Command == "changesize")
+		else if (Command == "changesize") // This works but doesn't visually update on the client (If done fully on the client with Rift or Cranium (No gameserver) it fully works)
 		{
 			if (NumArgs < 1)
 			{
@@ -1705,6 +1705,8 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				ActorName = "/Game/Athena/Environments/Blueprints/DUDEBRO/BGA_HVAC.BGA_HVAC_C";
 			else if (ActorName == "geyser")
 				ActorName = "/Game/Athena/Environments/Blueprints/DudeBro/BGA_DudeBro_Mini.BGA_DudeBro_Mini_C";
+			else if (ActorName == "nobuildzone")
+				ActorName = "/Game/Athena/Prototype/Blueprints/Galileo/BP_Galileo_NoBuildZone.BP_Galileo_NoBuildZone_C";
 
 			static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
 			static auto ClassClass = FindObject<UClass>(L"/Script/CoreUObject.Class");

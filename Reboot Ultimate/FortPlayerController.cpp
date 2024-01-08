@@ -743,6 +743,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 		PlayerController->ProgressQuest(PlayerController, QuestsRequiredOnProfile[0], Primary_BackendName);
 	}
+	/*
 	else if (ReceivingActor->GetFullName().contains("QuestInteractable"))
 	{
 		LOG_INFO(LogGame, "Old quest so bad code wjasfhuaeguj");
@@ -766,6 +767,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 		QuestComp->OnCalendarUpdated();
 	}
+	*/
 	else if (ReceivingActor->IsA(BP_Athena_PropQuestActor_ParentClass))
 	{
 		LOG_INFO(LogGame, "Quest!");

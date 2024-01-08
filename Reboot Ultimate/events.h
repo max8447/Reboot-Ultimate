@@ -211,6 +211,74 @@ static inline std::vector<Event> Events =
 	),
 	Event
 	(
+		"Star Wars", 
+		"/Game/Athena/Prototype/Blueprints/Galileo/BP_Galileo_Loader.BP_Galileo_Loader_C",
+		"",
+		1,
+		{ 
+			{ 
+				false,
+				"/Game/Athena/Prototype/Blueprints/Galileo/BP_Galileo_Script.BP_Galileo_Script_C.OnReady_D4C2E18B4F24976E90BA3C9E3D887A07" 
+			},
+			{
+				false,
+				"/Game/Athena/Prototype/Blueprints/Galileo/BP_Galileo_Script.BP_Galileo_Script_C.OnReady_234EA81140DFA3305CBE47A6A4D96714" 
+			},
+			{
+				false,
+				"/Game/Athena/Prototype/Blueprints/Galileo/BP_Galileo_Script.BP_Galileo_Script_C.OnReady_32DFBAAF47885A343BD19686EA225F63"
+			},
+			{
+				false,
+				"/Game/Athena/Prototype/Blueprints/Galileo/BP_Galileo_Script.BP_Galileo_Script_C.OnReady_478335584926B225595C1DA6DC16A72D"
+			}
+		},
+		{ 
+			{ 
+				{
+					false,
+					"/Game/Athena/Prototype/Blueprints/Galileo/BP_Galileo_Script.BP_Galileo_Script_C.StartEvent"
+				},
+
+				0
+			}
+		},
+
+		"/Game/Athena/Prototype/Blueprints/Galileo/BP_Galileo_Script.BP_Galileo_Script_C",
+		"/Game/Athena/Playlists/Music/Playlist_Music_High.Playlist_Music_High",
+		11.30,
+		false
+	),
+	Event
+	(
+		"Zero Crisis", 
+		"",
+		"",
+		1,
+		{ 
+			{ 
+				false,
+				"/Yogurt/Content/Blueprints/BP_Yogurt_Scripting.BP_Yogurt_Scripting_C.OnReady_F6E6B09F4E6AA115465FAABCD4B97504" 
+			},
+		},
+		{ 
+			{ 
+				{
+					false,
+					"/Yogurt/Content/Blueprints/BP_Yogurt_Scripting.BP_Yogurt_Scripting_C.StartEvent"
+				},
+
+				0
+			}
+		},
+
+		"/Yogurt/Content/Blueprints/BP_Yogurt_Scripting.BP_Yogurt_Scripting_C",
+		"/Yogurt/Playlist/Playlist_Yogurt.Playlist_Yogurt",
+		16.00 || 16.10 || 16.20 || 16.30 || 16.40 || 16.50,
+		true
+	),
+	Event
+	(
 		"Astronomical", 
 		"/CycloneJerky/Gameplay/BP_Jerky_Loader.BP_Jerky_Loader_C",
 		// "/CycloneJerky/Gameplay/BP_Jerky_Loader.BP_Jerky_Loader_C.LoadJerkyLevel", 

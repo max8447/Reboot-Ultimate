@@ -91,9 +91,9 @@ public:
 		}
 		else
 		{
-			static int CurrentBotNum = 1;
+			static int CurrentBotNum = 200;
 			auto BotNumWStr = std::to_wstring(CurrentBotNum++);
-			NewName = (L"Bot " + BotNumWStr).c_str();
+			NewName = (L"Anonymous[{}]", BotNumWStr).c_str();
 		}
 
 		if (auto PlayerController = Cast<APlayerController>(Controller))
@@ -139,10 +139,10 @@ public:
 
 		Controller->Possess(Pawn);
 
-		Pawn->SetHealth(20);
-		Pawn->SetMaxHealth(20);
-		Pawn->SetShield(20);
-		Pawn->SetMaxShield(20);
+		bUsePhoebeClasses ? Pawn->SetHealth(100) : Pawn->SetHealth(20);
+		Pawn->SetMaxHealth(100);
+		bUsePhoebeClasses ? Pawn->SetShield(100) : Pawn->SetShield(20);
+		Pawn->SetMaxShield(100);
 
 		AFortInventory** Inventory = nullptr;
 
@@ -225,56 +225,59 @@ public:
 			PlayerAbilitySet->GiveToAbilitySystem(AbilitySystemComponent);
 		}
 
-		PlayerController->GetCosmeticLoadout()->GetCharacter() = FindObject("/Game/Athena/Items/Cosmetics/Characters/CID_263_Athena_Commando_F_MadCommander.CID_263_Athena_Commando_F_MadCommander");
-		Pawn->GetCosmeticLoadout()->GetCharacter() = PlayerController->GetCosmeticLoadout()->GetCharacter();
-
-		PlayerController->ApplyCosmeticLoadout();
-
-		auto AllHeroTypes = GetAllObjectsOfClass(FindObject<UClass>(L"/Script/FortniteGame.FortHeroType"));
-		std::vector<UFortItemDefinition*> AthenaHeroTypes;
-
-		UFortItemDefinition* HeroType = FindObject<UFortItemDefinition>(L"/Game/Athena/Heroes/HID_030_Athena_Commando_M_Halloween.HID_030_Athena_Commando_M_Halloween");
-
-		for (int i = 0; i < AllHeroTypes.size(); ++i)
+		if (!bUsePhoebeClasses)
 		{
-			auto CurrentHeroType = (UFortItemDefinition*)AllHeroTypes.at(i);
+			PlayerController->GetCosmeticLoadout()->GetCharacter() = FindObject("/Game/Athena/Items/Cosmetics/Characters/CID_263_Athena_Commando_F_MadCommander.CID_263_Athena_Commando_F_MadCommander");
+			Pawn->GetCosmeticLoadout()->GetCharacter() = PlayerController->GetCosmeticLoadout()->GetCharacter();
 
-			if (CurrentHeroType->GetPathName().starts_with("/Game/Athena/Heroes/"))
-				AthenaHeroTypes.push_back(CurrentHeroType);
+			PlayerController->ApplyCosmeticLoadout();
+
+			auto AllHeroTypes = GetAllObjectsOfClass(FindObject<UClass>(L"/Script/FortniteGame.FortHeroType"));
+			std::vector<UFortItemDefinition*> AthenaHeroTypes;
+
+			UFortItemDefinition* HeroType = FindObject<UFortItemDefinition>(L"/Game/Athena/Heroes/HID_030_Athena_Commando_M_Halloween.HID_030_Athena_Commando_M_Halloween");
+
+			for (int i = 0; i < AllHeroTypes.size(); ++i)
+			{
+				auto CurrentHeroType = (UFortItemDefinition*)AllHeroTypes.at(i);
+
+				if (CurrentHeroType->GetPathName().starts_with("/Game/Athena/Heroes/"))
+					AthenaHeroTypes.push_back(CurrentHeroType);
+			}
+
+			if (AthenaHeroTypes.size())
+			{
+				HeroType = AthenaHeroTypes.at(std::rand() % AthenaHeroTypes.size());
+			}
+
+			static auto HeroTypeOffset = PlayerState->GetOffset("HeroType");
+
+			if (HeroTypeOffset != -1)
+				PlayerState->Get(HeroTypeOffset) = HeroType;
+
+			static auto OwningGameInstanceOffset = GetWorld()->GetOffset("OwningGameInstance");
+			auto OwningGameInstance = GetWorld()->Get(OwningGameInstanceOffset);
+
+			static auto RegisteredPlayersOffset = OwningGameInstance->GetOffset("RegisteredPlayers");
+			auto& RegisteredPlayers = OwningGameInstance->Get<TArray<UObject*>>(RegisteredPlayersOffset);
+
+			static auto FortRegisteredPlayerInfoClass = FindObject<UClass>("/Script/FortniteGame.FortRegisteredPlayerInfo");
+
+			auto NewPlayerInfo = UGameplayStatics::SpawnObject(FortRegisteredPlayerInfoClass, Controller);
+			static auto PlayerIDOffset = NewPlayerInfo->GetOffset("PlayerID");
+
+			static auto UniqueIdOffset = PlayerState->GetOffset("UniqueId");
+			auto PlayerStateUniqueId = PlayerState->GetPtr<FUniqueNetIdRepl>(UniqueIdOffset);
+
+			NewPlayerInfo->GetPtr<FUniqueNetIdRepl>(PlayerIDOffset)->CopyFromAnotherUniqueId(PlayerStateUniqueId);
+
+			static auto MyPlayerInfoOffset = Controller->GetOffset("MyPlayerInfo");
+			Controller->Get(MyPlayerInfoOffset) = NewPlayerInfo;
+
+			RegisteredPlayers.Add(NewPlayerInfo);
+
+			ApplyHID(Pawn, HeroType, true);
 		}
-
-		if (AthenaHeroTypes.size())
-		{
-			HeroType = AthenaHeroTypes.at(std::rand() % AthenaHeroTypes.size());
-		}
-
-		static auto HeroTypeOffset = PlayerState->GetOffset("HeroType");
-
-		if (HeroTypeOffset != -1)
-			PlayerState->Get(HeroTypeOffset) = HeroType;
-
-		static auto OwningGameInstanceOffset = GetWorld()->GetOffset("OwningGameInstance");
-		auto OwningGameInstance = GetWorld()->Get(OwningGameInstanceOffset);
-
-		static auto RegisteredPlayersOffset = OwningGameInstance->GetOffset("RegisteredPlayers");
-		auto& RegisteredPlayers = OwningGameInstance->Get<TArray<UObject*>>(RegisteredPlayersOffset);
-
-		static auto FortRegisteredPlayerInfoClass = FindObject<UClass>("/Script/FortniteGame.FortRegisteredPlayerInfo");
-
-		auto NewPlayerInfo = UGameplayStatics::SpawnObject(FortRegisteredPlayerInfoClass, Controller);
-		static auto PlayerIDOffset = NewPlayerInfo->GetOffset("PlayerID");
-
-		static auto UniqueIdOffset = PlayerState->GetOffset("UniqueId");
-		auto PlayerStateUniqueId = PlayerState->GetPtr<FUniqueNetIdRepl>(UniqueIdOffset);
-
-		NewPlayerInfo->GetPtr<FUniqueNetIdRepl>(PlayerIDOffset)->CopyFromAnotherUniqueId(PlayerStateUniqueId);
-
-		static auto MyPlayerInfoOffset = Controller->GetOffset("MyPlayerInfo");
-		Controller->Get(MyPlayerInfoOffset) = NewPlayerInfo;
-
-		RegisteredPlayers.Add(NewPlayerInfo);
-
-		ApplyHID(Pawn, HeroType, true);
 
 		GameState->GetPlayersLeft()++;
 		GameState->OnRep_PlayersLeft();

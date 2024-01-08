@@ -64,6 +64,45 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 				BuildingContainer->SpawnLoot();
 			}
 		}
+
+		/*
+
+		static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
+		auto WorldNetDriver = GetWorld()->Get<UNetDriver*>(World_NetDriverOffset);
+		auto& ClientConnections = WorldNetDriver->GetClientConnections();
+
+		for (int z = 0; z < ClientConnections.Num(); z++)
+		{
+			auto ClientConnection = ClientConnections.at(0);
+			auto PlayerController = Cast<AFortPlayerController>(ClientConnection->GetPlayerController());
+
+			auto ReplicatedEntries = PlayerController->GetWorldInventory()->GetItemList().GetReplicatedEntries();
+
+			for (int i = 0; i < ReplicatedEntries.Num(); i++)
+			{
+				auto Entry = ReplicatedEntries.at(0);
+				auto FortWorldItemDefinition = Cast<UFortWorldItemDefinition>(Entry.GetItemDefinition());
+
+				auto PickaxeInstance = PlayerController->GetWorldInventory()->GetPickaxeInstance();
+
+				static auto ReloadAbilityOffset = FindOffsetStruct("/Script/FortniteGame.FortWeaponItemDefinition", "ReloadAbility");
+				auto ReloadAbility = FortWorldItemDefinition->Get<FSoftObjectPtr>(ReloadAbilityOffset);
+
+				auto AssetPathName = ReloadAbility.ObjectID.AssetPathName;
+
+				if (AssetPathName == UKismetStringLibrary::Conv_StringToName(L"None") && Cast<UFortItem>(Entry.GetItemDefinition()) != PickaxeInstance)
+				{
+					if (Entry.GetLoadedAmmo() == 0)
+					{
+						LOG_INFO(LogGame, "Removing Empty Unreloadable Weapon.");
+
+						PlayerController->GetWorldInventory()->RemoveItem(Entry.GetItemGuid(), nullptr, Entry.GetCount());
+					}
+				}
+			}
+		}
+
+		*/
 	}
 
 	if (ActorsToSpawn.size() > 0)

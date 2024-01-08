@@ -132,25 +132,9 @@ namespace Calendar
 		}
 	}
 
-	static inline void SetWaterStorm()
-	{
-		static auto ApplyStormFX = FindObject<UFunction>("/Fritter/Content/BP_Fritter_Experience.BP_Fritter_Experience_C.ApplyStormFX");
-
-		LOG_INFO(LogDev, "ApplyStormFX: {}", ApplyStormFX->IsValidLowLevel() ? ApplyStormFX->GetFullName() : "BadRead");
-
-		static auto Fritter_Experience = FindObject<UObject>("/Fritter/Content/BP_Fritter_Experience.BP_Fritter_Experience_C");
-
-		LOG_INFO(LogDev, "Fritter_Experience: {}", Fritter_Experience->IsValidLowLevel() ? Fritter_Experience->GetFullName() : "BadRead");
-
-		if (ApplyStormFX)
-		{
-			Fritter_Experience->ProcessEvent(ApplyStormFX);
-		}
-	}
-
 	static inline bool HasNYE()
 	{
-		return Fortnite_Version == 7.10 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.01;
+		return Fortnite_Version == 7.10 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.00 || Fortnite_Version == 19.01;
 	}
 
 	static inline void StartNYE()

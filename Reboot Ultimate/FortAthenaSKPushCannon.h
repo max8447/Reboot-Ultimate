@@ -70,7 +70,7 @@ public:
 				FVector											   LaunchVelocity;                                           // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 				bool                                               bXYOverride;                                              // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 				bool                                               bZOverride;                                               // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-			} ACharacter_LaunchCharacter_Params{ FVector(LaunchDir.X * 6000, LaunchDir.Y * 5000, LaunchDir.Z * 7500), false, false };
+			} ACharacter_LaunchCharacter_Params{ FVector(LaunchDir.X * 6000 * *CannonXMultiplier, LaunchDir.Y * 5000 * *CannonYMultiplier, LaunchDir.Z * 7500 * *CannonZMultiplier), false, false };
 			Cast<AFortPawn>(PawnToShoot)->ProcessEvent(LaunchCharacterFn, &ACharacter_LaunchCharacter_Params);
 		}
 
