@@ -140,9 +140,9 @@ public:
 		Controller->Possess(Pawn);
 
 		bUsePhoebeClasses ? Pawn->SetHealth(100) : Pawn->SetHealth(20);
-		Pawn->SetMaxHealth(100);
+		Pawn->SetMaxHealth(21;
 		bUsePhoebeClasses ? Pawn->SetShield(100) : Pawn->SetShield(20);
-		Pawn->SetMaxShield(100);
+		Pawn->SetMaxShield(21);
 
 		AFortInventory** Inventory = nullptr;
 
