@@ -27,6 +27,9 @@ public:
 	int TotalPlayersEncountered;
 	std::vector<BotPOI> POIsTraveled;
 	float NextJumpTime = 1.0f;
+	AActor* Target = nullptr;
+	bool Running = false;
+	AActor* MoveToTarget = nullptr;
 
 	void OnPlayerEncountered()
 	{
@@ -285,6 +288,66 @@ public:
 		if (auto FortPlayerControllerAthena = Cast<AFortPlayerControllerAthena>(Controller))
 			GameMode->GetAlivePlayers().Add(FortPlayerControllerAthena);
 	}
+
+	AFortPlayerPawnAthena* FindNearestPlayer()
+	{
+		auto GameMode = (AFortGameModeAthena*)GetWorld()->GetGameMode();
+
+		AActor* NearestPoi = nullptr;
+
+		for (size_t i = 0; i < GameMode->GetAlivePlayers().Num(); i++)
+		{
+			if (!NearestPoi || (GameMode->GetAlivePlayers()[i]->GetPawn() && GameMode->GetAlivePlayers()[i]->GetPawn()->GetDistanceTo(PlayerController->GetPawn()) < NearestPoi->GetDistanceTo(PlayerController->GetPawn())))
+			{
+				NearestPoi = GameMode->GetAlivePlayers()[i]->GetPawn();
+			}
+		}
+
+		return (AFortPlayerPawnAthena*)NearestPoi;
+	}
+
+	void Run()
+	{
+		if (!Running)
+		{
+			Running = true;
+			for (size_t i = 0; i < Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems().Num(); i++)
+			{
+				if (Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetAbility()->IsA(FindObject<UClass>("/Script/FortniteGame.FortGameplayAbility_Sprint")))
+				{
+					FGameplayEventData* GameplayEventData;
+
+					Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->InternalServerTryActivateAbilityHook(Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent(), Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetHandle(), Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetInputPressed(), Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetActivationInfo()->GetPredictionKeyWhenActivated(), GameplayEventData);
+					break;
+				}
+			}
+		}
+	}
+
+	void MoveTo(AActor* Loc, float Radius = 0)
+	{
+		if (MoveToTarget == Loc)
+			return;
+
+		MoveToTarget = Loc;
+
+		static auto fn = FindObject<UFunction>("/Script/AIModule.AIController.MoveToActor");
+
+		struct
+		{
+			AActor* Goal;
+			float                              AcceptanceRadius;
+			bool                               bStopOnOverlap;
+			bool                               bUsePathfinding;
+			bool                               bCanStrafe;
+			TSubclassOf<UObject>			   FilterClass;
+			bool                               bAllowPartialPath;
+		}params{ Loc , 0 , true , false , true , nullptr , true };
+
+		Controller->ProcessEvent(fn, &params);
+
+		Run();
+	}
 };
 
 static inline std::vector<PlayerBot> AllPlayerBotsToTick;
@@ -364,7 +427,7 @@ namespace Bots
 
 					CurrentPlayer->ServerPlayEmoteItemHook(CurrentPlayer, RandomDanceID);
 				} */
-			}	
+			}
 
 			if (CurrentPlayerState->IsInAircraft() && !CurrentPlayerState->HasThankedBusDriver())
 			{
@@ -388,6 +451,13 @@ namespace Bots
 			if (bShouldJumpFromBus)
 			{
 				CurrentController->ServerAttemptAircraftJumpHook(CurrentController, FRotator());
+			}
+
+			PlayerBot.Target = PlayerBot.FindNearestPlayer();
+
+			if (PlayerBot.Target && PlayerBot.PlayerController->GetPawn()->GetDistanceTo(PlayerBot.Target) < 4000)
+			{
+
 			}
 		}
 

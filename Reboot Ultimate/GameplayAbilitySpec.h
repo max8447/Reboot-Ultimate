@@ -23,17 +23,6 @@ struct FGameplayAbilitySpecHandle
 	} */
 };
 
-struct FGameplayAbilityActivationInfo // TODO Move
-{
-	static UStruct* GetStruct()
-	{
-		static auto Struct = FindObject<UStruct>("/Script/GameplayAbilities.GameplayAbilityActivationInfo");
-		return Struct;
-	}
-
-	static int GetStructSize() { return GetStruct()->GetPropertiesSize(); }
-};
-
 struct FGameplayAbilitySpec : FFastArraySerializerItem
 {
 	static int GetStructSize()
@@ -57,10 +46,16 @@ struct FGameplayAbilitySpec : FFastArraySerializerItem
 		return *(FGameplayAbilitySpecHandle*)(__int64(this) + HandleOffset);
 	}
 
-	FGameplayAbilityActivationInfo* GetActivationInfo()
+	uint8 GetInputPressed()
+	{
+		static auto InputPressedOffset = FindOffsetStruct("/Script/GameplayAbilities.GameplayAbilitySpec", "InputPressed");
+		return *(uint8*)(__int64(this) + InputPressedOffset);
+	}
+
+	struct FGameplayAbilityActivationInfo* GetActivationInfo()
 	{
 		static auto ActivationInfoOffset = FindOffsetStruct("/Script/GameplayAbilities.GameplayAbilitySpec", "ActivationInfo");
-		return (FGameplayAbilityActivationInfo*)(__int64(this) + ActivationInfoOffset);
+		return (struct FGameplayAbilityActivationInfo*)(__int64(this) + ActivationInfoOffset);
 	}
 };
 

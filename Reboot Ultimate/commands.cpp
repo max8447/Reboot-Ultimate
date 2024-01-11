@@ -1261,6 +1261,20 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		{
 			Globals::bLogProcessEvent = !Globals::bLogProcessEvent;
 		}
+		else if (Command == "givege")
+		{
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(PlayerController, L"Please provide a valid GameplayEffect!");
+			}
+
+			auto GameplayEffectToGive = FindObject<UClass>(Arguments[1]);
+
+			auto PlayerState = Cast<AFortPlayerStateAthena>(ReceivingController->GetPlayerState());
+			auto AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
+
+			AbilitySystemComponent->GiveAbilityEasy(GameplayEffectToGive);
+		}
 		else if (Command == "givexptest")
 		{
 			static auto KillScoreOffset = ReceivingPlayerState->GetOffset("KillScore");
@@ -1282,7 +1296,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			FString d = std::to_wstring(ChallengeXP).c_str();
 			FString e = std::to_wstring(MatchXP).c_str();
 
-			SendMessageToConsole(ReceivingController, (L"Gave XP: {}, {}, {}, {}, {}", a, b, c, d, e));
+			SendMessageToConsole(PlayerController, (L"Gave XP: {}, {}, {}, {}, {}", a, b, c, d, e));
 		}
 		else if (Command == "startaircraft")
 		{
@@ -2351,7 +2365,7 @@ cheat changesize <Size=1.f> - Changes the player's size (the hitbox will change 
 cheat damagetarget <Damage=0.f> - Damages the Actor in front of you by the specified amount.
 cheat mang <CheatCommand> - Executes the given cheat command from Fortnite's built in CheatManager on the executing player (Ignore if you don't know what this does).
 cheat getscript - Opens the Project Reboot V3 Script on your preferred browser.
-cheat tutorial - Opens the Project Reboot V3 Tutorial (made by Ralzify).
+cheat tutorial - Opens the Project Reboot V3 Tutorial.
 cheat killserver - Ends the running task of the hosting window.
 cheat startaircraft - Starts the bus.
 cheat settimeofday <1-23> - Changes the time of day in game to a 24H time period.

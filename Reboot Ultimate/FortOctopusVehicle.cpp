@@ -4,6 +4,8 @@
 
 void AFortOctopusVehicle::ServerUpdateTowhookHook(AFortOctopusVehicle* OctopusVehicle, FVector InNetTowhookAimDir)
 {
+	LOG_INFO(LogHook, __FUNCTION__);
+
 	static auto NetTowhookAimDirOffset = OctopusVehicle->GetOffset("NetTowhookAimDir");
 	OctopusVehicle->Get<FVector>(NetTowhookAimDirOffset) = InNetTowhookAimDir;
 

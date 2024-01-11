@@ -253,8 +253,6 @@ void AFortPlayerController::ServerLoadingScreenDroppedHook(UObject* Context, FFr
 
 		WorldInventory->AddItem(Mutator->GetWeaponEntries()[0].GetWeapon(), &bShouldUpdate, 1, ((UFortWeaponItemDefinition*)Mutator->GetWeaponEntries()[0].GetWeapon())->GetClipSize());
 		WorldInventory->Update();
-
-		LOG_INFO(LogDev, "ItemsToFullyLoad.Num(): {}", Mutator->GetWeaponEntries().Num());
 	}
 
 	if (Globals::bTeamRumble)
@@ -1823,6 +1821,8 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 					RemoveFromAlivePlayers(GameMode, PlayerController, KillerPlayerState == DeadPlayerState ? nullptr : KillerPlayerState, KillerPawn, KillerWeaponDef, DeathCause, 0);
 
+					/*
+
 					static auto TeamsOffset = GameState->GetOffset("Teams");
 					auto& Teams = GameState->Get<TArray<UObject*>>(TeamsOffset);
 
@@ -1832,6 +1832,8 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 						GameMode->EndMatch(); // Slomo fix (scuffed)
 					}
+
+					*/
 
 					/*
 

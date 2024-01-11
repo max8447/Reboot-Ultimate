@@ -142,7 +142,7 @@ APawn* AGameModeBase::SpawnDefaultPawnForHook(AGameModeBase* GameMode, AControll
 
 	auto PlayerAbilitySet = GetPlayerAbilitySet(); // Apply default gameplay effects // We need to move maybe?
 
-	if (PlayerAbilitySet && ASC)
+	if (PlayerAbilitySet && ASC && !PlayerStateAthena->IsBot())
 	{
 		PlayerAbilitySet->ApplyGrantedGameplayEffectsToAbilitySystem(ASC);
 	}

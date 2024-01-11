@@ -1198,6 +1198,21 @@ static inline void MainUI()
 				StartEvent();
 			}
 
+			if (Fortnite_Version == 12.41 && false) // crashes idfk will do later
+			{
+				if (ImGui::Button("Change Travis Scott's skin"))
+				{
+					static auto Jerky_Gameplay_Mannequin = FindObject<AFortPlayerMannequin>("/CycloneJerky/Content/Jerky_Gameplay.BP_Jerky_Mannequin_Part1_Child_0");
+					static auto OverrideVariants = Jerky_Gameplay_Mannequin->GetOverrideVariants();
+
+					for (int i = 0; i < OverrideVariants.Num(); i++)
+					{
+						auto OverrideVariant = OverrideVariants.at(i);
+						OverrideVariant.ItemVariantIsUsedFor = FindObject<UFortItemDefinition>("/Game/Athena/Items/Cosmetics/Characters/CID_363_Athena_Commando_M_SciOps.CID_363_Athena_Commando_M_SciOps");
+					}
+				}
+			}
+
 			if (Fortnite_Version == 8.51)
 			{
 				if (ImGui::Button("Unvault DrumGun"))
@@ -1852,6 +1867,12 @@ static inline void MainUI()
 							static auto ClientReturnToMainMenu = FindObject<UFunction>("/Script/Engine.PlayerController.ClientReturnToMainMenu");
 							CurrentController->ProcessEvent(ClientReturnToMainMenu, &Reason);
 						}
+
+						if (ImGui::Button("Kill"))
+						{
+							static auto ServerSuicideFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerController.ServerSuicide");
+							CurrentController->ProcessEvent(ServerSuicideFn);
+						}
 					}
 					else if (playerTabTab == INVENTORY_PLAYERTAB)
 					{
@@ -2055,7 +2076,7 @@ static inline void PregameUI()
 {
 	StaticUI();
 
-	if (Engine_Version >= 422 && Engine_Version < 424)
+	if (Engine_Version >= 422/* && Engine_Version < 424*/)
 	{
 		ImGui::Checkbox("Creative", &Globals::bCreative);
 	}

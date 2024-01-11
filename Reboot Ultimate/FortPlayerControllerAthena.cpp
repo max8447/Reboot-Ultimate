@@ -35,7 +35,7 @@ void AFortPlayerControllerAthena::GiveXP(AFortPlayerControllerAthena* PC, int Co
 
 void AFortPlayerControllerAthena::ProgressQuest(AFortPlayerControllerAthena* PC, UFortQuestItemDefinition* QuestDef, FName BackendName)
 {
-	if (Fortnite_Version < 19)
+	if (Fortnite_Version < 16)
 	{
 		PC->GetQuestManager(ESubGame::Athena)->SelfCompletedUpdatedQuest(PC, QuestDef, BackendName, 1, 1, nullptr, true, false);
 		AFortPlayerStateAthena* PlayerState = (AFortPlayerStateAthena*)PC->GetPlayerState();
@@ -48,6 +48,7 @@ void AFortPlayerControllerAthena::ProgressQuest(AFortPlayerControllerAthena* PC,
 			}
 		}
 	}
+
 	auto QuestItem = PC->GetQuestManager(ESubGame::Athena)->GetQuestWithDefinition(QuestDef);
 
 	FXPEventEntry XPEventEntry{};
@@ -65,7 +66,7 @@ void AFortPlayerControllerAthena::ProgressQuest(AFortPlayerControllerAthena* PC,
 	PC->GetXPComponent()->GetChallengeXp() += XPEventEntry.EventXpValue;
 	PC->GetXPComponent()->GetTotalXpEarned() += XPEventEntry.EventXpValue;
 	XPEventEntry.TotalXpEarnedInMatch = PC->GetXPComponent()->GetTotalXpEarned();
-	XPEventEntry.SimulatedXpEvent = UKismetTextLibrary::Conv_StringToText(L"Challenge Completed!"); // I cba
+	XPEventEntry.SimulatedXpEvent = UKismetTextLibrary::Conv_StringToText(L"Challenge Completed!");
 	PC->GetXPComponent()->GetRestXP() += XPEventEntry.EventXpValue;
 	PC->GetXPComponent()->GetInMatchProfileVer()++;
 	PC->GetXPComponent()->OnInMatchProfileUpdate(PC->GetXPComponent()->GetInMatchProfileVer());

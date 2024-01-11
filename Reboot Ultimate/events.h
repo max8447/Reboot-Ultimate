@@ -817,36 +817,71 @@ static inline void StartEvent()
 
 	CallOnReadys();
 
-	if (Fortnite_Version >= 17.30)
+	if (Fortnite_Version > 11)
 	{
-		static auto OnRep_RootStartTimeFn = FindObject<UFunction>("/Script/SpecialEventGameplayRuntime.SpecialEventScriptMeshActor.OnRep_RootStartTime");
-		static auto MeshRootStartEventFn = FindObject<UFunction>("/Script/SpecialEventGameplayRuntime.SpecialEventScriptMeshActor.MeshRootStartEvent");
-		auto SpecialEventScriptMeshActorClass = FindObject<UClass>("/Script/SpecialEventGameplayRuntime.SpecialEventScriptMeshActor");
-		auto AllSpecialEventScriptMeshActors = UGameplayStatics::GetAllActorsOfClass(GetWorld(), SpecialEventScriptMeshActorClass);
+		static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
+		auto WorldNetDriver = GetWorld()->Get<UNetDriver*>(World_NetDriverOffset);
+		auto& ClientConnections = WorldNetDriver->GetClientConnections();
 
-		if (AllSpecialEventScriptMeshActors.Num() > 0)
+		for (int i = 0; i < ClientConnections.Num(); i++)
 		{
-			auto SpecialEventScriptMeshActor = AllSpecialEventScriptMeshActors.at(0);
+			auto PlayerController = Cast<AFortPlayerController>(ClientConnections.at(i)->GetPlayerController());
 
-			if (SpecialEventScriptMeshActor)
+			if (!PlayerController)
+				LOG_WARN(LogEvent, "No PlayerController!");
+			break;
+
+			auto WorldInventory = PlayerController->GetWorldInventory();
+
+			if (!WorldInventory)
 			{
-				// if (false)
-				{
-					LOG_INFO(LogDev, "MeshRootStartEventFn!");
-					SpecialEventScriptMeshActor->ProcessEvent(MeshRootStartEventFn);
-					SpecialEventScriptMeshActor->ProcessEvent(OnRep_RootStartTimeFn);
+				LOG_WARN(LogEvent, "No WorldInventory!");
+				break;
+			}
 
-					return;
+			auto ReplicatesItemEntries = WorldInventory->GetItemList().GetReplicatedEntries();
+
+			for (int i = 0; i < ReplicatesItemEntries.Num(); i++)
+			{
+				auto Entry = ReplicatesItemEntries.at(0);
+
+				WorldInventory->RemoveItem(Entry.GetItemGuid(), nullptr, Entry.GetCount(), true);
+			}
+
+			WorldInventory->Update();
+		}
+
+		if (Fortnite_Version >= 17.30)
+		{
+			static auto OnRep_RootStartTimeFn = FindObject<UFunction>("/Script/SpecialEventGameplayRuntime.SpecialEventScriptMeshActor.OnRep_RootStartTime");
+			static auto MeshRootStartEventFn = FindObject<UFunction>("/Script/SpecialEventGameplayRuntime.SpecialEventScriptMeshActor.MeshRootStartEvent");
+			auto SpecialEventScriptMeshActorClass = FindObject<UClass>("/Script/SpecialEventGameplayRuntime.SpecialEventScriptMeshActor");
+			auto AllSpecialEventScriptMeshActors = UGameplayStatics::GetAllActorsOfClass(GetWorld(), SpecialEventScriptMeshActorClass);
+
+			if (AllSpecialEventScriptMeshActors.Num() > 0)
+			{
+				auto SpecialEventScriptMeshActor = AllSpecialEventScriptMeshActors.at(0);
+
+				if (SpecialEventScriptMeshActor)
+				{
+					// if (false)
+					{
+						LOG_INFO(LogDev, "MeshRootStartEventFn!");
+						SpecialEventScriptMeshActor->ProcessEvent(MeshRootStartEventFn);
+						SpecialEventScriptMeshActor->ProcessEvent(OnRep_RootStartTimeFn);
+
+						return;
+					}
+				}
+				else
+				{
+					LOG_ERROR(LogEvent, "Failed to find SpecialEventScriptMeshActor");
 				}
 			}
 			else
 			{
-				LOG_ERROR(LogEvent, "Failed to find SpecialEventScriptMeshActor");
+				LOG_ERROR(LogEvent, "AllSpecialEventScriptMeshActors.Num() == 0");
 			}
-		}
-		else
-		{
-			LOG_ERROR(LogEvent, "AllSpecialEventScriptMeshActors.Num() == 0");
 		}
 	}
 
@@ -877,43 +912,6 @@ static inline void StartEvent()
 				continue;
 
 			EventScripting->ProcessEvent(StartEventUFunc, &StartEventFunc.second);
-		}
-	}
-
-	if (Fortnite_Version > 11)
-	{
-		static auto AthenaPickaxeItemDefinitionClass = FindObject<UClass>(L"/Script/FortniteGame.AthenaPickaxeItemDefinition");
-		static auto HarvestDef = FindObject<UFortWeaponMeleeItemDefinition>("/EventMode/Content/Items/WID_EventMode_Activator.WID_EventMode_Activator");
-
-		static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
-		auto WorldNetDriver = GetWorld()->Get<UNetDriver*>(World_NetDriverOffset);
-		auto& ClientConnections = WorldNetDriver->GetClientConnections();
-
-		for (int i = 0; i < ClientConnections.Num(); i++)
-		{
-			auto PlayerController = Cast<AFortPlayerController>(ClientConnections.at(i)->GetPlayerController());
-
-			if (!PlayerController->IsValidLowLevel())
-				LOG_INFO(LogEvent, "Somebody doesn't have a playercontroller!");
-				break;
-
-			auto WorldInventory = PlayerController->GetWorldInventory();
-
-			if (!WorldInventory->IsValidLowLevel())
-			{
-				LOG_INFO(LogEvent, "No WorldInventory for {}", Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetPlayerName().ToString());
-				break;
-			}
-
-			auto PickaxeInstance = WorldInventory->GetPickaxeInstance();
-
-			if (PickaxeInstance)
-			{
-				WorldInventory->RemoveItem(PickaxeInstance->GetItemEntry()->GetItemGuid(), nullptr, PickaxeInstance->GetItemEntry()->GetCount(), true);
-			}
-
-			WorldInventory->AddItem(HarvestDef, nullptr, 1);
-			WorldInventory->Update();
 		}
 	}
 }

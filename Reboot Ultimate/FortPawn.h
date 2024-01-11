@@ -5,6 +5,7 @@
 #include "FortDecoItemDefinition.h"
 #include "AttributeSet.h"
 #include "ActorComponent.h"
+#include "GameplayTagContainer.h"
 
 class UFortHealthSet : public UAttributeSet //public UFortAttributeSet
 {
@@ -39,6 +40,31 @@ public:
 	{
 		static auto CharacterMovementOffset = FindOffsetStruct("/Script/Engine.Character", "CharacterMovement");
 		return *(UCharacterMovementComponent**)(__int64(this) + CharacterMovementOffset);
+	}
+};
+
+struct FCosmeticVariantInfo
+{
+public:
+	FGameplayTag                          VariantChannelTag;                                 // 0x0(0x8)(Edit, BlueprintVisible, BlueprintReadOnly, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	FGameplayTag                          ActiveVariantTag;                                  // 0x8(0x8)(Edit, BlueprintVisible, BlueprintReadOnly, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+};
+
+struct FMcpVariantChannelInfo : public FCosmeticVariantInfo
+{
+public:
+	FGameplayTagContainer                 OwnedVariantTags;                                  // 0x10(0x20)(Edit, BlueprintVisible, BlueprintReadOnly, NativeAccessSpecifierPublic)
+	UFortItemDefinition*					 ItemVariantIsUsedFor;                              // 0x30(0x8)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	FString                                CustomData;                                        // 0x38(0x10)(Edit, BlueprintVisible, BlueprintReadOnly, ZeroConstructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+};
+
+class AFortPlayerMannequin : public AActor // ASkeletalMeshActor
+{
+public:
+	TArray<FMcpVariantChannelInfo> GetOverrideVariants()
+	{
+		static auto OverrideVariantsOffset = GetOffset("OverrideVariants");
+		return Get<TArray<FMcpVariantChannelInfo>>(OverrideVariantsOffset);
 	}
 };
 

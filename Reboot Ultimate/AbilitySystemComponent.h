@@ -30,6 +30,23 @@ struct FPredictionKey // todo move
 	static int GetStructSize() { return GetStruct()->GetPropertiesSize(); }
 };
 
+struct FGameplayAbilityActivationInfo // TODO Move
+{
+	static UStruct* GetStruct()
+	{
+		static auto Struct = FindObject<UStruct>("/Script/GameplayAbilities.GameplayAbilityActivationInfo");
+		return Struct;
+	}
+
+	static int GetStructSize() { return GetStruct()->GetPropertiesSize(); }
+
+	FPredictionKey* GetPredictionKeyWhenActivated()
+	{
+		static auto PredictionKeyWhenActivatedOffset = FindOffsetStruct("/Script/GameplayAbilities.GameplayAbilityActivationInfo", "PredictionKeyWhenActivated");
+		return *(FPredictionKey**)(__int64(this) + PredictionKeyWhenActivatedOffset);
+	}
+};
+
 struct FGameplayEffectContextHandle
 {
 	unsigned char                                      UnknownData00[0x18];                                      // 0x0000(0x0018) MISSED OFFSET
