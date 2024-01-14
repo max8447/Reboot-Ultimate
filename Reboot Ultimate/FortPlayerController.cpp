@@ -670,7 +670,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	{
 		if (Engine_Version >= 424 && /*Fortnite_Version < 15 && */ReceivingActor->GetFullName().contains("Wumba")) // TODO: Find a way to check if we're sidecrafting or not.
 		{
-			bool bIsSidegrading = false;
+			bool bIsSidegrading = InteractionBeingAttempted == EInteractionBeingAttempted::SecondInteraction ? true : false;
 
 			LOG_INFO(LogDev, "bIsSidegrading: {}", (bool)bIsSidegrading);
 
@@ -699,7 +699,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 			FWeaponUpgradeItemRow* FoundRow = nullptr;
 
-			for (int i = 0; i < LootPackagesRowMap.Pairs.Elements.Data.Num() - 1; i++)
+			for (int i = 0; i < LootPackagesRowMap.Pairs.Elements.Data.Num(); i++)
 			{
 				auto& Pair = LootPackagesRowMap.Pairs.Elements.Data.at(i).ElementData.Value;
 				auto First = Pair.First;
@@ -725,6 +725,13 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 			int WoodCost = (int)FoundRow->WoodCost * 50;
 			int StoneCost = (int)FoundRow->BrickCost * 50 - 400;
 			int MetalCost = (int)FoundRow->MetalCost * 50 - 200;
+
+			if (bIsSidegrading)
+			{
+				WoodCost = 20;
+				StoneCost = 20;
+				MetalCost = 20;
+			}
 
 			static auto WoodItemData = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
 			static auto StoneItemData = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
