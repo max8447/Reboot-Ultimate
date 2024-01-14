@@ -870,7 +870,7 @@ static inline void StartEvent()
 						SpecialEventScriptMeshActor->ProcessEvent(MeshRootStartEventFn);
 						SpecialEventScriptMeshActor->ProcessEvent(OnRep_RootStartTimeFn);
 
-						return;
+						// return;
 					}
 				}
 				else

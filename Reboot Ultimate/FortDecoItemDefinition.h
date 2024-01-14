@@ -24,3 +24,12 @@ enum class EBuildingAttachmentType : uint8
 	ATTACH_None = 9,
 	ATTACH_MAX = 10,
 };
+
+class AFortDecoTool : public AFortWeapon
+{
+public:
+	using FVector_NetQuantize10 = FVector;
+	static inline void (*ServerCreateBuildingAndSpawnDecoOriginal)(UObject* Context, FFrame& Stack, void* Ret);
+
+	static void ServerCreateBuildingAndSpawnDecoHook(UObject* Context, FFrame& Stack, void* Ret);
+};

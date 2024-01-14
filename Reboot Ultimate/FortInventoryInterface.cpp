@@ -31,39 +31,10 @@ char UFortInventoryInterface::RemoveInventoryItemHook(__int64 a1, FGuid a2, int 
 	if (!WorldInventory)
 		return false;
 
-	bool bIsHooksAmmoData = false;
-
-	if (auto ItemInstance = Cast<UFortWorldItemDefinition>(WorldInventory->FindItemInstance(a2)))
+	if (!Globals::bInfiniteAmmo)
 	{
+		bool bShouldUpdate = false;
 
-		static auto AmmoDataOffset = FindOffsetStruct("/Script/FortniteGame.FortWeaponItemDefinition", "AmmoData");
-		auto AmmoData = ItemInstance->Get<TSoftObjectPtr<UFortWorldItemDefinition>>(AmmoDataOffset);
-
-		bIsHooksAmmoData = AmmoData.SoftObjectPtr.ObjectID.AssetPathName.ToString().contains("AthenaAmmoDataHooks");
-	}
-
-	bool bShouldUpdate = false;
-
-	if (Globals::bInfiniteAmmo)
-	{
-		if (bIsHooksAmmoData)
-		{
-			LOG_INFO(LogDev, "bIsHooksAmmoData!");
-
-			static auto HooksAmmoDefinition = FindObject<UFortWorldItemDefinition>("/Game/Athena/Items/Ammo/AthenaAmmoDataHooks.AthenaAmmoDataHooks");
-
-			WorldInventory->AddItem(HooksAmmoDefinition, &bShouldUpdate, 1);
-
-			if (bShouldUpdate)
-				WorldInventory->Update();
-		}
-		else
-		{
-			LOG_INFO(LogDev, "NOT bIsHooksAmmoData!");
-		}
-	}
-	else
-	{
 		WorldInventory->RemoveItem(a2, &bShouldUpdate, Count, bForceRemoval);
 
 		if (bShouldUpdate)

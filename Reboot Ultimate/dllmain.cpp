@@ -46,6 +46,7 @@
 #include "FortGameSessionDedicatedAthena.h"
 #include "FortAIEncounterInfo.h"
 #include "FortAthenaMutator_DadBro.h"
+#include "FortDecoItemDefinition.h"
 
 enum class EMeshNetworkNodeType : uint8_t
 {
@@ -463,7 +464,7 @@ DWORD WINAPI Main(LPVOID)
 
     Hooking::MinHook::Hook((PVOID)Addresses::ActorGetNetMode, (PVOID)GetNetModeHook2, nullptr);
 
-    if (Fortnite_Version > 13) // ermm
+    if (std::floor(Fortnite_Version) > 13) // ermm
     {
         Hooking::MinHook::Hook(FindObject<ABuildingFoundation>(L"/Script/FortniteGame.Default__BuildingFoundation"),
             FindObject<UFunction>(L"/Script/FortniteGame.BuildingFoundation.SetDynamicFoundationTransform"),
@@ -795,11 +796,13 @@ DWORD WINAPI Main(LPVOID)
         }
     }
 
+    Hooking::MinHook::Hook((PVOID)Addresses::CreateBuildingActorCallForDeco, (PVOID)AFortDecoTool::ServerCreateBuildingAndSpawnDecoHook, (PVOID*)&AFortDecoTool::ServerCreateBuildingAndSpawnDecoOriginal);
+
     Hooking::MinHook::Hook(FortPlayerControllerAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerControllerAthena.ServerGiveCreativeItem"),
         AFortPlayerControllerAthena::ServerGiveCreativeItemHook, nullptr, true);
 
     Hooking::MinHook::Hook(FortPlayerControllerAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerControllerGameplay.ServerCreativeSetFlightSpeedIndexHook"),
-        AFortPlayerControllerAthena::ServerCreativeSetFlightSpeedIndexHook, (LPVOID*)&AFortPlayerControllerAthena::ServerAttemptAircraftJumpOriginal, false, true);
+        AFortPlayerControllerAthena::ServerCreativeSetFlightSpeedIndexHook, nullptr, false, true);
 
     if (Fortnite_Version < 19) // its all screwed up idk
     {

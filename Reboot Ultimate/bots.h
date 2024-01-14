@@ -315,9 +315,7 @@ public:
 			{
 				if (Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetAbility()->IsA(FindObject<UClass>("/Script/FortniteGame.FortGameplayAbility_Sprint")))
 				{
-					FGameplayEventData* GameplayEventData;
-
-					Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->InternalServerTryActivateAbilityHook(Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent(), Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetHandle(), Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetInputPressed(), Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetActivationInfo()->GetPredictionKeyWhenActivated(), GameplayEventData);
+					Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->ServerTryActivateAbility(Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetHandle(), Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetInputPressed(), Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState())->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetActivationInfo()->GetPredictionKeyWhenActivated());
 					break;
 				}
 			}
@@ -335,7 +333,7 @@ public:
 
 		struct
 		{
-			AActor* Goal;
+			AActor*							   Goal;
 			float                              AcceptanceRadius;
 			bool                               bStopOnOverlap;
 			bool                               bUsePathfinding;
@@ -453,11 +451,14 @@ namespace Bots
 				CurrentController->ServerAttemptAircraftJumpHook(CurrentController, FRotator());
 			}
 
-			PlayerBot.Target = PlayerBot.FindNearestPlayer();
-
-			if (PlayerBot.Target && PlayerBot.PlayerController->GetPawn()->GetDistanceTo(PlayerBot.Target) < 4000)
+			if (Engine_Version > 423)
 			{
+				PlayerBot.Target = PlayerBot.FindNearestPlayer();
 
+				if (PlayerBot.Target && PlayerBot.PlayerController->GetPawn()->GetDistanceTo(PlayerBot.Target) < 4000)
+				{
+					PlayerBot.MoveTo(PlayerBot.Target);
+				}
 			}
 		}
 

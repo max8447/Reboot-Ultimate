@@ -304,14 +304,15 @@ AActor* AFortPlayerPawn::ServerOnExitVehicleHook(AFortPlayerPawn* PlayerPawn, ET
 	LOG_INFO(LogDev, "VehicleWeaponDefinition: {}", VehicleWeaponDefinition ? VehicleWeaponDefinition->GetFullName() : "BadRead");
 	PlayerPawn->UnEquipVehicleWeaponDefinition(VehicleWeaponDefinition);
 
-	/*
-
 	if (PlayerPawn->GetVehicleSeatIndex() == 0)
 	{
 		auto PlayerController = Cast<AFortPlayerController>(PlayerPawn->GetController());
 		auto WorldInventory = PlayerController->GetWorldInventory();
 
-		WorldInventory->RemoveItem(Cast<UFortItem>(VehicleWeaponDefinition)->GetItemEntry()->GetItemGuid(), nullptr, 1);
+		auto CurrentWeapon = PlayerPawn->GetCurrentWeapon();
+
+		if (VehicleWeaponDefinition == CurrentWeapon->GetWeaponData())
+			WorldInventory->RemoveItem(CurrentWeapon->GetItemEntryGuid(), nullptr, 1);
 
 		for (int i = 0; i < WorldInventory->GetItemList().GetReplicatedEntries().Num(); i++)
 		{
@@ -321,9 +322,9 @@ AActor* AFortPlayerPawn::ServerOnExitVehicleHook(AFortPlayerPawn* PlayerPawn, ET
 				break;
 			}
 		}
-	}
 
-	*/
+		WorldInventory->Update();
+	}
 
 	return ServerOnExitVehicleOriginal(PlayerPawn, ExitForceBehavior);
 }
@@ -399,7 +400,7 @@ void AFortPlayerPawn::ServerHandlePickupHook(AFortPlayerPawn* Pawn, AFortPickup*
 
 	static auto OnRep_bPickedUpFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPickup.OnRep_bPickedUp");
 	Pickup->ProcessEvent(OnRep_bPickedUpFn);
-  }
+}
 
 void AFortPlayerPawn::ServerHandlePickupInfoHook(AFortPlayerPawn* Pawn, AFortPickup* Pickup, __int64 Params)
 {

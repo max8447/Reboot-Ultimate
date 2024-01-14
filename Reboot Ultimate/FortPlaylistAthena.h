@@ -19,6 +19,12 @@ public:
 		return Get<EAthenaRespawnType>(RespawnTypeOffset);
 	}
 
+	bool& ShouldAllowJoinInProgress()
+	{
+		static auto ShouldAllowJoinInProgressOffset = GetOffset("bAllowJoinInProgress");
+		return Get<bool>(ShouldAllowJoinInProgressOffset);
+	}
+
 	static UClass* StaticClass()
 	{
 		static auto Class = FindObject<UClass>(L"/Script/FortniteGame.FortPlaylistAthena");

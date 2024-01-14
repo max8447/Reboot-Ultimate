@@ -533,6 +533,8 @@ void AFortPlayerControllerAthena::ServerTeleportToPlaygroundLobbyIslandHook(AFor
 
 	if (GameState->IsTeleportToCreativeHubAllowed())
 	{
+		LOG_INFO(LogDev, "GameState->IsTeleportToCreativeHubAllowed()!");
+
 		static auto FortPlayerStartCreativeClass = FindObject<UClass>(L"/Script/FortniteGame.FortPlayerStartCreative");
 		auto AllCreativePlayerStarts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortPlayerStartCreativeClass);
 
@@ -583,6 +585,8 @@ void AFortPlayerControllerAthena::ServerTeleportToPlaygroundLobbyIslandHook(AFor
 		}
 
 		AllCreativePlayerStarts.Free();
+
+		LOG_INFO(LogCreative, "Teleported and freed!");
 	}
 }
 

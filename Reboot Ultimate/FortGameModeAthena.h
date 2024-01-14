@@ -10,6 +10,24 @@
 #include "FortAbilitySet.h"
 #include "FortPlayerControllerAthena.h"
 #include "FortItemDefinition.h"
+#include "BuildingFoundation.h"
+
+enum class EDynamicFoundationType : uint8
+{
+	Static = 0,
+	StartEnabled_Stationary = 1,
+	StartEnabled_Dynamic = 2,
+	StartDisabled = 3,
+	EDynamicFoundationType_MAX = 4,
+};
+
+enum class EDynamicFoundationEnabledState : uint8
+{
+	Unknown = 0,
+	Enabled = 1,
+	Disabled = 2,
+	EDynamicFoundationEnabledState_MAX = 3,
+};
 
 static void SetFoundationTransform(AActor* BuildingFoundation, const FTransform& Transform)
 {
@@ -83,17 +101,13 @@ static void ShowFoundation(AActor* BuildingFoundation, bool bShow = true)
 		// theres a onrep too
 	}
 
-	static auto StartDisabled = 3;
-	static auto StartEnabled_Dynamic = 2;
-	static auto Static = 0;
-
 	static auto DynamicFoundationTypeOffset = BuildingFoundation->GetOffset("DynamicFoundationType", false);
 
 	bool bChangeDynamicFoundationType = Fortnite_Version < 13;
 
 	if (DynamicFoundationTypeOffset != -1 && bChangeDynamicFoundationType)
 	{
-		BuildingFoundation->Get<uint8_t>(DynamicFoundationTypeOffset) = bShow ? Static : StartDisabled;
+		BuildingFoundation->Get<EDynamicFoundationType>(DynamicFoundationTypeOffset) = bShow ? EDynamicFoundationType::Static : EDynamicFoundationType::StartDisabled;
 	}
 
 	/* static auto bShowHLODWhenDisabledOffset = BuildingFoundation->GetOffset("bShowHLODWhenDisabled", false);
@@ -107,15 +121,12 @@ static void ShowFoundation(AActor* BuildingFoundation, bool bShow = true)
 	static auto OnRep_ServerStreamedInLevelFn = FindObject<UFunction>(L"/Script/FortniteGame.BuildingFoundation.OnRep_ServerStreamedInLevel");
 	BuildingFoundation->ProcessEvent(OnRep_ServerStreamedInLevelFn);
 
-	static auto Enabled = 1;
-	static auto Disabled = 2;
-
 	static auto FoundationEnabledStateOffset = BuildingFoundation->GetOffset("FoundationEnabledState", false);
 
 	LOG_INFO(LogDev, "BuildingFoundation->Get<uint8_t>(FoundationEnabledStateOffset) Prev: {}", (int)BuildingFoundation->Get<uint8_t>(FoundationEnabledStateOffset));
 
 	if (FoundationEnabledStateOffset != -1)
-		BuildingFoundation->Get<uint8_t>(FoundationEnabledStateOffset) = bShow ? Enabled : Disabled;
+		BuildingFoundation->Get<EDynamicFoundationEnabledState>(FoundationEnabledStateOffset) = bShow ? EDynamicFoundationEnabledState::Enabled : EDynamicFoundationEnabledState::Disabled;
 
 	static auto LevelToStreamOffset = BuildingFoundation->GetOffset("LevelToStream");
 	auto& LevelToStream = BuildingFoundation->Get<FName>(LevelToStreamOffset);
@@ -139,7 +150,7 @@ static void ShowFoundation(AActor* BuildingFoundation, bool bShow = true)
 		auto DynamicFoundationRepData = BuildingFoundation->GetPtr<void>(DynamicFoundationRepDataOffset);
 
 		static auto EnabledStateOffset = FindOffsetStruct("/Script/FortniteGame.DynamicBuildingFoundationRepData", "EnabledState");
-		*(uint8_t*)(__int64(DynamicFoundationRepData) + EnabledStateOffset) = bShow ? Enabled : Disabled;
+		*(EDynamicFoundationEnabledState*)(__int64(DynamicFoundationRepData) + EnabledStateOffset) = bShow ? EDynamicFoundationEnabledState::Enabled : EDynamicFoundationEnabledState::Disabled;
 
 		if (false)
 		{
@@ -166,6 +177,55 @@ static void ShowFoundation(AActor* BuildingFoundation, bool bShow = true)
 
 	BuildingFoundation->FlushNetDormancy();
 	BuildingFoundation->ForceNetUpdate();
+}
+
+struct FDynamicBuildingFoundationRepData
+{
+public:
+	static UStruct* GetStruct()
+	{
+		static auto Struct = FindObject<UStruct>("/Script/FortniteGame.DynamicBuildingFoundationRepData");
+		return Struct;
+	}
+
+	static int GetStructSize() { return GetStruct()->GetPropertiesSize(); }
+
+	EDynamicFoundationEnabledState& GetEnabledState()
+	{
+		static auto EnabledStateOffset = FindOffsetStruct("/Script/FortniteGame.DynamicBuildingFoundationRepData", "EnabledState");
+		return *(EDynamicFoundationEnabledState*)(__int64(this) + EnabledStateOffset);
+	}
+};
+
+static void ShowFoundationTwoPointO(ABuildingFoundation* Foundation)
+{
+	if (!Foundation)
+	{
+		LOG_WARN(LogGame, "Attempting to show invalid foundation!");
+		return;
+	}
+
+	static auto DynamicFoundationTypeOffset = FindOffsetStruct("/Script/FortniteGame.BuildingFoundation", "DynamicFoundationType");
+	*(EDynamicFoundationType*)(__int64(Foundation) + DynamicFoundationTypeOffset) = EDynamicFoundationType::Static;
+
+	static auto IsServerStreamedInLevelOffset = FindOffsetStruct("/Script/FortniteGame.BuildingFoundation", "bServerStreamedInLevel");
+	*(bool*)(__int64(Foundation) + IsServerStreamedInLevelOffset) = true;
+
+	static auto OnRep_ServerStreamedInLevelFn = FindObject<UFunction>("/Script/FortniteGame.BuildingFoundation.OnRep_ServerStreamedInLevel");
+	Foundation->ProcessEvent(OnRep_ServerStreamedInLevelFn);
+
+	static auto DynamicFoundationRepDataOffset = FindOffsetStruct("/Script/FortniteGame.BuildingFoundation", "DynamicFoundationRepData");
+	// (*(FDynamicBuildingFoundationRepData**)(__int64(Foundation) + DynamicFoundationRepDataOffset))->GetEnabledState() = EDynamicFoundationEnabledState::Enabled;
+
+	static auto FoundationEnabledStateOffset = FindOffsetStruct("/Script/FortniteGame.BuildingFoundation", "FoundationEnabledState");
+	*(EDynamicFoundationEnabledState*)(__int64(Foundation) + FoundationEnabledStateOffset) = EDynamicFoundationEnabledState::Enabled;
+
+	static auto OnRep_DynamicFoundationRepDataFn = FindObject<UFunction>("/Script/FortniteGame.BuildingFoundation.OnRep_DynamicFoundationRepData");
+	Foundation->ProcessEvent(OnRep_DynamicFoundationRepDataFn);
+
+	static auto SetDynamicFoundationEnabledFn = FindObject<UFunction>("/Script/FortniteGame.BuildingFoundation.SetDynamicFoundationEnabled");
+	bool bEnabled = true;
+	Foundation->ProcessEvent(SetDynamicFoundationEnabledFn, &bEnabled);
 }
 
 static void StreamLevel(const std::string& LevelName, FVector Location = {})

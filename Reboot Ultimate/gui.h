@@ -96,7 +96,8 @@ extern inline int AmountOfBotsToSpawn = 0;
 extern inline bool bEnableRebooting = false;
 extern inline bool bEngineDebugLogs = false;
 extern inline bool bStartedBus = false;
-extern inline int AmountOfHealthSiphon = 50;
+extern inline bool bShouldDestroyAllPlayerBuilds = false;
+extern inline int AmountOfHealthSiphon = 0;
 extern inline bool bEnableCannonAnimations = true;
 extern inline float* CannonXMultiplier = &DefaultCannonMultiplier;
 extern inline float* CannonYMultiplier = &DefaultCannonMultiplier;
@@ -1151,15 +1152,15 @@ static inline void MainUI()
 
 								FString NameFStr;
 
-								/* static auto GetPlayerName = FindObject<UFunction>("/Script/Engine.PlayerState.GetPlayerName");
+								// static auto GetPlayerName = FindObject<UFunction>("/Script/Engine.PlayerState.GetPlayerName");
 								// static auto GetPlayerName = FindObject<UFunction>("/Script/FortniteGame.FortPlayerStateZone.GetPlayerNameForStreaming");
-								CurrentPlayerState->ProcessEvent(GetPlayerName, &NameFStr);
+								// CurrentPlayerState->ProcessEvent(GetPlayerName, &NameFStr);
 
-								const wchar_t* NameWCStr = NameFStr.Data.Data;
-								std::wstring NameWStr = std::wstring(NameWCStr);
-								std::string Name = NameFStr.ToString(); // std::string(NameWStr.begin(), NameWStr.end());
+								// const wchar_t* NameWCStr = NameFStr.Data.Data;
+								// std::wstring NameWStr = std::wstring(NameWCStr);
+								// std::string Name = NameFStr.ToString(); // std::string(NameWStr.begin(), NameWStr.end());
 
-								auto NameCStr = Name.c_str(); */
+								// auto NameCStr = Name.c_str();
 
 								auto Connection = CurrentPair.second;
 								auto RequestURL = *GetRequestURL(Connection);
@@ -1499,20 +1500,7 @@ static inline void MainUI()
 
 			if (ImGui::Button("Destroy all player builds"))
 			{
-				auto AllBuildingSMActors = UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABuildingSMActor::StaticClass());
-
-				for (int i = 0; i < AllBuildingSMActors.Num(); i++)
-				{
-					auto CurrentBuildingSMActor = (ABuildingSMActor*)AllBuildingSMActors.at(i);
-
-					if (CurrentBuildingSMActor->IsDestroyed() || CurrentBuildingSMActor->IsActorBeingDestroyed() || !CurrentBuildingSMActor->IsPlayerPlaced())
-						continue;
-
-					CurrentBuildingSMActor->SilentDie();
-					// CurrentBuildingSMActor->K2_DestroyActor();
-				}
-
-				AllBuildingSMActors.Free();
+				bShouldDestroyAllPlayerBuilds = true;
 			}
 
 			if (ImGui::Button("Give Item to Everyone"))
@@ -1566,6 +1554,18 @@ static inline void MainUI()
 					}
 				}
 
+				static auto DefaultGliderRedeployCanRedeployOffsetDontWarn = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "DefaultGliderRedeployCanRedeploy", false);
+
+				if (DefaultGliderRedeployCanRedeployOffsetDontWarn != -1)
+				{
+					bool EnableGliderRedeploy = (bool)GameState->Get<float>(DefaultGliderRedeployCanRedeployOffsetDontWarn);
+
+					if (ImGui::Checkbox("Enable Glider Redeploy", &EnableGliderRedeploy))
+					{
+						GameState->Get<float>(DefaultGliderRedeployCanRedeployOffsetDontWarn) = EnableGliderRedeploy;
+					}
+				}
+
 				GET_PLAYLIST(GameState);
 
 				if (CurrentPlaylist)
@@ -1576,17 +1576,12 @@ static inline void MainUI()
 					{
 						CurrentPlaylist->GetRespawnType() = (EAthenaRespawnType)bRespawning;
 					}
-				}
 
-				static auto DefaultGliderRedeployCanRedeployOffsetDontWarn = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "DefaultGliderRedeployCanRedeploy", false);
+					bool bAllowJoinInProgress = CurrentPlaylist->ShouldAllowJoinInProgress() == true;
 
-				if (DefaultGliderRedeployCanRedeployOffsetDontWarn != -1)
-				{
-					bool EnableGliderRedeploy = (bool)GameState->Get<float>(DefaultGliderRedeployCanRedeployOffsetDontWarn);
-
-					if (ImGui::Checkbox("Enable Glider Redeploy", &EnableGliderRedeploy))
+					if (ImGui::Checkbox("Allow Joining in-progress Match", &bAllowJoinInProgress))
 					{
-						GameState->Get<float>(DefaultGliderRedeployCanRedeployOffsetDontWarn) = EnableGliderRedeploy;
+						CurrentPlaylist->ShouldAllowJoinInProgress() = bAllowJoinInProgress;
 					}
 				}
 			}
@@ -1889,7 +1884,7 @@ static inline void MainUI()
 
 							auto Inventory = CurrentController->GetWorldInventory();
 
-							// ImGui::Text(CurrentWeapon->GetName().c_str()); // This was to test traps on s18+ but i'll do it later
+							ImGui::Text(CurrentWeapon->GetName().c_str()); // This was to test traps on s18+ but i'll do it later
 
 							if (ImGui::Button("Give Item"))
 							{

@@ -120,7 +120,7 @@ void OnCapsuleBeginOverlap::OnCapsuleBeginOverlapHook(AFortPlayerPawnAthena* Paw
 	static UClass* BoatTimedClass = FindObject<UClass>("/Game/Athena/Items/QuestInteractables/TimedChallenge/BoatTrial/Prop_QuestInteractable_TimeTrials_Boat.Prop_QuestInteractable_TimeTrials_Boat_C");
 	static UClass* FireClass = FindObject<UClass>("/Game/Athena/Items/QuestInteractables/FlamingHoops/Boat/Actor_QuestObject_Touch_FlamingHoopsBoat_Parent.Actor_QuestObject_Touch_FlamingHoopsBoat_Parent_C");
 
-	// LOG_INFO(LogDev, "OnCapsuleBeginOverlapHook!");
+	LOG_INFO(LogDev, "OnCapsuleBeginOverlapHook!");
 
 	if (OtherActor->IsA(CoinClass) && OtherComp->GetName() == "CollectOverlap")
 	{

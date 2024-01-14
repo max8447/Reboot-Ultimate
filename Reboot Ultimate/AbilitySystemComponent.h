@@ -40,10 +40,10 @@ struct FGameplayAbilityActivationInfo // TODO Move
 
 	static int GetStructSize() { return GetStruct()->GetPropertiesSize(); }
 
-	FPredictionKey* GetPredictionKeyWhenActivated()
+	FPredictionKey GetPredictionKeyWhenActivated()
 	{
 		static auto PredictionKeyWhenActivatedOffset = FindOffsetStruct("/Script/GameplayAbilities.GameplayAbilityActivationInfo", "PredictionKeyWhenActivated");
-		return *(FPredictionKey**)(__int64(this) + PredictionKeyWhenActivatedOffset);
+		return *(FPredictionKey*)(__int64(this) + PredictionKeyWhenActivatedOffset);
 	}
 };
 
@@ -81,6 +81,20 @@ public:
 		static auto fn = FindObject<UFunction>(L"/Script/GameplayAbilities.AbilitySystemComponent.ClientActivateAbilityFailed");
 
 		this->ProcessEvent(fn, &UAbilitySystemComponent_ClientActivateAbilityFailed_Params);
+	}
+
+	void ServerTryActivateAbility(const FGameplayAbilitySpecHandle& AbilityToActivate, bool InputPressed, const FPredictionKey& PredictionKey)
+	{
+		static auto fn = FindObject<UFunction>(L"/Script/GameplayAbilities.AbilitySystemComponent.ServerTryActivateAbility");
+
+		struct
+		{
+			FGameplayAbilitySpecHandle  AbilityToActivate;
+			bool                               InputPressed;
+			FPredictionKey              PredictionKey;
+		}params{ AbilityToActivate , InputPressed , PredictionKey };
+
+		this->ProcessEvent(fn, &params);
 	}
 
 	TArray<UAttributeSet*>& GetSpawnedAttributes()

@@ -236,13 +236,10 @@ void AFortGameModeAthena::OverrideSupplyDrop(AFortGameStateAthena* GameState, UC
 	static auto SupplyDropInfoListOffset = MapInfo->GetOffset("SupplyDropInfoList");
 	auto SupplyDropInfoList = MapInfo->Get<TArray<UFortSupplyDropInfo*>>(SupplyDropInfoListOffset);
 
-	for (int i = 0; i < SupplyDropInfoList.Num(); i++)
-	{
-		static auto SupplyDropClassOffset = SupplyDropInfoList[i]->GetOffset("SupplyDropClass");
-		SupplyDropInfoList[i]->Get<TSubclassOf<AFortAthenaSupplyDrop*>>(SupplyDropClassOffset) = OverrideSupplyDropBusClass;
+	static auto SupplyDropClassOffset = SupplyDropInfoList[0]->GetOffset("SupplyDropClass");
+	SupplyDropInfoList[0]->Get<TSubclassOf<AFortAthenaSupplyDrop*>>(SupplyDropClassOffset) = OverrideSupplyDropBusClass;
 
-		LOG_INFO(LogGame, "override supply drop called and done");
-	}
+	LOG_INFO(LogGame, "override supply drop called and done");
 }
 
 void AFortGameModeAthena::PauseSafeZone(bool bPaused)
@@ -374,39 +371,38 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 		}
 		// SetupNavConfig(UKismetStringLibrary::Conv_StringToName(L"MANG"));
 
-		/*
-
-		static auto WorldManagerOffset = GameState->GetOffset("WorldManager", false);
-
-		if (WorldManagerOffset != -1) // needed?
+		if (Fortnite_Version == 17.30 && Globals::bGoingToPlayEvent)
 		{
-			auto WorldManager = GameState->Get(WorldManagerOffset);
+			static auto WorldManagerOffset = GameState->GetOffset("WorldManager", false);
 
-			if (WorldManager)
+			if (WorldManagerOffset != -1) // needed?
 			{
-				static auto WorldManagerStateOffset = WorldManager->GetOffset("WorldManagerState", false);
+				auto WorldManager = GameState->Get(WorldManagerOffset);
 
-				if (WorldManagerStateOffset != -1) // needed?
+				if (WorldManager)
 				{
-					enum class EFortWorldManagerState : uint8_t
-					{
-						WMS_Created = 0,
-						WMS_QueryingWorld = 1,
-						WMS_WorldQueryComplete = 2,
-						WMS_CreatingNewWorld = 3,
-						WMS_LoadingExistingWorld = 4,
-						WMS_Running = 5,
-						WMS_Failed = 6,
-						WMS_MAX = 7
-					};
+					static auto WorldManagerStateOffset = WorldManager->GetOffset("WorldManagerState", false);
 
-					LOG_INFO(LogDev, "Old WorldManager State: {}", (int)WorldManager->Get<EFortWorldManagerState>(WorldManagerStateOffset));
-					WorldManager->Get<EFortWorldManagerState>(WorldManagerStateOffset) = EFortWorldManagerState::WMS_Running; // needed? right time?
+					if (WorldManagerStateOffset != -1) // needed?
+					{
+						enum class EFortWorldManagerState : uint8_t
+						{
+							WMS_Created = 0,
+							WMS_QueryingWorld = 1,
+							WMS_WorldQueryComplete = 2,
+							WMS_CreatingNewWorld = 3,
+							WMS_LoadingExistingWorld = 4,
+							WMS_Running = 5,
+							WMS_Failed = 6,
+							WMS_MAX = 7
+						};
+
+						LOG_INFO(LogDev, "Old WorldManager State: {}", (int)WorldManager->Get<EFortWorldManagerState>(WorldManagerStateOffset));
+						WorldManager->Get<EFortWorldManagerState>(WorldManagerStateOffset) = EFortWorldManagerState::WMS_Running; // needed? right time?
+					}
 				}
 			}
 		}
-
-		*/
 
 		static auto WarmupRequiredPlayerCountOffset = GameMode->GetOffset("WarmupRequiredPlayerCount");
 		GameMode->Get<int>(WarmupRequiredPlayerCountOffset) = 1;
@@ -895,23 +891,7 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 			}
 		}
 
-		if (std::floor(Fortnite_Version) == 13)
-		{
-			TSubclassOf<AActor> FishingHoleClass = FindObject<UClass>(L"/Game/Athena/Items/EnvironmentalItems/FlopperSpawn/BGA_Athena_FlopperSpawn_World.BGA_Athena_FlopperSpawn_World_C");
-
-			auto AllFishingHoles = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FishingHoleClass);
-
-			LOG_INFO(LogDev, "AllFishingHoles.Num(): {}", AllFishingHoles.Num());
-
-			for (int i = 0; i < AllFishingHoles.Num(); i++)
-			{
-				auto FishingHole = AllFishingHoles.at(i);
-
-				FishingHole->K2_DestroyActor();
-
-				LOG_INFO(LogDev, "Destroyed Fishing Hole {}", FishingHole->GetFullName());
-			}
-		}
+		SwapVTable(FindObject<UClass>("/Game/Athena/DrivableVehicles/Meatball/Meatball_Large/MeatballVehicle_L.Default__MeatballVehicle_L_C"), 0xED, ServerVehicleUpdate);
 
 		if (auto TeamsArrayContainer = GameState->GetTeamsArrayContainer())
 		{
