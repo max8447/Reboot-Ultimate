@@ -114,9 +114,6 @@ static inline void CleanupDeviceD3D();
 static inline void ResetDevice();
 static inline LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-template <typename T>
-T* Get(void* addr, uint64_t off) { return (T*)(__int64(addr) + off); }
-
 inline FString* GetRequestURL(UObject* Connection)
 {
 	if (Engine_Version <= 420)
@@ -1274,7 +1271,7 @@ static inline void MainUI()
 				{
 					static auto MaxWaterLevelOffset = WL->GetOffset("MaxWaterLevel");
 
-					static int MaxWaterLevel = *Get<int>(WL, MaxWaterLevelOffset);
+					static int MaxWaterLevel = WL->Get<int>(MaxWaterLevelOffset);
 					static int WaterLevel = 0;
 
 					ImGui::SliderInt("WaterLevel", &WaterLevel, 0, MaxWaterLevel);
@@ -1963,11 +1960,11 @@ static inline void MainUI()
 							static auto bCanBeDamagedOffset = CurrentPawn->GetOffset("bCanBeDamaged");
 							static auto bCanBeDamagedFieldMask = GetFieldMask(CurrentPawn->GetProperty("bCanBeDamaged"));
 
-							bool bCanBeDamaged = ReadBitfield(Get<PlaceholderBitfield>(CurrentPawn, bCanBeDamagedOffset), bCanBeDamagedFieldMask);
+							bool bCanBeDamaged = ReadBitfield(&CurrentPawn->Get<PlaceholderBitfield>(bCanBeDamagedOffset), bCanBeDamagedFieldMask);
 
 							if (ImGui::Checkbox("Can be damaged", &bCanBeDamaged))
 							{
-								SetBitfield(Get<PlaceholderBitfield>(CurrentPawn, bCanBeDamagedOffset), bCanBeDamagedFieldMask, bCanBeDamaged);
+								SetBitfield(&CurrentPawn->Get<PlaceholderBitfield>(bCanBeDamagedOffset), bCanBeDamagedFieldMask, bCanBeDamaged);
 							}
 						}
 
