@@ -817,71 +817,72 @@ static inline void StartEvent()
 
 	CallOnReadys();
 
-	if (Fortnite_Version > 11)
+	if (Fortnite_Version >= 17.30)
 	{
-		static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
-		auto WorldNetDriver = GetWorld()->Get<UNetDriver*>(World_NetDriverOffset);
-		auto& ClientConnections = WorldNetDriver->GetClientConnections();
+		static auto OnRep_RootStartTimeFn = FindObject<UFunction>("/Script/SpecialEventGameplayRuntime.SpecialEventScriptMeshActor.OnRep_RootStartTime");
+		static auto MeshRootStartEventFn = FindObject<UFunction>("/Script/SpecialEventGameplayRuntime.SpecialEventScriptMeshActor.MeshRootStartEvent");
+		auto SpecialEventScriptMeshActorClass = FindObject<UClass>("/Script/SpecialEventGameplayRuntime.SpecialEventScriptMeshActor");
+		auto AllSpecialEventScriptMeshActors = UGameplayStatics::GetAllActorsOfClass(GetWorld(), SpecialEventScriptMeshActorClass);
 
-		for (int i = 0; i < ClientConnections.Num(); i++)
+		if (Fortnite_Version == 17.50)
 		{
-			auto PlayerController = Cast<AFortPlayerController>(ClientConnections.at(i)->GetPlayerController());
+			auto Scripting = FindObject<UObject>("/Kiwi/Levels/Kiwi_P.Kiwi_P:PersistentLevel.BP_Kiwi_Master_Scripting_2");
 
-			if (!PlayerController)
-				LOG_WARN(LogEvent, "No PlayerController!");
-			break;
+			float SecondsSinceEventBegan = 0;
 
-			auto WorldInventory = PlayerController->GetWorldInventory();
+			auto EventPlaylist = GetEventPlaylist();
 
-			if (!WorldInventory)
+			struct { UObject* GameState; UObject* Playlist; FGameplayTagContainer PlaylistContextTags; } OnReadyParams{ Cast<AFortGameStateAthena>(GetWorld()->GetGameState()), EventPlaylist };
+			if (EventPlaylist)
 			{
-				LOG_WARN(LogEvent, "No WorldInventory!");
-				break;
+				static auto GameplayTagContainerOffset = EventPlaylist->GetOffset("GameplayTagContainer");
+				OnReadyParams.PlaylistContextTags = EventPlaylist->Get<FGameplayTagContainer>(GameplayTagContainerOffset);
 			}
-
-			auto ReplicatesItemEntries = WorldInventory->GetItemList().GetReplicatedEntries();
-
-			for (int i = 0; i < ReplicatesItemEntries.Num(); i++)
+			else
 			{
-				auto Entry = ReplicatesItemEntries.at(0);
-
-				WorldInventory->RemoveItem(Entry.GetItemGuid(), nullptr, Entry.GetCount(), true);
+				OnReadyParams.PlaylistContextTags = FGameplayTagContainer();
 			}
+			auto BB = FindObject<UFunction>("/Kiwi/Gameplay/BP_Kiwi_Master_Scripting.BP_Kiwi_Master_Scripting_C.OnReady_F1A32853487CB7603278E6847A5F2625");
+			Scripting->ProcessEvent(BB, &OnReadyParams);
 
-			WorldInventory->Update();
+			auto eventscript = FindObject("/Kiwi/Levels/Kiwi_P.Kiwi_P:PersistentLevel.Kiwi_EventScript_2");
+			auto CC = FindObject<UFunction>("/Kiwi/Gameplay/Kiwi_EventScript.Kiwi_EventScript_C.OnReady_F51BF8E143832CE6C552938B26BEFA93");
+			auto DD = FindObject<UFunction>("/Kiwi/Gameplay/Kiwi_EventScript.Kiwi_EventScript_C.LoadKiwiAssets");
+			auto StartEventAtIndex = FindObject<UFunction>("/Script/SpecialEventGameplayRuntime.SpecialEventScript.StartEventAtIndex");
+			auto BP_OnScriptReady = FindObject<UFunction>("/Kiwi/Gameplay/Kiwi_EventScript.Kiwi_EventScript_C.BP_OnScriptReady");
+
+			// eventscript->ProcessEvent(CC, &bbparms);
+			eventscript->ProcessEvent(DD, &OnReadyParams);
+			eventscript->ProcessEvent(BP_OnScriptReady, &OnReadyParams);
+			eventscript->ProcessEvent(StartEventAtIndex, &SecondsSinceEventBegan);
+
+			static auto StartEvent = FindObject<UFunction>("/Kiwi/Gameplay/BP_Kiwi_Master_Scripting.BP_Kiwi_Master_Scripting_C.startevent");
+			Scripting->ProcessEvent(StartEvent, &SecondsSinceEventBegan);
 		}
 
-		if (Fortnite_Version >= 17.30)
+		if (AllSpecialEventScriptMeshActors.Num() > 0)
 		{
-			static auto OnRep_RootStartTimeFn = FindObject<UFunction>("/Script/SpecialEventGameplayRuntime.SpecialEventScriptMeshActor.OnRep_RootStartTime");
-			static auto MeshRootStartEventFn = FindObject<UFunction>("/Script/SpecialEventGameplayRuntime.SpecialEventScriptMeshActor.MeshRootStartEvent");
-			auto SpecialEventScriptMeshActorClass = FindObject<UClass>("/Script/SpecialEventGameplayRuntime.SpecialEventScriptMeshActor");
-			auto AllSpecialEventScriptMeshActors = UGameplayStatics::GetAllActorsOfClass(GetWorld(), SpecialEventScriptMeshActorClass);
+			auto SpecialEventScriptMeshActor = AllSpecialEventScriptMeshActors.at(0);
 
-			if (AllSpecialEventScriptMeshActors.Num() > 0)
+			if (SpecialEventScriptMeshActor)
 			{
-				auto SpecialEventScriptMeshActor = AllSpecialEventScriptMeshActors.at(0);
-
-				if (SpecialEventScriptMeshActor)
+				// if (false)
 				{
-					// if (false)
-					{
-						LOG_INFO(LogDev, "MeshRootStartEventFn!");
-						SpecialEventScriptMeshActor->ProcessEvent(MeshRootStartEventFn);
-						SpecialEventScriptMeshActor->ProcessEvent(OnRep_RootStartTimeFn);
+					LOG_INFO(LogDev, "MeshRootStartEventFn!");
+					SpecialEventScriptMeshActor->ProcessEvent(MeshRootStartEventFn);
+					SpecialEventScriptMeshActor->ProcessEvent(OnRep_RootStartTimeFn);
 
-						// return;
-					}
-				}
-				else
-				{
-					LOG_ERROR(LogEvent, "Failed to find SpecialEventScriptMeshActor");
+					return;
 				}
 			}
 			else
 			{
-				LOG_ERROR(LogEvent, "AllSpecialEventScriptMeshActors.Num() == 0");
+				LOG_ERROR(LogEvent, "Failed to find SpecialEventScriptMeshActor");
 			}
+		}
+		else
+		{
+			LOG_ERROR(LogEvent, "AllSpecialEventScriptMeshActors.Num() == 0");
 		}
 	}
 

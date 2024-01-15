@@ -1196,6 +1196,23 @@ static inline void MainUI()
 				StartEvent();
 			}
 
+			if (Fortnite_Version == 18.40)
+			{
+				if (ImGui::Button("Remove Storm Effect"))
+				{
+					auto ClientConnections = GetWorld()->GetNetDriver()->GetClientConnections();
+
+					for (int i = 0; i < ClientConnections.Num(); i++)
+					{
+						auto CurrentController = (AFortPlayerControllerAthena*)ClientConnections.At(i)->GetPlayerController();
+
+						static auto StormEffectClass = FindObject<UClass>(L"/Game/Athena/SafeZone/GE_OutsideSafeZoneDamage.GE_OutsideSafeZoneDamage_C");
+						auto PlayerState = CurrentController->GetPlayerStateAthena();
+						PlayerState->GetAbilitySystemComponent()->RemoveActiveGameplayEffectBySourceEffect(StormEffectClass, 1, PlayerState->GetAbilitySystemComponent());
+					}
+				}
+			}
+
 			if (Fortnite_Version == 12.41 && false) // crashes idfk will do later
 			{
 				if (ImGui::Button("Change Travis Scott's skin"))
