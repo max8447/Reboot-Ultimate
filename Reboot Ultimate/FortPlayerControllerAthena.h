@@ -581,10 +581,15 @@ public:
 		this->ProcessEvent(ClientOnPawnRevivedFn, &EventInstigator);
 	}
 
-	bool& IsMarkedAlive()
+	bool IsMarkedAlive()
 	{
-		static auto bMarkedAliveOffset = GetOffset("bMarkedAlive");
-		return Get<bool>(bMarkedAliveOffset);
+		static auto bMarkedAliveOffset = GetOffset("bMarkedAlive", false);
+
+		if (bMarkedAliveOffset == -1) // nots ure if this is possible
+			return true;
+
+		static auto bMarkedAliveFieldMask = GetFieldMask(GetProperty("bMarkedAlive"));
+		return ReadBitfieldValue(bMarkedAliveOffset, bMarkedAliveFieldMask);
 	}
 
 	void QuitGame(class UObject* WorldContextObject, class APlayerController* SpecificPlayer, enum class EQuitPreference QuitPreference, bool bIgnorePlatformRestrictions)
@@ -638,4 +643,19 @@ public:
 class UFortSpyTechItemDefinition : public UFortItemDefinition // UFortAccountItemDefinition
 {
 public:
+};
+
+class UFortAccoladeItemDefinition : public UFortItemDefinition // UFortPersistableItemDefinition
+{
+public:
+	EXPEventPriorityType GetPriority()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortAccoladeItemDefinition.GetPriority");
+
+		EXPEventPriorityType    ReturnValue;
+
+		this->ProcessEvent(fn, &ReturnValue);
+
+		return ReturnValue;
+	}
 };

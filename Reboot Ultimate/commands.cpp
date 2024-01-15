@@ -1257,6 +1257,19 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			Pawn->CopyToClipboard(Loc);
 		}
+		else if (Command == "dbno" || Command == "dnbo") // i kept misspelling it
+		{
+			auto Pawn = ReceivingController->GetMyFortPawn();
+
+			if (!Pawn)
+			{
+				SendMessageToConsole(ReceivingController, L"No pawn!");
+				return;
+			}
+
+			Pawn->SetDBNO(!Pawn->IsDBNO());
+			SendMessageToConsole(PlayerController, std::wstring(L"DBNO set to " + std::to_wstring(!(bool)Pawn->IsDBNO())).c_str());
+		}
 		else if (Command == "logprocessevent")
 		{
 			Globals::bLogProcessEvent = !Globals::bLogProcessEvent;
@@ -1274,6 +1287,54 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			auto AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
 
 			AbilitySystemComponent->GiveAbilityEasy(GameplayEffectToGive);
+		}
+		else if (Command == "testaccolade")
+		{
+			static auto Def = FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_014_Elimination_Bronze.AccoladeId_014_Elimination_Bronze");
+			FAthenaAccolades Accolade{};
+			Accolade.GetAccoladeDef() = Def;
+			Accolade.GetCount() = 1;
+			Accolade.GetTemplateId() = TEXT("AccoladeId_014_Elimination_Bronze");//idk
+			FCardSlotMedalData Wow{};
+			Wow.GetAccoladeForSlot() = Def;
+			Wow.IsLoadedFromMcp() = false;
+			Wow.IsPunched() = false;
+			Wow.GetSlotIndex() = 1;
+
+			FXPEventInfo EventInfo{};
+			EventInfo.Accolade.PrimaryAssetName = Def->GetFName();
+			EventInfo.Accolade.PrimaryAssetType.Name = Def->ClassPrivate->GetFName();
+			EventInfo.EventName = UKismetStringLibrary::Conv_StringToName(TEXT("AccoladeId_014_Elimination_Bronze"));
+			EventInfo.EventXpValue = 9000;
+			EventInfo.Priority = Def->GetPriority();
+			EventInfo.RestedValuePortion = 9000;
+			EventInfo.RestedXPRemaining = 9000;
+			EventInfo.SeasonBoostValuePortion = 20;
+			EventInfo.TotalXpEarnedInMatch = 6969;
+			EventInfo.SimulatedText = UKismetTextLibrary::Conv_StringToText(TEXT("Eliminated Opponent"));
+			FXPEventEntry Test2{};
+			Test2.Accolade.PrimaryAssetName = Def->GetFName();
+			Test2.Accolade.PrimaryAssetType.Name = Def->ClassPrivate->GetFName();
+			Test2.EventXpValue = 9000;
+			Test2.SimulatedXpEvent = EventInfo.SimulatedText;
+			Test2.TotalXpEarnedInMatch = 6969;
+			Test2.Time = UGameplayStatics::GetTimeSeconds(GetWorld());
+
+			auto XPComponent = ReceivingController->GetXPComponent();
+
+			XPComponent->GetPlayerAccolades().Add(Accolade);
+			XPComponent->GetMedalsEarned().Add(Def);
+			XPComponent->GetLocalPunchCardMedals().Add(Wow);
+			XPComponent->GetWaitingQuestXp().Add(Test2);
+			XPComponent->GetEventArray().ParentComp = XPComponent;
+			XPComponent->GetEventArray().Entries.Add(Test2);
+			XPComponent->GetEventArray().MarkItemDirty(&Test2);
+			XPComponent->ClientMedalsRecived(XPComponent->GetPlayerAccolades());
+			XPComponent->OnXpEvent(EventInfo);
+		}
+		else if (Command == "checkforemptyweapons")
+		{
+			bCheckForEmptyWeapons = !bCheckForEmptyWeapons;
 		}
 		else if (Command == "givexptest")
 		{

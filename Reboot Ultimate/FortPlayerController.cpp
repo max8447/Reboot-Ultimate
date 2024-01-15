@@ -668,7 +668,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	} */
 	else if (ReceivingActor->IsA(BuildingItemCollectorActorClass))
 	{
-		if (Engine_Version >= 424 && /*Fortnite_Version < 15 && */ReceivingActor->GetFullName().contains("Wumba")) // TODO: Find a way to check if we're sidecrafting or not.
+		if (Engine_Version >= 424 && /*Fortnite_Version < 15 && */ReceivingActor->GetFullName().contains("Wumba"))
 		{
 			bool bIsSidegrading = InteractionBeingAttempted == EInteractionBeingAttempted::SecondInteraction ? true : false;
 

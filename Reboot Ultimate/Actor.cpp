@@ -70,12 +70,12 @@ void AActor::K2_DestroyActor()
 	this->ProcessEvent(DestroyActorFn);
 }
 
-UActorComponent* AActor::GetComponentByClass(class UClass* ComponentClass)
+UActorComponent* AActor::GetComponentByClass(UClass* ComponentClass)
 {
 	static auto fn = FindObject<UFunction>("/Script/Engine.Actor.GetComponentByClass");
 	struct
 	{
-		class UClass* ComponentClass;                                           // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, UObjectWrapper, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+		UClass* ComponentClass;													   // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, UObjectWrapper, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 		UActorComponent* ReturnValue;                                              // (ExportObject, Parm, OutParm, ZeroConstructor, ReturnParm, InstancedReference, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
 	} AActor_GetComponentByClass_Params{ComponentClass};
 

@@ -521,6 +521,10 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Pleasant_NormalFoundation"));
 				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Sweaty_NormalFoundation"));
 				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Frenzy_NormalFoundation"));
+				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.FrenzyFloating_Foundation_b "));
+				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.FrenzyFloating_Foundation_c"));
+				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.FrenzyFloating_Foundation_d"));
+				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.FrenzyFloating_Foundation_e"));
 
 				// SpawnIsland->RepData->Soemthing = FoundationSetup->LobbyLocation;
 			}
@@ -753,13 +757,16 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 	Actors.Free();
 
 	if (ActorsNum == 0)
+	{
+		// LOG_INFO(LogDev, "No Actors!");
 		return false;
+	}
 	
 	// I don't think this map info check is proper.. We can loop through the Actors in the World's PersistentLevel and check if there is a MapInfo, if there is then we can wait, else don't.
 
 	auto MapInfo = GameState->GetMapInfo();
 
-	if (!MapInfo && Engine_Version >= 421)
+	if (Engine_Version >= 421 && !MapInfo)
 		return false;
 
 	static int LastNum = 1;

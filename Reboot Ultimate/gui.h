@@ -1576,13 +1576,6 @@ static inline void MainUI()
 					{
 						CurrentPlaylist->GetRespawnType() = (EAthenaRespawnType)bRespawning;
 					}
-
-					bool bAllowJoinInProgress = CurrentPlaylist->ShouldAllowJoinInProgress() == true;
-
-					if (ImGui::Checkbox("Allow Joining in-progress Match", &bAllowJoinInProgress))
-					{
-						CurrentPlaylist->ShouldAllowJoinInProgress() = bAllowJoinInProgress;
-					}
 				}
 			}
 		}

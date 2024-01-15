@@ -748,6 +748,7 @@ void AFortPlayerControllerAthena::ServerReadyToStartMatchHook(AFortPlayerControl
 		UFortControllerComponent_PerkSystem* Comp = (UFortControllerComponent_PerkSystem*)PlayerController->GetComponentByClass(UFortControllerComponent_PerkSystem::StaticClass());
 
 		Comp->GetMutatorData() = Mutator2->GetMutatorData();
+		// Comp->OnRep_MutatorData();
 		Comp->GetCachedFactionTag().TagName = UKismetStringLibrary::Conv_StringToName(TEXT("Athena.Faction.Ego"));
 		LOG_INFO(LogDev, "PerkSelection.Num() {}", std::to_string(Comp->GetPerkSelection().Num()));
 		Comp->GetRerollCount() = 1;
@@ -779,7 +780,6 @@ void AFortPlayerControllerAthena::ServerReadyToStartMatchHook(AFortPlayerControl
 
 	return ServerReadyToStartMatchOriginal(PlayerController);
 }
-
 
 void AFortPlayerControllerAthena::UpdateTrackedAttributesHook(AFortPlayerControllerAthena* PlayerController)
 {

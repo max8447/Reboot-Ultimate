@@ -874,14 +874,8 @@ DWORD WINAPI Main(LPVOID)
         AFortPawn::NetMulticast_Athena_BatchedDamageCuesHook, (PVOID*)&AFortPawn::NetMulticast_Athena_BatchedDamageCuesOriginal, false, true);
     Hooking::MinHook::Hook(FortPlayerPawnAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPawn.MovingEmoteStopped"),
         AFortPawn::MovingEmoteStoppedHook, (PVOID*)&AFortPawn::MovingEmoteStoppedOriginal, false, true);
-   // Hooking::MinHook::Hook(FortPlayerPawnAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawnAthena.OnCapsuleBeginOverlap") ? FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawnAthena.OnCapsuleBeginOverlap") : FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawn.OnCapsuleBeginOverlap"),
-      // AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook, (PVOID*)&AFortPlayerPawnAthena::OnCapsuleBeginOverlapOriginal, false, true);
-
-    // Hooking::MinHook::Hook(FortPlayerPawnAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawnAthena.OnCapsuleBeginOverlap") ? FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawnAthena.OnCapsuleBeginOverlap") : FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawn.OnCapsuleBeginOverlap"),
-       // OnCapsuleBeginOverlap::OnCapsuleBeginOverlapHook, (PVOID*)&OnCapsuleBeginOverlap::OnCapsuleBeginOverlapOG, false, true);
-
-    // MH_CreateHook((LPVOID)(__int64(GetModuleHandleW(0)) + 0x1DCF3E0), OnCapsuleBeginOverlap::OnCapsuleBeginOverlapHook, (LPVOID*)&OnCapsuleBeginOverlap::OnCapsuleBeginOverlapOG);
-    // MH_EnableHook((LPVOID)(__int64(GetModuleHandleW(0)) + 0x1DCF3E0));
+    Hooking::MinHook::Hook(FortPlayerPawnAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawnAthena.OnCapsuleBeginOverlap") ? FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawnAthena.OnCapsuleBeginOverlap") : FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawn.OnCapsuleBeginOverlap"),
+        AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook, (PVOID*)&AFortPlayerPawnAthena::OnCapsuleBeginOverlapOriginal, false, true);
 
     Hooking::MinHook::Hook(FortKismetLibraryDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveFortItemFromPlayer"),
         UFortKismetLibrary::K2_RemoveFortItemFromPlayerHook, (PVOID*)&UFortKismetLibrary::K2_RemoveFortItemFromPlayerOriginal, false, true);
@@ -1099,7 +1093,7 @@ DWORD WINAPI Main(LPVOID)
     {
         int increaseOffset = 0x10;
 
-        if (Engine_Version >= 424 && std::floor(Fortnite_Version) < 18) // checked on 11.31, 12.41, 14.60, 15.10, 16.40, 17.30 and 18.40
+        if (Fortnite_Version > 11.00 && std::floor(Fortnite_Version) < 18) // checked on 11.00, 11.31, 12.41, 14.60, 15.10, 16.40, 17.30 and 18.40
             increaseOffset += 0x8;
 
         auto MoveSoundStimulusBroadcastIntervalOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerPawn", "MoveSoundStimulusBroadcastInterval");

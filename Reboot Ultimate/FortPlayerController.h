@@ -141,6 +141,65 @@ public:
 	}
 };
 
+struct FAthenaAccolades
+{
+public:
+	class UFortAccoladeItemDefinition*& GetAccoladeDef()
+	{
+		static auto AccoladeDefOffset = FindOffsetStruct("/Script/FortniteGame.AthenaAccolades", "AccoladeDef");
+		return *(class UFortAccoladeItemDefinition**)(__int64(this) + AccoladeDefOffset);
+	}
+
+	FString& GetTemplateId()
+	{
+		static auto TemplateIdOffset = FindOffsetStruct("/Script/FortniteGame.AthenaAccolades", "TemplateId");
+		return *(FString*)(__int64(this) + TemplateIdOffset);
+	}
+
+	int32& GetCount()
+	{
+		static auto CountOffset = FindOffsetStruct("/Script/FortniteGame.AthenaAccolades", "Count");
+		return *(int32*)(__int64(this) + CountOffset);
+	}
+};
+
+struct FCardSlotMedalData
+{
+public:
+	bool                                         bPunched;                                          // 0x11(0x1)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+
+	int32& GetSlotIndex()
+	{
+		static auto SlotIndexOffset = FindOffsetStruct("/Script/FortniteGame.CardSlotMedalData", "SlotIndex");
+		return *(int32*)(__int64(this) + SlotIndexOffset);
+	}
+
+	class UFortAccoladeItemDefinition*& GetAccoladeForSlot()
+	{
+		static auto AccoladeForSlotOffset = FindOffsetStruct("/Script/FortniteGame.CardSlotMedalData", "AccoladeForSlot");
+		return *(class UFortAccoladeItemDefinition**)(__int64(this) + AccoladeForSlotOffset);
+	}
+
+	bool& IsLoadedFromMcp()
+	{
+		static auto bLoadedFromMcpOffset = FindOffsetStruct("/Script/FortniteGame.CardSlotMedalData", "bLoadedFromMcp");
+		return *(bool*)(__int64(this) + bLoadedFromMcpOffset);
+	}
+
+	bool& IsPunched()
+	{
+		static auto bPunchedOffset = FindOffsetStruct("/Script/FortniteGame.CardSlotMedalData", "bPunched");
+		return *(bool*)(__int64(this) + bPunchedOffset);
+	}
+};
+
+struct FXPEventArray : public FFastArraySerializer
+{
+public:
+	TArray<FXPEventEntry>                 Entries;                                           // 0x108(0x10)(ZeroConstructor, NativeAccessSpecifierPublic)
+	class UFortPlayerControllerAthenaXPComponent* ParentComp;                                        // 0x118(0x8)(ExportObject, ZeroConstructor, InstancedReference, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+};
+
 class UFortPlayerControllerAthenaXPComponent : public UActorComponent //UFortControllerComponent
 {
 public:
@@ -208,6 +267,30 @@ public:
 	{
 		static auto WaitingQuestXpOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "WaitingQuestXp");
 		return *(TArray<FXPEventEntry>*)(__int64(this) + WaitingQuestXpOffset);
+	}
+
+	TArray<FAthenaAccolades>& GetPlayerAccolades()
+	{
+		static auto PlayerAccoladesOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "PlayerAccolades");
+		return *(TArray<FAthenaAccolades>*)(__int64(this) + PlayerAccoladesOffset);
+	}
+
+	TArray<UFortAccoladeItemDefinition*>& GetMedalsEarned()
+	{
+		static auto MedalsEarnedOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "MedalsEarned");
+		return *(TArray<UFortAccoladeItemDefinition*>*)(__int64(this) + MedalsEarnedOffset);
+	}
+
+	TArray<FCardSlotMedalData>& GetLocalPunchCardMedals()
+	{
+		static auto LocalPunchCardMedalsOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "LocalPunchCardMedals");
+		return *(TArray<FCardSlotMedalData>*)(__int64(this) + LocalPunchCardMedalsOffset);
+	}
+
+	FXPEventArray& GetEventArray()
+	{
+		static auto EventArrayOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "EventArray");
+		return *(FXPEventArray*)(__int64(this) + EventArrayOffset);
 	}
 
 	FAthenaLevelInfo& GetCachedLevelInfo()
@@ -280,6 +363,18 @@ public:
 	{
 		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnRep_bRegisteredWithQuestManager");
 		this->ProcessEvent(fn, nullptr);
+	}
+
+	void ClientMedalsRecived(TArray<FAthenaAccolades>& Medals)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.ClientMedalsRecived");
+
+		struct
+		{
+			TArray<FAthenaAccolades>    Medals;
+		}params{ Medals };
+
+		this->ProcessEvent(fn, &params);
 	}
 };
 
