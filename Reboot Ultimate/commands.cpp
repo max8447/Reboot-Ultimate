@@ -1274,20 +1274,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		{
 			Globals::bLogProcessEvent = !Globals::bLogProcessEvent;
 		}
-		else if (Command == "givege")
-		{
-			if (NumArgs < 1)
-			{
-				SendMessageToConsole(PlayerController, L"Please provide a valid GameplayEffect!");
-			}
-
-			auto GameplayEffectToGive = FindObject<UClass>(Arguments[1]);
-
-			auto PlayerState = Cast<AFortPlayerStateAthena>(ReceivingController->GetPlayerState());
-			auto AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
-
-			AbilitySystemComponent->GiveAbilityEasy(GameplayEffectToGive);
-		}
 		else if (Command == "testaccolade")
 		{
 			static auto Def = FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_014_Elimination_Bronze.AccoladeId_014_Elimination_Bronze");
@@ -1686,6 +1672,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			ApplyHID(Pawn, HIDDef);
 
 			SendMessageToConsole(PlayerController, L"Applied HID!");
+		}
+		else if (Command == "siphontest")
+		{
+
 		}
 		else if (Command == "suicide" || Command == "frenchpeople")
 		{
