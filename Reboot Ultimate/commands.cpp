@@ -1332,10 +1332,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			XPComponent->ClientMedalsRecived(XPComponent->GetPlayerAccolades());
 			XPComponent->OnXpEvent(EventInfo);
 		}
-		else if (Command == "checkforemptyweapons")
-		{
-			bCheckForEmptyWeapons = !bCheckForEmptyWeapons;
-		}
 		else if (Command == "givexptest")
 		{
 			static auto KillScoreOffset = ReceivingPlayerState->GetOffset("KillScore");
