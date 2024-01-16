@@ -826,7 +826,7 @@ static inline void StartEvent()
 
 		if (Fortnite_Version == 17.50)
 		{
-			auto Scripting = FindObject<UObject>("/Kiwi/Levels/Kiwi_P.Kiwi_P:PersistentLevel.BP_Kiwi_Master_Scripting_2");
+			auto Scripting = FindObject<UObject>("/Kiwi/Levels/Kiwi_P.Kiwi_P.PersistentLevel.BP_Kiwi_Master_Scripting_2");
 
 			float SecondsSinceEventBegan = 0;
 
@@ -845,7 +845,7 @@ static inline void StartEvent()
 			auto BB = FindObject<UFunction>("/Kiwi/Gameplay/BP_Kiwi_Master_Scripting.BP_Kiwi_Master_Scripting_C.OnReady_F1A32853487CB7603278E6847A5F2625");
 			Scripting->ProcessEvent(BB, &OnReadyParams);
 
-			auto eventscript = FindObject("/Kiwi/Levels/Kiwi_P.Kiwi_P:PersistentLevel.Kiwi_EventScript_2");
+			auto eventscript = FindObject("/Kiwi/Levels/Kiwi_P.Kiwi_P.PersistentLevel.Kiwi_EventScript_2");
 			auto CC = FindObject<UFunction>("/Kiwi/Gameplay/Kiwi_EventScript.Kiwi_EventScript_C.OnReady_F51BF8E143832CE6C552938B26BEFA93");
 			auto DD = FindObject<UFunction>("/Kiwi/Gameplay/Kiwi_EventScript.Kiwi_EventScript_C.LoadKiwiAssets");
 			auto StartEventAtIndex = FindObject<UFunction>("/Script/SpecialEventGameplayRuntime.SpecialEventScript.StartEventAtIndex");

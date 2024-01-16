@@ -126,8 +126,11 @@ namespace Calendar
 		{
 			static auto SetWaterLevel = FindObject<UFunction>("/Game/Athena/Apollo/Environments/Blueprints/Apollo_WaterSetup.Apollo_WaterSetup_C.SetWaterLevel");
 			static auto OnRep_CurrentWaterLevel = FindObject<UFunction>("/Game/Athena/Apollo/Environments/Blueprints/Apollo_WaterSetup.Apollo_WaterSetup_C.OnRep_CurrentWaterLevel");
+			static auto OnReady = FindObject<UFunction>("/Game/Athena/Apollo/Environments/Blueprints/Apollo_WaterSetup.Apollo_WaterSetup_C.OnReady_B1D24E6B42030098E1ED2B9A6B77D571");
+			auto GameState = (AFortGameStateAthena*)GetWorld()->GetGameState();
 
 			WL->ProcessEvent(SetWaterLevel, &WaterLevel);
+			WL->ProcessEvent(OnReady, &GameState);
 			WL->ProcessEvent(OnRep_CurrentWaterLevel);
 		}
 	}

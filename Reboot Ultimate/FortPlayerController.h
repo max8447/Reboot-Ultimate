@@ -166,8 +166,6 @@ public:
 struct FCardSlotMedalData
 {
 public:
-	bool                                         bPunched;                                          // 0x11(0x1)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-
 	int32& GetSlotIndex()
 	{
 		static auto SlotIndexOffset = FindOffsetStruct("/Script/FortniteGame.CardSlotMedalData", "SlotIndex");

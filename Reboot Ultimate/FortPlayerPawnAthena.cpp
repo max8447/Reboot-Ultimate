@@ -63,8 +63,10 @@ void AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook(UObject* Context, FFrame* 
 			FName BackendName = *(FName*)(__int64(OtherActor) + BackendNameProp->Offset);
 
 			UFortQuestItemDefinition* QuestDef = *(UFortQuestItemDefinition**)(__int64(OtherActor) + QuestItemProp->Offset);
+
 			if (!QuestDef)
-				return;
+				return OnCapsuleBeginOverlapOriginal(Context, Stack, Ret);
+
 			PlayerController->ProgressQuest(PlayerController, QuestDef, BackendName);
 			OtherActor->ProcessEvent(ParentQuestUpdatedFn, nullptr);
 		}

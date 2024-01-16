@@ -225,7 +225,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
         {
             if (Index == 0) // Start of Event
             {
-                auto MasterScripting = FindObject<UObject>("/Buffet/Levels/Buffet_P.Buffet_P:PersistentLevel.BP_Event_Master_Scripting_2");
+                auto MasterScripting = FindObject<UObject>("/Buffet/Levels/Buffet_P.Buffet_P.PersistentLevel.BP_Event_Master_Scripting_2");
 
                 auto AllSatelliteDishes = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>("/Game/Athena/Apollo/Environments/BuildingActors/Complex/Props/Apollo_Complex_Satellite_Dish_Top_01.Apollo_Complex_Satellite_Dish_Top_01_C"));
 
@@ -249,7 +249,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
             {
                 //EventPawn->TeleportTo(FVector(-963.630f, 25453.090f, 359392.125f), EventPawn->GetActorRotation());
 
-                auto Phase1Scripting = FindObject("/Buffet/Levels/Buffet_Part_3.Buffet_Part_3:PersistentLevel.BP_Buffet_PhaseScripting_Phase1_2");
+                auto Phase1Scripting = FindObject("/Buffet/Levels/Buffet_Part_3.Buffet_Part_3.PersistentLevel.BP_Buffet_PhaseScripting_Phase1_2");
 
                 auto TeleportRef = Phase1Scripting->Get<AActor*>(Phase1Scripting->GetOffset("TeleportRef"));
 
@@ -292,7 +292,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
             }
             else if (Index == 4) // Storm King
             {
-                auto StormScript = FindObject<AActor>("/Buffet/Levels/Buffet_Part_6.Buffet_Part_6:PersistentLevel.BP_Buffet_PhaseScripting_4");
+                auto StormScript = FindObject<AActor>("/Buffet/Levels/Buffet_Part_6.Buffet_Part_6.PersistentLevel.BP_Buffet_PhaseScripting_4");
 
                 auto DefaultPlane = FindObject("/Buffet/Gameplay/Blueprints/WolfMother/BP_PlanePrototype.Default__BP_PlanePrototype_C");
 
@@ -312,7 +312,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                         if (bShouldUpdate)
                             WorldInventory->Update();
 
-                        SendMessageToConsole(CurrentController, L"Gave WID_Buffet_BeatMatchingBoomBox!");
+                        // SendMessageToConsole(CurrentController, L"Gave WID_Buffet_BeatMatchingBoomBox!");
                     }
 
                     auto AllWeps = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>("/Buffet/Gameplay/Blueprints/WolfMother/BeatmatchingWeapon/B_Buffet_BeatMatchingWeaponPrototype.B_Buffet_BeatMatchingWeaponPrototype_C"));
@@ -330,7 +330,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
             }
             else if (Index == 5) // Ariana Knocked
             {
-                auto ReviveScripting = FindObject("/Buffet/Levels/Buffet_Reflect.Buffet_Reflect:PersistentLevel.BP_Buffet_PhaseScripting_Revive_2");
+                auto ReviveScripting = FindObject("/Buffet/Levels/Buffet_Reflect.Buffet_Reflect.PersistentLevel.BP_Buffet_PhaseScripting_Revive_2");
 
                 auto ManualTeleportLocation = ReviveScripting->Get<FVector>(ReviveScripting->GetOffset("ManualTeleportLocation"));
 
@@ -352,9 +352,9 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
             }
             else if (Index == 7) // Ariana Dance
             {
-                auto ReviveScripting = FindObject("/Buffet/Levels/Buffet_Reflect.Buffet_Reflect:PersistentLevel.BP_Buffet_PhaseScripting_Revive_2");
+                auto ReviveScripting = FindObject("/Buffet/Levels/Buffet_Reflect.Buffet_Reflect.PersistentLevel.BP_Buffet_PhaseScripting_Revive_2");
 
-                auto ReflectScripting = FindObject("/Buffet/Levels/Buffet_Reflect.Buffet_Reflect:PersistentLevel.BP_Buffet_PhaseScripting_Reflect_2");
+                auto ReflectScripting = FindObject("/Buffet/Levels/Buffet_Reflect.Buffet_Reflect.PersistentLevel.BP_Buffet_PhaseScripting_Reflect_2");
 
                 auto ManualTeleportRotation = ReviveScripting->Get<FRotator>(ReviveScripting->GetOffset("Manual_Teleport_Rotation"));
 
@@ -367,11 +367,14 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
             }
             else if (Index == 8) // Bubbles
             {
-                auto BubblesScripting = FindObject<UObject>("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles:PersistentLevel.BP_Buffet_PhaseScripting_Bubble_4");
+                auto BubblesScripting = FindObject<UObject>("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles.PersistentLevel.BP_Buffet_PhaseScripting_Bubble_4");
 
                 BubblesScripting->Get<bool>(BubblesScripting->GetOffset("bUsePlayerMovementMode")) = false;
 
-                BubblesScripting->Get<AActor*>(BubblesScripting->GetOffset("FollowActor")) = FindObject<AActor>("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles:PersistentLevel.BP_Buffet_BubbleFollowActor_2");
+                BubblesScripting->Get<AActor*>(BubblesScripting->GetOffset("FollowActor")) = FindObject<AActor>("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles.PersistentLevel.BP_Buffet_BubbleFollowActor_2");
+                BubblesScripting->Get<AActor*>(BubblesScripting->GetOffset("FocalPointActor")) = FindObject<AActor>("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles.PersistentLevel.BP_Buffet_BubbleFollowActor_2");
+
+                BubblesScripting->ProcessEvent(BubblesScripting->FindFunction("SetFocalActor"));
             }
             else if (Index == 9) // Clouds
             {
@@ -430,7 +433,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                 if (bShouldUpdate)
                     WorldInventory->Update();
 
-                SendMessageToConsole(CurrentController, L"Gave Event Weapons!");
+                // SendMessageToConsole(CurrentController, L"Gave Event Weapons!");
             }
 
             auto AllSatelliteDishes = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>("/Game/Athena/Apollo/Environments/BuildingActors/Complex/Props/Apollo_Complex_Satellite_Dish_Top_01.Apollo_Complex_Satellite_Dish_Top_01_C"));
@@ -760,7 +763,7 @@ DWORD WINAPI Main(LPVOID)
 
     Hooking::MinHook::Hook((PVOID)Addresses::ActorGetNetMode, (PVOID)GetNetModeHook2, nullptr);
 
-    if (std::floor(Fortnite_Version) > 13) // ermm
+    if (Fortnite_Version > 13) // ermm
     {
         Hooking::MinHook::Hook(FindObject<ABuildingFoundation>(L"/Script/FortniteGame.Default__BuildingFoundation"),
             FindObject<UFunction>(L"/Script/FortniteGame.BuildingFoundation.SetDynamicFoundationTransform"),

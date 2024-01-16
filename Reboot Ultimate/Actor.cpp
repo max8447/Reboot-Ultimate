@@ -220,7 +220,7 @@ UObject* AActor::AddComponentByClass(UClass* Class)
 	params.RelativeTransform = FTransform();
 	params.bDeferredFinish = true;
 
-	static UFunction* AddComp = FindObject<UFunction>("/Script/Engine.Actor:AddComponentByClass");
+	static UFunction* AddComp = FindObject<UFunction>("/Script/Engine.Actor.AddComponentByClass");
 
 	this->ProcessEvent(AddComp, &params);
 

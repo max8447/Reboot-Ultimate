@@ -1675,7 +1675,12 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		}
 		else if (Command == "siphontest")
 		{
+			auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
+			auto Effect = LoadObject<UClass>("/Game/Creative/Abilities/Siphon/GA_Creative_OnKillSiphon.GA_Creative_OnKillSiphon_C", BGAClass);
 
+			auto ASC = PlayerState->GetAbilitySystemComponent();
+			FGameplayEffectContextHandle contextHandle{};
+			ASC->ApplyGameplayEffectToSelf(Effect, 1, contextHandle);
 		}
 		else if (Command == "suicide" || Command == "frenchpeople")
 		{

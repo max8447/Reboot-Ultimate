@@ -85,6 +85,7 @@ extern inline int SecondsUntilTravel = 15;
 extern inline bool bSwitchedInitialLevel = false;
 extern inline bool bIsInAutoRestart = false;
 extern inline float AutoBusStartSeconds = 60;
+extern inline float AutoBusStartSecondsThatChanges = AutoBusStartSeconds;
 extern inline int NumRequiredPlayersToStart = 2;
 extern inline bool bDebugPrintLooting = false;
 extern inline bool bDebugPrintFloorLoot = false;
@@ -692,6 +693,12 @@ static inline void PlayerTabs()
 
 static inline DWORD WINAPI LateGameThread(LPVOID)
 {
+	while (!AutoBusStartSecondsThatChanges == 0)
+	{
+		AutoBusStartSecondsThatChanges--;
+		Sleep(1000);
+	}
+
 	float MaxTickRate = 30;
 
 	auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
@@ -1051,6 +1058,7 @@ static inline void MainUI()
 							auto GameState = Cast<AFortGameStateAthena>(GameMode->GetGameState());
 
 							AmountOfPlayersWhenBusStart = GameState->GetPlayersLeft();
+							AutoBusStartSecondsThatChanges = 0;
 
 							if (Globals::bLateGame.load())
 							{
@@ -1297,6 +1305,20 @@ static inline void MainUI()
 					{
 						Calendar::SetWaterLevel(WaterLevel);
 					}
+				}
+			}
+
+			std::string FoundationToShowStr;
+
+			ImGui::InputText("Foundation to show", &FoundationToShowStr);
+
+			if (ImGui::Button("Show Foundation"))
+			{
+				auto FoundationToShow = FindObject<AActor>(FoundationToShowStr);
+
+				if (FoundationToShow)
+				{
+					ShowFoundation(FoundationToShow);
 				}
 			}
 		}

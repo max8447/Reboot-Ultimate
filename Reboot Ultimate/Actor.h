@@ -17,6 +17,8 @@ enum class ENetDormancy : uint8_t
 class AActor : public UObject
 {
 public:
+	static inline void (ReceiveDestroyedOriginal)();
+
 	struct FTransform GetTransform();
 
 	// class UWorld* GetWorld();
@@ -66,6 +68,8 @@ public:
 
 		return IsRelevancyOwnerForOriginal(this, ReplicatedActor, ActorOwner, ConnectionActor);
 	}
+
+	static void ReceiveDestroyedHook();
 
 	static class UClass* StaticClass();
 };
