@@ -1773,6 +1773,16 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				ActorName = "/Game/Athena/Environments/Blueprints/DudeBro/BGA_DudeBro_Mini.BGA_DudeBro_Mini_C";
 			else if (ActorName == "nobuildzone")
 				ActorName = "/Game/Athena/Prototype/Blueprints/Galileo/BP_Galileo_NoBuildZone.BP_Galileo_NoBuildZone_C";
+			else if (ActorName == "supplydrop")
+				if (Fortnite_Version >= 12.30 && Fortnite_Version <= 12.61)
+					ActorName = "/Game/Athena/SupplyDrops/AthenaSupplyDrop_Donut.AthenaSupplyDrop_Donut_C";
+				else if (Fortnite_Version == 5.10 || Fortnite_Version == 9.41 || Fortnite_Version == 14.20 || Fortnite_Version == 18.00)
+					ActorName = "/Game/Athena/SupplyDrops/AthenaSupplyDrop_BDay.AthenaSupplyDrop_BDay_C";
+				else if (Fortnite_Version == 1.11 || Fortnite_Version == 7.10 || Fortnite_Version == 7.20 || Fortnite_Version == 7.30 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.01)
+					ActorName = "/Game/Athena/SupplyDrops/AthenaSupplyDrop_Holiday.AthenaSupplyDrop_Holiday_C";
+				else if (Fortnite_Version == 5.40 || Fortnite_Version == 5.41)
+					ActorName = "/Game/Athena/SupplyDrops/Bling/AthenaSupplyDrop_Bling.AthenaSupplyDrop_Bling_C";
+				else ActorName = "/Game/Athena/SupplyDrops/AthenaSupplyDrop.AthenaSupplyDrop_C";
 
 			static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
 			static auto ClassClass = FindObject<UClass>(L"/Script/CoreUObject.Class");
