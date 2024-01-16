@@ -19,6 +19,7 @@
 - Possibly make Iron Man hands effect stay for the remaining time despite switching/touching the ground, [Reference.](https://youtu.be/XdoBQgksomU?si=DZEVaXkIGzS0_S7t&t=125)
 - Fix Traps on 18+
 - Fix 14.60 Win Crash
+- Make Storm Rain effect a feature
 
 # Links
 
