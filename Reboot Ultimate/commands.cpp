@@ -603,13 +603,13 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "AGID_AshtonPack_Turbo";
 			}
-			else if (weaponName == "grapplerbow" || weaponName == "grapplebow")
+			else if (weaponName == "batman" || weaponName == "batgrap")
 			{
-				weaponName = "WID_Athena_Bow_Grappler";
+				weaponName = "WID_Badger_Grape_VR";
 			}
-			else if (weaponName == "shockwavebow" || weaponName == "shockbow")
+			else if (weaponName == "batarangs")
 			{
-				weaponName = "WID_Bow_Shockwave_Athena_SR";
+				weaponName = "WID_Athena_BadgerBangsNew";
 			}
 			else if (weaponName == "stwpumpkin" || weaponName == "stwrocket")
 			{
