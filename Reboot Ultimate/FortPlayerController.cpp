@@ -558,7 +558,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 		// if (BuildingContainer->ShouldDestroyOnSearch())
 			// BuildingContainer->K2_DestroyActor();
 	}
-	/* else if (ReceivingActor->IsA(FortAthenaVehicleClass))
+	else if (ReceivingActor->IsA(FortAthenaVehicleClass))
 	{
 		auto Vehicle = (AFortAthenaVehicle*)ReceivingActor;
 		ServerAttemptInteractOriginal(Context, Stack, Ret);
@@ -638,7 +638,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 		}
 
 		return;
-	} */
+	}
 	/* else if (Cast<AFortPlayerPawn>(PlayerController->GetMyFortPawn())->IsInVehicle())
 	{
 		auto Vehicle = Cast<AFortPlayerPawn>(PlayerController->GetMyFortPawn())->GetVehicle();
@@ -668,7 +668,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 			}
 		}
 	} */
-	else if (ReceivingActor->IsA(MeatballVehicleClass))
+	/* else if (ReceivingActor->IsA(MeatballVehicleClass))
 	{
 		AFortAthenaVehicle* Vehicle = (AFortAthenaVehicle*)ReceivingActor;
 		UFortItemDefinition* WeaponDef = FindObject<UFortItemDefinition>("/Game/Athena/Items/Weapons/Vehicles/MeatballWeapon/Meatball_Weapon.Meatball_Weapon");
@@ -700,7 +700,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 		//AFortMeatballVehicle* Vehicle = (AFortMeatballVehicle*)LParams->ReceivingActor;
 		//Vehicle->VehicleCosmeticInfo.ActiveCosmeticWrap = PC->CosmeticLoadoutPC.ItemWraps[0];
 		//Vehicle->K2_ApplyCosmeticWrap(PC->CosmeticLoadoutPC.ItemWraps[0]);
-	}
+	} */
 	else if (ReceivingActor->IsA(BuildingItemCollectorActorClass))
 	{
 		if (Engine_Version >= 424 && /*Fortnite_Version < 15 && */ReceivingActor->GetFullName().contains("Wumba"))

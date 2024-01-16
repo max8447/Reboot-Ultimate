@@ -363,13 +363,15 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 
 		LOG_INFO(LogDev, "Presetup!");
 
-		if (false)
+		/*if (false)
 		{
 			SetupAIGoalManager();
 			SetupAIDirector();
 			SetupServerBotManager();
-		}
+		}*/
 		// SetupNavConfig(UKismetStringLibrary::Conv_StringToName(L"MANG"));
+
+		/*
 
 		if (Fortnite_Version == 17.30 && Globals::bGoingToPlayEvent)
 		{
@@ -402,6 +404,15 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 					}
 				}
 			}
+		}
+
+		*/
+
+		if (Globals::bEnablePhoebeBotTick)
+		{
+			AIMutator::SpawnMutator();
+			AIMutator::SetupServerBotManager();
+			AIMutator::SetupAIDirector();
 		}
 
 		static auto WarmupRequiredPlayerCountOffset = GameMode->GetOffset("WarmupRequiredPlayerCount");

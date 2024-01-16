@@ -1791,7 +1791,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 					BotSpawnTransform.Translation = Loc;
 					BotSpawnTransform.Scale3D = FVector(1, 1, 1);
 
-					auto NewActor = SpawnBots ? Bots::SpawnBot(BotSpawnTransform) : GetWorld()->SpawnActor<AActor>(ClassObj, Loc, FQuat(), FVector(1, 1, 1));
+					auto NewActor = SpawnBots ? Bots::SpawnAIPawn(BotSpawnTransform) : GetWorld()->SpawnActor<AActor>(ClassObj, Loc, FQuat(), FVector(1, 1, 1));
 
 					if (!NewActor)
 					{
@@ -1888,7 +1888,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				Transform.Translation = Loc;
 				Transform.Scale3D = FVector(1, 1, 1);
 
-				auto NewActor = Bots::SpawnBot(Transform);
+				auto NewActor = Bots::SpawnAIPawn(Transform);
 
 				if (!NewActor)
 				{

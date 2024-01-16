@@ -375,6 +375,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                 BubblesScripting->Get<AActor*>(BubblesScripting->GetOffset("FocalPointActor")) = FindObject<AActor>("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles.PersistentLevel.BP_Buffet_BubbleFollowActor_2");
 
                 BubblesScripting->ProcessEvent(BubblesScripting->FindFunction("SetFocalActor"));
+                BubblesScripting->ProcessEvent(BubblesScripting->FindFunction("ApplyReverseGrav"));
             }
             else if (Index == 9) // Clouds
             {

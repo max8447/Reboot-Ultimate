@@ -19,6 +19,8 @@ namespace Globals
 	// extern inline bool bLateGame = false;
 	extern inline std::atomic<bool> bLateGame(false);
 
+	extern inline bool bEnablePhoebeBotTick = true; // only activate if you know what you're doing also this is like highly experimental you will probably experience crashes that don't make sense
+
 	extern inline bool bInfiniteMaterials = true;
 	extern inline bool bInfiniteAmmo = true;
 

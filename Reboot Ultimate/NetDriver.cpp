@@ -29,6 +29,11 @@ void UNetDriver::RemoveNetworkActor(AActor* Actor)
 	// RenamedStartupActors.Remove(Actor->GetFName());
 }
 
+int AmountSpawned = 0;
+bool CanSpawn = true;
+int TimeBetween = 0;
+bool bFirst = false;
+
 void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 {
 	if (bShouldDestroyAllPlayerBuilds) // i hate this
@@ -49,9 +54,45 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 		bShouldDestroyAllPlayerBuilds = false;
 	}
 
-	if (bEnableBotTick)
+	if (Globals::bEnablePhoebeBotTick && Fortnite_Version >= 11)
 	{
-		Bots::Tick();
+		static TArray<AActor*> PlayerStarts;
+
+		auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+		auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+
+		if (!bFirst)
+		{
+			static auto FortPlayerStartWarmupClass = FindObject<UClass>(L"/Script/FortniteGame.FortPlayerStartWarmup");
+			PlayerStarts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortPlayerStartWarmupClass);
+
+			bFirst = true;
+		}
+
+		if (GameState->GetGamePhase() < EAthenaGamePhase::Aircraft && GameMode->GetAlivePlayers().Num() >= 1 && GameMode->GetAlivePlayers().Num() + AmountSpawned < 100)
+		{
+			TimeBetween += 1;
+
+			if (TimeBetween == 75)
+			{
+				AActor* SpawnLocator2 = PlayerStarts.At(rand() % PlayerStarts.Num() - 1);
+
+				PhoebeBotsToTick.push_back(new PhoebeBot(SpawnLocator2));
+
+				AmountSpawned += 1;
+
+				std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+				int randomNumber = rand() % 2 == 0 ? 75 : (rand() % 21) + 10;
+
+				TimeBetween -= randomNumber;
+			}
+		}
+
+		for (auto& PhoebeBot : PhoebeBotsToTick)
+		{
+			PhoebeBot->PhoebeBotTick();
+		}
 	}
 
 	if (Globals::bStartedListening)

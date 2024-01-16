@@ -2084,7 +2084,7 @@ static inline void MainUI()
 								Transform.Scale3D = FVector{ 1, 1, 1 };
 								Transform.Rotation = FQuat();
 
-								Bots::SpawnBot(Transform);
+								Bots::SpawnAIPawn(Transform);
 							}
 						}
 					}
