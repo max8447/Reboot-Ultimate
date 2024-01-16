@@ -500,8 +500,8 @@ static inline void StaticUI()
 
 		if (Globals::bAutoRestart)
 		{
-			ImGui::InputFloat(std::format("How long after {} players join the bus will start", NumRequiredPlayersToStart).c_str(), &AutoBusStartSeconds);
-			ImGui::InputInt("Num Players required for bus auto timer", &NumRequiredPlayersToStart);
+			ImGui::InputInt("Players Required To Start:", &NumRequiredPlayersToStart);
+			ImGui::InputFloat(std::format("Seconds for {} Players To Start", NumRequiredPlayersToStart).c_str(), &AutoBusStartSeconds);
 		}
 	}
 
