@@ -214,7 +214,6 @@ static std::vector Tertiaries = {
 	"WID_Sniper_BoltAction_Scope_Athena_VR_Ore_T03",
 	"WID_Sniper_BoltAction_Scope_Athena_R_Ore_T03",
 	"WID_Sniper_BoltAction_Scope_Athena_UC_Ore_T03",
-	"WID_Sniper_BoltAction_Scope_Athena_C_Ore_T03",
 	"WID_Sniper_Standard_Scope_Athena_SR_Ore_T03",
 	"WID_Sniper_Standard_Scope_Athena_VR_Ore_T03",
 	"WID_Sniper_Suppressed_Scope_Athena_SR_Ore_T03",
@@ -223,6 +222,10 @@ static std::vector Tertiaries = {
 	"WID_Sniper_Weather_Athena_SR",
 	"WID_WaffleTruck_Sniper_StormScout",
 	"WID_WaffleTruck_Sniper_DragonBreath"
+	"WID_Sniper_CoreSniper_Athena_SR",
+	"WID_Sniper_CoreSniper_Athena_VR",
+	"WID_Sniper_CoreSniper_Athena_R",
+	"WID_Sniper_CoreSniper_Athena_UC",
 };
 
 static std::vector Secondaries = {
@@ -285,6 +288,8 @@ static std::vector Primaries = {
 static std::vector Consumables1 = {
 	"Athena_ShockGrenade",
 	"WID_Hook_Gun_VR_Ore_T03",
+	"WID_Badger_Grape_VR",
+	"WID_Athena_BadgerBangsNew",
 	"WID_Athena_HappyGhost",
 	"Athena_KnockGrenade",
 	"Athena_Rift_Item",
