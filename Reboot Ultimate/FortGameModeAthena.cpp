@@ -268,10 +268,27 @@ void AFortGameModeAthena::OnAircraftEnteredDropZoneHook(AFortGameModeAthena* Gam
 
 	OnAircraftEnteredDropZoneOriginal(GameModeAthena, Aircraft);
 
+	for (auto PhoebeBot : PhoebeBotsToTick)
+	{
+		PhoebeBot->CanJumpFromBus = true;
+	}
+
 	if (Globals::bLateGame.load())
 	{
 		auto GameState = Cast<AFortGameStateAthena>(GameModeAthena->GetGameState());
 		GameState->SkipAircraft();
+	}
+}
+
+void AFortGameModeAthena::OnAircraftExitedDropZoneHook(AFortGameModeAthena* GameModeAthena, AActor* Aircraft)
+{
+	LOG_INFO(LogDev, "OnAircraftExitedDropZoneHook!");
+
+	OnAircraftExitedDropZoneOriginal(GameModeAthena, Aircraft);
+
+	for (auto PhoebeBot : PhoebeBotsToTick)
+	{
+		PhoebeBot->JumpFromAircraft(Aircraft);
 	}
 
 	if (Globals::bStormKing)
@@ -415,6 +432,13 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 			AIMutator::SetupAIDirector();
 		}
 
+		HIDs = GetAllObjectsOfClass(FindObject<UClass>(L"/Script/FortniteGame.FortHeroType"));
+		Pickaxes = GetAllObjectsOfClass(FindObject<UClass>(L"/Script/FortniteGame.AthenaPickaxeItemDefinition"));
+		Backpacks = GetAllObjectsOfClass(FindObject<UClass>(L"/Script/FortniteGame.FortBackpackItemDefinition"));
+		Gliders = GetAllObjectsOfClass(FindObject<UClass>(L"/Script/FortniteGame.AthenaGliderItemDefinition"));
+		Contrails = GetAllObjectsOfClass(FindObject<UClass>(L"/Script/FortniteGame.AthenaSkyDiveContrailItemDefinition"));
+		Dances = GetAllObjectsOfClass(FindObject<UClass>(L"/Script/FortniteGame.AthenaDanceItemDefinition"));
+
 		static auto WarmupRequiredPlayerCountOffset = GameMode->GetOffset("WarmupRequiredPlayerCount");
 		GameMode->Get<int>(WarmupRequiredPlayerCountOffset) = 1;
 
@@ -528,6 +552,9 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 			if (Fortnite_Season == 13) // bro
 			{
 				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Lobby_Foundation"));
+
+				/*
+
 				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_Whirlpool"));
 				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.FrenzyFloating_Foundation"));
 				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.FrenzyFloating_Foundation_b"));
@@ -590,6 +617,8 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_Bridge_020_b"));
 				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_3x3_TruceRaft"));
 				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_3x3_Parent7_DamDoor"));
+
+				*/
 			}
 
 			if (Fortnite_Version == 12.41)
@@ -626,6 +655,24 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_5x5_Galileo_Ferry_5"));
 				}
 			}
+
+			/*
+
+			static auto BuildingFoundationClass = FindObject<UClass>(L"/Script/FortniteGame.BuildingFoundation");
+
+			auto AllBuildingFoundations = UGameplayStatics::GetAllActorsOfClass(GetWorld(), BuildingFoundationClass);
+
+			for (int i = 0; i < AllBuildingFoundations.Num(); ++i)
+			{
+				auto BuildingFoundation = AllBuildingFoundations.at(i);
+
+				if (!BuildingFoundation || BuildingFoundation->Get<uint8_t>("DynamicFoundationType") != 3)
+					continue;
+
+				ShowFoundation(BuildingFoundation);
+			}
+
+			*/
 
 			if (Globals::bStormKing)
 			{
@@ -1031,11 +1078,6 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 		if (Engine_Version >= 500)
 		{
 			GameState->Get<float>("DefaultParachuteDeployTraceForGroundDistance") = 10000;
-		}
-
-		if (AmountOfBotsToSpawn != 0)
-		{
-			Bots::SpawnBotsAtPlayerStarts(AmountOfBotsToSpawn);
 		}
 
 		UptimeWebHook.send_message(std::format("Server up! {} {}", Fortnite_Version, PlaylistName)); // PlaylistName sometimes isn't always what we use!

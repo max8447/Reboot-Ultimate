@@ -336,6 +336,9 @@ void UFortKismetLibrary::K2_RemoveItemFromPlayerHook(UObject* Context, FFrame& S
 	if (!ItemInstance)
 		return K2_RemoveItemFromPlayerOriginal(Context, Stack, Ret);
 
+	if (Globals::bInfiniteAmmo)
+		return K2_RemoveItemFromPlayerOriginal(Context, Stack, Ret);
+
 	bool bShouldUpdate = false;
 	WorldInventory->RemoveItem(ItemInstance->GetItemEntry()->GetItemGuid(), &bShouldUpdate, AmountToRemove);
 
@@ -367,6 +370,9 @@ void UFortKismetLibrary::K2_RemoveItemFromPlayerByGuidHook(UObject* Context, FFr
 	auto WorldInventory = PlayerController->GetWorldInventory();
 
 	if (!WorldInventory)
+		return K2_RemoveItemFromPlayerByGuidOriginal(Context, Stack, Ret);
+
+	if (Globals::bInfiniteAmmo)
 		return K2_RemoveItemFromPlayerByGuidOriginal(Context, Stack, Ret);
 
 	bool bShouldUpdate = false;

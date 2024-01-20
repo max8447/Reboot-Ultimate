@@ -71,6 +71,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <UseStructuredOutput>false</UseStructuredOutput>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -198,6 +201,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="EngineTypes.cpp" />
     <ClCompile Include="finder.cpp" />
+    <ClCompile Include="FortAthenaAIBotController.cpp" />
     <ClCompile Include="FortAthenaCreativePortal.cpp" />
     <ClCompile Include="FortAthenaMapInfo.cpp" />
     <ClCompile Include="FortAthenaMutator_Barrier.cpp" />
@@ -330,6 +334,7 @@
     <ClInclude Include="FortAbilitySet.h" />
     <ClInclude Include="FortAIEncounterInfo.h" />
     <ClInclude Include="FortAthenaAIBotCharacterCustomization.h" />
+    <ClInclude Include="FortAthenaAIBotController.h" />
     <ClInclude Include="FortAthenaAIBotCustomizationData.h" />
     <ClInclude Include="FortAthenaCreativePortal.h" />
     <ClInclude Include="FortAthenaMapInfo.h" />

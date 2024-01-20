@@ -3,6 +3,18 @@
 #include "reboot.h"
 #include "FortAthenaAIBotCharacterCustomization.h"
 
+struct FFortAthenaAIBotRunTimeCustomizationData
+{
+public:
+	FGameplayTag								 PredefinedCosmeticSetTag;                          // 0x0(0x8)(Edit, BlueprintVisible, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	float                                        CullDistanceSquared;                               // 0x8(0x4)(Edit, BlueprintVisible, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	bool                                         bCheckForOverlaps;                                 // 0xC(0x1)(Edit, BlueprintVisible, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	uint8                                        bHasCustomSquadId : 1;                             // Mask: 0x1, PropSize: 0x10xD(0x1)(Edit, BlueprintVisible, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	uint8                                        BitPad_2D1 : 7;                                    // Fixing Bit-Field Size  [ Dumper-7 ]
+	uint8                                        CustomSquadId;                                     // 0xE(0x1)(Edit, BlueprintVisible, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	uint8                                        Pad_4865[0x1];                                     // Fixing Size Of Struct [ Dumper-7 ]
+};
+
 class UFortAthenaAIBotCustomizationData : public UObject // UPrimaryDataAsset
 {
 public:
@@ -21,9 +33,11 @@ public:
 		auto Controller = NewBot->GetController();
 
 		LOG_INFO(LogDev, "Controller: {}", Controller->IsValidLowLevel() ? Controller->GetPathName() : "BadRead");
-
+			
 		static auto CosmeticLoadoutBCOffset = Controller->GetOffset("CosmeticLoadoutBC");
 		Controller->GetPtr<FFortAthenaLoadout>(CosmeticLoadoutBCOffset)->GetCharacter() = CharacterCustomization->GetCustomizationLoadout()->GetCharacter();
+
+		ApplyHID(NewBot, CharacterCustomization->GetCustomizationLoadout()->GetCharacter()->GetHeroDefinition());
 
 		auto PlayerStateAsFort = Cast<AFortPlayerState>(Controller->GetPlayerState());
 

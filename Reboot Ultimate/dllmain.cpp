@@ -971,6 +971,8 @@ DWORD WINAPI Main(LPVOID)
        (PVOID*)&AFortGameModeAthena::Athena_ReadyToStartMatchOriginal, false, false, true);
     Hooking::MinHook::Hook(GameModeDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortGameModeAthena.OnAircraftEnteredDropZone"), AFortGameModeAthena::OnAircraftEnteredDropZoneHook,
         (PVOID*)&AFortGameModeAthena::OnAircraftEnteredDropZoneOriginal, false, false, true, true);
+    Hooking::MinHook::Hook(GameModeDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortGameModeAthena.OnAircraftExitedDropZone"), AFortGameModeAthena::OnAircraftExitedDropZoneHook,
+        (PVOID*)&AFortGameModeAthena::OnAircraftExitedDropZoneOriginal, false, false, true, true);
     Hooking::MinHook::Hook(GameModeDefault, FindObject<UFunction>(L"/Script/Engine.GameModeBase.SpawnDefaultPawnFor"),
         AGameModeBase::SpawnDefaultPawnForHook, nullptr, false);
     Hooking::MinHook::Hook(GameModeDefault, FindObject<UFunction>(L"/Script/Engine.GameModeBase.HandleStartingNewPlayer"), AFortGameModeAthena::Athena_HandleStartingNewPlayerHook,
@@ -1134,7 +1136,7 @@ DWORD WINAPI Main(LPVOID)
         AFortPlayerControllerAthena::ServerTeleportToPlaygroundLobbyIslandHook, nullptr, false);
 
     // Hooking::MinHook::Hook(FortPlayerStateAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerStateAthena.ServerSetInAircraft"),
-        // AFortPlayerStateAthena::ServerSetInAircraftHook, (PVOID*)&AFortPlayerStateAthena::ServerSetInAircraftOriginal, false, true); // We could use second method but eh
+       // AFortPlayerStateAthena::ServerSetInAircraftHook, (PVOID*)&AFortPlayerStateAthena::ServerSetInAircraftOriginal, false, true); // We could use second method but eh
 
     if (Fortnite_Version < 19 && FortOctopusVehicleDefault) // hooking broken on 19.10 i cant figure it out for the life of me
     {
@@ -1335,6 +1337,9 @@ DWORD WINAPI Main(LPVOID)
                 UAthenaMarkerComponent::ServerRemoveMapMarkerHook, nullptr, false);
         }
     }
+
+    Hooking::MinHook::Hook(FindObject<AFortAthenaAIBotController>(L"/Script/FortniteGame.Default__FortAthenaAIBotController"), FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaAIBotController.OnPossesedPawnDied"),
+        AFortAthenaAIBotController::OnPossesedPawnDiedHook, (PVOID*)&AFortAthenaAIBotController::OnPossesedPawnDiedOriginal, false);
 
     static auto FortHeldObjectComponentDefault = FindObject<UFortHeldObjectComponent>(L"/Script/FortniteGame.Default__FortHeldObjectComponent");
 

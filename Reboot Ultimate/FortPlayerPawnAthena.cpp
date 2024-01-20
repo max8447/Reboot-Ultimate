@@ -54,6 +54,8 @@ void AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook(UObject* Context, FFrame* 
 				}
 			}
 		}
+		/*
+
 		else if (OtherActor->IsA(CoinClass) && OtherComp->GetName() == "CollectOverlap")
 		{
 			// static auto BackendNameProp = FindObject<UProperty>("/Game/Athena/Items/QuestInteractables/ItemCollection/BP_ItemCollection_Touch.BP_ItemCollection_Touch_C.QuestBackendName");
@@ -124,6 +126,8 @@ void AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook(UObject* Context, FFrame* 
 				OtherActor->ProcessEvent(ObjectiveSuccessfullyCompletedFn, &PlayerController);
 			}
 		}
+
+		*/
 	}
 
 	// return OnCapsuleBeginOverlapOriginal(Context, Stack, Ret); // we love explicit

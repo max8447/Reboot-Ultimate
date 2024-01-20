@@ -491,6 +491,7 @@ void AFortPlayerController::ServerExecuteInventoryItemHook(AFortPlayerController
 
 void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* Stack, void* Ret)
 {
+	static std::map<AFortPlayerControllerAthena*, int> ChestsSearched{};
 	// static auto LlamaClass = FindObject<UClass>(L"/Game/Athena/SupplyDrops/Llama/AthenaSupplyDrop_Llama.AthenaSupplyDrop_Llama_C");
 	static auto FortAthenaSupplyDropClass = FindObject<UClass>(L"/Script/FortniteGame.FortAthenaSupplyDrop");
 	static auto BuildingItemCollectorActorClass = FindObject<UClass>(L"/Script/FortniteGame.BuildingItemCollectorActor");
@@ -939,6 +940,11 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 		UFortQuestItemDefinition* QuestItemDefinition = *(UFortQuestItemDefinition**)(__int64(ReceivingActor) + QuestItemDefinitionOffset);
 
 		PlayerController->ProgressQuest(PlayerController, QuestItemDefinition, ObjBackendName);
+	}
+	else if (ReceivingActor->ClassPrivate->GetName().contains("Tiered_"))
+	{
+		ChestsSearched[PlayerController]++;
+		PlayerController->GiveAccolade(PlayerController, GetDefFromEvent(EAccoladeEvent::Search, ChestsSearched[PlayerController], ReceivingActor));
 	}
 
 	return ServerAttemptInteractOriginal(Context, Stack, Ret);
@@ -1437,61 +1443,6 @@ void AFortPlayerController::ServerPlayEmoteItemHook(AFortPlayerController* Playe
 	}
 }
 
-uint8 ToDeathCause(const FGameplayTagContainer& TagContainer, bool bWasDBNO = false, AFortPawn* Pawn = nullptr)
-{
-	static auto ToDeathCauseFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerStateAthena.ToDeathCause");
-
-	if (ToDeathCauseFn)
-	{
-		struct
-		{
-			FGameplayTagContainer                       InTags;                                                   // (ConstParm, Parm, OutParm, ReferenceParm, NativeAccessSpecifierPublic)
-			bool                                               bWasDBNO;                                                 // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-			uint8_t                                        ReturnValue;                                              // (Parm, OutParm, ZeroConstructor, ReturnParm, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		} AFortPlayerStateAthena_ToDeathCause_Params{ TagContainer, bWasDBNO };
-
-		AFortPlayerStateAthena::StaticClass()->ProcessEvent(ToDeathCauseFn, &AFortPlayerStateAthena_ToDeathCause_Params);
-
-		return AFortPlayerStateAthena_ToDeathCause_Params.ReturnValue;
-	}
-
-	static bool bHaveFoundAddress = false;
-
-	static uint64 Addr = 0;
-
-	if (!bHaveFoundAddress)
-	{
-		bHaveFoundAddress = true;
-
-		if (Engine_Version == 419)
-			Addr = Memcury::Scanner::FindPattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 41 0F B6 F8 48 8B DA 48 8B F1 E8 ? ? ? ? 33 ED").Get();
-		if (Engine_Version == 420)
-			Addr = Memcury::Scanner::FindPattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 0F B6 FA 48 8B D9 E8 ? ? ? ? 33 F6 48 89 74 24").Get();
-		if (Engine_Version == 421) // 5.1
-			Addr = Memcury::Scanner::FindPattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 0F B6 FA 48 8B D9 E8 ? ? ? ? 33").Get();
-
-		if (!Addr)
-		{
-			LOG_WARN(LogPlayer, "Failed to find ToDeathCause address!");
-			return 0;
-		}
-	}
-
-	if (!Addr)
-	{
-		return 0;
-	}
-
-	if (Engine_Version == 419)
-	{
-		static uint8(*sub_7FF7AB499410)(AFortPawn* Pawn, FGameplayTagContainer TagContainer, char bWasDBNOIg) = decltype(sub_7FF7AB499410)(Addr);
-		return sub_7FF7AB499410(Pawn, TagContainer, bWasDBNO);
-	}
-
-	static uint8 (*sub_7FF7AB499410)(FGameplayTagContainer TagContainer, char bWasDBNOIg) = decltype(sub_7FF7AB499410)(Addr);
-	return sub_7FF7AB499410(TagContainer, bWasDBNO);
-}
-
 DWORD WINAPI SpectateThread(LPVOID PC)
 {
 	auto PlayerController = (UObject*)PC;
@@ -1573,7 +1524,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 			CopyTags.ParentTags.Add(Tags.ParentTags.at(i));
 		}
 
-		DeathCause = ToDeathCause(Tags, false, DeadPawn); // DeadPawn->IsDBNO() ??
+		DeathCause = DeadPlayerState->ToDeathCause(Tags, false, DeadPawn); // DeadPawn->IsDBNO() ??
 
 		LOG_INFO(LogDev, "DeathCause: {}", (int)DeathCause);
 		LOG_INFO(LogDev, "DeadPawn->IsDBNO(): {}", DeadPawn->IsDBNO());
@@ -1744,6 +1695,8 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 			auto DeadControllerAthena = Cast<AFortPlayerControllerAthena>(PlayerController);
 			auto KillerControllerAthena = Cast<AFortPlayerControllerAthena>(KillerPlayerState->GetOwner());
+
+			KillerControllerAthena->GiveAccolade(KillerControllerAthena, GetDefFromEvent(EAccoladeEvent::Kill, KillScore));
 
 			if (FAthenaMatchTeamStats::GetStruct() && FAthenaMatchStats::GetStruct())
 			{
@@ -1995,6 +1948,31 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 					}
 
 					RemoveFromAlivePlayers(GameMode, PlayerController, KillerPlayerState == DeadPlayerState ? nullptr : KillerPlayerState, KillerPawn, KillerWeaponDef, DeathCause, 0);
+
+					if (GameMode->GetAlivePlayers().Num() + GameMode->GetAliveBots().Num() == 50)
+					{
+						for (int i = 0; i < GameMode->GetAlivePlayers().Num(); i++)
+						{
+							auto PlayerController = GameMode->GetAlivePlayers().at(i);
+							PlayerController->GiveAccolade(PlayerController, FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_026_Survival_Default_Bronze.AccoladeId_026_Survival_Default_Bronze"));
+						}
+					}
+					if (GameMode->GetAlivePlayers().Num() + GameMode->GetAliveBots().Num() == 25)
+					{
+						for (int i = 0; i < GameMode->GetAlivePlayers().Num(); i++)
+						{
+							auto PlayerController = GameMode->GetAlivePlayers().at(i);
+							PlayerController->GiveAccolade(PlayerController, FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_027_Survival_Default_Silver.AccoladeId_027_Survival_Default_Silver"));
+						}
+					}
+					if (GameMode->GetAlivePlayers().Num() + GameMode->GetAliveBots().Num() == 10)
+					{
+						for (int i = 0; i < GameMode->GetAlivePlayers().Num(); i++)
+						{
+							auto PlayerController = GameMode->GetAlivePlayers().at(i);
+							PlayerController->GiveAccolade(PlayerController, FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_028_Survival_Default_Gold.AccoladeId_028_Survival_Default_Gold"));
+						}
+					}
 
 					/*
 

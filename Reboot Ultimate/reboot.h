@@ -253,7 +253,7 @@ inline void SetBitfield(void* Addr, uint8_t FieldMask, bool NewVal)
 }
 
 template<typename T = UObject>
-inline std::vector<T*> GetAllObjectsOfClass(UClass* Class)
+inline std::vector<T*> GetAllObjectsOfClass(UClass* Class = T::StaticClass())
 {
 	std::vector<T*> Objects;
 

@@ -9,6 +9,7 @@
 #include "Stack.h"
 #include "ActorComponent.h"
 #include "SoftObjectPtr.h"
+#include "FortWeaponMeleeItemDefinition.h"
 
 class UProperty : public UField
 {
@@ -93,6 +94,93 @@ static UClass* LettersClass = nullptr;
 static UProperty* LetterQuestItem = nullptr;
 static UProperty* BackendNameProp = nullptr;
 
+class UAthenaCosmeticItemDefinition : public UFortItemDefinition // UFortAccountItemDefinition
+{
+public:
+};
+
+class UAthenaBattleBusItemDefinition : public UAthenaCosmeticItemDefinition
+{
+public:
+};
+
+class UFortHeroType : public UFortItemDefinition // UFortWorkerType
+{
+public:
+};
+
+class UAthenaCharacterItemDefinition : public UAthenaCosmeticItemDefinition
+{
+public:
+	UFortHeroType* GetHeroDefinition()
+	{
+		static auto HeroDefinitonOffset = FindOffsetStruct("/Script/FortniteGame.AthenaCharacterItemDefinition", "HeroDefinition");
+		return *(UFortHeroType**)(__int64(this) + HeroDefinitonOffset);
+	}
+
+	static UClass* StaticClass()
+	{
+		static auto Class = FindObject<UClass>(L"/Script/FortniteGame.AthenaCharacterItemDefinition");
+		return Class;
+	}
+};
+
+class UAthenaPickaxeItemDefinition : public UAthenaCosmeticItemDefinition
+{
+public:
+	UFortWeaponMeleeItemDefinition* GetWeaponDefinition()
+	{
+		static auto WeaponDefinitionOffset = FindOffsetStruct("/Script/FortniteGame.AthenaPickaxeItemDefinition", "WeaponDefinition");
+		return *(UFortWeaponMeleeItemDefinition**)(__int64(this) + WeaponDefinitionOffset);
+	}
+
+	static UClass* StaticClass()
+	{
+		static auto Class = FindObject<UClass>(L"/Script/FortniteGame.AthenaPickaxeItemDefinition");
+		return Class;
+	}
+};
+
+class UAthenaBackpackItemDefinition : public UAthenaCosmeticItemDefinition // UAthenaCharacterPartItemDefinition
+{
+public:
+	static UClass* StaticClass()
+	{
+		static auto Class = FindObject<UClass>(L"/Script/FortniteGame.AthenaBackpackItemDefinition");
+		return Class;
+	}
+};
+
+class UAthenaGliderItemDefinition : public UAthenaCosmeticItemDefinition
+{
+public:
+	static UClass* StaticClass()
+	{
+		static auto Class = FindObject<UClass>(L"/Script/FortniteGame.AthenaGliderItemDefinition");
+		return Class;
+	}
+};
+
+class UAthenaSkyDiveContrailItemDefinition : public UAthenaCosmeticItemDefinition
+{
+public:
+	static UClass* StaticClass()
+	{
+		static auto Class = FindObject<UClass>(L"/Script/FortniteGame.AthenaSkyDiveContrailItemDefinition");
+		return Class;
+	}
+};
+
+class UAthenaDanceItemDefinition : public UAthenaCosmeticItemDefinition // UFortMontageItemDefinitionBase
+{
+public:
+	static UClass* StaticClass()
+	{
+		static auto Class = FindObject<UClass>(L"/Script/FortniteGame.AthenaDanceItemDefinition");
+		return Class;
+	}
+};
+
 struct FFortAthenaLoadout
 {
 	static UStruct* GetStruct()
@@ -106,22 +194,34 @@ struct FFortAthenaLoadout
 		return GetStruct()->GetPropertiesSize();
 	}
 
-	UObject*& GetCharacter()
+	UAthenaCharacterItemDefinition*& GetCharacter()
 	{
 		static auto CharacterOffset = FindOffsetStruct("/Script/FortniteGame.FortAthenaLoadout", "Character");
-		return *(UObject**)(__int64(this) + CharacterOffset);
+		return *(UAthenaCharacterItemDefinition**)(__int64(this) + CharacterOffset);
 	}
 
-	UObject*& GetBackpack()
+	UAthenaBackpackItemDefinition*& GetBackpack()
 	{
 		static auto BackpackOffset = FindOffsetStruct("/Script/FortniteGame.FortAthenaLoadout", "Backpack");
-		return *(UObject**)(__int64(this) + BackpackOffset);
+		return *(UAthenaBackpackItemDefinition**)(__int64(this) + BackpackOffset);
 	}
 
-	UObject*& GetPickaxe()
+	UAthenaPickaxeItemDefinition*& GetPickaxe()
 	{
 		static auto PickaxeOffset = FindOffsetStruct("/Script/FortniteGame.FortAthenaLoadout", "Pickaxe");
-		return *(UObject**)(__int64(this) + PickaxeOffset);
+		return *(UAthenaPickaxeItemDefinition**)(__int64(this) + PickaxeOffset);
+	}
+
+	UAthenaGliderItemDefinition*& GetGlider()
+	{
+		static auto GliderOffset = FindOffsetStruct("/Script/FortniteGame.FortAthenaLoadout", "Glider");
+		return *(UAthenaGliderItemDefinition**)(__int64(this) + GliderOffset);
+	}
+
+	UAthenaSkyDiveContrailItemDefinition*& GetSkyDiveContrail()
+	{
+		static auto SkyDiveContrailOffset = FindOffsetStruct("/Script/FortniteGame.FortAthenaLoadout", "SkyDiveContrail");
+		return *(UAthenaSkyDiveContrailItemDefinition**)(__int64(this) + SkyDiveContrailOffset);
 	}
 };
 
@@ -318,13 +418,13 @@ public:
 	void OnXpEvent(FXPEventInfo& XPEvent)
 	{
 		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnXpEvent");
+		this->ProcessEvent(fn, &XPEvent);
+	}
 
-		struct
-		{
-			struct FXPEventInfo                XPEvent;
-		}params{ XPEvent };
-
-		this->ProcessEvent(fn, &params);
+	void OnXPEvent(FXPEventInfo& XPEvent)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnXPEvent");
+		this->ProcessEvent(fn, &XPEvent);
 	}
 
 	void OnXpUpdated(int32 InCombatXp, int32 InServivalXp, int32 InBonusMedalXp, int32 InChallengeXp, int32 InMatchXp, int32 InTotalXp)

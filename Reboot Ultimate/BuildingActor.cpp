@@ -102,6 +102,10 @@ void ABuildingActor::OnDamageServerHook(ABuildingActor* BuildingActor, float Dam
 	}
 
 	bool bIsWeakspot = Damage == 100.0f;
+
+	if (bIsWeakspot)
+		PlayerController->GiveAccolade(PlayerController, FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_066_WeakSpotsInARow.AccoladeId_066_WeakSpotsInARow"));
+	
 	PlayerController->ClientReportDamagedResourceBuilding(BuildingSMActor, BuildingSMActor->GetResourceType(), ResourceCount, false, bIsWeakspot);
 
 	bool bShouldUpdate = false;
