@@ -31,6 +31,12 @@ public:
 		static auto MaxFlySpeedOffset = FindOffsetStruct("/Script/Engine.CharacterMovementComponent", "MaxFlySpeed");
 		return *(float*)(__int64(this) + MaxFlySpeedOffset);
 	}
+
+	uint8& CanWalkOffLedges()
+	{
+		static auto bCanWalkOffLedgesOffset = GetOffset("bCanWalkOffLedges");
+		return Get<uint8>(bCanWalkOffLedgesOffset);
+	}
 };
 
 class ACharacter : public APawn
@@ -40,6 +46,30 @@ public:
 	{
 		static auto CharacterMovementOffset = FindOffsetStruct("/Script/Engine.Character", "CharacterMovement");
 		return *(UCharacterMovementComponent**)(__int64(this) + CharacterMovementOffset);
+	}
+
+	UActorComponent* GetCapsuleComponent()
+	{
+		static auto CapsuleComponentOffset = GetOffset("CapsuleComponent");
+		return Get<UActorComponent*>(CapsuleComponentOffset);
+	}
+
+	void Jump()
+	{
+		static auto fn = FindObject<UFunction>("/Script/Engine.Character.Jump");
+		this->ProcessEvent(fn);
+	}
+
+	void Crouch(bool bClientSimulation)
+	{
+		static auto fn = FindObject<UFunction>("/Script/Engine.Character.Crouch");
+		this->ProcessEvent(fn, &bClientSimulation);
+	}
+
+	void UnCrouch(bool bClientSimulation)
+	{
+		static auto fn = FindObject<UFunction>("/Script/Engine.Character.UnCrouch");
+		this->ProcessEvent(fn, &bClientSimulation);
 	}
 };
 

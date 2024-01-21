@@ -37,6 +37,12 @@ public:
 		return ReturnValue;
 	}
 
+	void OnRep_CharacterData()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerState.OnRep_CharacterData");
+		this->ProcessEvent(fn);
+	}
+
 	void UpdateScoreStatChanged();
 
 	void EndDBNOAbilities();

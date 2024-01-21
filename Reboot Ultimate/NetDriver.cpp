@@ -45,7 +45,8 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 		{
 			auto CurrentBuildingSMActor = (ABuildingSMActor*)AllBuildingSMActors.at(i);
 
-			if (CurrentBuildingSMActor->IsDestroyed() || CurrentBuildingSMActor->IsActorBeingDestroyed() || !CurrentBuildingSMActor->IsPlayerPlaced()) continue;
+			if (CurrentBuildingSMActor->IsDestroyed() || CurrentBuildingSMActor->IsActorBeingDestroyed() || !CurrentBuildingSMActor->IsPlayerPlaced())
+				continue;
 
 			CurrentBuildingSMActor->SilentDie();
 			// CurrentBuildingSMActor->K2_DestroyActor();

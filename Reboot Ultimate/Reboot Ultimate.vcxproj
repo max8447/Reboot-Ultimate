@@ -239,6 +239,7 @@
     <ClCompile Include="FortPlayerStateAthena.cpp" />
     <ClCompile Include="FortPlaysetItemDefinition.cpp" />
     <ClCompile Include="FortSafeZoneIndicator.cpp" />
+    <ClCompile Include="FortServerBotManagerAthena.cpp" />
     <ClCompile Include="FortWeapon.cpp" />
     <ClCompile Include="FortWeaponItemDefinition.cpp" />
     <ClCompile Include="FortWeaponRangedMountedCannon.cpp" />
@@ -288,12 +289,15 @@
     <ClInclude Include="AthenaBarrierObjective.h" />
     <ClInclude Include="AthenaBigBaseWall.h" />
     <ClInclude Include="AthenaMarkerComponent.h" />
+    <ClInclude Include="AthenaNavSystem.h" />
     <ClInclude Include="AthenaPlayerMatchReport.h" />
     <ClInclude Include="AthenaResurrectionComponent.h" />
     <ClInclude Include="AttributeSet.h" />
+    <ClInclude Include="BehaviorTree.h" />
     <ClInclude Include="BGA.h" />
     <ClInclude Include="BinaryHeap.h" />
     <ClInclude Include="BitArray.h" />
+    <ClInclude Include="BlackBoard.h" />
     <ClInclude Include="bots.h" />
     <ClInclude Include="BP_IslandScripting.h" />
     <ClInclude Include="BuildingActor.h" />
@@ -336,6 +340,7 @@
     <ClInclude Include="FortAthenaAIBotCharacterCustomization.h" />
     <ClInclude Include="FortAthenaAIBotController.h" />
     <ClInclude Include="FortAthenaAIBotCustomizationData.h" />
+    <ClInclude Include="FortAthenaAIBotDigestedSkillSet.h" />
     <ClInclude Include="FortAthenaCreativePortal.h" />
     <ClInclude Include="FortAthenaMapInfo.h" />
     <ClInclude Include="FortAthenaMutator.h" />
@@ -393,6 +398,7 @@
     <ClInclude Include="FortQuickBars.h" />
     <ClInclude Include="FortResourceItemDefinition.h" />
     <ClInclude Include="FortSafeZoneIndicator.h" />
+    <ClInclude Include="FortServerBotManagerAthena.h" />
     <ClInclude Include="FortVehicleItemDefinition.h" />
     <ClInclude Include="FortVolume.h" />
     <ClInclude Include="FortWeapon.h" />
@@ -442,6 +448,7 @@
     <ClInclude Include="MemoryOps.h" />
     <ClInclude Include="moderation.h" />
     <ClInclude Include="NameTypes.h" />
+    <ClInclude Include="NavigationData.h" />
     <ClInclude Include="NetDriver.h" />
     <ClInclude Include="NetSerialization.h" />
     <ClInclude Include="NetworkGuid.h" />
@@ -452,6 +459,7 @@
     <ClInclude Include="OnlineReplStructs.h" />
     <ClInclude Include="OutputDevice.h" />
     <ClInclude Include="Package.h" />
+    <ClInclude Include="PathFollowingComponent.h" />
     <ClInclude Include="Pawn.h" />
     <ClInclude Include="PersistentObjectPtr.h" />
     <ClInclude Include="Player.h" />

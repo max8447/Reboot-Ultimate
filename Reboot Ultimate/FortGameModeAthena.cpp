@@ -982,20 +982,11 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 				}
 				else
 				{
-					auto S19Patch = Memcury::Scanner::FindPattern("74 1A 48 8D 97 ? ? ? ? 49 8B CF E8 ? ? ? ? 88 87 ? ? ? ? E9", false).Get();
-					
+					auto S19Patch = Memcury::Scanner::FindPattern("74 1A 48 8D 97 ? ? ? ? 49 8B CF E8 ? ? ? ? 88 87 ? ? ? ? E9").Get();
+
 					if (S19Patch)
 					{
 						PatchByte(S19Patch, 0x75);
-					}
-					else
-					{
-						auto S18Patch = Memcury::Scanner::FindPattern("75 02 33 F6 41 BE ? ? ? ? 48 85 F6 74 17 48 8D 93").Get();
-
-						if (S18Patch)
-						{
-							PatchByte(S18Patch, 0x74);
-						}
 					}
 				}
 

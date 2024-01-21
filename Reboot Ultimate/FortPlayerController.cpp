@@ -1983,7 +1983,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 					{
 						LOG_INFO(LogDev, "AGameMode::EndMatch()");
 
-						GameMode->EndMatch(); // Slomo fix (scuffed)
+						GameMode->EndMatch(); // Slomo fix (scuffed) // (it didnt fix it)
 					}
 
 					*/

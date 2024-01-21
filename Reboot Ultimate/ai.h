@@ -14,11 +14,12 @@
 #include "FortBotNameSettings.h"
 #include "KismetTextLibrary.h"
 #include "FortAthenaAIBotCustomizationData.h"
+#include "AthenaNavSystem.h"
 
 using UNavigationSystemV1 = UObject;
 using UNavigationSystemConfig = UObject;
 using AAthenaNavSystemConfigOverride = UObject;
-using UAthenaNavSystem = UObject;
+// using UAthenaNavSystem = UObject;
 using UAthenaNavSystemConfig = UObject;
 
 enum class EFNavigationSystemRunMode : uint8_t

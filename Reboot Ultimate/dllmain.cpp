@@ -47,6 +47,7 @@
 #include "FortAIEncounterInfo.h"
 #include "FortAthenaMutator_DadBro.h"
 #include "FortDecoItemDefinition.h"
+#include "FortServerBotManagerAthena.h"
 
 enum class EMeshNetworkNodeType : uint8_t
 {
@@ -679,7 +680,7 @@ DWORD WINAPI Main(LPVOID)
     Addresses::Init();
     Addresses::Print();
 
-    bEnableRebooting = Addresses::RebootingDelegate && Addresses::FinishResurrection && Addresses::GetSquadIdForCurrentPlayer && false;
+    bEnableRebooting = Addresses::RebootingDelegate && Addresses::FinishResurrection/* && Addresses::GetSquadIdForCurrentPlayer && false*/;
 
     LOG_INFO(LogDev, "Fortnite_CL: {}", Fortnite_CL);
     LOG_INFO(LogDev, "Fortnite_Version: {}", Fortnite_Version);
@@ -1340,6 +1341,9 @@ DWORD WINAPI Main(LPVOID)
 
     Hooking::MinHook::Hook(FindObject<AFortAthenaAIBotController>(L"/Script/FortniteGame.Default__FortAthenaAIBotController"), FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaAIBotController.OnPossesedPawnDied"),
         AFortAthenaAIBotController::OnPossesedPawnDiedHook, (PVOID*)&AFortAthenaAIBotController::OnPossesedPawnDiedOriginal, false);
+
+    Hooking::MinHook::Hook(FindObject<UFortServerBotManagerAthena>(L"/Script/FortniteGame.Default__FortServerBotManagerAthena"), FindObject<UFunction>(L"/Script/FortniteGame.FortServerBotManagerAthena.SpawnBot"),
+        UFortServerBotManagerAthena::SpawnBotHook, (PVOID*)&UFortServerBotManagerAthena::SpawnBotOriginal, false);
 
     static auto FortHeldObjectComponentDefault = FindObject<UFortHeldObjectComponent>(L"/Script/FortniteGame.Default__FortHeldObjectComponent");
 

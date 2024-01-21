@@ -1270,6 +1270,13 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			Pawn->SetDBNO(!Pawn->IsDBNO());
 			SendMessageToConsole(PlayerController, std::wstring(L"DBNO set to " + std::to_wstring(!(bool)Pawn->IsDBNO())).c_str());
 		}
+		else if (Command == "movebots")
+		{
+			for (auto PhoebeBot : PhoebeBotsToTick)
+			{
+				PhoebeBot->MoveToActor(ReceivingController->GetPawn());
+			}
+		}
 		else if (Command == "logprocessevent")
 		{
 			Globals::bLogProcessEvent = !Globals::bLogProcessEvent;
@@ -1903,6 +1910,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			for (int i = 0; i < Count; i++)
 			{
 				auto NewActor = PhoebeBot(Pawn);
+				PhoebeBotsToTick.push_back(&NewActor);
 
 				AmountSpawned++;
 			}
