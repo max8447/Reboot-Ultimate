@@ -307,6 +307,12 @@
     <ClCompile Include="FortAthenaMutator_DropZone.h">
       <Filter>FortniteGame\Source\FortniteGame\Public\Athena\Modifiers</Filter>
     </ClCompile>
+    <ClCompile Include="FortAthenaAIBotController.cpp">
+      <Filter>FortniteGame\Source\FortniteGame\Private\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="FortServerBotManagerAthena.cpp">
+      <Filter>FortniteGame\Source\FortniteGame\Private\AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="log.h" />
@@ -975,6 +981,30 @@
     <ClInclude Include="DropZone.h">
       <Filter>FortniteGame\Source\FortniteGame\Public\LTMs</Filter>
     </ClInclude>
+    <ClInclude Include="FortAthenaAIBotController.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="FortServerBotManagerAthena.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="BehaviorTree.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="BlackBoard.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="FortAthenaAIBotDigestedSkillSet.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="PathFollowingComponent.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="NavigationData.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI\Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="AthenaNavSystem.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">
@@ -1246,6 +1276,9 @@
     </Filter>
     <Filter Include="FortniteGame\Source\FortniteGame\Public\LTMs">
       <UniqueIdentifier>{36ac30b8-1419-4793-a178-9ec33bf0a80e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FortniteGame\Source\FortniteGame\Private\AI">
+      <UniqueIdentifier>{1cf27788-360b-43f1-b041-fa66f2a4b1f5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

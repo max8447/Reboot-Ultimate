@@ -5,6 +5,7 @@
 
 #include "reboot.h"
 #include "Stack.h"
+#include "FortPlayerController.h"
 
 enum class EDrawDebugTrace : uint8_t
 {

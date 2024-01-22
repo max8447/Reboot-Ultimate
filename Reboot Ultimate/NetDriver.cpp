@@ -33,6 +33,7 @@ int AmountSpawned = 0;
 bool CanSpawn = true;
 int TimeBetween = 0;
 bool bFirst = false;
+bool bFirstAircraft = false;
 
 void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 {
@@ -44,7 +45,8 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 		{
 			auto CurrentBuildingSMActor = (ABuildingSMActor*)AllBuildingSMActors.at(i);
 
-			if (CurrentBuildingSMActor->IsDestroyed() || CurrentBuildingSMActor->IsActorBeingDestroyed() || !CurrentBuildingSMActor->IsPlayerPlaced()) continue;
+			if (CurrentBuildingSMActor->IsDestroyed() || CurrentBuildingSMActor->IsActorBeingDestroyed() || !CurrentBuildingSMActor->IsPlayerPlaced())
+				continue;
 
 			CurrentBuildingSMActor->SilentDie();
 			// CurrentBuildingSMActor->K2_DestroyActor();
@@ -54,7 +56,7 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 		bShouldDestroyAllPlayerBuilds = false;
 	}
 
-	if (Globals::bEnablePhoebeBotTick && Fortnite_Version >= 11)
+	if (Globals::bEnablePhoebeBotTick && Fortnite_Version >= 11 && Fortnite_Version < 19)
 	{
 		static TArray<AActor*> PlayerStarts;
 
@@ -66,33 +68,49 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 			static auto FortPlayerStartWarmupClass = FindObject<UClass>(L"/Script/FortniteGame.FortPlayerStartWarmup");
 			PlayerStarts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortPlayerStartWarmupClass);
 
+			LOG_INFO(LogGame, "PlayerStarts.Num(): {}", PlayerStarts.Num());
+
 			bFirst = true;
 		}
 
 		if (GameState->GetGamePhase() < EAthenaGamePhase::Aircraft && GameMode->GetAlivePlayers().Num() >= 1 && GameMode->GetAlivePlayers().Num() + AmountSpawned < 100)
 		{
-			TimeBetween += 1;
+			TimeBetween++;
 
 			if (TimeBetween == 75)
 			{
-				AActor* SpawnLocator2 = PlayerStarts.At(rand() % PlayerStarts.Num() - 1);
+				int RandomPlayerStartIndex = UKismetMathLibrary::RandomIntegerInRange(0, PlayerStarts.Num() - 1);
 
-				PhoebeBotsToTick.push_back(new PhoebeBot(SpawnLocator2));
+				AActor* PlayerStart = PlayerStarts[RandomPlayerStartIndex];
 
-				AmountSpawned += 1;
+				if (PlayerStart)
+				{
+					PhoebeBotsToTick.push_back(new PhoebeBot(PlayerStart));
 
-				std::srand(static_cast<unsigned int>(std::time(nullptr)));
+					PlayerStarts.Remove(RandomPlayerStartIndex);
 
-				int randomNumber = rand() % 2 == 0 ? 75 : (rand() % 21) + 10;
+					AmountSpawned++;
 
-				TimeBetween -= randomNumber;
+					std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+					int RandomNumber = rand() % 2 == 0 ? 75 : (rand() % 21) + 10;
+
+					TimeBetween -= RandomNumber;
+				}
 			}
 		}
 
-		for (auto& PhoebeBot : PhoebeBotsToTick)
+		if (GameState->GetGamePhase() == EAthenaGamePhase::Aircraft && !bFirstAircraft)
 		{
-			PhoebeBot->PhoebeBotTick();
+			for (auto& PhoebeBot : PhoebeBotsToTick)
+			{
+				PhoebeBot->State = EBotState::InBus;
+			}
+
+			bFirstAircraft = true;
 		}
+
+		PhoebeBots::PhoebeBotTick();
 	}
 
 	if (Globals::bStartedListening)

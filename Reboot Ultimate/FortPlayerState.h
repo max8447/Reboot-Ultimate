@@ -3,6 +3,7 @@
 #include "OnlineReplStructs.h"
 #include "PlayerState.h"
 #include "AbilitySystemComponent.h"
+#include "FortPlayerPawn.h"
 
 class AFortPlayerState : public APlayerState
 {
@@ -23,6 +24,23 @@ public:
 	{
 		static auto WorldPlayerIdOffset = GetOffset("WorldPlayerId");
 		return this->Get<int>(WorldPlayerIdOffset);
+	}
+
+	AFortPlayerPawn* GetCurrentPawn()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerState.GetCurrentPawn");
+
+		AFortPlayerPawn* ReturnValue;
+
+		this->ProcessEvent(fn, &ReturnValue);
+
+		return ReturnValue;
+	}
+
+	void OnRep_CharacterData()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerState.OnRep_CharacterData");
+		this->ProcessEvent(fn);
 	}
 
 	void UpdateScoreStatChanged();

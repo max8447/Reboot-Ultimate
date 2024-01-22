@@ -131,6 +131,12 @@ public:
 		// return (GetOwningGameInstance() ? GetOwningGameInstance()->GetTimerManager() : *TimerManager);
 	}
 
+	UObject* GetNavigationSystem()
+	{
+		static auto NavigationSystemOffset = GetOffset("NavigationSystem");
+		return this->Get<UObject*>(NavigationSystemOffset);
+	}
+
 	template <typename ActorType>
 	ActorType* SpawnActor(UClass* Class, FTransform UserTransformPtr = FTransform(), void* SpawnParameters = nullptr)
 	{

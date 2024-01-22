@@ -63,6 +63,12 @@ public:
 		return params.ReturnValue;
 	}
 
+	void BeginSkydiving(bool bFromBus)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerPawn.BeginSkydiving");
+		this->ProcessEvent(fn, &bFromBus);
+	}
+
 	struct FFortAthenaLoadout* GetCosmeticLoadout();
 	void ServerChoosePart(EFortCustomPartType Part, class UObject* ChosenCharacterPart);
 	void ForceLaunchPlayerZipline(); // Thanks android

@@ -13,6 +13,7 @@
 #include "FortGameStateAthena.h"
 #include "FortPlaylist.h"
 #include "GameplayTagContainer.h"
+#include "FortWeaponMeleeItemDefinition.h"
 
 enum class EQuitPreference : uint8
 {
@@ -405,6 +406,7 @@ public:
 
 	static void GiveXP(AFortPlayerControllerAthena* PC, int CombatXP, int SurvivalXP, int BonusMedalXP, int ChallengeXP, int MatchXP);
 	static void ProgressQuest(AFortPlayerControllerAthena* PC, UFortQuestItemDefinition* QuestDef, FName Primary_BackendName);
+	static void GiveAccolade(AFortPlayerControllerAthena* PC, UFortAccoladeItemDefinition* Def);
 
 	void ClientSendEndBattleRoyaleMatchForPlayer(bool bSuccess, struct FAthenaRewardResult& Result)
 	{
@@ -630,16 +632,6 @@ public:
 
 static std::map<AFortPlayerControllerAthena*, int> ReviveCounts{};
 
-class UAthenaCosmeticItemDefinition : public UFortItemDefinition // UFortAccountItemDefinition
-{
-public:
-};
-
-class UAthenaBattleBusItemDefinition : public UAthenaCosmeticItemDefinition
-{
-public:
-};
-
 class UFortSpyTechItemDefinition : public UFortItemDefinition // UFortAccountItemDefinition
 {
 public:
@@ -658,4 +650,80 @@ public:
 
 		return ReturnValue;
 	}
+
+	int32 GetAccoladeXpValue()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortAccoladeItemDefinition.GetAccoladeXpValue");
+
+		int32 ReturnValue;
+
+		this->ProcessEvent(fn, &ReturnValue);
+
+		return ReturnValue;
+	}
 };
+
+enum class EAccoladeEvent : uint8
+{
+	Kill,
+	Search,
+	MAX
+};
+
+static inline UFortAccoladeItemDefinition* GetDefFromEvent(EAccoladeEvent Event, int Count, UObject* Object = nullptr)
+{
+	UFortAccoladeItemDefinition* Def = nullptr;
+
+	switch (Event)
+	{
+	case EAccoladeEvent::Kill:
+		if (Count == 1)
+		{
+			Def = FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_014_Elimination_Bronze.AccoladeId_014_Elimination_Bronze");
+		}
+		else if (Count == 4)
+		{
+			Def = FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_015_Elimination_Silver.AccoladeId_015_Elimination_Silver");
+		}
+		else if (Count == 8)
+		{
+			Def = FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_016_Elimination_Gold.AccoladeId_016_Elimination_Gold");
+		}
+		else
+		{
+			Def = FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_012_Elimination.AccoladeId_012_Elimination");
+		}
+		break;
+	case EAccoladeEvent::Search:
+		if (!Object || !Object->ClassPrivate->GetName().contains("Ammo"))
+		{
+			if (Count == 3)
+			{
+				Def = FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_008_SearchChests_Bronze.AccoladeId_008_SearchChests_Bronze");
+			}
+			else if (Count == 7)
+			{
+				Def = FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_009_SearchChests_Silver.AccoladeId_009_SearchChests_Silver");
+			}
+			else if (Count == 12)
+			{
+				Def = FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_010_SearchChests_Gold.AccoladeId_010_SearchChests_Gold");
+			}
+			else
+			{
+				Def = FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_007_SearchChests.AccoladeId_007_SearchChests");
+			}
+		}
+		else
+		{
+			Def = FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_011_SearchAmmoBox.AccoladeId_011_SearchAmmoBox");
+		}
+		break;
+	case EAccoladeEvent::MAX:
+		break;
+	default:
+		break;
+	}
+
+	return Def;
+}
