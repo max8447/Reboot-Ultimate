@@ -408,7 +408,7 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 
 		*/
 
-		if (Globals::bEnablePhoebeBotTick)
+		if (Globals::bEnablePhoebeBotTick && Fortnite_Version >= 11 && Fortnite_Version < 17)
 		{
 			AIMutator::SpawnMutator();
 			AIMutator::SetupServerBotManager();
