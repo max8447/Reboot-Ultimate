@@ -1,5 +1,7 @@
 # Reboot Ultimate
 
+# If you share this with ANYONE without permission i will rape you.
+
 ## What's Different?
 
 - The UI has been re-worked entirely to take on a clean black & white look!
