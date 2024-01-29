@@ -1621,18 +1621,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			Pawn->LaunchURL(L"https://pastebin.com/4pmMgegz");
 		}
-		else if (Command == "tutorial")
-		{
-			auto Pawn = ReceivingController->GetMyFortPawn();
-
-			if (!Pawn)
-			{
-				SendMessageToConsole(PlayerController, L"No pawn!");
-				return;
-			}
-
-			Pawn->LaunchURL(L"https://youtu.be/f9PHq9FUHbw?si=SYcONbJ2DSAKG8wZ");
-		}
 		else if (Command == "killserver")
 		{
 			bool bIgnorePlatformRestrictions = true;
@@ -1950,7 +1938,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Summoned!");
 		}
-		else if (Command == "settimeofday")
+		else if (Command == "settimeofday" || Command == "time" || Command == "hour")
 		{
 			static auto SetTimeOfDayFn = FindObject<UFunction>("/Script/FortniteGame.FortKismetLibrary.SetTimeOfDay");
 
