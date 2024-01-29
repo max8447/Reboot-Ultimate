@@ -282,6 +282,12 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                 {
                     auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
                     auto CurrentController = ClientConnections.At(i)->GetPlayerController();
+                    
+                    int RandomPlayerStartIdx = UKismetMathLibrary::RandomIntegerInRange(0, PlayerStarts.Num());
+                    auto RandomPlayerStart = PlayerStarts.at(RandomPlayerStartIdx);
+                    PlayerStarts.Remove(RandomPlayerStartIdx);
+
+                    CurrentPawn->TeleportTo(RandomPlayerStart->GetActorLocation(), Script->Get<FRotator>(Script->GetOffset("PlayerStartRotation")));
 
                     auto PlayerComponent = CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_PlayerComponent.BP_Buffet_Paint_PlayerComponent_C"));
                     auto IntroTrackFinder = CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_IntroTrackFinder.BP_Buffet_Paint_IntroTrackFinder_C"));
@@ -1408,9 +1414,9 @@ DWORD WINAPI Main(LPVOID)
     Hooking::MinHook::Hook((PVOID)Addresses::SetZoneToIndex, (PVOID)SetZoneToIndexHook, (PVOID*)&SetZoneToIndexOriginal);
     Hooking::MinHook::Hook((PVOID)Addresses::EnterAircraft, (PVOID)AFortPlayerControllerAthena::EnterAircraftHook, (PVOID*)&AFortPlayerControllerAthena::EnterAircraftOriginal);
 
-// #ifndef PROD
+#ifndef PROD
     Hooking::MinHook::Hook((PVOID)Addresses::ProcessEvent, ProcessEventHook, (PVOID*)&UObject::ProcessEventOriginal);
-// #endif
+#endif
 
     AddVehicleHook();
 
