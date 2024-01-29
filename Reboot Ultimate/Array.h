@@ -39,6 +39,8 @@ public:
 
 	bool IsValidIndex(int i) { return i > 0 && i < ArrayNum; }
 
+	inline bool IsValid() { return Data != nullptr; }
+
 	ElementAllocatorType& GetData() const { return Data; }
 	ElementAllocatorType& GetData() { return Data; }
 

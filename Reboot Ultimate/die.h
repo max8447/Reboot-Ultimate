@@ -52,7 +52,7 @@ static inline void ProcessEventHook(UObject* Object, UFunction* Function, void* 
 			!strstr(FunctionName.c_str(), ("OnCurrentTextStyleChanged")) &&
 			!strstr(FunctionName.c_str(), ("OnButtonHovered")) &&
 			!strstr(FunctionName.c_str(), ("ExecuteUbergraph_ThreatPostProcessManagerAndParticleBlueprint")) &&
-			!strstr(FunctionName.c_str(), "PinkOatmeal") &&
+			!strstr(FunctionFullName.c_str(), "PinkOatmeal") &&
 			!strstr(FunctionName.c_str(), "CheckForDancingAtFish") &&
 			!strstr(FunctionName.c_str(), ("UpdateCamera")) &&
 			!strstr(FunctionName.c_str(), ("GetMutatorContext")) &&
@@ -157,7 +157,8 @@ static inline void ProcessEventHook(UObject* Object, UFunction* Function, void* 
 			!strstr(FunctionName.c_str(), "SpinCubeTimeline__UpdateFunc") &&
 			!strstr(ObjectName.c_str(), "FortPhysicsObjectComponent") &&
 			!strstr(FunctionName.c_str(), "GetTextValue") &&
-			!strstr(FunctionName.c_str(), "WaterDepthCheck"))
+			!strstr(FunctionName.c_str(), "WaterDepthCheck") &&
+			!strstr(FunctionFullName.c_str(), "GameplayCues"))
 		{
 			LOG_INFO(LogDev, "Function called: {} with {}", FunctionFullName, ObjectName);
 		}

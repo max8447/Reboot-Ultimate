@@ -1257,6 +1257,31 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			Pawn->CopyToClipboard(Loc);
 		}
+		else if (Command == "testactordir")
+		{
+			auto Pawn = ReceivingController->GetMyFortPawn();
+
+			if (!Pawn)
+			{
+				SendMessageToConsole(ReceivingController, L"No pawn!");
+				return;
+			}
+
+			auto PawnLocation = Pawn->GetActorLocation();
+			auto UpVector = Pawn->GetActorUpVector();
+			auto ForwardVector = Pawn->GetActorForwardVector();
+			auto RightVector = Pawn->GetActorRightVector();
+
+			FString Loc = PawnLocation.ToString();
+			FString UpVec = UpVector.ToString();
+			FString ForwardVec = ForwardVector.ToString();
+			FString RightVec = RightVector.ToString();
+
+			SendMessageToConsole(PlayerController, Loc);
+			SendMessageToConsole(PlayerController, UpVec);
+			SendMessageToConsole(PlayerController, ForwardVec);
+			SendMessageToConsole(PlayerController, RightVec);
+		}
 		else if (Command == "dbno" || Command == "dnbo") // i kept misspelling it
 		{
 			auto Pawn = ReceivingController->GetMyFortPawn();
@@ -1269,13 +1294,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			Pawn->SetDBNO(!Pawn->IsDBNO());
 			SendMessageToConsole(PlayerController, std::wstring(L"DBNO set to " + std::to_wstring(!(bool)Pawn->IsDBNO())).c_str());
-		}
-		else if (Command == "movebots")
-		{
-			for (auto PhoebeBot : PhoebeBotsToTick)
-			{
-				PhoebeBot->MoveToActor(ReceivingController->GetPawn());
-			}
 		}
 		else if (Command == "logprocessevent")
 		{
@@ -1429,6 +1447,45 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 				Pawn->SetCanBeDamaged(!Pawn->CanBeDamaged());
 				SendMessageToConsole(PlayerController, std::wstring(L"God set to " + std::to_wstring(!(bool)Pawn->CanBeDamaged())).c_str());
+			}
+		}
+		else if (Command == "foundationtest")
+		{
+			auto BuildingFoundationClass = FindObject<UClass>(L"/Script/FortniteGame.BuildingFoundation");
+			auto AllBuildingFoundations = UGameplayStatics::GetAllActorsOfClass(GetWorld(), BuildingFoundationClass);
+
+			for (int i = 0; i < AllBuildingFoundations.Num(); i++)
+			{
+				auto BuildingFoundation = AllBuildingFoundations.at(i);
+
+				static auto DynamicFoundationTypeOffset = BuildingFoundation->GetOffset("DynamicFoundationType");
+				auto DynamicFoundationType = BuildingFoundation->Get<uint8_t>(DynamicFoundationTypeOffset);
+
+				if (DynamicFoundationType == 3)
+				{
+					BuildingFoundation->Get<uint8_t>(DynamicFoundationTypeOffset) = 0;
+
+					static auto bServerStreamedInLevelOffset = BuildingFoundation->GetOffset("bServerStreamedInLevel");
+					static auto bServerStreamedInLevelFieldMask = GetFieldMask(BuildingFoundation->GetProperty("bServerStreamedInLevel"));
+					BuildingFoundation->SetBitfieldValue(bServerStreamedInLevelOffset, bServerStreamedInLevelFieldMask, true);
+
+					static auto OnRep_ServerStreamedInLevelFn = FindObject<UFunction>(L"/Script/FortniteGame.BuildingFoundation.OnRep_ServerStreamedInLevel");
+					BuildingFoundation->ProcessEvent(OnRep_ServerStreamedInLevelFn);
+
+					static auto SetDynamicFoundationEnabledFn = FindObject<UFunction>(L"/Script/FortniteGame.BuildingFoundation.SetDynamicFoundationEnabled");
+					bool bEnabled = true;
+					BuildingFoundation->ProcessEvent(SetDynamicFoundationEnabledFn, &bEnabled);
+
+					static auto AdditionalWorldsOffset = BuildingFoundation->GetOffset("AdditionalWorlds");
+					auto AdditionalWorlds = BuildingFoundation->Get<TArray<TSoftObjectPtr<UWorld>>>(AdditionalWorldsOffset);
+
+
+
+					BuildingFoundation->FlushNetDormancy();
+					BuildingFoundation->ForceNetUpdate();
+
+					LOG_INFO(LogDev, "Showed Foundation {}", BuildingFoundation->GetFullName());
+				}
 			}
 		}
 		else if (Command == "changesize") // This works but doesn't visually update on the client (If done fully on the client with Rift or Cranium (No gameserver) it fully works)
@@ -1875,44 +1932,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				{
 					AmountSpawned++;
 				}
-			}
-
-			SendMessageToConsole(PlayerController, L"Summoned!");
-		}
-		else if (Command == "spawnphoebebot" || Command == "phoebebot")
-		{
-			auto Pawn = ReceivingController->GetPawn();
-
-			if (!Pawn)
-			{
-				SendMessageToConsole(PlayerController, L"No pawn to spawn bot at!");
-				return;
-			}
-
-			int Count = 1;
-
-			if (Arguments.size() >= 2)
-			{
-				try { Count = std::stod(Arguments[1]); }
-				catch (...) {}
-			}
-
-			constexpr int Max = 99;
-
-			if (Count > Max)
-			{
-				SendMessageToConsole(PlayerController, (std::wstring(L"You went over the limit! Only spawning ") + std::to_wstring(Max) + L".").c_str());
-				Count = Max;
-			}
-
-			int AmountSpawned = 0;
-
-			for (int i = 0; i < Count; i++)
-			{
-				auto NewActor = PhoebeBot(Pawn);
-				PhoebeBotsToTick.push_back(&NewActor);
-
-				AmountSpawned++;
 			}
 
 			SendMessageToConsole(PlayerController, L"Summoned!");

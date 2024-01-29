@@ -32,10 +32,18 @@ public:
 		return *(float*)(__int64(this) + MaxFlySpeedOffset);
 	}
 
-	uint8& CanWalkOffLedges()
+	void SetCanWalkOffLedges(bool NewValue)
 	{
 		static auto bCanWalkOffLedgesOffset = GetOffset("bCanWalkOffLedges");
-		return Get<uint8>(bCanWalkOffLedgesOffset);
+		static auto bCanWalkOffLedgesFieldMask = GetFieldMask(GetProperty("bCanWalkOffLedges"));
+		SetBitfieldValue(bCanWalkOffLedgesOffset, bCanWalkOffLedgesFieldMask, NewValue);
+	}
+
+	void SetCanWalkOffLedgesWhenCrouching(bool NewValue)
+	{
+		static auto bCanWalkOffLedgesWhenCrouchingOffset = GetOffset("bCanWalkOffLedgesWhenCrouching");
+		static auto bCanWalkOffLedgesWhenCrouchingFieldMask = GetFieldMask(GetProperty("bCanWalkOffLedgesWhenCrouching"));
+		SetBitfieldValue(bCanWalkOffLedgesWhenCrouchingOffset, bCanWalkOffLedgesWhenCrouchingFieldMask, NewValue);
 	}
 };
 
@@ -118,6 +126,18 @@ public:
 
 	AFortWeapon* EquipWeaponDefinition(UFortWeaponItemDefinition* WeaponData, const FGuid& ItemEntryGuid);
 	bool PickUpActor(AActor* PickupTarget, UFortDecoItemDefinition* PlacementDecoItemDefinition);
+
+	void PawnStartFire(uint8 FireModeNum)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPawn.PawnStartFire");
+		this->ProcessEvent(fn, &FireModeNum);
+	}
+
+	void PawnStopFire(uint8 FireModeNum)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPawn.PawnStopFire");
+		this->ProcessEvent(fn, &FireModeNum);
+	}
 
 	bool IsDead()
 	{

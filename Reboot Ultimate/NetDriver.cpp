@@ -56,7 +56,7 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 		bShouldDestroyAllPlayerBuilds = false;
 	}
 
-	if (Globals::bEnablePhoebeBotTick && Fortnite_Version >= 11 && Fortnite_Version < 19)
+	if (Globals::bEnablePhoebeBotTick && Fortnite_Version >= 11 && Fortnite_Version < 17)
 	{
 		static TArray<AActor*> PlayerStarts;
 
@@ -110,7 +110,42 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 			bFirstAircraft = true;
 		}
 
-		PhoebeBots::PhoebeBotTick();
+		if (BotDied)
+		{
+			for (auto& PhoebeBot : PhoebeBotsToTick)
+			{
+				if (PhoebeBot->PlayerState->GetPlayerID() == DeadBotID)
+				{
+					PhoebeBot->OnDied(KillerState);
+					break;
+				}
+			}
+
+			BotDied = false;
+			DeadBotID = 0;
+			KillerState = nullptr;
+		}
+
+		if (HenchmanDied)
+		{
+			for (auto& Henchman : PhoebeHenchmenToTick)
+			{
+				if (Henchman->PlayerController->GetPawn() == DeadHenchmanPawn)
+				{
+					Henchman->OnDied(HenchmanKillerState);
+					break;
+				}
+			}
+
+			HenchmanDied = false;
+			HenchmanKillerState = nullptr;
+			DeadHenchmanPawn = nullptr;
+		}
+
+		PhoebeBots::PhoebePlayerBotTick();
+
+		if (Fortnite_Version == 13.40)
+			PhoebeBots::PhoebeHenchmanTick();
 	}
 
 	if (Globals::bStartedListening)

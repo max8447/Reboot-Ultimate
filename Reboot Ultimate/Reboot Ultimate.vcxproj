@@ -280,6 +280,7 @@
     <ClInclude Include="ActorComponent.h" />
     <ClInclude Include="addresses.h" />
     <ClInclude Include="ai.h" />
+    <ClInclude Include="AIHotSpot.h" />
     <ClInclude Include="AndOrNot.h" />
     <ClInclude Include="anticheat.h" />
     <ClInclude Include="Array.h" />
@@ -341,6 +342,7 @@
     <ClInclude Include="FortAthenaAIBotController.h" />
     <ClInclude Include="FortAthenaAIBotCustomizationData.h" />
     <ClInclude Include="FortAthenaAIBotDigestedSkillSet.h" />
+    <ClInclude Include="FortAthenaAIBotSkillSet.h" />
     <ClInclude Include="FortAthenaCreativePortal.h" />
     <ClInclude Include="FortAthenaMapInfo.h" />
     <ClInclude Include="FortAthenaMutator.h" />

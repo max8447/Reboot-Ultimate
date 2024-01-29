@@ -11,8 +11,39 @@
 #include "FortPlayerController.h"
 #include "BlackBoard.h"
 #include "AthenaNavSystem.h"
+#include "FortPlayerPawn.h"
+#include "AIHotSpot.h"
 
 inline AFortAthenaMutator_Bots* BotMutator = nullptr;
+
+inline bool AircraftHasEnteredDropZone = false;
+inline bool AircraftHasExitedDropZone = false;
+inline int DeadBotID = 0;
+inline bool BotDied = false;
+inline AFortPlayerStateAthena* KillerState = nullptr;
+inline bool HenchmanDied = false;
+inline AFortPlayerStateAthena* HenchmanKillerState = nullptr;
+inline APawn* DeadHenchmanPawn = nullptr;
+
+enum class EFortMovementStyle : uint8
+{
+	Running = 0,
+	Walking = 1,
+	Charging = 2,
+	Sprinting = 3,
+	PersonalVehicle = 4,
+	Flying = 5,
+	Tethered = 6,
+	EFortMovementStyle_MAX = 7,
+};
+
+enum EBotWarmupBehaviour : uint8
+{
+	PlayEmote = 0,
+	LootAndShoot = 1,
+	Idle = 2,
+	EBotWarmupBehaviour_MAX = 3,
+};
 
 enum EBotState : uint8
 {
@@ -49,15 +80,20 @@ public:
 	bool TickEnabled = false;
 	float FloatValue = 0.f;
 	bool JumpedFromBus = false;
-	bool CanJumpFromBus = false;
 	ABuildingActor* StuckActor = nullptr;
 	bool Running = false;
 	AActor* TargetGoTo = nullptr;
 	bool Emoting = false;
 	bool Crouching = false;
+	EBotWarmupBehaviour WarmupBehaviour = EBotWarmupBehaviour::LootAndShoot;
+	float SecondsPassed = 0.f;
+	AActor* PoiToLandAt = nullptr;
 
 	EBotState State = EBotState::Warmup;
 	EBotState PreviousState = EBotState::MAX;
+
+public:
+	UFortAthenaAIBotWarmupSkillSet* WarmupSkillSet = nullptr;
 
 public:
 	void ApplyCosmeticLoadout(AFortAthenaAIBotController* PlayerController, AFortPlayerPawnAthena* Pawn)
@@ -85,19 +121,20 @@ public:
 		ApplyHID(Pawn, HID, true);
 	}
 
-	void GiveItem(UFortItemDefinition* Def, int Count = 1, int LoadedAmmo = 0)
+	void GiveAndEquipItem(UFortItemDefinition* Def, int Count = 1, int LoadedAmmo = 0)
 	{
-		UFortItem* Item = Def->CreateTemporaryItemInstanceBP(Count, 0);
-
 		auto Inventory = PlayerController->GetInventory();
 
-		Item->Get<AFortInventory*>(Item->GetOffset("OwnerInventory")) = Inventory;
-		Item->GetItemEntry()->GetLoadedAmmo() = LoadedAmmo;
+		bool bShouldUpdate = true;
 
-		Inventory->GetItemList().GetReplicatedEntries().Add(*Item->GetItemEntry());
-		Inventory->GetItemList().GetItemInstances().Add(Item);
-		Inventory->GetItemList().MarkItemDirty(Item->GetItemEntry());
-		Inventory->HandleInventoryLocalUpdate();
+		Inventory->AddItem(Def, &bShouldUpdate, Count, LoadedAmmo);
+
+		if (bShouldUpdate)
+			Inventory->Update();
+
+		auto WeaponData = FindObject<UFortWeaponItemDefinition>(Def->GetFullName());
+
+		// Pawn->EquipWeaponDefinition(WeaponData, Cast<UFortItem>(Def)->GetItemEntry()->GetItemGuid());
 	}
 
 	PhoebeBot(AActor* SpawnLocation)
@@ -111,15 +148,21 @@ public:
 		auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
 
 		PawnClass = LoadObject<UClass>(L"/Game/Athena/AI/Phoebe/BP_PlayerPawn_Athena_Phoebe.BP_PlayerPawn_Athena_Phoebe_C", BGAClass);
+		ControllerClass = LoadObject<UClass>(L"/Game/Athena/AI/Phoebe/BP_PhoebePlayerController.BP_PhoebePlayerController_C", BGAClass);
 
-		FTransform NewTransform;
-		NewTransform.Translation = SpawnLocation->GetActorLocation();
-		NewTransform.Rotation = SpawnLocation->GetActorRotation().Quaternion();
+		Pawn = BotMutator->SpawnBot(PawnClass, SpawnLocation, SpawnLocation->GetActorLocation(), SpawnLocation->GetActorRotation(), false);
 
-		Pawn = BotMutator->SpawnBot(PawnClass, SpawnLocation, SpawnLocation->GetActorLocation(), SpawnLocation->GetActorRotation(), true);
-		PlayerController = Cast<AFortAthenaAIBotController>(Pawn->GetController());
-		PlayerState = Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState());
+		if (Fortnite_Version >= 17)
+		{
+			PlayerController = Cast<AFortAthenaAIBotController>(GetWorld()->SpawnActor<AController>(ControllerClass));
+		}
+		else
+		{
+			PlayerController = Cast<AFortAthenaAIBotController>(Pawn->GetController());
+		}
 		
+		PlayerState = Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState());
+
 		PlayerState->GetTeamIndex() = GameMode->Athena_PickTeamHook(GameMode, 0, PlayerController);
 
 		static auto SquadIdOffset = PlayerState->GetOffset("SquadId", false);
@@ -131,7 +174,8 @@ public:
 
 		PlayerState->SetIsBot(true);
 
-		ApplyCosmeticLoadout(PlayerController, Pawn);
+		if (Fortnite_Version < 17)
+			ApplyCosmeticLoadout(PlayerController, Pawn);
 
 		AFortInventory** Inventory = nullptr;
 
@@ -205,7 +249,7 @@ public:
 
 		auto PickDef = Cast<UAthenaPickaxeItemDefinition>(Pickaxes[UKismetMathLibrary::RandomIntegerInRange(0, Pickaxes.size() - 1)]);
 
-		// GiveItem(PickDef->GetWeaponDefinition());
+		// GiveAndEquipItem(PickDef->GetWeaponDefinition());
 
 		auto PlayerAbilitySet = GetPlayerAbilitySet();
 		auto AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
@@ -215,9 +259,7 @@ public:
 			PlayerAbilitySet->GiveToAbilitySystem(AbilitySystemComponent);
 		}
 
-		UBlackboardData* BB = FindObject<UBlackboardData>("/Game/Athena/AI/Phoebe/BehaviorTrees/BB_Phoebe.BB_Phoebe");
-
-		for (size_t i = 0; i < PlayerController->GetDigestedBotSkillSets().Num(); i++)
+		for (int i = 0; i < PlayerController->GetDigestedBotSkillSets().Num(); i++)
 		{
 			if (PlayerController->GetDigestedBotSkillSets()[i]->IsA(UFortAthenaAIBotAimingDigestedSkillSet::StaticClass()))
 			{
@@ -255,6 +297,21 @@ public:
 			}
 		}
 
+		if (PlayerController->GetBotSkillSetClasses().Num() > 0)
+		{
+			for (int i = 0; i < PlayerController->GetBotSkillSetClasses().Num(); i++)
+			{
+				if (PlayerController->GetBotSkillSetClasses()[i]->GetFullName().contains("warmup"))
+				{
+					WarmupSkillSet = Cast<UFortAthenaAIBotWarmupSkillSet>(PlayerController->GetBotSkillSetClasses()[i]);
+				}
+			}
+		}
+		else
+		{
+			LOG_WARN(LogBots, "PlayerController->GetBotSkillSetClasses().Num() is 0!");
+		}
+
 		PlayerController->GetPathFollowingComponent()->GetMyNavData() = Cast<UAthenaNavSystem>(GetWorld()->GetNavigationSystem())->GetMainNavData();
 		PlayerController->GetPathFollowingComponent()->OnNavDataRegistered(Cast<UAthenaNavSystem>(GetWorld()->GetNavigationSystem())->GetMainNavData());
 
@@ -268,9 +325,20 @@ public:
 
 		CapsuleComponent->ProcessEvent(SetGenerateOverlapEventsFn, &bInGenerateOverlapEvents);
 
-		Pawn->GetCharacterMovement()->CanWalkOffLedges() = true;
+		Pawn->GetCharacterMovement()->SetCanWalkOffLedges(true);
+		Pawn->GetCharacterMovement()->SetCanWalkOffLedgesWhenCrouching(true);
 
-		TargetActor = FindNearestBuildingSMActor();
+		TargetActor = FindNearestPlayer();
+		PoiToLandAt = ChooseRandomAIHotSpot();
+
+		if (WarmupSkillSet)
+		{
+			ChooseWarmupAction();
+		}
+		else
+		{
+			LOG_WARN(LogBots, "No WarumupSkillSet!")
+		}
 
 		TickEnabled = true;
 	}
@@ -339,6 +407,30 @@ public:
 		}
 	}
 
+	void ChooseWarmupAction()
+	{
+		int WarmupPlayEmoteBehaviorWeight = WarmupSkillSet->GetWarmupPlayEmoteBehaviorWeight(); // 60%
+		int WarmupLootAndShootBehaviorWeight = WarmupSkillSet->GetWarmupLootAndShootBehaviorWeight(); // 30%
+		int WarmupIdleBehaviorWeight = WarmupSkillSet->GetWarmupIdleBehaviorWeight(); // 10%
+
+		int Total = WarmupPlayEmoteBehaviorWeight + WarmupLootAndShootBehaviorWeight + WarmupIdleBehaviorWeight;
+
+		auto RandomPercent = UKismetMathLibrary::RandomIntegerInRange(1, Total);
+
+		if (1 <= RandomPercent && RandomPercent <= WarmupPlayEmoteBehaviorWeight)
+		{
+			WarmupBehaviour = EBotWarmupBehaviour::PlayEmote;
+		}
+		else if (WarmupPlayEmoteBehaviorWeight + 1 <= RandomPercent && RandomPercent <= WarmupPlayEmoteBehaviorWeight + WarmupLootAndShootBehaviorWeight)
+		{
+			WarmupBehaviour = EBotWarmupBehaviour::LootAndShoot;
+		}
+		else if (WarmupLootAndShootBehaviorWeight + 1 <= RandomPercent && RandomPercent <= WarmupPlayEmoteBehaviorWeight + WarmupLootAndShootBehaviorWeight + WarmupIdleBehaviorWeight)
+		{
+			WarmupBehaviour = EBotWarmupBehaviour::Idle;
+		}
+	}
+
 	void Skydive(bool bFromBus = true)
 	{
 		Pawn->BeginSkydiving(bFromBus);
@@ -354,7 +446,7 @@ public:
 
 		TargetPOI = FindNearestChest()->GetActorLocation();
 
-		State = EBotState::Landed;
+		State = EBotState::SkydivingFromBus;
 	}
 
 	void MoveToZone()
@@ -426,25 +518,16 @@ public:
 		return Loc;
 	}
 
-	void LookAt(AActor* Actor, bool bBloom = false)
+	void LookAt(AActor* Actor)
 	{
-		if (!Actor || !Pawn || PlayerController->GetFocusActor() == Actor)
-			return;
+		auto LookAtRotation = UKismetMathLibrary::FindLookAtRotation(Pawn->GetActorLocation(), Actor->GetActorLocation());
+		PlayerController->SetControlRotation(LookAtRotation);
+	}
 
-		if (!Actor)
-		{
-			PlayerController->ClearFocus();
-			return;
-		}
-
-		if (bBloom)
-		{
-			//PlayerController->SetFocalPoint(GetAimDirection(Actor));
-		}
-		else
-		{
-			PlayerController->SetFocus(Actor);
-		}
+	void SetMovementMode(EFortMovementStyle Style)
+	{
+		static auto CurrentMovementStyleOffset = Pawn->GetOffset("CurrentMovementStyle");
+		Pawn->Get<EFortMovementStyle*>(CurrentMovementStyleOffset) = &Style;
 	}
 
 	void Run()
@@ -455,9 +538,9 @@ public:
 
 			for (size_t i = 0; i < PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems().Num(); i++)
 			{
-				if (PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetAbility()->GetFullName().contains("FortGameplayAbility_Sprint"))
+				if (PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems().at(i).GetAbility()->IsA(UFortGameplayAbility_Sprint::StaticClass()))
 				{
-					PlayerState->GetAbilitySystemComponent()->ServerTryActivateAbility(PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetHandle(), PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetInputPressed(), PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems()[i].GetActivationInfo()->GetPredictionKeyWhenActivated());
+					PlayerState->GetAbilitySystemComponent()->ServerTryActivateAbility(PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems().at(i).GetHandle(), PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems().at(i).GetInputPressed(), PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems().at(i).GetActivationInfo()->GetPredictionKeyWhenActivated());
 					break;
 				}
 			}
@@ -498,6 +581,26 @@ public:
 		Run();
 	}
 
+	void RunInDirection(FVector Direction)
+	{
+		WalkInDirection(Direction);
+		Run();
+	}
+
+	void WalkInDirection(FVector Direction)
+	{
+		static auto AddMovementInputFn = FindObject<UFunction>("/Script/Engine.Pawn.AddMovementInput");
+
+		struct
+		{
+			FVector WorldDirection;
+			float ScaleValue;
+			bool bForce;
+		}params{ Direction , 1.f, true };
+
+		Pawn->ProcessEvent(AddMovementInputFn, &params);
+	}
+
 	void WalkForward()
 	{
 		static auto AddMovementInputFn = FindObject<UFunction>("/Script/Engine.Pawn.AddMovementInput");
@@ -514,7 +617,6 @@ public:
 
 	ABuildingSMActor* FindNearestBuildingSMActor()
 	{
-		// return nullptr;
 		static TArray<AActor*> Array;
 		static bool First = false;
 		if (!First)
@@ -523,17 +625,17 @@ public:
 			Array = UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABuildingSMActor::StaticClass());
 		}
 
-		AActor* NearestPoi = nullptr;
+		AActor* NearestBuildingSMActor = nullptr;
 
 		for (size_t i = 0; i < Array.Num(); i++)
 		{
-			if (!NearestPoi || ((Cast<ABuildingSMActor>(NearestPoi))->GetHealth() < 1500 && (Cast<ABuildingSMActor>(NearestPoi))->GetHealth() > 1 && Array[i]->GetDistanceTo(Pawn) < NearestPoi->GetDistanceTo(Pawn)))
+			if (!NearestBuildingSMActor || ((Cast<ABuildingSMActor>(NearestBuildingSMActor))->GetHealth() < 1500 && (Cast<ABuildingSMActor>(NearestBuildingSMActor))->GetHealth() > 1 && Array[i]->GetDistanceTo(Pawn) < NearestBuildingSMActor->GetDistanceTo(Pawn)))
 			{
-				NearestPoi = Array[i];
+				NearestBuildingSMActor = Array[i];
 			}
 		}
 
-		return Cast<ABuildingSMActor>(NearestPoi);
+		return Cast<ABuildingSMActor>(NearestBuildingSMActor);
 	}
 
 	ABuildingActor* FindNearestChest()
@@ -541,7 +643,7 @@ public:
 		static auto ChestClass = FindObject<UClass>("/Game/Building/ActorBlueprints/Containers/Tiered_Chest_Athena.Tiered_Chest_Athena_C");
 		TArray<AActor*> Array = UGameplayStatics::GetAllActorsOfClass(GetWorld(), ChestClass);
 
-		AActor* NearestPoi = nullptr;
+		AActor* NearestChest = nullptr;
 
 		for (size_t i = 0; i < Array.Num(); i++)
 		{
@@ -550,14 +652,14 @@ public:
 			if (ChestsForBots.contains(Array[i]) && ChestsForBots[Actor] != PlayerController)
 				continue;
 
-			if (!NearestPoi || Array[i]->GetDistanceTo(Pawn) < NearestPoi->GetDistanceTo(Pawn))
+			if (!NearestChest || Array[i]->GetDistanceTo(Pawn) < NearestChest->GetDistanceTo(Pawn))
 			{
-				NearestPoi = Array[i];
+				NearestChest = Array[i];
 			}
 		}
 
 		Array.Free();
-		return Cast<ABuildingActor>(NearestPoi);
+		return Cast<ABuildingActor>(NearestChest);
 	}
 
 	bool HasGun()
@@ -583,21 +685,165 @@ public:
 		}
 	}
 
+	AActor* ChooseRandomAIHotSpot()
+	{
+		if (PoiToLandAt)
+			return PoiToLandAt;
+
+		TArray<AActor*> Array = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>(L"/Script/FortniteGame.FortPoiVolume"));
+		
+		LOG_INFO(LogBots, "Array.Num(): {}", Array.Num());
+
+		if (Array.Num() <= 0)
+		{
+			return nullptr;
+		}
+
+		auto RandomIndex = UKismetMathLibrary::RandomIntegerInRange(1, Array.Num());
+		AActor* RandomPoiVolume = Array[RandomIndex];
+
+		return RandomPoiVolume;
+	}
+
 	virtual void OnDied(AFortPlayerStateAthena* KillerState)
 	{
 		if (!KillerState)
 			return;
 
+		auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+		auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+		auto KillerPawn = KillerState->GetCurrentPawn();
+
+		void* DeathReport = nullptr;
+
 		TickEnabled = false;
-		FDeathInfo *DeathInfo = PlayerState->GetDeathInfo();
+
+		auto DeathLocation = Pawn->GetActorLocation();
+
+		(AFortPlayerStateAthena*)((AFortPlayerState**)DeathReport + MemberOffsets::DeathReport::KillerPlayerState);
+
+		uint8_t DeathCause = 0;
+
+		static auto FallDamageEnumValue = 1;
+
+		auto DeathInfo = PlayerState->GetDeathInfo(); // Alloc<void>(DeathInfoStructSize);
+		PlayerState->ClearDeathInfo();
+
+		auto Tags = MemberOffsets::FortPlayerPawn::CorrectTags == 0 ? FGameplayTagContainer()
+			: Pawn->Get<FGameplayTagContainer>(MemberOffsets::FortPlayerPawn::CorrectTags);
+
+		DeathCause = PlayerState->ToDeathCause(Tags, false, Pawn); // DeadPawn->IsDBNO() ??
+
+		FGameplayTagContainer CopyTags;
+
+		for (int i = 0; i < Tags.GameplayTags.Num(); ++i)
+		{
+			CopyTags.GameplayTags.Add(Tags.GameplayTags.at(i));
+		}
+
+		for (int i = 0; i < Tags.ParentTags.Num(); ++i)
+		{
+			CopyTags.ParentTags.Add(Tags.ParentTags.at(i));
+		}
+
+		LOG_INFO(LogDev, "DeathCause: {}", (int)DeathCause);
+		LOG_INFO(LogDev, "DeadPawn->IsDBNO(): {}", Pawn->IsDBNO());
+		LOG_INFO(LogDev, "KillerPlayerState: {}", __int64(KillerState));
 
 		*(bool*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::bDBNO) = Pawn->IsDBNO();
-		*(bool*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::bInitialized) = true;
-		*(FVector*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::DeathLocation) = Pawn->GetActorLocation();
-		*(float*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::Distance) = (KillerState->GetCurrentPawn() ? KillerState->GetCurrentPawn()->GetDistanceTo(Pawn) : 0);
-		*(AActor**)(__int64(DeathInfo) + MemberOffsets::DeathInfo::FinisherOrDowner) = KillerState;
-		*(uint8*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::DeathCause) = KillerState->ToDeathCause(*(FGameplayTagContainer*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::DeathTags), *(bool*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::bDBNO));
-		PlayerState->OnRep_DeathInfo();
+		*(uint8*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::DeathCause) = DeathCause;
+		*(AActor**)(__int64(DeathInfo) + MemberOffsets::DeathInfo::FinisherOrDowner) = KillerState ? KillerState : PlayerState;
+
+		if (MemberOffsets::DeathInfo::DeathLocation != -1)
+			*(FVector*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::DeathLocation) = DeathLocation;
+
+		if (MemberOffsets::DeathInfo::DeathTags != -1)
+			*(FGameplayTagContainer*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::DeathTags) = CopyTags;
+
+		if (MemberOffsets::DeathInfo::bInitialized != -1)
+			*(bool*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::bInitialized) = true;
+
+		if (DeathCause == FallDamageEnumValue)
+		{
+			if (MemberOffsets::FortPlayerPawnAthena::LastFallDistance != -1)
+				*(float*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::Distance) = Pawn->Get<float>(MemberOffsets::FortPlayerPawnAthena::LastFallDistance);
+		}
+		else
+		{
+			if (MemberOffsets::DeathInfo::Distance != -1)
+				*(float*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::Distance) = KillerPawn ? KillerPawn->GetDistanceTo(Pawn) : 0;
+		}
+
+		if (MemberOffsets::FortPlayerState::PawnDeathLocation != -1)
+			PlayerState->Get<FVector>(MemberOffsets::FortPlayerState::PawnDeathLocation) = DeathLocation;
+
+		static auto OnRep_DeathInfoFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerStateAthena.OnRep_DeathInfo");
+
+		if (OnRep_DeathInfoFn)
+		{
+			PlayerState->ProcessEvent(OnRep_DeathInfoFn);
+		}
+
+		if (KillerState && KillerState != PlayerState)
+		{
+			if (MemberOffsets::FortPlayerStateAthena::KillScore != -1)
+				KillerState->Get<int>(MemberOffsets::FortPlayerStateAthena::KillScore)++;
+
+			if (MemberOffsets::FortPlayerStateAthena::TeamKillScore != -1)
+				KillerState->Get<int>(MemberOffsets::FortPlayerStateAthena::TeamKillScore)++;
+
+			KillerState->ClientReportKill(PlayerState);
+		}
+
+
+		if (Globals::AmountOfHealthSiphon != 0)
+		{
+			if (KillerPawn && KillerPawn != Pawn)
+			{
+				auto KillerPlayerController = Cast<AFortPlayerController>(KillerPawn->GetController());
+
+				auto WorldInventory = KillerPlayerController->GetWorldInventory();
+
+				if (!WorldInventory)
+					return;
+
+				static auto WoodItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+				static auto StoneItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+				static auto MetalItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+
+				WorldInventory->AddItem(WoodItemData, nullptr, 50);
+				WorldInventory->AddItem(StoneItemData, nullptr, 50);
+				WorldInventory->AddItem(MetalItemData, nullptr, 50);
+
+				WorldInventory->Update();
+
+				float Health = KillerPawn->GetHealth();
+				float Shield = KillerPawn->GetShield();
+
+				int MaxHealth = 100;
+				int MaxShield = 100;
+				int AmountGiven = 0;
+
+				if ((MaxHealth - Health) > 0)
+				{
+					int AmountToGive = MaxHealth - Health >= Globals::AmountOfHealthSiphon ? Globals::AmountOfHealthSiphon : MaxHealth - Health;
+					KillerPawn->SetHealth(Health + AmountToGive);
+					AmountGiven += AmountToGive;
+				}
+
+				if ((MaxShield - Shield) > 0 && AmountGiven < Globals::AmountOfHealthSiphon)
+				{
+					int AmountToGive = MaxShield - Shield >= Globals::AmountOfHealthSiphon ? Globals::AmountOfHealthSiphon : MaxShield - Shield;
+					AmountToGive -= AmountGiven;
+
+					if (AmountToGive > 0)
+					{
+						KillerPawn->SetShield(Shield + AmountToGive);
+						AmountGiven += AmountToGive;
+					}
+				}
+			}
+		}
 
 		if (!PlayerController->GetInventory())
 			return;
@@ -612,60 +858,129 @@ public:
 			// CreateData.PawnOwner = Pawn;
 			CreateData.ItemEntry = Cast<UFortItem>(PlayerController->GetInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition())->GetItemEntry();
 			CreateData.SpawnLocation = Pawn->GetActorLocation();
-			CreateData.SourceType = EFortPickupSourceTypeFlag::GetAIValue();
+			CreateData.SourceType = EFortPickupSourceTypeFlag::GetPlayerValue();
 			CreateData.bRandomRotation = true;
 			CreateData.bShouldFreeItemEntryWhenDeconstructed = true;
 
 			AFortPickup::SpawnPickup(CreateData);
 		}
-
-		auto KillerPlayerController = Cast<AFortPlayerControllerAthena>(KillerState->GetOwner());
-		if (KillerPlayerController && KillerPlayerController->IsA(AFortPlayerControllerAthena::StaticClass()))
-		{
-			KillerState->Get<int>(MemberOffsets::FortPlayerStateAthena::KillScore)++;
-			KillerPlayerController->GiveAccolade(KillerPlayerController, GetDefFromEvent(EAccoladeEvent::Kill, KillerState->Get<int>(MemberOffsets::FortPlayerStateAthena::KillScore)));
-
-			for (size_t i = 0; i < KillerState->GetPlayerTeam()->GetTeamMembers().Num(); i++)
-			{
-				(Cast<AFortPlayerStateAthena>(KillerState->GetPlayerTeam()->GetTeamMembers()[i]->GetPlayerState()))->Get<int>(MemberOffsets::FortPlayerStateAthena::TeamKillScore)++;
-				(Cast<AFortPlayerStateAthena>(KillerState->GetPlayerTeam()->GetTeamMembers()[i]->GetPlayerState()))->OnRep_TeamKillScore();
-			}
-
-			KillerState->ClientReportKill(PlayerState);
-			KillerState->OnRep_Kills();
-		}
-
-		auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
-
-		if (GameMode->GetAlivePlayers().Num() + GameMode->GetAliveBots().Num() == 50)
-		{
-			for (size_t i = 0; i < GameMode->GetAlivePlayers().Num(); i++)
-			{
-				GameMode->GetAlivePlayers()[i]->GiveAccolade(GameMode->GetAlivePlayers()[i], FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_026_Survival_Default_Bronze.AccoladeId_026_Survival_Default_Bronze"));
-			}
-		}
-		if (GameMode->GetAlivePlayers().Num() + GameMode->GetAliveBots().Num() == 25)
-		{
-			for (size_t i = 0; i < GameMode->GetAlivePlayers().Num(); i++)
-			{
-				GameMode->GetAlivePlayers()[i]->GiveAccolade(GameMode->GetAlivePlayers()[i], FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_027_Survival_Default_Silver.AccoladeId_027_Survival_Default_Silver"));
-			}
-		}
-		if (GameMode->GetAlivePlayers().Num() + GameMode->GetAliveBots().Num() == 10)
-		{
-			for (size_t i = 0; i < GameMode->GetAlivePlayers().Num(); i++)
-			{
-				GameMode->GetAlivePlayers()[i]->GiveAccolade(GameMode->GetAlivePlayers()[i], FindObject<UFortAccoladeItemDefinition>("/Game/Athena/Items/Accolades/AccoladeId_028_Survival_Default_Gold.AccoladeId_028_Survival_Default_Gold"));
-			}
-		}
 	}
 };
 
 inline std::vector<PhoebeBot*> PhoebeBotsToTick{};
+inline std::vector<struct PhoebeHenchman*> PhoebeHenchmenToTick{};
+
+struct PhoebeHenchman
+{
+public:
+	AFortAthenaAIBotController* PlayerController = nullptr;
+	AFortPlayerPawnAthena* Pawn = nullptr;
+	AFortPlayerStateAthena* PlayerState = nullptr;
+	bool TickEnabled = false;
+	AActor* CurrentTarget = nullptr;
+	bool IsCrouched = false;
+
+public:
+	PhoebeHenchman(AFortPlayerPawnAthena* InPawn, UClass* PawnClass)
+	{
+		Pawn = BotMutator->SpawnBot(PawnClass, InPawn, InPawn->GetActorLocation(), InPawn->GetActorRotation(), false);
+		PlayerController = Cast<AFortAthenaAIBotController>(Pawn->GetController());
+		PhoebeHenchmenToTick.push_back(this);
+		InPawn->K2_DestroyActor();
+		TickEnabled = true;
+	}
+
+public:
+	void GiveItem(UFortItemDefinition* Def, int Count = 1)
+	{
+		auto Inventory = PlayerController->GetInventory();
+
+		Inventory->AddItem(Def, nullptr, 1, Count);
+		Inventory->Update();
+	}
+
+	void WalkInDirection(FVector Direction)
+	{
+		static auto AddMovementInputFn = FindObject<UFunction>("/Script/Engine.Pawn.AddMovementInput");
+
+		struct
+		{
+			FVector WorldDirection;
+			float ScaleValue;
+			bool bForce;
+		}params{ Direction , 1.f, true };
+
+		Pawn->ProcessEvent(AddMovementInputFn, &params);
+	}
+
+public:
+	virtual void OnDied(AFortPlayerStateAthena* KillerState)
+	{
+		if (!KillerState)
+			return;
+
+		LOG_INFO(LogBots, "Henchman Died.");
+
+		auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+		auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+		auto KillerPawn = KillerState->GetCurrentPawn();
+
+		TickEnabled = false;
+
+		static auto OnRep_DeathInfoFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerStateAthena.OnRep_DeathInfo");
+
+		if (OnRep_DeathInfoFn)
+		{
+			PlayerState->ProcessEvent(OnRep_DeathInfoFn);
+		}
+
+		if (KillerState && KillerState != PlayerState)
+		{
+			KillerState->ClientReportKill(PlayerState);
+		}
+
+		if (!PlayerController->GetInventory())
+			return;
+
+		for (size_t i = 0; i < PlayerController->GetInventory()->GetItemList().GetReplicatedEntries().Num(); i++)
+		{
+			if (PlayerController->GetInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition()->IsA(UFortWeaponMeleeItemDefinition::StaticClass()))
+				continue;
+
+			PickupCreateData CreateData;
+			CreateData.bToss = true;
+			// CreateData.PawnOwner = Pawn;
+			CreateData.ItemEntry = Cast<UFortItem>(PlayerController->GetInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition())->GetItemEntry();
+			CreateData.SpawnLocation = Pawn->GetActorLocation();
+			CreateData.SourceType = EFortPickupSourceTypeFlag::GetPlayerValue();
+			CreateData.bRandomRotation = true;
+			CreateData.bShouldFreeItemEntryWhenDeconstructed = true;
+
+			AFortPickup::SpawnPickup(CreateData);
+		}
+	}
+
+	virtual void OnPerceptionSensed(AActor* SourceActor, FAIStimulus& Stimulus)
+	{
+		if (Stimulus.bSuccessfullySensed == 1 && PlayerController->LineOfSightTo(SourceActor, FVector(), true) && Pawn->GetDistanceTo(SourceActor) < 5000)
+		{
+			CurrentTarget = SourceActor;
+
+			LOG_INFO(LogBots, "Successfully sensed!");
+		}
+	}
+};
+
+static inline int RandomNumGen() 
+{
+	std::srand(static_cast<unsigned int>(std::time(nullptr)));
+	int randomNumber = (std::rand() % 26) + 1;
+	return randomNumber;
+}
 
 namespace PhoebeBots
 {
-	static void PhoebeBotTick()
+	static void PhoebePlayerBotTick()
 	{
 		for (auto PhoebeBot : PhoebeBotsToTick)
 		{
@@ -677,36 +992,57 @@ namespace PhoebeBots
 			switch (PhoebeBot->State)
 			{
 			case Warmup:
-				PhoebeBot->EquipPickaxe();
-				// PhoebeBot->StartEmoting();
-				PhoebeBot->TargetActor = PhoebeBot->FindNearestPlayer();
 
-				if (PhoebeBot->TargetActor)
+				switch (PhoebeBot->WarmupBehaviour)
 				{
-					PhoebeBot->LookAt(PhoebeBot->TargetActor);
-					PhoebeBot->MoveToActor(PhoebeBot->TargetActor);
+				case PlayEmote:
+					PhoebeBot->StartEmoting();
+					break;
+				case LootAndShoot:
+					// PhoebeBot->EquipPickaxe();
 
-					PhoebeBot->WalkForward();
+					PhoebeBot->TargetActor = PhoebeBot->FindNearestPlayer();
 
-					if (UKismetMathLibrary::RandomBoolWithWeight(0.01f))
+					if (PhoebeBot->TargetActor)
 					{
-						PhoebeBot->Jump();
+						PhoebeBot->LookAt(PhoebeBot->TargetActor);
+
+						if (PhoebeBot->Pawn->GetDistanceTo(PhoebeBot->TargetActor) > 300)
+						{
+							PhoebeBot->WalkInDirection(PhoebeBot->TargetActor->GetActorLocation() - PhoebeBot->Pawn->GetActorLocation());
+						}
+
+						if (UKismetMathLibrary::RandomBoolWithWeight(0.01f))
+						{
+							PhoebeBot->Jump();
+						}
+
+						if (UKismetMathLibrary::RandomBoolWithWeight(0.01f))
+						{
+							PhoebeBot->Crouch(!PhoebeBot->Crouching);
+						}
+
+						// PhoebeBot->Run();
+
+						// PhoebeBot->SetMovementMode(EFortMovementStyle::Running);
 					}
-					if (UKismetMathLibrary::RandomBoolWithWeight(0.01f))
-					{
-						PhoebeBot->Crouch(!PhoebeBot->Crouching);
-					}
-					// PhoebeBot->Run();
-				}
-				else
-				{
-					LOG_WARN(LogBots, "No TargetActor!");
+					break;
+				case Idle:
+					break;
+				case EBotWarmupBehaviour_MAX:
+					LOG_INFO(LogBots, "WarmupBehaviour invalid!");
+					break;
+				default:
+					break;
 				}
 
 				break;
 			case InBus:
 				if (PhoebeBot->JumpedFromBus)
 					return;
+
+				if (AircraftHasExitedDropZone)
+					PhoebeBot->JumpFromAircraft(GameState->GetAircraft(0));
 
 				PhoebeBot->Emoting = false;
 
@@ -716,7 +1052,7 @@ namespace PhoebeBots
 					PhoebeBot->PlayerController->ThankBusDriver();
 				}
 
-				if (!PhoebeBot->CanJumpFromBus || !PhoebeBot->ThankedBusDriver)
+				if (!AircraftHasEnteredDropZone || !PhoebeBot->ThankedBusDriver/* || PhoebeBot->PoiToLandAt->GetDistanceTo(PhoebeBot->Pawn) > 1300*/)
 					return;
 
 				if (UKismetMathLibrary::RandomBoolWithWeight(0.07f))
@@ -724,17 +1060,93 @@ namespace PhoebeBots
 					PhoebeBot->JumpedFromBus = true;
 					PhoebeBot->Pawn->TeleportTo(GameState->GetAircraft(0)->GetActorLocation(), {});
 					PhoebeBot->Skydive(true);
-					PhoebeBot->State = EBotState::Landed;
+					PhoebeBot->State = EBotState::SkydivingFromBus;
 				}
 
 				break;
 			case SkydivingFromBus:
-				PhoebeBot->State = EBotState::Landed;
+				if (!PhoebeBot->PoiToLandAt)
+				{
+					PhoebeBot->PoiToLandAt = PhoebeBot->ChooseRandomAIHotSpot();
+					return;
+				}
+
+				PhoebeBot->LookAt(PhoebeBot->PoiToLandAt);
+				PhoebeBot->WalkInDirection(PhoebeBot->PoiToLandAt->GetActorLocation() - PhoebeBot->Pawn->GetActorLocation());
+
+				
 				break;
 			case Landed:
 				PhoebeBot->StartLooting();
 				break;
 			case Looting:
+				if (PhoebeBot->TargetActor)
+				{
+					PhoebeBot->LookAt(PhoebeBot->TargetActor);
+					PhoebeBot->WalkInDirection(PhoebeBot->TargetActor->GetActorLocation() - PhoebeBot->Pawn->GetActorLocation());
+
+					if (PhoebeBot->Pawn->GetDistanceTo(PhoebeBot->TargetActor) <= 200)
+					{
+						PhoebeBot->Pawn->PawnStopFire(0);
+
+						if (PhoebeBot->SecondsPassed == 0.f)
+						{
+							PhoebeBot->SecondsPassed = UGameplayStatics::GetTimeSeconds(GetWorld());
+							PhoebeBot->Pawn->SetStartedInteractSearch(true);
+							PhoebeBot->Pawn->OnRep_StartedInteractSearch();
+						}
+						else if (UGameplayStatics::GetTimeSeconds(GetWorld()) - PhoebeBot->SecondsPassed >= 1.5f)
+						{
+							static auto SearchAnimationCountOffset = FindOffsetStruct("/Script/FortniteGame.FortSearchBounceData", "SearchAnimationCount");
+
+							static auto bAlreadySearchedOffset = PhoebeBot->TargetActor->GetOffset("bAlreadySearched");
+							static auto SearchBounceDataOffset = PhoebeBot->TargetActor->GetOffset("SearchBounceData");
+							static auto bAlreadySearchedFieldMask = GetFieldMask(PhoebeBot->TargetActor->GetProperty("bAlreadySearched"));
+
+							auto SearchBounceData = PhoebeBot->TargetActor->GetPtr<void>(SearchBounceDataOffset);
+
+							if (PhoebeBot->TargetActor->ReadBitfieldValue(bAlreadySearchedOffset, bAlreadySearchedFieldMask))
+								return;
+
+							Cast<ABuildingContainer>(PhoebeBot->TargetActor)->SpawnLoot();
+
+							PhoebeBot->TargetActor->SetBitfieldValue(bAlreadySearchedOffset, bAlreadySearchedFieldMask, true);
+							(*(int*)(__int64(SearchBounceData) + SearchAnimationCountOffset))++;
+							Cast<ABuildingContainer>(PhoebeBot->TargetActor)->BounceContainer();
+
+							PhoebeBot->TargetActor->ForceNetUpdate();
+
+							auto Pickup = PhoebeBot->FindNearestPickup();
+
+							if (Pickup)
+							{
+								PhoebeBot->Pawn->ServerHandlePickupHook(PhoebeBot->Pawn, Pickup, 0.4f, FVector(), true);
+
+								if (PhoebeBot->HasGun())
+								{
+									// PhoebeBot->EquipGun();
+
+									PhoebeBot->State = EBotState::LookingForPlayers;
+								}
+							}
+							else
+							{
+								PhoebeBot->SecondsPassed = 0.f;
+								PhoebeBot->StartLooting();
+								LOG_INFO(LogBots, "Pickup invalid!");
+							}
+						}
+					}
+					else
+					{
+						PhoebeBot->Pawn->PawnStartFire(0);
+					}
+				}
+				else
+				{
+					PhoebeBot->StartLooting();
+				}
+
 				break;
 			case MovingToZone:
 				break;
@@ -750,9 +1162,92 @@ namespace PhoebeBots
 			}
 		}
 	}
+
+	static void PhoebePlayerBotDied(AController* PlayerController, AController* InstigatedBy)
+	{
+		LOG_INFO(LogBots, "PhoebePlayerBotDied!");
+
+		LOG_INFO(LogBots, "PhoebeBotsToTick.size(): {}", PhoebeBotsToTick.size());
+
+		DeadBotID = PlayerController->GetPlayerState()->GetPlayerID();
+		BotDied = true;
+		KillerState = Cast<AFortPlayerStateAthena>(InstigatedBy->GetPlayerState());
+	}
+
+	static void PhoebeHenchmanTick()
+	{
+		for (auto Henchman : PhoebeHenchmenToTick)
+		{
+			if (!Henchman->TickEnabled || !Henchman->Pawn || Henchman->Pawn->IsDBNO() || !Henchman->CurrentTarget)
+			{
+				Henchman->CurrentTarget = nullptr;
+				Henchman->PlayerController->StopMovement();
+			}
+
+			auto BotPos = Henchman->Pawn->GetActorLocation();
+			auto TargetPos = Henchman->CurrentTarget->GetActorLocation();
+			float Distance = Henchman->Pawn->GetDistanceTo(Henchman->CurrentTarget);
+
+			if (Distance > 800)
+			{
+				Henchman->WalkInDirection(Henchman->CurrentTarget->GetActorLocation() - Henchman->Pawn->GetActorLocation());
+			}
+			else
+			{
+				Henchman->PlayerController->StopMovement();
+				if (!Henchman->IsCrouched && UKismetMathLibrary::RandomBoolWithWeight(0.05f))
+				{
+					Henchman->Pawn->Crouch(false);
+					Henchman->IsCrouched = true;
+				}
+				else if (Henchman->IsCrouched)
+				{
+					Henchman->Pawn->UnCrouch(false);
+					Henchman->IsCrouched = false;
+				}
+			}
+
+			int WillShoot = RandomNumGen();
+
+			if (WillShoot == 1) {
+				LOG_INFO(LogBots, "[EON AI]: Can Hit player!");
+
+				float RandomYaw = UKismetMathLibrary::RandomFloatInRange(-20.0f, 20.0f);
+				float RandomPitch = UKismetMathLibrary::RandomFloatInRange(-10.0f, 10.0f);
+
+				FVector TargetPosTest{ TargetPos.X + RandomPitch, TargetPos.Y + RandomYaw, TargetPos.Z };
+
+				auto TestRot = UKismetMathLibrary::FindLookAtRotation(BotPos, TargetPosTest);
+				Henchman->PlayerController->SetControlRotation(TestRot);
+				Henchman->Pawn->PawnStartFire(0);
+			}
+			else
+			{
+				float RandomYaw = UKismetMathLibrary::RandomFloatInRange(-180.0f, 180.0f);
+				float RandomPitch = UKismetMathLibrary::RandomFloatInRange(-90.0f, 90.0f);
+
+				FVector TargetPosFake{ TargetPos.X + RandomPitch, TargetPos.Y + RandomYaw, TargetPos.Z };
+				auto TestRot = UKismetMathLibrary::FindLookAtRotation(BotPos, TargetPosFake);
+				Henchman->PlayerController->SetControlRotation(TestRot);
+				Henchman->Pawn->PawnStartFire(0);
+			}
+		}
+	}
+
+	static void PhoebeHenchmanDied(AController* PlayerController, AController* InstigatedBy)
+	{
+		LOG_INFO(LogBots, "PhoebeHenchmanDied!");
+
+		LOG_INFO(LogBots, "PhoebeHenchmenToTick.size(): {}", PhoebeHenchmenToTick.size());
+
+		HenchmanDied = true;
+		HenchmanKillerState = Cast<AFortPlayerStateAthena>(InstigatedBy->GetPlayerState());
+		DeadHenchmanPawn = PlayerController->GetPawn();
+	}
 }
 
-namespace AIMutator {
+namespace AIMutator
+{
 	static void SetupServerBotManager()
 	{
 
@@ -913,7 +1408,16 @@ public:
 		}
 
 		if (auto PlayerController = Cast<APlayerController>(Controller))
-			PlayerController->ServerChangeName(NewName);
+		{
+			if (Fortnite_Version < 9)
+			{
+				PlayerController->ServerChangeName(NewName);
+			}
+			else
+			{
+				GameMode->ChangeName(PlayerController, NewName, true);
+			}
+		}
 
 		PlayerState->OnRep_PlayerName();
 

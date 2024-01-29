@@ -8,46 +8,61 @@ AFortPlayerPawnAthena* UFortServerBotManagerAthena::SpawnBotHook(UFortServerBotM
 
 	LOG_INFO(LogDev, "SpawnBotHook!");
 
-	if (InBotData->GetFullName().contains("MANG_POI_Yacht"))
+	LOG_INFO(LogBots, "BotData: {}", InBotData->GetFullName());
+	LOG_INFO(LogBots, "BotManager: {}", BotManager->GetFullName());
+
+	UAthenaCharacterItemDefinition* CharacterToApply = nullptr;
+
+	if (!CharacterToApply)
 	{
-		InBotData = FindObject<UFortAthenaAIBotCustomizationData>("/Game/Athena/AI/MANG/BotData/BotData_MANG_POI_HDP.BotData_MANG_POI_HDP");
-	}
+		auto DefaultCharacterName = InBotData->GetCharacterCustomization()->GetCustomizationLoadout()->GetCharacter()->GetName();
 
-	if (InBotData->GetCharacterCustomization()->GetCustomizationLoadout()->GetCharacter()->GetName() == "CID_556_Athena_Commando_F_RebirthDefaultA")
-	{
-		InBotData->GetCharacterCustomization()->GetCustomizationLoadout()->GetCharacter() = FindObject<UAthenaCharacterItemDefinition>("/Game/Athena/Items/Cosmetics/Characters/CID_NPC_Athena_Commando_M_HenchmanGood.CID_NPC_Athena_Commando_M_HenchmanGood");
-	}
-
-	AActor* SpawnLocator = GetWorld()->SpawnActor<APawn>(FindObject<UClass>(L"/Script/Engine.DefaultPawn"), InSpawnLocation, InSpawnRotation.Quaternion());
-	AFortPlayerPawnAthena* Ret = BotMutator->SpawnBot(InBotData->GetPawnClass(), SpawnLocator, InSpawnLocation, InSpawnRotation, true);
-	AFortAthenaAIBotController* PC = (AFortAthenaAIBotController*)Ret->GetController();
-	
-	LOG_INFO(LogBots, "SpawnBotHook SpawnLocator Spawned.");
-
-	ApplyHID(Ret, InBotData->GetCharacterCustomization()->GetCustomizationLoadout()->GetCharacter()->GetHeroDefinition(), true);
-
-	SpawnLocator->K2_DestroyActor();
-	DWORD CustomSquadId = InRuntimeBotData.CustomSquadId;
-	BYTE TrueByte = 1;
-	BYTE FalseByte = 0;
-	BotManagerSetupStuffIdk(__int64(BotManager), __int64(Ret), __int64(InBotData->GetBehaviorTree()), 0, &CustomSquadId, 0, __int64(InBotData->GetStartupInventory()), __int64(InBotData->GetBotNameSettings()), 0, &FalseByte, 0, &TrueByte, InRuntimeBotData);
-
-	PhoebeBot* Bot = new PhoebeBot(Ret);
-
-	for (size_t i = 0; i < InBotData->GetStartupInventory()->GetItems().Num(); i++)
-	{
-		Bot->GiveItem(InBotData->GetStartupInventory()->GetItems()[i]);
-
-		if (auto Data = Cast<UFortWeaponItemDefinition>(InBotData->GetStartupInventory()->GetItems()[i]))
+		if (DefaultCharacterName != "CID_556_Athena_Commando_F_RebirthDefaultA")
 		{
-			if (Data->GetAmmoWorldItemDefinition_BP() && Data->GetAmmoWorldItemDefinition_BP() != Data)
+			CharacterToApply = InBotData->GetCharacterCustomization()->GetCustomizationLoadout()->GetCharacter();
+		}
+		else
+		{
+			if (InBotData->GetFullName().contains("Alter"))
 			{
-				Bot->GiveItem(Data->GetAmmoWorldItemDefinition_BP(), 99999);
+				CharacterToApply = FindObject<UAthenaCharacterItemDefinition>("CID_NPC_Athena_Commando_M_HenchmanBad", nullptr, ANY_PACKAGE);
+			}
+			else if (InBotData->GetFullName().contains("Ego"))
+			{
+				CharacterToApply = FindObject<UAthenaCharacterItemDefinition>("CID_NPC_Athena_Commando_M_HenchmanGood", nullptr, ANY_PACKAGE);
+			}
+			else
+			{
+				CharacterToApply = FindObject<UAthenaCharacterItemDefinition>("CID_NPC_Athena_Commando_M_HenchmanGood", nullptr, ANY_PACKAGE);
 			}
 		}
 	}
 
-	Bot->TickEnabled = true;
+	auto PawnClass = InBotData->GetPawnClass();
 
-	return Ret;
+	auto SpawnLocator = GetWorld()->SpawnActor<APawn>(FindObject<UClass>(L"/Script/Engine.DefaultPawn"), InSpawnLocation, InSpawnRotation.Quaternion());
+	
+	PhoebeHenchman* Henchman = new PhoebeHenchman(Cast<AFortPlayerPawnAthena>(SpawnLocator), PawnClass);
+
+	if (CharacterToApply)
+	{
+		auto HeroDefinition = CharacterToApply->Get<UFortHeroType*>(CharacterToApply->GetOffset("HeroDefinition"));
+
+		ApplyHID(Henchman->Pawn, HeroDefinition, true);
+
+		LOG_INFO(LogBots, "Applied Skin.");
+	}
+	else
+	{
+		LOG_WARN(LogBots, "Failed to find Character for Henchman!");
+	}
+
+	LOG_INFO(LogBots, "BotData: {}, Coordinates: {}", InBotData->GetFullName(), Henchman->Pawn->GetActorLocation().ToString().ToString());
+
+	DWORD CustomSquadId = InRuntimeBotData.CustomSquadId;
+	BYTE TrueByte = 1;
+	BYTE FalseByte = 0;
+	BotManagerSetupStuffIdk(__int64(BotManager), __int64(Henchman->Pawn), __int64(InBotData->GetBehaviorTree()), 0, &CustomSquadId, 0, __int64(InBotData->GetStartupInventory()), __int64(InBotData->GetBotNameSettings()), 0, &FalseByte, 0, &TrueByte, InRuntimeBotData);
+
+	return Henchman->Pawn;
 }

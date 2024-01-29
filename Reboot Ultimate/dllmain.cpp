@@ -276,13 +276,15 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
 
                 Script->ProcessEvent(Script->FindFunction("OnReady_4E0ADA484A9A29A99CA6DD97BE645F09"), &OnReadyParams);
 
+                static auto PlayerStarts = Script->Get<TArray<AActor*>>(Script->GetOffset("PlayerStarts"));
+
                 for (int i = 0; i < ClientConnections.Num(); i++)
                 {
                     auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
                     auto CurrentController = ClientConnections.At(i)->GetPlayerController();
 
                     auto PlayerComponent = CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_PlayerComponent.BP_Buffet_Paint_PlayerComponent_C"));
-                    CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_IntroTrackFinder.BP_Buffet_Paint_IntroTrackFinder_C"));
+                    auto IntroTrackFinder = CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_IntroTrackFinder.BP_Buffet_Paint_IntroTrackFinder_C"));
                     auto MovementComponent = CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_MovementComponent.BP_Buffet_Paint_MovementComponent_C"));
 
                     PlayerComponent->Get<UObject*>(PlayerComponent->GetOffset("MovementComponent")) = MovementComponent;
@@ -680,7 +682,7 @@ DWORD WINAPI Main(LPVOID)
     Addresses::Init();
     Addresses::Print();
 
-    bEnableRebooting = Addresses::RebootingDelegate && Addresses::FinishResurrection/* && Addresses::GetSquadIdForCurrentPlayer && false*/;
+    bEnableRebooting = Addresses::RebootingDelegate && Addresses::FinishResurrection && Addresses::GetSquadIdForCurrentPlayer && false;
 
     LOG_INFO(LogDev, "Fortnite_CL: {}", Fortnite_CL);
     LOG_INFO(LogDev, "Fortnite_Version: {}", Fortnite_Version);
@@ -765,7 +767,7 @@ DWORD WINAPI Main(LPVOID)
 
     Hooking::MinHook::Hook((PVOID)Addresses::ActorGetNetMode, (PVOID)GetNetModeHook2, nullptr);
 
-    if (Fortnite_Version > 13) // ermm
+    if (/*Fortnite_Version > 13*/false) // ermm
     {
         Hooking::MinHook::Hook(FindObject<ABuildingFoundation>(L"/Script/FortniteGame.Default__BuildingFoundation"),
             FindObject<UFunction>(L"/Script/FortniteGame.BuildingFoundation.SetDynamicFoundationTransform"),
@@ -1119,7 +1121,8 @@ DWORD WINAPI Main(LPVOID)
         }
     }
 
-    Hooking::MinHook::Hook((PVOID)Addresses::CreateBuildingActorCallForDeco, (PVOID)AFortDecoTool::ServerCreateBuildingAndSpawnDecoHook, (PVOID*)&AFortDecoTool::ServerCreateBuildingAndSpawnDecoOriginal);
+    Hooking::MinHook::Hook(FindObject("/Script/FortniteGame.Default__FortDecoTool"), FindObject<UFunction>(L"/Script/FortniteGame.FortDecoTool.ServerCreateBuildingAndSpawnDeco"),
+        (PVOID)AFortDecoTool::ServerCreateBuildingAndSpawnDecoHook, (PVOID*)&AFortDecoTool::ServerCreateBuildingAndSpawnDecoOriginal);
 
     Hooking::MinHook::Hook(FortPlayerControllerAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerControllerAthena.ServerGiveCreativeItem"),
         AFortPlayerControllerAthena::ServerGiveCreativeItemHook, nullptr, true);
@@ -1341,9 +1344,14 @@ DWORD WINAPI Main(LPVOID)
 
     Hooking::MinHook::Hook(FindObject<AFortAthenaAIBotController>(L"/Script/FortniteGame.Default__FortAthenaAIBotController"), FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaAIBotController.OnPossesedPawnDied"),
         AFortAthenaAIBotController::OnPossesedPawnDiedHook, (PVOID*)&AFortAthenaAIBotController::OnPossesedPawnDiedOriginal, false);
+    Hooking::MinHook::Hook(FindObject<AFortAthenaAIBotController>(L"/Script/FortniteGame.Default__FortAthenaAIBotController"), FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaAIBotController.OnPerceptionSensed"),
+        AFortAthenaAIBotController::OnPerceptionSensedHook, (PVOID*)&AFortAthenaAIBotController::OnPerceptionSensedOriginal, false);
 
-    Hooking::MinHook::Hook(FindObject<UFortServerBotManagerAthena>(L"/Script/FortniteGame.Default__FortServerBotManagerAthena"), FindObject<UFunction>(L"/Script/FortniteGame.FortServerBotManagerAthena.SpawnBot"),
-        UFortServerBotManagerAthena::SpawnBotHook, (PVOID*)&UFortServerBotManagerAthena::SpawnBotOriginal, false);
+    if (Fortnite_Version == 12.41)
+    {
+        Hooking::MinHook::Hook(FindObject<UFortServerBotManagerAthena>(L"/Script/FortniteGame.Default__FortServerBotManagerAthena"), FindObject<UFunction>(L"/Script/FortniteGame.FortServerBotManagerAthena.SpawnBot"),
+            UFortServerBotManagerAthena::SpawnBotHook, (PVOID*)&UFortServerBotManagerAthena::SpawnBotOriginal, false);
+    }
 
     static auto FortHeldObjectComponentDefault = FindObject<UFortHeldObjectComponent>(L"/Script/FortniteGame.Default__FortHeldObjectComponent");
 
@@ -1400,9 +1408,9 @@ DWORD WINAPI Main(LPVOID)
     Hooking::MinHook::Hook((PVOID)Addresses::SetZoneToIndex, (PVOID)SetZoneToIndexHook, (PVOID*)&SetZoneToIndexOriginal);
     Hooking::MinHook::Hook((PVOID)Addresses::EnterAircraft, (PVOID)AFortPlayerControllerAthena::EnterAircraftHook, (PVOID*)&AFortPlayerControllerAthena::EnterAircraftOriginal);
 
-#ifndef PROD
+// #ifndef PROD
     Hooking::MinHook::Hook((PVOID)Addresses::ProcessEvent, ProcessEventHook, (PVOID*)&UObject::ProcessEventOriginal);
-#endif
+// #endif
 
     AddVehicleHook();
 

@@ -68,6 +68,16 @@ struct FGameplayAbilitySpecContainer : public FFastArraySerializer
 	}
 };
 
+class UFortGameplayAbility_Sprint : public UObject // UFortGameplayAbility_Action
+{
+public:
+	static UClass* StaticClass()
+	{
+		static auto Class = FindObject<UClass>(L"/Script/FortniteGame.FortGameplayAbility_Sprint");
+		return Class;
+	}
+};
+
 class UAbilitySystemComponent : public UObject
 {
 public:

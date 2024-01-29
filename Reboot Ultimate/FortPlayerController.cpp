@@ -758,9 +758,13 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 			LOG_INFO(LogDev, "UpgradedWeaponDef: {}", NewDefinition->GetFullName());
 
-			int WoodCost = (int)FoundRow->WoodCost * 50;
-			int StoneCost = (int)FoundRow->BrickCost * 50 - 400;
-			int MetalCost = (int)FoundRow->MetalCost * 50 - 200;
+			int WoodToRemove = Fortnite_Version < 12 ? -50 : 0;
+			int StoneToRemove = Fortnite_Version < 12 ? 350 : 400;
+			int MetalToRemove = Fortnite_Version < 12 ? 150 : 200;
+
+			int WoodCost = (int)FoundRow->WoodCost * 50 - WoodToRemove;
+			int StoneCost = (int)FoundRow->BrickCost * 50 - StoneToRemove;
+			int MetalCost = (int)FoundRow->MetalCost * 50 - MetalToRemove;
 
 			if (bIsSidegrading)
 			{
@@ -783,6 +787,11 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 			auto MetalInstance = WorldInventory->FindItemInstance(MetalItemData);
 			auto MetalCount = MetalInstance->GetItemEntry()->GetCount();
+
+			if (WoodCount < WoodCost || StoneCount < StoneCost || MetalCount < MetalCost)
+			{
+				return ServerAttemptInteractOriginal(Context, Stack, Ret);
+			}
 
 			bool bShouldUpdate = false;
 

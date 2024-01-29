@@ -69,6 +69,19 @@ public:
 		this->ProcessEvent(fn, &bFromBus);
 	}
 
+	void OnRep_StartedInteractSearch()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerPawn.OnRep_StartedInteractSearch");
+		this->ProcessEvent(fn);
+	}
+
+	void SetStartedInteractSearch(bool NewValue)
+	{
+		static auto bStartedInteractSearchOffset = GetOffset("bStartedInteractSearch");
+		static auto bStartedInteractSearchFieldMask = GetFieldMask(GetProperty("bStartedInteractSearch"));
+		SetBitfieldValue(bStartedInteractSearchOffset, bStartedInteractSearchFieldMask, NewValue);
+	}
+	
 	struct FFortAthenaLoadout* GetCosmeticLoadout();
 	void ServerChoosePart(EFortCustomPartType Part, class UObject* ChosenCharacterPart);
 	void ForceLaunchPlayerZipline(); // Thanks android

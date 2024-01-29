@@ -9,14 +9,26 @@ void AFortAthenaAIBotController::OnPossesedPawnDiedHook(AController* PlayerContr
 	if (!InstigatedBy)
 		return OnPossesedPawnDiedOriginal(PlayerController, DamagedActor, Damage, InstigatedBy, DamageCauser, HitLocation, FHitComponent, BoneName, Momentum);
 
-	for (auto PhoebeBot : PhoebeBotsToTick)
+	PhoebeBots::PhoebePlayerBotDied(PlayerController, InstigatedBy);
+	PhoebeBots::PhoebeHenchmanDied(PlayerController, InstigatedBy);
+
+	return OnPossesedPawnDiedOriginal(PlayerController, DamagedActor, Damage, InstigatedBy, DamageCauser, HitLocation, FHitComponent, BoneName, Momentum);
+}
+
+void AFortAthenaAIBotController::OnPerceptionSensedHook(AFortAthenaAIBotController* PlayerController, AActor* SourceActor, FAIStimulus& Stim)
+{
+	if (SourceActor->IsA(AFortPlayerPawnAthena::StaticClass()) && Cast<AFortPlayerPawnAthena>(SourceActor)->GetController() && !Cast<AFortPlayerPawnAthena>(SourceActor)->GetController()->IsA(AFortAthenaAIBotController::StaticClass()))
 	{
-		if (PhoebeBot && PhoebeBot->PlayerController && PhoebeBot->TickEnabled && PhoebeBot->PlayerController == PlayerController)
+		LOG_INFO(LogBots, "OnPerceptionSensedHook!");
+
+		for (auto Henchman : PhoebeHenchmenToTick)
 		{
-			PhoebeBot->OnDied(Cast<AFortPlayerStateAthena>(InstigatedBy->GetPlayerState()));
-			break;
+			if (Henchman->PlayerController == PlayerController)
+			{
+				Henchman->OnPerceptionSensed(SourceActor, Stim);
+			}
 		}
 	}
 
-	return OnPossesedPawnDiedOriginal(PlayerController, DamagedActor, Damage, InstigatedBy, DamageCauser, HitLocation, FHitComponent, BoneName, Momentum);
+	return OnPerceptionSensedOriginal(PlayerController, SourceActor , Stim);
 }

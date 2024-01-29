@@ -38,6 +38,18 @@ bool UKismetMathLibrary::RandomBoolWithWeight(float weight)
 	return params.ret;
 }
 
+FRotator UKismetMathLibrary::FindLookAtRotation(FVector Start, FVector Target)
+{
+	static auto fn = FindObject<UFunction>("/Script/Engine.KismetMathLibrary.FindLookAtRotation");
+
+	struct { FVector Start; FVector Target; FRotator ret; } params{ Start , Target };
+
+	static auto DefaultObject = StaticClass();
+	DefaultObject->ProcessEvent(fn, &params);
+
+	return params.ret;
+}
+
 UClass* UKismetMathLibrary::StaticClass()
 {
 	static auto Class = FindObject<UClass>("/Script/Engine.KismetMathLibrary");
