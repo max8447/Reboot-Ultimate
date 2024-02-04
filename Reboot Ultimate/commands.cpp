@@ -227,6 +227,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Assault_LMG_Athena_SR_Ore_T03";
 			}
+			else if (weaponName == "minigun_ur" || weaponName == "brutus")
+			{
+				weaponName = "WID_Boss_Hos_MG";
+			}
 			else if (weaponName == "pump_uc")
 			{
 				weaponName = "WID_Shotgun_Standard_Athena_C_Ore_T03";
@@ -379,6 +383,14 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Sniper_CoreSniper_Athena_SR";
 			}
+			else if (weaponName == "firesniper" || weaponName == "dragonsbreath")
+			{
+				weaponName = "WID_WaffleTruck_Sniper_DragonBreath";
+			}
+			else if (weaponName == "exstormscout" || weaponName == "exoticstormscout")
+			{
+				weaponName = "WID_WaffleTruck_Sniper_StormScout";
+			}
 			else if (weaponName == "rocket_r")
 			{
 				weaponName = "WID_Launcher_Rocket_Athena_R_Ore_T03";
@@ -491,7 +503,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "Athena_ShockGrenade";
 			}
-			else if (weaponName == "impulse" || weaponName == "impulsegrenade")
+			else if (weaponName == "impulse" || weaponName == "impulsegrenade" || weaponName == "impulses")
 			{
 				weaponName = "Athena_KnockGrenade";
 			}
@@ -510,18 +522,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			else if (weaponName == "slurpfish")
 			{
 				weaponName = "WID_Athena_Flopper_Effective";
-			}
-			else if (weaponName == "pizza")
-			{
-				weaponName = "WID_Athena_PizzaParty";
-			}
-			else if (weaponName == "keg" || weaponName == "shieldkeg" || weaponName == "sprinkler" || Command == "shieldsprinkler")
-			{
-				weaponName = "WID_Athena_ShieldGenerator";
-			}
-			else if (weaponName == "thermalflopper" || weaponName == "thermalfish")
-			{
-				weaponName = "WID_Athena_Flopper_Thermal";
 			}
 			else if (weaponName == "zeropoint" || weaponName == "zeropointfish")
 			{
@@ -571,14 +571,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_WaffleTruck_HopRockDualies";
 			}
-			else if (weaponName == "bigchill")
-			{
-				weaponName = "WID_WaffleTruck_ChillerLauncher";
-			}
-			else if (weaponName == "firesniper")
-			{
-				weaponName = "WID_WaffleTruck_Sniper_DragonBreath";
-			}
 			else if (weaponName == "recon")
 			{
 				weaponName = "AGID_Athena_Scooter";
@@ -610,6 +602,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			else if (weaponName == "batarangs")
 			{
 				weaponName = "WID_Athena_BadgerBangsNew";
+			}
+			else if (weaponName == "flare" || Command == "flaregun")
+			{
+				weaponName = "WID_FringePlank_Athena_Prototype";
 			}
 			else if (weaponName == "stwpumpkin" || weaponName == "stwrocket")
 			{
@@ -2264,6 +2260,23 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Healed all players shield!\n");
 		}
+		else if (Command == "regenall")
+		{
+			for (int i = 0; i < ClientConnections.Num(); i++)
+			{
+				auto PlayerController = Cast<AFortPlayerController>(ClientConnections.at(i)->GetPlayerController());
+
+				if (!PlayerController->IsValidLowLevel())
+					continue;
+
+				auto Pawn = PlayerController->GetMyFortPawn();
+
+				Pawn->SetHealth(100.f);
+				Pawn->SetShield(100.f);
+			}
+
+			SendMessageToConsole(PlayerController, L"Regenerated health and shield for all players!\n");
+		}
 		else if (Command == "giveall" || Command == "giveallammo" || Command == "giveammoall" || Command == "grantall")
 		{
 			static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
@@ -2432,6 +2445,7 @@ cheat wipeall/clearall - Removes the player's entire inventory.
 cheat suicide - Insta-kills player.
 cheat healthall - Heals all players health.
 cheat shieldall - Heals all players shield.
+cheat regenall - Heals all players health and shield.
 cheat godall - Gods all players.
 cheat giveall - Gives all players Ammo, Materials, and Traps maxed out.
 cheat getlocation - Gives you the current XYZ cords of where you are standing and copies them to your clipboard (useful for bugitgo)
