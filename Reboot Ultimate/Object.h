@@ -26,6 +26,11 @@ struct FGuid
 	{
 		return !(*this == other);
 	}
+
+	std::string ToString()
+	{
+		return "{" + std::to_string(A) + ", " + std::to_string(B) + ", " + std::to_string(C) + ", " + std::to_string(D) + "}";
+	}
 };
 
 class UObject

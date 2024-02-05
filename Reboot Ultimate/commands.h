@@ -10,7 +10,6 @@
 #include "FortLootPackage.h"
 #include "bots.h"
 #include "FortAthenaMutator_Bots.h"
-#include "ai.h"
 #include "moderation.h"
 
 inline bool IsOperator(APlayerState* PlayerState, AFortPlayerController* PlayerController)

@@ -28,8 +28,7 @@ enum class EBuildingAttachmentType : uint8
 class AFortDecoTool : public AFortWeapon
 {
 public:
-	using FVector_NetQuantize10 = FVector;
-	static inline void (*ServerCreateBuildingAndSpawnDecoOriginal)(UObject* Context, FFrame& Stack, void* Ret);
+	static inline void (*ServerCreateBuildingAndSpawnDecoOriginal)(AFortDecoTool* DecoTool, FVector& BuildingLocation, FRotator& BuildingRotation, FVector& Location, FRotator& Rotation, EBuildingAttachmentType InBuildingAttachmentType);
 
-	static void ServerCreateBuildingAndSpawnDecoHook(UObject* Context, FFrame& Stack, void* Ret);
+	static void ServerCreateBuildingAndSpawnDecoHook(AFortDecoTool* DecoTool, FVector& BuildingLocation, FRotator& BuildingRotation, FVector& Location, FRotator& Rotation, EBuildingAttachmentType InBuildingAttachmentType);
 };

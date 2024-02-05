@@ -27,7 +27,6 @@
 #include "events.h"
 #include "FortPlaylistAthena.h"
 #include "reboot.h"
-#include "ai.h"
 #include "Map.h"
 #include "OnlineReplStructs.h"
 #include "BGA.h"
@@ -462,36 +461,39 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 			auto OldPlaylist = GetPlaylistForOldVersion();
 		}
 
-		auto CurrentPlaylist = GameState->GetCurrentPlaylist();
-		auto WinConditionTypeOffset = CurrentPlaylist->GetOffset("WinConditionType");
-		auto WinConditionType = CurrentPlaylist->Get<EAthenaWinCondition>(WinConditionTypeOffset);
-
-		Globals::bEnableScoringSystem = WinConditionType == EAthenaWinCondition::MutatorControlledGoalScore ? true : false;
-
-		static auto DefaultGliderRedeployCanRedeployOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "DefaultGliderRedeployCanRedeploy", false);
-		bool bEnableGliderRedeploy = false;
-
-		TArray<TSoftObjectPtr<UFortGameplayModifierItemDefinition>> ModifierList = CurrentPlaylist->GetModifierList();
-
-		for (int i = 0; i < ModifierList.Num(); i++)
+		if (Fortnite_Version >= 6)
 		{
-			auto Modifier = ModifierList.at(i);
+			auto CurrentPlaylist = GameState->GetCurrentPlaylist();
+			auto WinConditionTypeOffset = CurrentPlaylist->GetOffset("WinConditionType");
+			auto WinConditionType = CurrentPlaylist->Get<EAthenaWinCondition>(WinConditionTypeOffset);
 
-			if (Modifier.SoftObjectPtr.ObjectID.AssetPathName.ToString().contains("Glider"))
-				bEnableGliderRedeploy = true;
+			Globals::bEnableScoringSystem = WinConditionType == EAthenaWinCondition::MutatorControlledGoalScore ? true : false;
+
+			static auto DefaultGliderRedeployCanRedeployOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "DefaultGliderRedeployCanRedeploy", false);
+			bool bEnableGliderRedeploy = false;
+
+			TArray<TSoftObjectPtr<UFortGameplayModifierItemDefinition>> ModifierList = CurrentPlaylist->GetModifierList();
+
+			for (int i = 0; i < ModifierList.Num(); i++)
+			{
+				auto Modifier = ModifierList.at(i);
+
+				if (Modifier.SoftObjectPtr.ObjectID.AssetPathName.ToString().contains("Glider"))
+					bEnableGliderRedeploy = true;
+			}
+
+			GameState->Get<float>(DefaultGliderRedeployCanRedeployOffset) = bEnableGliderRedeploy;
+
+			Globals::bTravis = Fortnite_Version == 12.41 && Globals::bGoingToPlayEvent ? true : false;
+
+			Globals::bArsenal = CurrentPlaylist->GetFullName().contains("Playlist_Gg_Reverse") ? true : false;
+
+			Globals::bDropZone = CurrentPlaylist->GetFullName().contains("Playlist_Respawn_Op") ? true : false;
+
+			Globals::bStormKing = CurrentPlaylist->GetFullName().contains("DADBRO") ? true : false;
+
+			Globals::bTeamRumble = CurrentPlaylist->GetFullName().contains("Playlists/Playlist_Respawn") ? true : false;
 		}
-
-		GameState->Get<float>(DefaultGliderRedeployCanRedeployOffset) = bEnableGliderRedeploy;
-
-		Globals::bTravis = Fortnite_Version == 12.41 && Globals::bGoingToPlayEvent ? true : false;
-
-		Globals::bArsenal = CurrentPlaylist->GetFullName().contains("Playlist_Gg_Reverse") ? true : false;
-
-		Globals::bDropZone = CurrentPlaylist->GetFullName().contains("Playlist_Respawn_Op") ? true : false;
-
-		Globals::bStormKing = CurrentPlaylist->GetFullName().contains("DADBRO") ? true : false;
-
-		Globals::bTeamRumble = CurrentPlaylist->GetFullName().contains("Playlists/Playlist_Respawn") ? true : false;
 
 		auto Fortnite_Season = std::floor(Fortnite_Version);
 

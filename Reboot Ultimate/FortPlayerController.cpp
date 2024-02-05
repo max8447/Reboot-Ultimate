@@ -377,6 +377,27 @@ void AFortPlayerController::ServerExecuteInventoryItemHook(AFortPlayerController
 	if (!ItemDefinition)
 		return;
 
+	static auto FortDecoTool_ContextTrapStaticClass = FindObject<UClass>(L"/Script/FortniteGame.FortDecoTool_ContextTrap");
+
+	if (Fortnite_Version >= 18)
+	{
+		if (Pawn->GetCurrentWeapon() && Pawn->GetCurrentWeapon()->IsA(FortDecoTool_ContextTrapStaticClass))
+		{
+			LOG_INFO(LogDev, "Should unequip trap!");
+
+			LOG_INFO(LogDev, "Pawn->GetCurrentWeapon()->GetItemEntryGuid(): {}", Pawn->GetCurrentWeapon()->GetItemEntryGuid().ToString());
+			LOG_INFO(LogDev, "ItemGuid: {}", ItemGuid.ToString());
+			LOG_INFO(LogDev, "ItemDefinition: {}", ItemDefinition->GetFullName());
+			LOG_INFO(LogDev, "ItemInstance->GetItemEntry()->GetItemGuid(): {}", ItemInstance->GetItemEntry()->GetItemGuid().ToString());
+
+			Pawn->GetCurrentWeapon()->GetItemEntryGuid() = ItemGuid;
+			Pawn->EquipWeaponDefinition((UFortWeaponItemDefinition*)ItemDefinition, ItemInstance->GetItemEntry()->GetItemGuid());
+
+			LOG_INFO(LogDev, "Pawn->GetCurrentWeapon()->GetItemEntryGuid(): {}", Pawn->GetCurrentWeapon()->GetItemEntryGuid().ToString());
+			LOG_INFO(LogDev, "Pawn->GetCurrentWeapon()->GetFullName(): {}", Pawn->GetCurrentWeapon()->GetFullName());
+		}
+	}
+
 	// LOG_INFO(LogDev, "Equipping ItemDefinition: {}", ItemDefinition->GetFullName());
 
 	static auto FortGadgetItemDefinitionClass = FindObject<UClass>(L"/Script/FortniteGame.FortGadgetItemDefinition");
@@ -402,34 +423,18 @@ void AFortPlayerController::ServerExecuteInventoryItemHook(AFortPlayerController
 
 	if (auto DecoItemDefinition = Cast<UFortDecoItemDefinition>(ItemDefinition))
 	{
-		/*
-
-		static auto WeaponClass = FindObject<UClass>("/Script/FortniteGame.BuildingTrap");
-
-		FTransform SpawnTransform;
-		SpawnTransform.Rotation = FQuat();
-		SpawnTransform.Translation = Pawn->GetActorLocation();
-		SpawnTransform.Scale3D = FVector(1, 1, 1);
-
-		auto NewTool = GetWorld()->SpawnActor<AActor>(WeaponClass, SpawnTransform);
-
-		*/
-
-		Pawn->PickUpActor(/*NewTool*/nullptr, DecoItemDefinition); // todo check ret value? // I checked on 1.7.2 and it only returns true if the new weapon is a FortDecoTool
+		Pawn->PickUpActor(nullptr, DecoItemDefinition); // todo check ret value? // I checked on 1.7.2 and it only returns true if the new weapon is a FortDecoTool
 		Pawn->GetCurrentWeapon()->GetItemEntryGuid() = ItemGuid;
-
-		static auto FortDecoTool_ContextTrapStaticClass = FindObject<UClass>(L"/Script/FortniteGame.FortDecoTool_ContextTrap");
 
 		if (Pawn->GetCurrentWeapon()->IsA(FortDecoTool_ContextTrapStaticClass))
 		{
 			LOG_INFO(LogDev, "Pawn->GetCurrentWeapon()->IsA(FortDecoTool_ContextTrapStaticClass)!");
 
-			// static auto FortContextTrapItemDefinitionClass = FindObject<UClass>("/Script/FortniteGame.FortContextTrapItemDefinition");
 			static auto ContextTrapItemDefinitionOffset = Pawn->GetCurrentWeapon()->GetOffset("ContextTrapItemDefinition");
 			Pawn->GetCurrentWeapon()->Get<UObject*>(ContextTrapItemDefinitionOffset) = DecoItemDefinition;
-			// auto ContextTrapItemDefinition = Pawn->GetCurrentWeapon()->Get<UFortDecoItemDefinition*>(ContextTrapItemDefinitionOffset);
 
-			// ContextTrapItemDefinition = ItemDefinition->IsA(FortContextTrapItemDefinitionClass) ? DecoItemDefinition : nullptr;
+			static auto SetContextTrapItemDefinitionFn = FindObject<UFunction>(L"/Script/FortniteGame.FortDecoTool_ContextTrap.SetContextTrapItemDefinition");
+			Pawn->GetCurrentWeapon()->ProcessEvent(SetContextTrapItemDefinitionFn, &DecoItemDefinition);
 		}
 
 		return;

@@ -276,18 +276,10 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
 
                 Script->ProcessEvent(Script->FindFunction("OnReady_4E0ADA484A9A29A99CA6DD97BE645F09"), &OnReadyParams);
 
-                static auto PlayerStarts = Script->Get<TArray<AActor*>>(Script->GetOffset("PlayerStarts"));
-
                 for (int i = 0; i < ClientConnections.Num(); i++)
                 {
                     auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
                     auto CurrentController = ClientConnections.At(i)->GetPlayerController();
-                    
-                    int RandomPlayerStartIdx = UKismetMathLibrary::RandomIntegerInRange(0, PlayerStarts.Num());
-                    auto RandomPlayerStart = PlayerStarts.at(RandomPlayerStartIdx);
-                    PlayerStarts.Remove(RandomPlayerStartIdx);
-
-                    CurrentPawn->TeleportTo(RandomPlayerStart->GetActorLocation(), Script->Get<FRotator>(Script->GetOffset("PlayerStartRotation")));
 
                     auto PlayerComponent = CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_PlayerComponent.BP_Buffet_Paint_PlayerComponent_C"));
                     auto IntroTrackFinder = CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_IntroTrackFinder.BP_Buffet_Paint_IntroTrackFinder_C"));
@@ -302,38 +294,34 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
             else if (Index == 4) // Storm King
             {
                 auto StormScript = FindObject<AActor>("/Buffet/Levels/Buffet_Part_6.Buffet_Part_6.PersistentLevel.BP_Buffet_PhaseScripting_4");
-
                 auto DefaultPlane = FindObject("/Buffet/Gameplay/Blueprints/WolfMother/BP_PlanePrototype.Default__BP_PlanePrototype_C");
+                auto WID = Cast<UFortWorldItemDefinition>(FindObject("WID_Buffet_BeatMatchingBoomBox", nullptr, ANY_PACKAGE)); // Storm King weapon thing
 
+                for (int i = 0; i < ClientConnections.Num(); i++)
                 {
-                    auto WID = Cast<UFortWorldItemDefinition>(FindObject("WID_Buffet_BeatMatchingBoomBox", nullptr, ANY_PACKAGE)); // Storm King weapon thing
+                    auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
+                    auto CurrentController = (AFortPlayerControllerAthena*)ClientConnections.At(i)->GetPlayerController();
 
-                    for (int i = 0; i < ClientConnections.Num(); i++)
+                    auto WorldInventory = CurrentController->GetWorldInventory();
+
+                    bool bShouldUpdate = false;
+                    WorldInventory->AddItem(WID, &bShouldUpdate, 1);
+
+                    if (bShouldUpdate)
+                        WorldInventory->Update();
+
+                    // SendMessageToConsole(CurrentController, L"Gave WID_Buffet_BeatMatchingBoomBox!");
+                }
+
+                auto AllWeps = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>("/Buffet/Gameplay/Blueprints/WolfMother/BeatmatchingWeapon/B_Buffet_BeatMatchingWeaponPrototype.B_Buffet_BeatMatchingWeaponPrototype_C"));
+
+                for (int i = 0; i < AllWeps.Num(); i++)
+                {
+                    auto CurrentWep = AllWeps.At(i);
+
+                    if (CurrentWep != nullptr)
                     {
-                        auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
-                        auto CurrentController = (AFortPlayerControllerAthena*)ClientConnections.At(i)->GetPlayerController();
-
-                        auto WorldInventory = CurrentController->GetWorldInventory();
-
-                        bool bShouldUpdate = false;
-                        WorldInventory->AddItem(WID, &bShouldUpdate, 1);
-
-                        if (bShouldUpdate)
-                            WorldInventory->Update();
-
-                        // SendMessageToConsole(CurrentController, L"Gave WID_Buffet_BeatMatchingBoomBox!");
-                    }
-
-                    auto AllWeps = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>("/Buffet/Gameplay/Blueprints/WolfMother/BeatmatchingWeapon/B_Buffet_BeatMatchingWeaponPrototype.B_Buffet_BeatMatchingWeaponPrototype_C"));
-
-                    for (int i = 0; i < AllWeps.Num(); i++)
-                    {
-                        auto CurrentWep = AllWeps.At(i);
-
-                        if (CurrentWep != nullptr)
-                        {
-                            CurrentWep->Get<AActor*>(CurrentWep->GetOffset("Phase4ScriptingRef")) = StormScript;
-                        }
+                        CurrentWep->Get<AActor*>(CurrentWep->GetOffset("Phase4ScriptingRef")) = StormScript;
                     }
                 }
             }
@@ -397,7 +385,6 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                     CurrentPawn->ProcessEvent(CurrentPawn->FindFunction("K2_DestroyComponent"), RemoveComponent);
 
                     CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/Llama/BP_Buffet_Llama_PlayerComponent.BP_Buffet_Llama_PlayerComponent_C"));
-                    CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/PostEvent/LlamaSpeedControlComponent.LlamaSpeedControlComponent_C"));
                 }
             }
             else if (Index == 10) // Escher
@@ -407,6 +394,20 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                     auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
 
                     CurrentPawn->TeleportTo(FVector(36.34f, 1044.07f, 504.50f), CurrentPawn->GetActorRotation());
+                }
+            }
+            else if (Index == 11) // Ariana Singing
+            {
+
+            }
+            else if (Index == 12) // End
+            {
+                for (int i = 0; i < ClientConnections.Num(); i++)
+                {
+                    auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
+
+                    CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/Llama/BP_Buffet_Llama_PlayerComponent.BP_Buffet_Llama_PlayerComponent_C"));
+                    CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/PostEvent/LlamaSpeedControlComponent.LlamaSpeedControlComponent_C"));
                 }
             }
         }
@@ -1034,6 +1035,9 @@ DWORD WINAPI Main(LPVOID)
         HookInstruction(__int64(GetModuleHandleW(0)) + 0x1FC835D, (PVOID)UFortAthenaAIBotCustomizationData::ApplyOverrideCharacterCustomizationHook, "/Script/Engine.PlayerController.SetVirtualJoystickVisibility", ERelativeOffsets::CALL, nullptr);
     }
 
+    Hooking::MinHook::Hook(FindObject<UFortServerBotManagerAthena>(L"/Script/FortniteGame.Default__FortServerBotManagerAthena"), FindObject<UFunction>(L"/Script/FortniteGame.FortServerBotManagerAthena.SpawnBot"),
+        UFortServerBotManagerAthena::SpawnBotHook, (PVOID*)&UFortServerBotManagerAthena::SpawnBotOriginal, false);
+
     Hooking::MinHook::Hook(FortWeaponDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortWeapon.ServerReleaseWeaponAbility"),
         AFortWeapon::ServerReleaseWeaponAbilityHook, (PVOID*)&AFortWeapon::ServerReleaseWeaponAbilityOriginal, false, true);
 
@@ -1088,7 +1092,7 @@ DWORD WINAPI Main(LPVOID)
        AFortPlayerController::ServerPlayEmoteItemHook, nullptr, false);
     Hooking::MinHook::Hook(FortPlayerControllerAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerController.ServerRepairBuildingActor"),
         AFortPlayerController::ServerRepairBuildingActorHook, nullptr, false);
-    Hooking::MinHook::Hook(FortPlayerControllerAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerController.ServerCreateBuildingActor"), 
+    Hooking::MinHook::Hook(FortPlayerControllerAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerController.ServerCreateBuildingActor"),
         AFortPlayerController::ServerCreateBuildingActorHook, (PVOID*)&AFortPlayerController::ServerCreateBuildingActorOriginal, false, true);
     Hooking::MinHook::Hook(FortPlayerControllerAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerController.ServerBeginEditingBuildingActor"),
         AFortPlayerController::ServerBeginEditingBuildingActorHook, nullptr, false);
@@ -1127,7 +1131,9 @@ DWORD WINAPI Main(LPVOID)
         }
     }
 
-    Hooking::MinHook::Hook(FindObject("/Script/FortniteGame.Default__FortDecoTool"), FindObject<UFunction>(L"/Script/FortniteGame.FortDecoTool.ServerCreateBuildingAndSpawnDeco"),
+    // We might also have to hook AFortDecoTool::ServerSpawnDeco on s18+
+
+    Hooking::MinHook::Hook(FindObject<AFortDecoTool>("/Script/FortniteGame.Default__FortDecoTool"), FindObject<UFunction>(L"/Script/FortniteGame.FortDecoTool.ServerCreateBuildingAndSpawnDeco"),
         (PVOID)AFortDecoTool::ServerCreateBuildingAndSpawnDecoHook, (PVOID*)&AFortDecoTool::ServerCreateBuildingAndSpawnDecoOriginal);
 
     Hooking::MinHook::Hook(FortPlayerControllerAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerControllerAthena.ServerGiveCreativeItem"),
@@ -1352,12 +1358,6 @@ DWORD WINAPI Main(LPVOID)
         AFortAthenaAIBotController::OnPossesedPawnDiedHook, (PVOID*)&AFortAthenaAIBotController::OnPossesedPawnDiedOriginal, false);
     Hooking::MinHook::Hook(FindObject<AFortAthenaAIBotController>(L"/Script/FortniteGame.Default__FortAthenaAIBotController"), FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaAIBotController.OnPerceptionSensed"),
         AFortAthenaAIBotController::OnPerceptionSensedHook, (PVOID*)&AFortAthenaAIBotController::OnPerceptionSensedOriginal, false);
-
-    if (Fortnite_Version == 12.41)
-    {
-        Hooking::MinHook::Hook(FindObject<UFortServerBotManagerAthena>(L"/Script/FortniteGame.Default__FortServerBotManagerAthena"), FindObject<UFunction>(L"/Script/FortniteGame.FortServerBotManagerAthena.SpawnBot"),
-            UFortServerBotManagerAthena::SpawnBotHook, (PVOID*)&UFortServerBotManagerAthena::SpawnBotOriginal, false);
-    }
 
     static auto FortHeldObjectComponentDefault = FindObject<UFortHeldObjectComponent>(L"/Script/FortniteGame.Default__FortHeldObjectComponent");
 

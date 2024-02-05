@@ -3,6 +3,7 @@
 #include "Object.h"
 #include "GameplayAbilitySpec.h"
 #include "AttributeSet.h"
+#include "GameplayTagContainer.h"
 
 struct PadHex10 { char Pad[0x10]; };
 struct PadHex18 { char Pad[0x18]; };
@@ -66,6 +67,22 @@ struct FGameplayAbilitySpecContainer : public FFastArraySerializer
 		static auto ItemsOffset = FindOffsetStruct("/Script/GameplayAbilities.GameplayAbilitySpecContainer", "Items");
 		return *(TArray<FGameplayAbilitySpec>*)(__int64(this) + ItemsOffset);
 	}
+};
+
+struct FGameplayEventData2
+{
+public:
+	FGameplayTag EventTag;                                          // 0x0(0x8)(Edit, BlueprintVisible, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	AActor* Instigator;                                        // 0x8(0x8)(Edit, BlueprintVisible, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	AActor* Target;                                            // 0x10(0x8)(Edit, BlueprintVisible, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	UObject* OptionalObject;                                    // 0x18(0x8)(Edit, BlueprintVisible, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	UObject* OptionalObject2;                                   // 0x20(0x8)(Edit, BlueprintVisible, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	FGameplayEffectContextHandle ContextHandle;                                     // 0x28(0x18)(Edit, BlueprintVisible, NativeAccessSpecifierPublic)
+	FGameplayTagContainer InstigatorTags;                                    // 0x40(0x20)(Edit, BlueprintVisible, NativeAccessSpecifierPublic)
+	FGameplayTagContainer TargetTags;                                        // 0x60(0x20)(Edit, BlueprintVisible, NativeAccessSpecifierPublic)
+	float EventMagnitude;                                    // 0x80(0x4)(Edit, BlueprintVisible, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	uint8 Pad_9A5[0x4];                                      // Fixing Size After Last Property  [ Dumper-7 ]
+	// FGameplayAbilityTargetDataHandle TargetData;                                        // 0x88(0x28)(Edit, BlueprintVisible, NativeAccessSpecifierPublic)
 };
 
 class UFortGameplayAbility_Sprint : public UObject // UFortGameplayAbility_Action

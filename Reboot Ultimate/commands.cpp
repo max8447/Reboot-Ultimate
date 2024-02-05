@@ -1449,6 +1449,19 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				SendMessageToConsole(PlayerController, std::wstring(L"God set to " + std::to_wstring(!(bool)Pawn->CanBeDamaged())).c_str());
 			}
 		}
+		else if (Command == "toggledebugcamera")
+		{
+			auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
+
+			if (!CheatManager)
+			{
+				SendMessageToConsole(PlayerController, L"Failed to spawn player's cheat manager!");
+				return;
+			}
+
+			CheatManager->ToggleDebugCamera();
+			CheatManager = nullptr;
+		}
 		else if (Command == "foundationtest")
 		{
 			auto BuildingFoundationClass = FindObject<UClass>(L"/Script/FortniteGame.BuildingFoundation");
@@ -1685,15 +1698,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, L"Applied HID!");
 		}
-		else if (Command == "siphontest")
-		{
-			auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
-			auto Effect = LoadObject<UClass>("/Game/Creative/Abilities/Siphon/GA_Creative_OnKillSiphon.GA_Creative_OnKillSiphon_C", BGAClass);
-
-			auto ASC = PlayerState->GetAbilitySystemComponent();
-			FGameplayEffectContextHandle contextHandle{};
-			ASC->ApplyGameplayEffectToSelf(Effect, 1, contextHandle);
-		}
 		else if (Command == "suicide" || Command == "frenchpeople")
 		{
 			static auto ServerSuicideFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerController.ServerSuicide");
@@ -1845,43 +1849,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			else
 			{
 				SendMessageToConsole(PlayerController, L"Not a valid class!");
-			}
-		}
-		else if (Command == "spawnbottest")
-		{
-			// /Game/Athena/AI/MANG/BotData/
-
-			if (NumArgs < 1)
-			{
-				SendMessageToConsole(PlayerController, L"Please provide a customization object!");
-				return;
-			}
-
-			auto Pawn = ReceivingController->GetPawn();
-
-			if (!Pawn)
-			{
-				SendMessageToConsole(PlayerController, L"No pawn to spawn bot at!");
-				return;
-			}
-
-			auto CustomizationData = LoadObject<UFortAthenaAIBotCustomizationData>(Arguments[1], UFortAthenaAIBotCustomizationData::StaticClass());
-
-			if (!CustomizationData)
-			{
-				SendMessageToConsole(PlayerController, L"Invalid CustomizationData!");
-				return;
-			}
-
-			auto NewPawn = SpawnAIFromCustomizationData(Pawn->GetActorLocation(), CustomizationData);
-
-			if (NewPawn)
-			{
-				SendMessageToConsole(PlayerController, L"Spawned!");
-			}
-			else
-			{
-				SendMessageToConsole(PlayerController, L"Failed to spawn!");
 			}
 		}
 		else if (Command == "spawnbot" || Command == "bot")

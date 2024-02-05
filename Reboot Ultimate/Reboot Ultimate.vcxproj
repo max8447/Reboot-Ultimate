@@ -279,7 +279,6 @@
     <ClInclude Include="ActorChannel.h" />
     <ClInclude Include="ActorComponent.h" />
     <ClInclude Include="addresses.h" />
-    <ClInclude Include="ai.h" />
     <ClInclude Include="AIHotSpot.h" />
     <ClInclude Include="AndOrNot.h" />
     <ClInclude Include="anticheat.h" />

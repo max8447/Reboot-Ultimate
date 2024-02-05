@@ -894,9 +894,6 @@
     <ClInclude Include="inc.h">
       <Filter>Reboot\Public</Filter>
     </ClInclude>
-    <ClInclude Include="ai.h">
-      <Filter>Reboot\Public</Filter>
-    </ClInclude>
     <ClInclude Include="FortGameSessionDedicatedAthena.h">
       <Filter>FortniteGame\Source\FortniteGame\Public\Athena</Filter>
     </ClInclude>
