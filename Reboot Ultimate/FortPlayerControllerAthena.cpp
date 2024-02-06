@@ -80,17 +80,17 @@ void AFortPlayerControllerAthena::ProgressQuest(AFortPlayerControllerAthena* PC,
 		PC->GetXPComponent()->OnXpEvent(XPEventInfo);
 }
 
-void AFortPlayerControllerAthena::GiveAccolade(AFortPlayerControllerAthena* PC, UFortAccoladeItemDefinition* Def)
+void AFortPlayerControllerAthena::GiveAccolade(AFortPlayerControllerAthena* PlayerController, UFortAccoladeItemDefinition* Definition)
 {
 	return;
 
-	if (!Def)
+	if (!Definition)
 		return;
 
 	FAthenaAccolades Accolade{};
-	Accolade.GetAccoladeDef() = Def;
+	Accolade.GetAccoladeDef() = Definition;
 	Accolade.GetCount() = 1;
-	std::string DefName = Def->GetName();
+	std::string DefName = Definition->GetName();
 	Accolade.GetTemplateId() = std::wstring(DefName.begin(), DefName.end()).c_str();
 
 	static auto GetPrimaryAssetIdFromObjectFn = FindObject<UFunction>("/Script/Engine.KismetSystemLibrary.GetPrimaryAssetIdFromObject");
@@ -99,37 +99,41 @@ void AFortPlayerControllerAthena::GiveAccolade(AFortPlayerControllerAthena* PC, 
 	{
 		UObject* Object;
 		FPrimaryAssetId ReturnValue;
-	}UKismetSystemLibrary_GetPrimaryAssetIdFromObject_Params{ Def };
+	}UKismetSystemLibrary_GetPrimaryAssetIdFromObject_Params{ Definition };
 
 	static auto KismetSystemLibrary = FindObject("/Script/Engine.Default__KismetSystemLibrary");
 	KismetSystemLibrary->ProcessEvent(GetPrimaryAssetIdFromObjectFn, &UKismetSystemLibrary_GetPrimaryAssetIdFromObject_Params);
 
-	static auto ShortDescriptionOffset = FindOffsetStruct("/Script/FortniteGame.FortItemDefinition", "ShortDescription");
-	auto ShortDescription = *(FText*)(__int64(Def) + ShortDescriptionOffset);
-
-	LOG_INFO(LogDev, "ID: {}", UKismetSystemLibrary_GetPrimaryAssetIdFromObject_Params.ReturnValue.PrimaryAssetName.ToString());
-	LOG_INFO(LogDev, "ShortDescription: {}", UKismetTextLibrary::Conv_TextToString(ShortDescription).ToString());
+	auto ID = UKismetSystemLibrary_GetPrimaryAssetIdFromObject_Params.ReturnValue;
 
 	FXPEventInfo EventInfo{};
-	EventInfo.Accolade = UKismetSystemLibrary_GetPrimaryAssetIdFromObject_Params.ReturnValue;
-	EventInfo.EventName = Def->GetFName();
-	EventInfo.EventXpValue = Def->GetAccoladeXpValue();
-	EventInfo.Priority = Def->GetPriority();
-	EventInfo.SimulatedText = ShortDescription;
+	EventInfo.Accolade = UKismetSystemLibrary_GetPrimaryAssetIdFromObject_Params.ReturnValue; //doesnt work
+	EventInfo.EventName = Definition->GetFName();
+	EventInfo.EventXpValue = 5000/*Definition->GetAccoladeXpValue()*/; //doesnt work
+	EventInfo.Priority = Definition->GetPriority();
+	EventInfo.SimulatedText = UKismetTextLibrary::Conv_StringToText(L"Test")/*Definition->GetShortDescription()*/; //doesnt work
 	EventInfo.RestedValuePortion = EventInfo.EventXpValue;
 	EventInfo.RestedXPRemaining = EventInfo.EventXpValue;
 	EventInfo.SeasonBoostValuePortion = 20;
-	EventInfo.TotalXpEarnedInMatch = EventInfo.EventXpValue + PC->GetXPComponent()->GetTotalXpEarned();
+	EventInfo.TotalXpEarnedInMatch = EventInfo.EventXpValue + PlayerController->GetXPComponent()->GetTotalXpEarned();
 
-	PC->GetXPComponent()->GetMedalBonusXP() += 1250;
-	PC->GetXPComponent()->GetMatchXp() += EventInfo.EventXpValue;
-	PC->GetXPComponent()->GetTotalXpEarned() += EventInfo.EventXpValue + 1250;
+	PlayerController->GetXPComponent()->GetMedalBonusXP() += 1250;
+	PlayerController->GetXPComponent()->GetMatchXp() += EventInfo.EventXpValue;
+	PlayerController->GetXPComponent()->GetTotalXpEarned() += EventInfo.EventXpValue + 1250;
 
-	PC->GetXPComponent()->GetPlayerAccolades().Add(Accolade);
-	PC->GetXPComponent()->GetMedalsEarned().Add(Def);
+	PlayerController->GetXPComponent()->GetPlayerAccolades().Free();
+	PlayerController->GetXPComponent()->GetMedalsEarned().Free();
 
-	PC->GetXPComponent()->ClientMedalsRecived(PC->GetXPComponent()->GetPlayerAccolades());
-	PC->GetXPComponent()->OnXPEvent(EventInfo);
+	PlayerController->GetXPComponent()->GetPlayerAccolades().Add(Accolade);
+	PlayerController->GetXPComponent()->GetMedalsEarned().Add(Definition);
+
+	// PlayerController->GetXPComponent()->ClientMedalsRecived(PlayerController->GetXPComponent()->GetPlayerAccolades());
+	PlayerController->GetXPComponent()->OnXPEvent(EventInfo);
+
+	PlayerController->GetXPComponent()->GetInMatchProfileVer()++;
+	PlayerController->GetXPComponent()->OnInMatchProfileUpdate(PlayerController->GetXPComponent()->GetInMatchProfileVer());
+	PlayerController->GetXPComponent()->OnProfileUpdated();
+	PlayerController->GetXPComponent()->OnXpUpdated(PlayerController->GetXPComponent()->GetCombatXp(), PlayerController->GetXPComponent()->GetSurvivalXp(), PlayerController->GetXPComponent()->GetMedalBonusXP(), PlayerController->GetXPComponent()->GetChallengeXp(), PlayerController->GetXPComponent()->GetMatchXp(), PlayerController->GetXPComponent()->GetTotalXpEarned());
 }
 
 void AFortPlayerControllerAthena::StartGhostModeHook(UObject* Context, FFrame* Stack, void* Ret)
