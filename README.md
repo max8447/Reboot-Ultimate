@@ -22,6 +22,7 @@
 - Fix Traps on 18+
 - Fix 14.60 Win Crash
 - Make Storm Rain effect a feature
+- Nuke France
 
 # Links
 
