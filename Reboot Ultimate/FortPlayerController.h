@@ -539,19 +539,6 @@ public:
 
 	void ClientReportDamagedResourceBuilding(ABuildingSMActor* BuildingSMActor, EFortResourceType PotentialResourceType, int PotentialResourceCount, bool bDestroyed, bool bJustHitWeakspot);
 
-	void ClientEquipItem(FGuid& ItemGuid, bool bForceExecution)
-	{
-		static auto ClientEquipItemFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerController.ClientEquipItem");
-
-		struct
-		{
-			FGuid							   ItemGuid;
-			bool                               bForceExecution;
-		}params{ ItemGuid , bForceExecution };
-
-		this->ProcessEvent(ClientEquipItemFn, &params);
-	}
-
 	UFortPlayerControllerAthenaXPComponent* GetXPComponent()
 	{
 		static auto XPComponentOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthena", "XPComponent");

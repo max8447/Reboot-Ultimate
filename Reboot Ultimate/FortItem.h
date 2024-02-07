@@ -289,3 +289,13 @@ public:
 
 	void SetOwningControllerForTemporaryItem(UObject* Controller);
 };
+
+class UFortWorldItem : public UFortItem
+{
+public:
+	AFortInventory*& GetOwnerInventory()
+	{
+		static auto OwnerInventoryOffset = this->GetOffset("OwnerInventory");
+		return Get<AFortInventory*>(OwnerInventoryOffset);
+	}
+};
