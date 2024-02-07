@@ -1414,6 +1414,40 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			Pawn->SetShield(Shield);
 			SendMessageToConsole(PlayerController, L"Set shield!\n");
 		}
+		else if (Command == "siphontest")
+		{
+			static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
+			static auto Ability = LoadObject<UClass>("/Game/Creative/Abilities/Siphon/GA_Creative_OnKillSiphon.GA_Creative_OnKillSiphon_C", BGAClass);
+
+			if (!Ability)
+			{
+				SendMessageToConsole(PlayerController, L"No siphon ability!");
+				return;
+			}
+
+			auto AbilitySystemComponent = ReceivingPlayerState->GetAbilitySystemComponent();
+
+			FGameplayEffectContextHandle EffectContext{};
+			AbilitySystemComponent->ApplyGameplayEffectToSelf(Ability, 1, EffectContext);
+
+			for (int i = 0; i < AbilitySystemComponent->GetActivatableAbilities()->GetItems().Num(); i++)
+			{
+				FGameplayAbilitySpec& Spec = AbilitySystemComponent->GetActivatableAbilities()->GetItems().at(i);
+
+				if (!Spec.GetAbility())
+				{
+					SendMessageToConsole(PlayerController, L"Not good!");
+					return;
+				}
+
+				if (Spec.GetAbility()->IsA(Ability))
+				{
+					AbilitySystemComponent->ServerEndAbility(Spec.GetHandle(), Spec.GetActivationInfo(), Spec.GetActivationInfo()->GetPredictionKeyWhenActivated());
+					AbilitySystemComponent->ClientEndAbility(Spec.GetHandle(), Spec.GetActivationInfo());
+					AbilitySystemComponent->ClientCancelAbility(Spec.GetHandle(), Spec.GetActivationInfo());
+				}
+			}
+		}
 		else if (Command == "god")
 		{
 			static auto GodFn = FindObject<UFunction>("/Script/Engine.CheatManager.God");

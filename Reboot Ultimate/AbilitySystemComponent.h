@@ -41,10 +41,10 @@ struct FGameplayAbilityActivationInfo // TODO Move
 
 	static int GetStructSize() { return GetStruct()->GetPropertiesSize(); }
 
-	FPredictionKey GetPredictionKeyWhenActivated()
+	FPredictionKey* GetPredictionKeyWhenActivated()
 	{
 		static auto PredictionKeyWhenActivatedOffset = FindOffsetStruct("/Script/GameplayAbilities.GameplayAbilityActivationInfo", "PredictionKeyWhenActivated");
-		return *(FPredictionKey*)(__int64(this) + PredictionKeyWhenActivatedOffset);
+		return *(FPredictionKey**)(__int64(this) + PredictionKeyWhenActivatedOffset);
 	}
 };
 

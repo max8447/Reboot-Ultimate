@@ -540,7 +540,7 @@ public:
 			{
 				if (PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems().at(i).GetAbility()->IsA(UFortGameplayAbility_Sprint::StaticClass()))
 				{
-					PlayerState->GetAbilitySystemComponent()->ServerTryActivateAbility(PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems().at(i).GetHandle(), PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems().at(i).GetInputPressed(), PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems().at(i).GetActivationInfo()->GetPredictionKeyWhenActivated());
+					// PlayerState->GetAbilitySystemComponent()->ServerTryActivateAbility(PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems().at(i).GetHandle(), PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems().at(i).GetInputPressed(), PlayerState->GetAbilitySystemComponent()->GetActivatableAbilities()->GetItems().at(i).GetActivationInfo()->GetPredictionKeyWhenActivated());
 					break;
 				}
 			}

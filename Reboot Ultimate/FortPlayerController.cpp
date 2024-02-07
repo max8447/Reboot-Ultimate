@@ -602,10 +602,12 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 		WorldInventory->Update();
 
-		auto VehicleWeapon = Pawn->EquipWeaponDefinition(VehicleWeaponDefinition, NewVehicleInstance->GetItemEntry()->GetItemGuid());
-		PlayerController->ServerExecuteInventoryItemHook(PlayerController, NewVehicleInstance->GetItemEntry()->GetItemGuid());
+		WorldInventory->GetItemList().MarkItemDirty(NewVehicleInstance->GetItemEntry());
 
-		static auto GetSeatWeaponComponentFn = FindObject<UFunction>("/Script/FortniteGame.FortAthenaVehicle.GetSeatWeaponComponent");
+		auto VehicleWeapon = Pawn->EquipWeaponDefinition(VehicleWeaponDefinition, NewVehicleInstance->GetItemEntry()->GetItemGuid());
+		// PlayerController->ServerExecuteInventoryItemHook(PlayerController, NewVehicleInstance->GetItemEntry()->GetItemGuid());
+
+		/* static auto GetSeatWeaponComponentFn = FindObject<UFunction>("/Script/FortniteGame.FortAthenaVehicle.GetSeatWeaponComponent");
 
 		if (GetSeatWeaponComponentFn)
 		{
@@ -641,7 +643,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 				break;
 			}
-		}
+		} */
 
 		return;
 	}
