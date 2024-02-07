@@ -271,10 +271,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Pistol_Flintlock_Athena_UC";
 			}
-			else if (weaponName == "flight" || weaponName == "flightknock" || weaponName == "yeetpistol")
-			{
-				weaponName = "Builder_WID_YEETknock_UR";
-			}
 			else if (weaponName == "deagle_vr")
 			{
 				weaponName = "WID_Pistol_HandCannon_Athena_VR_Ore_T03";
@@ -443,7 +439,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_RC_Rocket_Athena_VR_T03";
 			}
-			else if (weaponName == "guidedmissile_sr" || weaponName == "guided_sr" || weaponName == "missile_sr")
+			else if (weaponName == "guidedmissile_sr" || weaponName == "guided_sr" || weaponName == "missile_sr" || weaponName == "guided)
 			{
 				weaponName = "WID_RC_Rocket_Athena_SR_T03";
 			}
@@ -458,10 +454,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			else if (weaponName == "rift")
 			{
 				weaponName = "Athena_Rift_Item";
-			}
-			else if (weaponName == "spiderman")
-			{
-				weaponName = "WID_WestSausage_Parallel";
 			}
 			else if (weaponName == "crashpad" || weaponName == "crashes" || weaponName == "crash" || weaponName == "crashpads")
 			{
@@ -507,7 +499,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "Athena_KnockGrenade";
 			}
-			else if (weaponName == "portafortress")
+			else if (weaponName == "portafortress" || weaponName == "fortress")
 			{
 				weaponName = "Athena_SuperTowerGrenade_A";
 			}
@@ -539,7 +531,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "Athena_Bandage";
 			}
-			else if (weaponName == "portafort")
+			else if (weaponName == "portafort" || weaponName == "paf")
 			{
 				weaponName = "Athena_TowerGrenade";
 			}
@@ -551,7 +543,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "Athena_DogSweater";
 			}
-			else if (weaponName == "firefly")
+			else if (weaponName == "firefly" || weaponName == "fireflies")
 			{
 				weaponName = "WID_Athena_Grenade_Molotov";
 			}
@@ -583,7 +575,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Boss_GrapplingHoot";
 			}
-			else if (weaponName == "skyesgrappler" || weaponName == "skyegrap" || weaponName == "skyesgrap")
+			else if (weaponName == "skye" || weaponName == "skyesgrappler" || weaponName == "skyegrap" || weaponName == "skyesgrap")
 			{
 				weaponName = "WID_Boss_Adventure_GH";
 			}
