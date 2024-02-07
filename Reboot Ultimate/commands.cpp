@@ -439,7 +439,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_RC_Rocket_Athena_VR_T03";
 			}
-			else if (weaponName == "guidedmissile_sr" || weaponName == "guided_sr" || weaponName == "missile_sr" || weaponName == "guided)
+			else if (weaponName == "guidedmissile_sr" || weaponName == "guided_sr" || weaponName == "missile_sr" || weaponName == "guided")
 			{
 				weaponName = "WID_RC_Rocket_Athena_SR_T03";
 			}
