@@ -1,6 +1,6 @@
 # Reboot Ultimate
 
-# If you share this with ANYONE without permission i will rape you.
+# DO NOT LEAK THIS GITHUB
 
 ## What's Different?
 
