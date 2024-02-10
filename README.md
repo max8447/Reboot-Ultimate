@@ -11,6 +11,7 @@
 - Spawning vehicles and other BPs is now easier than ever! Typing the command "cheat spawn", and following it with a BP/vehicle will summon it! (ex: cheat spawn klombo)
 - Added 3 new tabs to the UI,  those being the Player tab, Calender Events tab, and the Trickshot tab. The Player tab is similar to that of Reboot V2, but also includes spawning bots, and more. The Calender Events tab includes Snow Map customization for all versions that support it, as well as a Water Slider for Season 13. The Trickshot tab is (as of right now) only used for configuring cannons, such as toggleable animations, and launch speeds.
 - Several bugs from Project Reboot 3.0 have been fixed on Reboot Ultimate, such as vehicle crash on season 19, working bots on versions before 9, and so much more!
+- Vehicle Weapons on versions past 8 now work! You are able to freely shoot/click with all vehicles!
 - Some gamemodes have also been fixed, such as Slide not giving the grappler when jumping out of bus, Arsenal, the Stormking LTM, and some events such as Travis Scott & the Final Showdown.
 - When injecting the DLL, all buttons you'll need are already selected (besides gamemode), as well as the amount of time it takes to start has been increased from 5 seconds to 15.
 - Lategame now gives completely random weapons! This means that every player has a unique loadout, allowing you to fight with unique weapons each round.
@@ -18,15 +19,10 @@
 ## To Do:
 
 - Add Pickaxe Stutter
-- Possibly make Iron Man hands effect stay for the remaining time despite switching/touching the ground, [Reference.](https://youtu.be/XdoBQgksomU?si=DZEVaXkIGzS0_S7t&t=125)
 - Fix Traps on 18+
-- Fix 14.60 Win Crash
-- Make Storm Rain effect a feature
-- Nuke France
+- Fix More Crashes (ie: 14.60 win crash, random dll startup crashes, etc)
 
 # Links
-
-- [Instant Download DLL](https://cdn.discordapp.com/attachments/1180437631314710608/1196512388652990514/Reboot_Ultimate.dll?ex=65b7e5ff&is=65a570ff&hm=38d11d814e220d0c61e0a9d75eb1a600b3fd25fe26d87d0c3634c0918662c02a&)
 
 - [Original Project Reboot 3.0 Github](https://github.com/Milxnor/Project-Reboot-3.0)
 
