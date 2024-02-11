@@ -67,6 +67,42 @@ public:
 	}
 };
 
+struct FReplicatedPhysicsPawnState
+{
+public:
+	static UStruct* GetStruct()
+	{
+		static auto Struct = FindObject<UStruct>("/Script/FortniteGame.ReplicatedPhysicsPawnState");
+		return Struct;
+	}
+
+	static int GetStructSize() { return GetStruct()->GetPropertiesSize(); }
+
+	FVector& GetTranslation()
+	{
+		static auto TranslationOffset = FindOffsetStruct("/Script/FortniteGame.ReplicatedPhysicsPawnState", "Translation");
+		return *(FVector*)(__int64(this) + TranslationOffset);
+	}
+
+	FQuat& GetRotation()
+	{
+		static auto RotationOffset = FindOffsetStruct("/Script/FortniteGame.ReplicatedPhysicsPawnState", "Rotation");
+		return *(FQuat*)(__int64(this) + RotationOffset);
+	}
+
+	FVector& GetLinearVelocity()
+	{
+		static auto LinearVelocityOffset = FindOffsetStruct("/Script/FortniteGame.ReplicatedPhysicsPawnState", "LinearVelocity");
+		return *(FVector*)(__int64(this) + LinearVelocityOffset);
+	}
+
+	FVector& GetAngularVelocity()
+	{
+		static auto AngularVelocityOffset = FindOffsetStruct("/Script/FortniteGame.ReplicatedPhysicsPawnState", "AngularVelocity");
+		return *(FVector*)(__int64(this) + AngularVelocityOffset);
+	}
+};
+
 class AFortAthenaVehicle : public AActor// : public AFortPhysicsPawn // Super changes based on version
 {
 public:
@@ -101,6 +137,12 @@ public:
 		this->ProcessEvent(FindSeatIndexFn, &AFortAthenaVehicle_FindSeatIndex_Params);
 
 		return AFortAthenaVehicle_FindSeatIndex_Params.ReturnValue;
+	}
+
+	void ServerMove(FReplicatedPhysicsPawnState& InState)
+	{
+		static auto ServerMoveFn = FindObject<UFunction>("/Script/FortniteGame.FortPhysicsPawn.ServerMove");
+		this->ProcessEvent(ServerMoveFn, &InState);
 	}
 
 	UFortWeaponItemDefinition* GetVehicleWeaponForSeat(int SeatIdx);

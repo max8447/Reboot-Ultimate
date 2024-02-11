@@ -433,8 +433,29 @@ void AFortPlayerController::ServerExecuteInventoryItemHook(AFortPlayerController
 			static auto ContextTrapItemDefinitionOffset = Pawn->GetCurrentWeapon()->GetOffset("ContextTrapItemDefinition");
 			Pawn->GetCurrentWeapon()->Get<UObject*>(ContextTrapItemDefinitionOffset) = DecoItemDefinition;
 
-			static auto SetContextTrapItemDefinitionFn = FindObject<UFunction>(L"/Script/FortniteGame.FortDecoTool_ContextTrap.SetContextTrapItemDefinition");
-			Pawn->GetCurrentWeapon()->ProcessEvent(SetContextTrapItemDefinitionFn, &DecoItemDefinition);
+			if (Fortnite_Version >= 18)
+			{
+				static auto SetContextTrapItemDefinitionFn = FindObject<UFunction>(L"/Script/FortniteGame.FortDecoTool_ContextTrap.SetContextTrapItemDefinition");
+				Pawn->GetCurrentWeapon()->ProcessEvent(SetContextTrapItemDefinitionFn, &DecoItemDefinition);
+
+				auto& ReplicatedEntries = WorldInventory->GetItemList().GetReplicatedEntries();
+
+				for (int i = 0; i < ReplicatedEntries.Num(); i++)
+				{
+					auto ReplicatedEntry = ReplicatedEntries.AtPtr(i, FFortItemEntry::GetStructSize());
+
+					if (ReplicatedEntry->GetItemGuid() == ItemGuid)
+					{
+						auto Instance = WorldInventory->FindItemInstance(ItemGuid);
+
+						WorldInventory->GetItemList().MarkItemDirty(ReplicatedEntry);
+						WorldInventory->GetItemList().MarkItemDirty(Instance->GetItemEntry());
+						WorldInventory->HandleInventoryLocalUpdate();
+
+						Pawn->EquipWeaponDefinition(DecoItemDefinition, ReplicatedEntry->GetItemGuid());
+					}
+				}
+			}
 		}
 
 		return;
@@ -503,7 +524,6 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	static auto AthenaQuestBGAClass = FindObject<UClass>("/Game/Athena/Items/QuestInteractablesV2/Parents/AthenaQuest_BGA.AthenaQuest_BGA_C");
 	static auto BP_Athena_PropQuestActor_ParentClass = FindObject<UClass>("/Game/Athena/Items/QuestParents/PropQuestActor/BP_Athena_PropQuestActor_Parent.BP_Athena_PropQuestActor_Parent_C");
 	static auto BP_StationProp_ParentClass = FindObject<UClass>("/Game/Building/ActorBlueprints/Stations/BP_StationProp_Parent.BP_StationProp_Parent_C");
-	static auto MeatballVehicleClass = FindObject<UClass>("/Script/FortniteGame.FortMeatballVehicle");
 
 	LOG_INFO(LogInteraction, "ServerAttemptInteract!");
 
@@ -599,6 +619,8 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 		if (!NewVehicleInstance)
 			return;
 
+		PlayerController->GetSwappingItemDefinition() = Pawn->GetCurrentWeapon()->GetWeaponData();
+
 		auto& ReplicatedEntries = WorldInventory->GetItemList().GetReplicatedEntries();
 
 		for (int i = 0; i < ReplicatedEntries.Num(); i++)
@@ -617,68 +639,6 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 		return;
 	}
-	/* else if (Cast<AFortPlayerPawn>(PlayerController->GetMyFortPawn())->IsInVehicle())
-	{
-		auto Vehicle = Cast<AFortPlayerPawn>(PlayerController->GetMyFortPawn())->GetVehicle();
-
-		LOG_INFO(LogVehicles, "Vehicle: {}", Vehicle->GetName());
-
-		if (Vehicle)
-		{
-			auto SeatIdx = Cast<AFortPlayerPawn>(PlayerController->GetMyFortPawn())->GetVehicleSeatIndex();
-			auto WeaponComponent = Vehicle->GetSeatWeaponComponent(SeatIdx);
-
-			if (WeaponComponent)
-			{
-				PlayerController->GetWorldInventory()->AddItem(WeaponComponent->GetWeaponSeatDefinitions()[SeatIdx].GetVehicleWeapon(), nullptr, 1, 9999);
-
-				LOG_INFO(LogVehicles, "VehicleWeapon: {}", WeaponComponent->GetWeaponSeatDefinitions()[SeatIdx].GetVehicleWeapon()->GetFullName());
-
-				for (int i = 0; PlayerController->GetWorldInventory()->GetItemList().GetReplicatedEntries().Num(); i++)
-				{
-					if (PlayerController->GetWorldInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition() == WeaponComponent->GetWeaponSeatDefinitions()[SeatIdx].GetVehicleWeapon())
-					{
-						PlayerController->GetSwappingItemDefinition() = PlayerController->GetMyFortPawn()->GetCurrentWeapon()->GetWeaponData();
-						PlayerController->ServerExecuteInventoryItemHook(Cast<AFortPlayerController>(PlayerController), PlayerController->GetWorldInventory()->GetItemList().GetReplicatedEntries()[i].GetItemGuid());
-						break;
-					}
-				}
-			}
-		}
-	} */
-	/* else if (ReceivingActor->IsA(MeatballVehicleClass))
-	{
-		AFortAthenaVehicle* Vehicle = (AFortAthenaVehicle*)ReceivingActor;
-		UFortItemDefinition* WeaponDef = FindObject<UFortItemDefinition>("/Game/Athena/Items/Weapons/Vehicles/MeatballWeapon/Meatball_Weapon.Meatball_Weapon");
-
-		bool bShouldUpdate = false;
-
-		PlayerController->GetWorldInventory()->AddItem(WeaponDef, &bShouldUpdate, 1, 99999);
-
-		if (bShouldUpdate)
-			PlayerController->GetWorldInventory()->Update();
-
-		for (size_t i = 0; i < PlayerController->GetWorldInventory()->GetItemList().GetReplicatedEntries().Num(); i++)
-		{
-			if (PlayerController->GetWorldInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition() == WeaponDef)
-			{
-				PlayerController->ServerExecuteInventoryItemHook(PlayerController, PlayerController->GetWorldInventory()->GetItemList().GetReplicatedEntries()[i].GetItemGuid());
-				break;
-			}
-		}
-
-		auto SeatComp = Vehicle->GetSeatWeaponComponent(0);
-
-		SeatComp->GetActiveSeatIdx() = 0;
-		SeatComp->IsWeaponEquipped() = true;
-		SeatComp->GetCachedWeapon() = Cast<AFortWeapon>(PlayerController->GetMyFortPawn()->GetCurrentWeapon());
-		SeatComp->GetCachedWeaponDef() = Cast<UFortWeaponItemDefinition>(WeaponDef);
-		SeatComp->EquipVehicleWeapon(PlayerController->GetMyFortPawn(), &SeatComp->GetWeaponSeatDefinitions()[0], 0);
-
-		//AFortMeatballVehicle* Vehicle = (AFortMeatballVehicle*)LParams->ReceivingActor;
-		//Vehicle->VehicleCosmeticInfo.ActiveCosmeticWrap = PC->CosmeticLoadoutPC.ItemWraps[0];
-		//Vehicle->K2_ApplyCosmeticWrap(PC->CosmeticLoadoutPC.ItemWraps[0]);
-	} */
 	else if (ReceivingActor->IsA(BuildingItemCollectorActorClass))
 	{
 		if (Engine_Version >= 424 && /*Fortnite_Version < 15 && */ReceivingActor->GetFullName().contains("Wumba"))
@@ -869,7 +829,25 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	{
 		LOG_INFO(LogDev, "S15+ UI BP!");
 
+		if (ReceivingActor->GetFullName().contains("Bounty"))
+		{
+			static auto ConversationComponentOffset = ReceivingActor->GetOffset("NonPlayerConversationComponent");
+			auto ConversationComponent = ReceivingActor->Get<UObject*>(ConversationComponentOffset);
 
+			static auto EntryTagOffset = ReceivingActor->GetOffset("ConversationEntryTag");
+			auto EntryTag = ReceivingActor->Get<FGameplayTag>(EntryTagOffset);
+
+			static auto StartConversationFn = FindObject<UFunction>("/Script/FortniteGame.FortNonPlayerConversationParticipantComponent.StartConversation");
+
+			struct
+			{
+				FGameplayTag InConversationEntryTag;
+				AActor* Instigator;
+				AActor* Target;
+			}UFortNonPlayerConversationParticipantComponent_StartConversation_Params{ EntryTag , PlayerController , ReceivingActor };
+
+			ConversationComponent->ProcessEvent(StartConversationFn, &UFortNonPlayerConversationParticipantComponent_StartConversation_Params);
+		}
 	}
 	else if (ReceivingActor->IsA(LettersClass))
 	{

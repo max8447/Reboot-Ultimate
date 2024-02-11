@@ -1985,6 +1985,29 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			CheatManager = nullptr;
 			SendMessageToConsole(PlayerController, L"Teleported!");
 		}
+		else if (Command == "testballermove")
+		{
+			auto Pawn = Cast<AFortPlayerPawn>(ReceivingController->GetMyFortPawn());
+
+			if (!Pawn->IsInVehicle())
+			{
+				SendMessageToConsole(PlayerController, L"Get in a baller!");
+				return;
+			}
+
+			auto Vehicle = Pawn->GetVehicle();
+
+			if (Vehicle->GetFullName().contains("Octopus"))
+			{
+				FReplicatedPhysicsPawnState VehicleState;
+				VehicleState.GetTranslation() = Pawn->GetActorLocation() + FVector(1000, 1000, 1000);
+				VehicleState.GetRotation() = FQuat(0, 0, 0, 0);
+				VehicleState.GetAngularVelocity() = FVector(1000, 1000, 1000);
+				VehicleState.GetLinearVelocity() = FVector(1000, 1000, 1000);
+
+				Vehicle->ServerMove(VehicleState);
+			}
+		}
 		else if (Command == "fly")
 		{
 			auto Pawn = Cast<APawn>(ReceivingController->GetPawn());

@@ -4,6 +4,7 @@
 
 #include "reboot.h"
 #include "GameplayStatics.h"
+#include "BuildingContainer.h"
 
 bool AActor::HasAuthority()
 {
@@ -327,6 +328,20 @@ void AActor::SetCanBeDamaged(bool NewValue)
 	static auto bCanBeDamagedOffset = GetOffset("bCanBeDamaged");
 	static auto bCanBeDamagedFieldMask = GetFieldMask(GetProperty("bCanBeDamaged"));
 	SetBitfieldValue(bCanBeDamagedOffset, bCanBeDamagedFieldMask, NewValue);
+}
+
+void AActor::ReceiveDestroyedHook(AActor* DestroyedActor)
+{
+	LOG_INFO(LogDev, "AActor::ReceiveDestroyedHook with {}", DestroyedActor->GetFullName());
+
+	if (auto Container = Cast<ABuildingContainer>(DestroyedActor))
+	{
+		LOG_INFO(LogDev, "It's a me, a buildingcontainer!");
+
+		Container->SpawnLoot();
+	}
+
+	return ReceiveDestroyedOriginal(DestroyedActor);
 }
 
 UClass* AActor::StaticClass()

@@ -1084,7 +1084,7 @@ static inline void MainUI()
 							auto GameMode = (AFortGameMode*)GetWorld()->GetGameMode();
 							auto GameState = Cast<AFortGameStateAthena>(GameMode->GetGameState());
 
-							AmountOfPlayersWhenBusStart = GameState->GetPlayersLeft();
+							AmountOfPlayersWhenBusStart = GameState->GetPlayersLeft(); // scuffed!!!!
 
 							static auto WarmupCountdownEndTimeOffset = GameState->GetOffset("WarmupCountdownEndTime");
 							// GameState->Get<float>(WarmupCountdownEndTimeOffset) = UGameplayStatics::GetTimeSeconds(GetWorld()) + 10;

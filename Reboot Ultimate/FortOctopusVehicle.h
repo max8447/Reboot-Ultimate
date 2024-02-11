@@ -6,5 +6,8 @@
 class AFortOctopusVehicle : public AActor // AFortAthenaSKVehicle
 {
 public:
+	void GetTowhookCableEndpoints(FVector* OutCableStart, FVector* OutCableEnd);
+	FVector GetTowhookCableAttachLocation();
+
 	static void ServerUpdateTowhookHook(AFortOctopusVehicle* OctopusVehicle, FVector InNetTowhookAimDir);
 };

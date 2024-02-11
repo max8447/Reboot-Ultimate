@@ -1359,6 +1359,9 @@ DWORD WINAPI Main(LPVOID)
     Hooking::MinHook::Hook(FindObject<AFortAthenaAIBotController>(L"/Script/FortniteGame.Default__FortAthenaAIBotController"), FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaAIBotController.OnPerceptionSensed"),
         AFortAthenaAIBotController::OnPerceptionSensedHook, (PVOID*)&AFortAthenaAIBotController::OnPerceptionSensedOriginal, false);
 
+    Hooking::MinHook::Hook(FindObject<AActor>(L"/Script/Engine.Default__Actor"), FindObject<UFunction>(L"/Script/Engine.Actor.ReceiveDestroyed"),
+        AActor::ReceiveDestroyedHook, (PVOID*)&AActor::ReceiveDestroyedOriginal);
+
     static auto FortHeldObjectComponentDefault = FindObject<UFortHeldObjectComponent>(L"/Script/FortniteGame.Default__FortHeldObjectComponent");
 
     //Hooking::MinHook::Hook(FortHeldObjectComponentDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortHeldObjectComponent.OnThrowComplete"),
@@ -1414,9 +1417,9 @@ DWORD WINAPI Main(LPVOID)
     Hooking::MinHook::Hook((PVOID)Addresses::SetZoneToIndex, (PVOID)SetZoneToIndexHook, (PVOID*)&SetZoneToIndexOriginal);
     Hooking::MinHook::Hook((PVOID)Addresses::EnterAircraft, (PVOID)AFortPlayerControllerAthena::EnterAircraftHook, (PVOID*)&AFortPlayerControllerAthena::EnterAircraftOriginal);
 
-// #ifndef PROD
+#ifndef PROD
     Hooking::MinHook::Hook((PVOID)Addresses::ProcessEvent, ProcessEventHook, (PVOID*)&UObject::ProcessEventOriginal);
-// #endif
+#endif
 
     AddVehicleHook();
 
