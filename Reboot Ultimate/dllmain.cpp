@@ -698,13 +698,13 @@ DWORD WINAPI Main(LPVOID)
 #ifdef ABOVE_S20
     if (Fortnite_Version < 20)
     {
-        MessageBoxA(0, "Please undefine ABOVE_S20", "Project Reboot 3.0", MB_ICONERROR);
+        MessageBoxA(0, "Please undefine ABOVE_S20", "Reboot Ultimate", MB_ICONERROR);
         return 0;
     }
 #else
     if (Fortnite_Version > 20)
     {
-        MessageBoxA(0, "Please define ABOVE_S20", "Project Reboot 3.0", MB_ICONERROR);
+        MessageBoxA(0, "Please define ABOVE_S20", "Reboot Ultimate", MB_ICONERROR);
         return 0;
     }
 #endif

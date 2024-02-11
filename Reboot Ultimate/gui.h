@@ -488,7 +488,7 @@ static inline void StaticUI()
 	ImGui::Checkbox("Infinite Ammo", &Globals::bInfiniteAmmo);
 	ImGui::Checkbox("Infinite Materials", &Globals::bInfiniteMaterials);
 
-	ImGui::Checkbox("No MCP (Don't change unless you know what this is)", &Globals::bNoMCP);
+	ImGui::Checkbox("No MCP", &Globals::bNoMCP);
 
 	if (Addresses::ApplyGadgetData && Addresses::RemoveGadgetData && Engine_Version < 424)
 	{
@@ -1298,6 +1298,24 @@ static inline void MainUI()
 					}
 				}
 			}
+			if (ImGui::Button("Dump Functions"))
+			{
+				std::ofstream FunctionsFile("Functions.txt");
+
+				static auto FunctionsClass = FindObject<UClass>("/Script/CoreUObject.Function");
+
+				auto AllFunctions = GetAllObjectsOfClass(FunctionsClass);
+
+				for (int i = 0; i < AllFunctions.size(); i++)
+				{
+					auto CurrentFunction = AllFunctions.at(i);
+
+					if (CurrentFunction != nullptr)
+					{
+						FunctionsFile << CurrentFunction->GetFullName() << '\n';
+					}
+				}
+			}
 
 			if (ImGui::Button("Dump Playlists (Playlists.txt)"))
 			{
@@ -1708,7 +1726,7 @@ static inline DWORD WINAPI GuiThread(LPVOID)
 {
 	WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, L"RebootClass", NULL };
 	::RegisterClassEx(&wc);
-	HWND hwnd = ::CreateWindowExW(0L, wc.lpszClassName, L"Project Reboot", (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX), 100, 100, Width, Height, NULL, NULL, wc.hInstance, NULL);
+	HWND hwnd = ::CreateWindowExW(0L, wc.lpszClassName, L"Reboot Ultimate", (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX), 100, 100, Width, Height, NULL, NULL, wc.hInstance, NULL);
 
 	if (false) // idk why this dont work
 	{
@@ -1795,7 +1813,7 @@ static inline DWORD WINAPI GuiThread(LPVOID)
 
 		if (!ImGui::IsWindowCollapsed())
 		{
-			ImGui::Begin("Project Reboot 3.0", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+			ImGui::Begin("Reboot Ultimate", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 
 			Globals::bInitializedPlaylist ? MainUI() : PregameUI();
 
