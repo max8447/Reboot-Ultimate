@@ -37,7 +37,7 @@ static inline void ServerVehicleUpdate(UObject* Context, FFrame& Stack, void* Re
 	static auto RotationOffset = FindOffsetStruct(StateStructName, "Rotation");
 	static auto TranslationOffset = FindOffsetStruct(StateStructName, "Translation");
 
-	if (Engine_Version >= 420) // S4-S12
+	if (Engine_Version >= 420 && Engine_Version <= 425) // S4-S12
 	{
 		float v50 = -2.0;
 		float v49 = 2.5;
@@ -89,7 +89,7 @@ static inline void ServerVehicleUpdate(UObject* Context, FFrame& Stack, void* Re
 
 	VirtualFree(K2_SetWorldTransformParams, 0, MEM_RELEASE);
 
-	struct { FVector NewVel; bool bAddToCurrent; FName BoneName; } 
+	struct { FVector NewVel; bool bAddToCurrent; FName BoneName; }
 	UPrimitiveComponent_SetPhysicsLinearVelocity_Params{
 		*(FVector*)(__int64(State) + LinearVelocityOffset),
 		0,

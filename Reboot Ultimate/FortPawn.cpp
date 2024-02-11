@@ -136,6 +136,46 @@ void AFortPawn::MovingEmoteStoppedHook(UObject* Context, FFrame* Stack, void* Re
 	return MovingEmoteStoppedOriginal(Context, Stack, Ret);
 }
 
+void AFortPawn::LaunchURL(const FString& URL)
+{
+	static auto LaunchURLFn = FindObject<UFunction>("/Script/Engine.KismetSystemLibrary.LaunchURL");
+
+	struct
+	{
+		FString                      URL;                                                              //(Parm, ZeroConstructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+
+	}UKismetSystemLibrary_LaunchURL_Params{ URL };
+
+	this->ProcessEvent(LaunchURLFn, &UKismetSystemLibrary_LaunchURL_Params);
+}
+
+void AFortPawn::CopyToClipboard(const FString& ClipboardText)
+{
+	static auto CopyToClipboardFn = FindObject<UFunction>(L"/Script/FortniteUI.FortGlobalUIContext.CopyToClipboard") ? FindObject<UFunction>(L"/Script/FortniteUI.FortGlobalUIContext.CopyToClipboard") :
+		FindObject<UFunction>(L"/Script/FortniteUI.FortGlobalUIContext:CopyToClipboard");
+
+	struct
+	{
+		FString                                ClipboardText;                                     // 0x0(0x10)(Parm, ZeroConstructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	}UFortGlobalUIContext_CopyToClipboard_Params{ ClipboardText };
+
+	this->ProcessEvent(CopyToClipboardFn, &UFortGlobalUIContext_CopyToClipboard_Params);
+}
+
+void AFortPawn::SetMovementMode(EMovementMode NewMovementMode, uint8 NewCustomMode)
+{
+	static auto SetMovementModeFn = FindObject<UFunction>(L"/Script/Engine.CharacterMovementComponent.SetMovementMode") ? FindObject<UFunction>(L"/Script/Engine.CharacterMovementComponent.SetMovementMode") :
+		FindObject<UFunction>(L"/Script/Engine.CharacterMovementComponent:SetMovementMode");
+
+	struct
+	{
+		EMovementMode					   NewMovementMode;												//(Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+		uint8                              NewCustomMode;												//(Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	}UCharacterMovementComponent_SetMovementMode_Params{ NewMovementMode, NewCustomMode };
+
+	this->ProcessEvent(SetMovementModeFn, &UCharacterMovementComponent_SetMovementMode_Params);
+}
+
 UClass* AFortPawn::StaticClass()
 {
 	static auto Class = FindObject<UClass>("/Script/FortniteGame.FortPawn");

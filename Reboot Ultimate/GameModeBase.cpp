@@ -276,7 +276,7 @@ APawn* AGameModeBase::SpawnDefaultPawnForHook(AGameModeBase* GameMode, AControll
 
     static bool bFirst = true;
 
-	if (bFirst && Calendar::HasSnowModification())
+	if (bFirst && Calendar::HasSnowModification() && !Fortnite_Version >= 19)
 	{
 		bFirst = false;
 		Calendar::SetSnow(100);

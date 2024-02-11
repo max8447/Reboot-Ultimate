@@ -269,7 +269,7 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 void AFortPlayerControllerAthena::ServerRequestSeatChangeHook(AFortPlayerControllerAthena* PlayerController, int TargetSeatIndex)
 {
 	auto Pawn = Cast<AFortPlayerPawn>(PlayerController->GetPawn());
-	
+
 	if (!Pawn)
 		return ServerRequestSeatChangeOriginal(PlayerController, TargetSeatIndex);
 
@@ -279,7 +279,7 @@ void AFortPlayerControllerAthena::ServerRequestSeatChangeHook(AFortPlayerControl
 		return ServerRequestSeatChangeOriginal(PlayerController, TargetSeatIndex);
 
 	auto OldVehicleWeaponDefinition = Pawn->GetVehicleWeaponDefinition(Vehicle);
-	
+
 	LOG_INFO(LogDev, "OldVehicleWeaponDefinition: {}", OldVehicleWeaponDefinition ? OldVehicleWeaponDefinition->GetFullName() : "BadRead");
 
 	if (!OldVehicleWeaponDefinition)
@@ -314,15 +314,29 @@ void AFortPlayerControllerAthena::ServerRequestSeatChangeHook(AFortPlayerControl
 		return ServerRequestSeatChangeOriginal(PlayerController, TargetSeatIndex);
 	}
 
+	LOG_INFO(LogVehicles, "Equipping RequestingVehicleWeaponDefinition: {}", RequestingVehicleWeaponDefinition->GetFullName());
+
 	auto NewAndModifiedInstances = WorldInventory->AddItem(RequestingVehicleWeaponDefinition, nullptr);
 	auto RequestedVehicleInstance = NewAndModifiedInstances.first[0];
 
 	if (!RequestedVehicleInstance)
 		return ServerRequestSeatChangeOriginal(PlayerController, TargetSeatIndex);
 
-	WorldInventory->Update();
+	auto& ReplicatedEntries = WorldInventory->GetItemList().GetReplicatedEntries();
 
-	auto RequestedVehicleWeapon = Pawn->EquipWeaponDefinition(RequestingVehicleWeaponDefinition, RequestedVehicleInstance->GetItemEntry()->GetItemGuid());
+	for (int i = 0; i < ReplicatedEntries.Num(); i++)
+	{
+		auto ReplicatedEntry = ReplicatedEntries.AtPtr(i, FFortItemEntry::GetStructSize());
+
+		if (ReplicatedEntry->GetItemGuid() == RequestedVehicleInstance->GetItemEntry()->GetItemGuid())
+		{
+			WorldInventory->GetItemList().MarkItemDirty(ReplicatedEntry);
+			WorldInventory->GetItemList().MarkItemDirty(RequestedVehicleInstance->GetItemEntry());
+			WorldInventory->HandleInventoryLocalUpdate();
+
+			Pawn->EquipWeaponDefinition(RequestingVehicleWeaponDefinition, ReplicatedEntry->GetItemGuid());
+		}
+	}
 
 	return ServerRequestSeatChangeOriginal(PlayerController, TargetSeatIndex);
 }

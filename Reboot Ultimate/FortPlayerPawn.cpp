@@ -246,12 +246,34 @@ void AFortPlayerPawn::UnEquipVehicleWeaponDefinition(UFortWeaponItemDefinition* 
 	if (bShouldUpdate)
 		WorldInventory->Update();
 
-	auto PickaxeInstance = WorldInventory->GetPickaxeInstance();
+	LOG_INFO(LogVehicles, "Removed VehicleWeaponDefinition: {}", VehicleWeaponDefinition->GetFullName());
 
-	if (!PickaxeInstance)
+	auto SwappingDefinition = Cast<AFortPlayerControllerAthena>(PlayerController)->GetSwappingItemDefinition();
+	auto SwappingInstance = WorldInventory->FindItemInstance(SwappingDefinition);
+
+	if (!SwappingInstance)
+		SwappingInstance = WorldInventory->GetPickaxeInstance();
+
+	if (!SwappingInstance)
 		return;
 
-	AFortPlayerController::ServerExecuteInventoryItemHook(PlayerController, PickaxeInstance->GetItemEntry()->GetItemGuid()); // Bad, we should equip the last weapon.
+	LOG_INFO(LogVehicles, "Equipping SwappingDefinition: {}", SwappingDefinition->GetFullName());
+
+	auto& ReplicatedEntries = WorldInventory->GetItemList().GetReplicatedEntries();
+
+	for (int i = 0; i < ReplicatedEntries.Num(); i++)
+	{
+		auto ReplicatedEntry = ReplicatedEntries.AtPtr(i, FFortItemEntry::GetStructSize());
+
+		if (ReplicatedEntry->GetItemGuid() == SwappingInstance->GetItemEntry()->GetItemGuid())
+		{
+			WorldInventory->GetItemList().MarkItemDirty(ReplicatedEntry);
+			WorldInventory->GetItemList().MarkItemDirty(SwappingInstance->GetItemEntry());
+			WorldInventory->HandleInventoryLocalUpdate();
+
+			PlayerController->GetMyFortPawn()->EquipWeaponDefinition(Cast<UFortWeaponItemDefinition>(SwappingDefinition), SwappingInstance->GetItemEntry()->GetItemGuid()); // Bad, we should equip the last weapon.
+		}
+	}
 }
 
 void AFortPlayerPawn::StartGhostModeExitHook(UObject* Context, FFrame* Stack, void* Ret)

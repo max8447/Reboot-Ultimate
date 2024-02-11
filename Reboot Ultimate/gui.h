@@ -49,35 +49,39 @@
 #define GAMEMODE_TAB 3
 #define THANOS_TAB 4
 #define EVENT_TAB 5
-#define CALENDAR_TAB 6
-#define ZONE_TAB 7
-#define DUMP_TAB 8
-#define UNBAN_TAB 9
-#define FUN_TAB 10
-#define LATEGAME_TAB 11
-#define DEVELOPER_TAB 12
-#define DEBUGLOG_TAB 13
-#define SETTINGS_TAB 14
-#define CREDITS_TAB 15
+#define ZONE_TAB 6
+#define CALENDAR_TAB 7
+#define TRICKSHOT_TAB 8
+#define DUMP_TAB 9
+#define UNBAN_TAB 10
+#define FUN_TAB 11
+#define LATEGAME_TAB 12
+#define DEVELOPER_TAB 13
+#define DEBUGLOG_TAB 14
+#define SETTINGS_TAB 15
+#define CREDITS_TAB 16
 
 #define MAIN_PLAYERTAB 1
 #define INVENTORY_PLAYERTAB 2
 #define LOADOUT_PLAYERTAB 4
 #define FUN_PLAYERTAB 5
 
+static inline float DefaultCannonMultiplier = 1.f;
+
 extern inline int StartReverseZonePhase = 7;
 extern inline int EndReverseZonePhase = 5;
 extern inline float StartingShield = 0;
 extern inline bool bEnableReverseZone = false;
-extern inline int AmountOfPlayersWhenBusStart = 0; 
+extern inline int AmountOfPlayersWhenBusStart = 0;
 extern inline bool bHandleDeath = true;
 extern inline bool bUseCustomMap = false;
 extern inline std::string CustomMapName = "";
 extern inline int AmountToSubtractIndex = 1;
-extern inline int SecondsUntilTravel = 5;
+extern inline int SecondsUntilTravel = 15;
 extern inline bool bSwitchedInitialLevel = false;
 extern inline bool bIsInAutoRestart = false;
 extern inline float AutoBusStartSeconds = 60;
+extern inline float AutoBusStartSecondsThatChanges = AutoBusStartSeconds;
 extern inline int NumRequiredPlayersToStart = 2;
 extern inline bool bDebugPrintLooting = false;
 extern inline bool bDebugPrintFloorLoot = false;
@@ -91,6 +95,10 @@ extern inline bool bEngineDebugLogs = false;
 extern inline bool bStartedBus = false;
 extern inline bool bShouldDestroyAllPlayerBuilds = false;
 extern inline int AmountOfHealthSiphon = 0;
+extern inline bool bEnableCannonAnimations = true;
+extern inline float* CannonXMultiplier = &DefaultCannonMultiplier;
+extern inline float* CannonYMultiplier = &DefaultCannonMultiplier;
+extern inline float* CannonZMultiplier = &DefaultCannonMultiplier;
 
 // THE BASE CODE IS FROM IMGUI GITHUB
 
@@ -160,6 +168,155 @@ static inline void Restart() // todo move?
 	// UGameplayStatics::OpenLevel(GetWorld(), UKismetStringLibrary::Conv_StringToName(LevelA), true, FString());
 }
 
+template<typename T>
+static inline T GetRandomItem(std::vector<T>& Vector, int ConnectionIndex)
+{
+	std::srand(static_cast<unsigned>(std::time(0) + ConnectionIndex));
+	int RandomIndex = std::rand() % Vector.size();
+	// LOG_INFO(LogDev, "RandomIndex: {}", __int64(RandomIndex));
+	return Vector[RandomIndex];
+}
+
+static std::vector Tertiaries = {
+	"WID_Sniper_NoScope_Athena_SR_Ore_T03",
+	"WID_Sniper_NoScope_Athena_VR_Ore_T03",
+	"WID_Sniper_NoScope_Athena_R_Ore_T03",
+	"WID_Sniper_NoScope_Athena_UC_Ore_T03",
+	"WID_Sniper_Heavy_Athena_SR_Ore_T03",
+	"WID_Sniper_Heavy_Athena_VR_Ore_T03",
+	"WID_Sniper_BoltAction_Scope_Athena_SR_Ore_T03",
+	"WID_Sniper_BoltAction_Scope_Athena_VR_Ore_T03",
+	"WID_Sniper_BoltAction_Scope_Athena_R_Ore_T03",
+	"WID_Sniper_BoltAction_Scope_Athena_UC_Ore_T03",
+	"WID_Sniper_Standard_Scope_Athena_SR_Ore_T03",
+	"WID_Sniper_Standard_Scope_Athena_VR_Ore_T03",
+	"WID_Sniper_Suppressed_Scope_Athena_SR_Ore_T03",
+	"WID_Sniper_Suppressed_Scope_Athena_VR_Ore_T03",
+	"WID_Sniper_Weather_Athena_VR",
+	"WID_Sniper_Weather_Athena_SR",
+	"WID_WaffleTruck_Sniper_StormScout",
+	"WID_WaffleTruck_Sniper_DragonBreath"
+	"WID_Sniper_CoreSniper_Athena_SR",
+	"WID_Sniper_CoreSniper_Athena_VR",
+	"WID_Sniper_CoreSniper_Athena_R",
+	"WID_Sniper_CoreSniper_Athena_UC",
+};
+
+static std::vector Secondaries = {
+	"WID_Shotgun_Standard_Athena_C_Ore_T03",
+	"WID_Shotgun_Standard_Athena_UC_Ore_T03",
+	"WID_Shotgun_Standard_Athena_VR_Ore_T03",
+	"WID_Shotgun_Standard_Athena_SR_Ore_T03",
+	"WID_Shotgun_SemiAuto_Athena_R_Ore_T03",
+	"WID_Shotgun_SemiAuto_Athena_VR_Ore_T03",
+	"WID_Shotgun_HighSemiAuto_Athena_VR_Ore_T03",
+	"WID_Shotgun_HighSemiAuto_Athena_SR_Ore_T03",
+	"WID_Shotgun_SlugFire_Athena_VR",
+	"WID_Shotgun_SlugFire_Athena_SR",
+	"WID_Shotgun_Charge_Athena_UC_Ore_T03",
+	"WID_Shotgun_Charge_Athena_R_Ore_T03",
+	"WID_Shotgun_Charge_Athena_VR_Ore_T03",
+	"WID_Shotgun_Charge_Athena_SR_Ore_T03",
+	"WID_Shotgun_Combat_Athena_R_Ore_T03",
+	"WID_Shotgun_Combat_Athena_VR_Ore_T03",
+	"WID_Shotgun_Combat_Athena_SR_Ore_T03",
+	"WID_Shotgun_Swing_Athena_UC",
+	"WID_Shotgun_Swing_Athena_R",
+	"WID_Shotgun_Swing_Athena_VR",
+	"WID_Shotgun_Swing_Athena_SR",
+	"WID_Shotgun_Charge_Athena_R_Ore_T03",
+	"WID_Shotgun_Charge_Athena_VR_Ore_T03",
+	"WID_Shotgun_Charge_Athena_SR_Ore_T03",
+	"WID_Shotgun_CoreBurst_Athena_UC",
+	"WID_Shotgun_CoreBurst_Athena_R",
+	"WID_Shotgun_CoreBurst_Athena_VR",
+	"WID_Shotgun_CoreBurst_Athena_SR"
+};
+
+static std::vector Primaries = {
+	"WID_Assault_Auto_Athena_UC_Ore_T03",
+	"WID_Assault_Auto_Athena_R_Ore_T03",
+	"WID_Assault_AutoHigh_Athena_VR_Ore_T03",
+	"WID_Assault_AutoHigh_Athena_SR_Ore_T03",
+	"WID_Assault_SemiAuto_Athena_VR_Ore_T03",
+	"WID_Assault_SemiAuto_Athena_SR_Ore_T03",
+	"WID_Assault_Suppressed_Athena_VR_Ore_T03",
+	"WID_Assault_Suppressed_Athena_SR_Ore_T03",
+	"WID_Assault_Infantry_Athena_VR",
+	"WID_Assault_Infantry_Athena_SR",
+	"WID_Assault_Heavy_Athena_R_Ore_T03",
+	"WID_Assault_Heavy_Athena_VR_Ore_T03",
+	"WID_Assault_Heavy_Athena_SR_Ore_T03",
+	"WID_Assault_PistolCaliber_AR_Athena_R_Ore_T03",
+	"WID_Assault_PistolCaliber_AR_Athena_VR_Ore_T03",
+	"WID_Assault_PistolCaliber_AR_Athena_SR_Ore_T03",
+	"WID_Assault_RedDotAR_Athena_UC",
+	"WID_Assault_RedDotAR_Athena_R",
+	"WID_Assault_RedDotAR_Athena_VR",
+	"WID_Assault_RedDotAR_Athena_SR",
+	"WID_Assault_Stark_Athena_R_Ore_T03",
+	"WID_Assault_Stark_Athena_VR_Ore_T03",
+	"WID_Assault_Stark_Athena_SR_Ore_T03"
+};
+
+static std::vector Consumables1 = {
+	"Athena_ShockGrenade",
+	"WID_Hook_Gun_VR_Ore_T03",
+	"WID_Badger_Grape_VR",
+	"WID_Athena_BadgerBangsNew",
+	"WID_Athena_HappyGhost",
+	"Athena_KnockGrenade",
+	"Athena_Rift_Item",
+	"Athena_GasGrenade",
+	"Athena_SilverBlazer_V2",
+	"Athena_HolidayGiftBox",
+	"Athena_GiftBox",
+	"Athena_Balloons_Consumable",
+	"Athena_Balloons",
+	"Athena_TowerGrenade",
+	"WID_Athena_AppleSun",
+	"Athena_DanceGrenade",
+	"Athena_IceGrenade",
+	"WID_Athena_Bucket_Old",
+	"ID_ValetMod_Tires_OffRoad_Thrown",
+	"WID_Pistol_Flintlock_Athena_C",
+	"WID_Pistol_Flintlock_Athena_UC",
+	"WID_Launcher_Rocket_Athena_R_Ore_T03",
+	"WID_Launcher_Rocket_Athena_VR_Ore_T03",
+	"WID_Launcher_Rocket_Athena_SR_Ore_T03",
+	"WID_Launcher_Grenade_Athena_R_Ore_T03",
+	"WID_Launcher_Grenade_Athena_VR_Ore_T03",
+	"WID_Launcher_Grenade_Athena_SR_Ore_T03",
+	"WID_HighTower_Tomato_Repulsor_CoreBR",
+	"WID_HighTower_Date_ChainLightning_CoreBR",
+	"WID_HighTower_Tapas_SkyStrike_CoreBR"
+};
+
+static std::vector Consumables2 = {
+	"Athena_ShieldSmall",
+	"Athena_Shields",
+	"Athena_SuperMedkit",
+	"Athena_Medkit",
+	"Athena_PurpleStuff",
+	"Athena_ChillBronco",
+	"WID_Athena_SpicySoda",
+	"WID_Athena_ShieldHops",
+	"WID_Athena_Flopper",
+	"WID_Athena_Flopper_Effective",
+	"WID_Athena_Flopper_HopFlopper",
+	"WID_Athena_SpicySoda",
+	"WID_Athena_ShieldGenerator",
+	"WID_Athena_HealSpray"
+};
+
+static std::vector Traps = {
+	"TID_Context_BouncePad_Athena",
+	"TID_Floor_Player_Launch_Pad_Athena",
+	"TID_Context_Freeze_Athena",
+	"TID_Floor_Player_Campfire_Athena",
+	"TID_ContextTrap_Athena"
+};
+
 static inline std::string wstring_to_utf8(const std::wstring& str)
 {
 	if (str.empty()) return {};
@@ -194,43 +351,47 @@ static inline void InitStyle()
 	mStyle.ScrollbarRounding = 16.0f;
 
 	ImGuiStyle& style = mStyle;
-	style.Colors[ImGuiCol_Text] = ImVec4(0.86f, 0.93f, 0.89f, 0.78f);
-	style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.86f, 0.93f, 0.89f, 0.28f);
-	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.13f, 0.14f, 0.17f, 1.00f);
-	style.Colors[ImGuiCol_Border] = ImVec4(0.31f, 0.31f, 1.00f, 0.00f);
+	style.Colors[ImGuiCol_Text] = ImVec4(0.75f, 0.75f, 0.75f, 1.00f);
+	style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
+	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+	style.Colors[ImGuiCol_PopupBg] = ImVec4(0.12f, 0.12f, 0.12f, 0.94f);
+	style.Colors[ImGuiCol_Border] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
 	style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
-	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.92f, 0.18f, 0.29f, 0.78f);
-	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
-	style.Colors[ImGuiCol_TitleBg] = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
-	style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.20f, 0.22f, 0.27f, 0.75f);
-	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
-	style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.20f, 0.22f, 0.27f, 0.47f);
-	style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
-	style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.09f, 0.15f, 0.16f, 1.00f);
-	style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.92f, 0.18f, 0.29f, 0.78f);
-	style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
-	style.Colors[ImGuiCol_CheckMark] = ImVec4(0.71f, 0.22f, 0.27f, 1.00f);
-	style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.47f, 0.77f, 0.83f, 0.14f);
-	style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
-	style.Colors[ImGuiCol_Button] = ImVec4(0.47f, 0.77f, 0.83f, 0.14f);
-	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.92f, 0.18f, 0.29f, 0.86f);
-	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
-	style.Colors[ImGuiCol_Header] = ImVec4(0.92f, 0.18f, 0.29f, 0.76f);
-	style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.92f, 0.18f, 0.29f, 0.86f);
-	style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
-	style.Colors[ImGuiCol_Separator] = ImVec4(0.14f, 0.16f, 0.19f, 1.00f);
-	style.Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.92f, 0.18f, 0.29f, 0.78f);
-	style.Colors[ImGuiCol_SeparatorActive] = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
-	style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.47f, 0.77f, 0.83f, 0.04f);
-	style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.92f, 0.18f, 0.29f, 0.78f);
-	style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
-	style.Colors[ImGuiCol_PlotLines] = ImVec4(0.86f, 0.93f, 0.89f, 0.63f);
-	style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
-	style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.86f, 0.93f, 0.89f, 0.63f);
-	style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
-	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.92f, 0.18f, 0.29f, 0.43f);
-	style.Colors[ImGuiCol_PopupBg] = ImVec4(0.20f, 0.22f, 0.27f, 0.9f);
+	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+	style.Colors[ImGuiCol_TitleBg] = ImVec4(0.10f, 0.10f, 0.10f, 0.65f);
+	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
+	style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
+	style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.05f, 0.05f, 0.05f, 0.39f);
+	style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
+	style.Colors[ImGuiCol_CheckMark] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	style.Colors[ImGuiCol_SliderGrab] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	style.Colors[ImGuiCol_Button] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
+	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+	style.Colors[ImGuiCol_Header] = ImVec4(0.18f, 0.18f, 0.18f, 0.55f);
+	style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.25f, 0.25f, 0.25f, 0.80f);
+	style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+	style.Colors[ImGuiCol_Separator] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+	style.Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
+	style.Colors[ImGuiCol_SeparatorActive] = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
+	style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.30f, 0.30f, 0.30f, 0.25f);
+	style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.30f, 0.30f, 0.30f, 0.67f);
+	style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.30f, 0.30f, 0.30f, 0.95f);
+	style.Colors[ImGuiCol_Tab] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+	style.Colors[ImGuiCol_TabHovered] = ImVec4(0.18f, 0.18f, 0.18f, 0.80f);
+	style.Colors[ImGuiCol_TabActive] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+	style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+	style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+	style.Colors[ImGuiCol_PlotLines] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+	style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.90f, 0.55f, 0.45f, 1.00f);
+	style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.70f, 0.50f, 0.10f, 1.00f);
 }
 
 static inline void TextCentered(const std::string& text, bool bNewLine = true) {
@@ -351,11 +512,11 @@ static inline void MainTabs()
 
 		// if (serverStatus == EServerStatus::Up)
 		{
-			/* if (ImGui::BeginTabItem("Players"))
+			if (ImGui::BeginTabItem("Players"))
 			{
 				Tab = PLAYERS_TAB;
 				ImGui::EndTabItem();
-			} */
+			}
 		}
 
 		if (false && ImGui::BeginTabItem("Gamemode"))
@@ -378,6 +539,14 @@ static inline void MainTabs()
 			}
 		}
 
+		if (ImGui::BeginTabItem(("Zone")))
+		{
+			Tab = ZONE_TAB;
+			PlayerTab = -1;
+			bInformationTab = false;
+			ImGui::EndTabItem();
+		}
+
 		if (ImGui::BeginTabItem("Calendar Events"))
 		{
 			Tab = CALENDAR_TAB;
@@ -386,9 +555,9 @@ static inline void MainTabs()
 			ImGui::EndTabItem();
 		}
 
-		if (ImGui::BeginTabItem(("Zone")))
+		if (ImGui::BeginTabItem("Trickshot"))
 		{
-			Tab = ZONE_TAB;
+			Tab = TRICKSHOT_TAB;
 			PlayerTab = -1;
 			bInformationTab = false;
 			ImGui::EndTabItem();
@@ -502,42 +671,48 @@ static inline void PlayerTabs()
 
 static inline DWORD WINAPI LateGameThread(LPVOID)
 {
+	while (!AutoBusStartSecondsThatChanges == 0)
+	{
+		AutoBusStartSecondsThatChanges--;
+		Sleep(1000);
+	}
+
 	float MaxTickRate = 30;
 
 	auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
 	auto GameState = Cast<AFortGameStateAthena>(GameMode->GetGameState());
 
 	auto GetAircrafts = [&]() -> std::vector<AActor*>
-	{
-		static auto AircraftsOffset = GameState->GetOffset("Aircrafts", false);
-		std::vector<AActor*> Aircrafts;
-
-		if (AircraftsOffset == -1)
 		{
-			// GameState->Aircraft
+			static auto AircraftsOffset = GameState->GetOffset("Aircrafts", false);
+			std::vector<AActor*> Aircrafts;
 
-			static auto FortAthenaAircraftClass = FindObject<UClass>(L"/Script/FortniteGame.FortAthenaAircraft");
-			auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
-
-			for (int i = 0; i < AllAircrafts.Num(); i++)
+			if (AircraftsOffset == -1)
 			{
-				Aircrafts.push_back(AllAircrafts.at(i));
+				// GameState->Aircraft
+
+				static auto FortAthenaAircraftClass = FindObject<UClass>(L"/Script/FortniteGame.FortAthenaAircraft");
+				auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
+
+				for (int i = 0; i < AllAircrafts.Num(); i++)
+				{
+					Aircrafts.push_back(AllAircrafts.at(i));
+				}
+
+				AllAircrafts.Free();
+			}
+			else
+			{
+				const auto& GameStateAircrafts = GameState->Get<TArray<AActor*>>(AircraftsOffset);
+
+				for (int i = 0; i < GameStateAircrafts.Num(); i++)
+				{
+					Aircrafts.push_back(GameStateAircrafts.at(i));
+				}
 			}
 
-			AllAircrafts.Free();
-		}
-		else
-		{
-			const auto& GameStateAircrafts = GameState->Get<TArray<AActor*>>(AircraftsOffset);
-
-			for (int i = 0; i < GameStateAircrafts.Num(); i++)
-			{
-				Aircrafts.push_back(GameStateAircrafts.at(i));
-			}
-		}
-
-		return Aircrafts;
-	};
+			return Aircrafts;
+		};
 
 	GameMode->StartAircraftPhase();
 
@@ -644,36 +819,98 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 		if (!WorldInventory)
 			continue;
 
-		static auto WoodItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
-		static auto StoneItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
-		static auto MetalItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+		static auto WoodItemData = FindObject<UFortItemDefinition>(
+			L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+		static auto StoneItemData = FindObject<UFortItemDefinition>(
+			L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+		static auto MetalItemData = FindObject<UFortItemDefinition>(
+			L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+		static auto Gold = FindObject<UFortItemDefinition>(
+			L"/Game/Items/ResourcePickups/Athena_WadsItemData.Athena_WadsItemData");
+		static auto Crown = FindObject<UFortItemDefinition>(
+			L"/VictoryCrownsGameplay/Items/AGID_VictoryCrown.AGID_VictoryCrown");
 
-		static auto Rifle = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Assault_AutoHigh_Athena_SR_Ore_T03.WID_Assault_AutoHigh_Athena_SR_Ore_T03");
-		static auto Shotgun = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_SR_Ore_T03.WID_Shotgun_Standard_Athena_SR_Ore_T03")
-			? FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_SR_Ore_T03.WID_Shotgun_Standard_Athena_SR_Ore_T03")
-			: FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_C_Ore_T03.WID_Shotgun_Standard_Athena_C_Ore_T03");
-		static auto SMG = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Pistol_AutoHeavyPDW_Athena_R_Ore_T03.WID_Pistol_AutoHeavyPDW_Athena_R_Ore_T03")
-			? FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Pistol_AutoHeavyPDW_Athena_R_Ore_T03.WID_Pistol_AutoHeavyPDW_Athena_R_Ore_T03")
-			: FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Pistol_AutoHeavySuppressed_Athena_R_Ore_T03.WID_Pistol_AutoHeavySuppressed_Athena_R_Ore_T03");
+		static UFortItemDefinition* Primary = nullptr;
 
-		static auto MiniShields = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/ShieldSmall/Athena_ShieldSmall.Athena_ShieldSmall");
+		do
+		{
+			Primary = FindObject<UFortItemDefinition>(GetRandomItem(Primaries, z), nullptr, ANY_PACKAGE);
+		} while (!Primary);
 
-		static auto Shells = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Ammo/AthenaAmmoDataShells.AthenaAmmoDataShells");
-		static auto Medium = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsMedium.AthenaAmmoDataBulletsMedium");
-		static auto Light = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsLight.AthenaAmmoDataBulletsLight");
-		static auto Heavy = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsHeavy.AthenaAmmoDataBulletsHeavy");
+		static UFortItemDefinition* Secondary = nullptr;
 
-		WorldInventory->AddItem(WoodItemData, nullptr, 500);
-		WorldInventory->AddItem(StoneItemData, nullptr, 500);
-		WorldInventory->AddItem(MetalItemData, nullptr, 500);
-		WorldInventory->AddItem(Rifle, nullptr, 1);
-		WorldInventory->AddItem(Shotgun, nullptr, 1);
-		WorldInventory->AddItem(SMG, nullptr, 1);
-		WorldInventory->AddItem(MiniShields, nullptr, 6);
-		WorldInventory->AddItem(Shells, nullptr, 999);
-		WorldInventory->AddItem(Medium, nullptr, 999);
-		WorldInventory->AddItem(Light, nullptr, 999);
-		WorldInventory->AddItem(Heavy, nullptr, 999);
+		do
+		{
+			Secondary = FindObject<UFortItemDefinition>(GetRandomItem(Secondaries, z), nullptr, ANY_PACKAGE);
+		} while (!Secondary);
+
+		static UFortItemDefinition* Tertiary = nullptr;
+
+		do
+		{
+			Tertiary = FindObject<UFortItemDefinition>(GetRandomItem(Tertiaries, z), nullptr, ANY_PACKAGE);
+		} while (!Tertiary);
+
+		static UFortItemDefinition* Consumable1 = nullptr;
+
+		do
+		{
+			Consumable1 = FindObject<UFortItemDefinition>(GetRandomItem(Consumables1, z), nullptr, ANY_PACKAGE);
+		} while (!Consumable1);
+
+		static UFortItemDefinition* Consumable2 = nullptr;
+
+		do
+		{
+			Consumable2 = FindObject<UFortItemDefinition>(GetRandomItem(Consumables2, z), nullptr, ANY_PACKAGE);
+		} while (!Consumable2);
+
+		static UFortItemDefinition* Trap = nullptr;
+
+		do
+		{
+			Trap = FindObject<UFortItemDefinition>(GetRandomItem(Traps, z), nullptr, ANY_PACKAGE);
+		} while (!Trap);
+
+		static auto HeavyAmmo = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsHeavy.AthenaAmmoDataBulletsHeavy");
+		static auto ShellsAmmo = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Ammo/AthenaAmmoDataShells.AthenaAmmoDataShells");
+		static auto MediumAmmo = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsMedium.AthenaAmmoDataBulletsMedium");
+		static auto LightAmmo = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Ammo/AthenaAmmoDataBulletsLight.AthenaAmmoDataBulletsLight");
+		static auto RocketAmmo = FindObject<UFortItemDefinition>(
+			L"/Game/Athena/Items/Ammo/AmmoDataRockets.AmmoDataRockets");
+		static auto ExplosiveAmmo = FindObject<UFortItemDefinition>(
+			L"/Game/Items/Ammo/AmmoDataExplosive.AmmoDataExplosive");
+		static auto EnergyCells = FindObject<UFortItemDefinition>(
+			L"/Game/Items/Ammo/AmmoDataEnergyCell.AmmoDataEnergyCell");
+		static auto Arrows = FindObject<UFortItemDefinition>(
+			L"/PrimalGameplay/Items/Ammo/AthenaAmmoDataArrows.AthenaAmmoDataArrows");
+		static auto ReconAmmo = FindObject<UFortItemDefinition>(
+			L"/MotherGameplay/Items/Scooter/Ammo_Athena_Mother_Scooter.Ammo_Athena_Mother_Scooter");
+
+		WorldInventory->AddItem(WoodItemData, nullptr, 999);
+		WorldInventory->AddItem(StoneItemData, nullptr, 999);
+		WorldInventory->AddItem(MetalItemData, nullptr, 999);
+		WorldInventory->AddItem(Gold, nullptr, 10000);
+		WorldInventory->AddItem(Primary, nullptr, 1);
+		WorldInventory->AddItem(Secondary, nullptr, 1);
+		WorldInventory->AddItem(Tertiary, nullptr, 1);
+		WorldInventory->AddItem(Consumable1, nullptr, Consumable1->GetMaxStackSize());
+		WorldInventory->AddItem(Consumable2, nullptr, Consumable2->GetMaxStackSize());
+		WorldInventory->AddItem(ShellsAmmo, nullptr, 999);
+		WorldInventory->AddItem(HeavyAmmo, nullptr, 999);
+		WorldInventory->AddItem(MediumAmmo, nullptr, 999);
+		WorldInventory->AddItem(LightAmmo, nullptr, 999);
+		WorldInventory->AddItem(RocketAmmo, nullptr, 999);
+		WorldInventory->AddItem(ExplosiveAmmo, nullptr, 999);
+		WorldInventory->AddItem(EnergyCells, nullptr, 999);
+		WorldInventory->AddItem(Arrows, nullptr, 30);
+		WorldInventory->AddItem(ReconAmmo, nullptr, 999);
+		WorldInventory->AddItem(Trap, nullptr, (std::rand() % 5) + 2);
+		WorldInventory->AddItem(Crown, nullptr, 1);
 
 		WorldInventory->Update();
 	}
@@ -799,6 +1036,7 @@ static inline void MainUI()
 							auto GameState = Cast<AFortGameStateAthena>(GameMode->GetGameState());
 
 							AmountOfPlayersWhenBusStart = GameState->GetPlayersLeft();
+							AutoBusStartSecondsThatChanges = 0;
 
 							if (Globals::bLateGame.load())
 							{
@@ -820,53 +1058,6 @@ static inline void MainUI()
 							auto GameState = Cast<AFortGameStateAthena>(GameMode->GetGameState());
 
 							AmountOfPlayersWhenBusStart = GameState->GetPlayersLeft(); // scuffed!!!!
-
-							if (Fortnite_Version == 1.11)
-							{
-								static auto OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus");
-								LOG_INFO(LogDev, "OverrideBattleBusSkin: {}", __int64(OverrideBattleBusSkin));
-
-								if (OverrideBattleBusSkin)
-								{
-									static auto AssetManagerOffset = GetEngine()->GetOffset("AssetManager");
-									auto AssetManager = GetEngine()->Get(AssetManagerOffset);
-
-									if (AssetManager)
-									{
-										static auto AthenaGameDataOffset = AssetManager->GetOffset("AthenaGameData");
-										auto AthenaGameData = AssetManager->Get(AthenaGameDataOffset);
-
-										if (AthenaGameData)
-										{
-											static auto DefaultBattleBusSkinOffset = AthenaGameData->GetOffset("DefaultBattleBusSkin");
-											AthenaGameData->Get(DefaultBattleBusSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
-
-									static auto DefaultBattleBusOffset = GameState->GetOffset("DefaultBattleBus");
-									GameState->Get(DefaultBattleBusOffset) = OverrideBattleBusSkin;
-
-									static auto FortAthenaAircraftClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAircraft");
-									auto AllAircrafts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortAthenaAircraftClass);
-
-									for (int i = 0; i < AllAircrafts.Num(); i++)
-									{
-										auto Aircraft = AllAircrafts.at(i);
-
-										static auto DefaultBusSkinOffset = Aircraft->GetOffset("DefaultBusSkin");
-										Aircraft->Get(DefaultBusSkinOffset) = OverrideBattleBusSkin;
-
-										static auto SpawnedCosmeticActorOffset = Aircraft->GetOffset("SpawnedCosmeticActor");
-										auto SpawnedCosmeticActor = Aircraft->Get<AActor*>(SpawnedCosmeticActorOffset);
-
-										if (SpawnedCosmeticActor)
-										{
-											static auto ActiveSkinOffset = SpawnedCosmeticActor->GetOffset("ActiveSkin");
-											SpawnedCosmeticActor->Get(ActiveSkinOffset) = OverrideBattleBusSkin;
-										}
-									}
-								}
-							}
 
 							static auto WarmupCountdownEndTimeOffset = GameState->GetOffset("WarmupCountdownEndTime");
 							// GameState->Get<float>(WarmupCountdownEndTimeOffset) = UGameplayStatics::GetTimeSeconds(GetWorld()) + 10;
@@ -989,6 +1180,35 @@ static inline void MainUI()
 						Calendar::SetWaterLevel(WaterLevel);
 					}
 				}
+			}
+
+			std::string FoundationToShowStr;
+
+			ImGui::InputText("Foundation to show", &FoundationToShowStr);
+
+			if (ImGui::Button("Show Foundation"))
+			{
+				auto FoundationToShow = FindObject<AActor>(FoundationToShowStr);
+
+				if (FoundationToShow)
+				{
+					ShowFoundation(FoundationToShow);
+				}
+			}
+		}
+
+		else if (Tab == TRICKSHOT_TAB)
+		{
+			ImGui::Checkbox("Enable Cannon Animations", &bEnableCannonAnimations);
+
+			ImGui::NewLine();
+
+			if (!bEnableCannonAnimations)
+			{
+				ImGui::Text("FMod Cannon Launch Velocity");
+				ImGui::InputFloat("X", CannonXMultiplier);
+				ImGui::InputFloat("Y", CannonYMultiplier);
+				ImGui::InputFloat("Z", CannonZMultiplier);
 			}
 		}
 

@@ -313,6 +313,27 @@ void AFortPlayerController::ServerExecuteInventoryItemHook(AFortPlayerController
 	if (!ItemDefinition)
 		return;
 
+	static auto FortDecoTool_ContextTrapStaticClass = FindObject<UClass>(L"/Script/FortniteGame.FortDecoTool_ContextTrap");
+
+	if (Fortnite_Version >= 18)
+	{
+		if (Pawn->GetCurrentWeapon() && Pawn->GetCurrentWeapon()->IsA(FortDecoTool_ContextTrapStaticClass))
+		{
+			LOG_INFO(LogDev, "Should unequip trap!");
+
+			LOG_INFO(LogDev, "Pawn->GetCurrentWeapon()->GetItemEntryGuid(): {}", Pawn->GetCurrentWeapon()->GetItemEntryGuid().ToString());
+			LOG_INFO(LogDev, "ItemGuid: {}", ItemGuid.ToString());
+			LOG_INFO(LogDev, "ItemDefinition: {}", ItemDefinition->GetFullName());
+			LOG_INFO(LogDev, "ItemInstance->GetItemEntry()->GetItemGuid(): {}", ItemInstance->GetItemEntry()->GetItemGuid().ToString());
+
+			Pawn->GetCurrentWeapon()->GetItemEntryGuid() = ItemGuid;
+			Pawn->EquipWeaponDefinition((UFortWeaponItemDefinition*)ItemDefinition, ItemInstance->GetItemEntry()->GetItemGuid());
+
+			LOG_INFO(LogDev, "Pawn->GetCurrentWeapon()->GetItemEntryGuid(): {}", Pawn->GetCurrentWeapon()->GetItemEntryGuid().ToString());
+			LOG_INFO(LogDev, "Pawn->GetCurrentWeapon()->GetFullName(): {}", Pawn->GetCurrentWeapon()->GetFullName());
+		}
+	}
+
 	// LOG_INFO(LogDev, "Equipping ItemDefinition: {}", ItemDefinition->GetFullName());
 
 	static auto FortGadgetItemDefinitionClass = FindObject<UClass>(L"/Script/FortniteGame.FortGadgetItemDefinition");
@@ -341,12 +362,36 @@ void AFortPlayerController::ServerExecuteInventoryItemHook(AFortPlayerController
 		Pawn->PickUpActor(nullptr, DecoItemDefinition); // todo check ret value? // I checked on 1.7.2 and it only returns true if the new weapon is a FortDecoTool
 		Pawn->GetCurrentWeapon()->GetItemEntryGuid() = ItemGuid;
 
-		static auto FortDecoTool_ContextTrapStaticClass = FindObject<UClass>(L"/Script/FortniteGame.FortDecoTool_ContextTrap");
-
 		if (Pawn->GetCurrentWeapon()->IsA(FortDecoTool_ContextTrapStaticClass))
 		{
+			LOG_INFO(LogDev, "Pawn->GetCurrentWeapon()->IsA(FortDecoTool_ContextTrapStaticClass)!");
+
 			static auto ContextTrapItemDefinitionOffset = Pawn->GetCurrentWeapon()->GetOffset("ContextTrapItemDefinition");
 			Pawn->GetCurrentWeapon()->Get<UObject*>(ContextTrapItemDefinitionOffset) = DecoItemDefinition;
+
+			if (Fortnite_Version >= 18)
+			{
+				static auto SetContextTrapItemDefinitionFn = FindObject<UFunction>(L"/Script/FortniteGame.FortDecoTool_ContextTrap.SetContextTrapItemDefinition");
+				Pawn->GetCurrentWeapon()->ProcessEvent(SetContextTrapItemDefinitionFn, &DecoItemDefinition);
+
+				auto& ReplicatedEntries = WorldInventory->GetItemList().GetReplicatedEntries();
+
+				for (int i = 0; i < ReplicatedEntries.Num(); i++)
+				{
+					auto ReplicatedEntry = ReplicatedEntries.AtPtr(i, FFortItemEntry::GetStructSize());
+
+					if (ReplicatedEntry->GetItemGuid() == ItemGuid)
+					{
+						auto Instance = WorldInventory->FindItemInstance(ItemGuid);
+
+						WorldInventory->GetItemList().MarkItemDirty(ReplicatedEntry);
+						WorldInventory->GetItemList().MarkItemDirty(Instance->GetItemEntry());
+						WorldInventory->HandleInventoryLocalUpdate();
+
+						Pawn->EquipWeaponDefinition(DecoItemDefinition, ReplicatedEntry->GetItemGuid());
+					}
+				}
+			}
 		}
 
 		return;
@@ -437,7 +482,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	if (!ReceivingActor)
 		return;
 
-	// LOG_INFO(LogInteraction, "ReceivingActor Name: {}", ReceivingActor->GetFullName());
+	LOG_INFO(LogInteraction, "ReceivingActor Name: {}", ReceivingActor->GetFullName());
 
 	FVector LocationToSpawnLoot = ReceivingActor->GetActorLocation() + ReceivingActor->GetActorRightVector() * 70.f + FVector{ 0, 0, 50 };
 
@@ -475,7 +520,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	{
 		auto Vehicle = (AFortAthenaVehicle*)ReceivingActor;
 		ServerAttemptInteractOriginal(Context, Stack, Ret);
-		
+
 		if (!AreVehicleWeaponsEnabled())
 			return;
 
@@ -499,54 +544,30 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 		if (!WorldInventory)
 			return;
 
-		auto NewAndModifiedInstances = WorldInventory->AddItem(VehicleWeaponDefinition, nullptr);
+		auto NewAndModifiedInstances = WorldInventory->AddItem(VehicleWeaponDefinition, nullptr, 1, 9999);
+
 		auto NewVehicleInstance = NewAndModifiedInstances.first[0];
 
 		if (!NewVehicleInstance)
 			return;
 
-		WorldInventory->Update();
+		PlayerController->GetSwappingItemDefinition() = Pawn->GetCurrentWeapon()->GetWeaponData();
 
-		auto VehicleWeapon = Pawn->EquipWeaponDefinition(VehicleWeaponDefinition, NewVehicleInstance->GetItemEntry()->GetItemGuid());
-		// PlayerController->ServerExecuteInventoryItemHook(PlayerController, newitem->GetItemEntry()->GetItemGuid());
+		auto& ReplicatedEntries = WorldInventory->GetItemList().GetReplicatedEntries();
 
-		/* static auto GetSeatWeaponComponentFn = FindObject<UFunction>("/Script/FortniteGame.FortAthenaVehicle.GetSeatWeaponComponent");
-
-		if (GetSeatWeaponComponentFn)
+		for (int i = 0; i < ReplicatedEntries.Num(); i++)
 		{
-			struct { int SeatIndex; UObject* ReturnValue; } AFortAthenaVehicle_GetSeatWeaponComponent_Params{};
+			auto ReplicatedEntry = ReplicatedEntries.AtPtr(i, FFortItemEntry::GetStructSize());
 
-			Vehicle->ProcessEvent(GetSeatWeaponComponentFn, &AFortAthenaVehicle_GetSeatWeaponComponent_Params);
-
-			UObject* WeaponComponent = AFortAthenaVehicle_GetSeatWeaponComponent_Params.ReturnValue;
-
-			if (!WeaponComponent)
-				return;
-
-			static auto WeaponSeatDefinitionStructSize = FindObject<UClass>("/Script/FortniteGame.WeaponSeatDefinition")->GetPropertiesSize();
-			static auto VehicleWeaponOffset = FindOffsetStruct("/Script/FortniteGame.WeaponSeatDefinition", "VehicleWeapon");
-			static auto SeatIndexOffset = FindOffsetStruct("/Script/FortniteGame.WeaponSeatDefinition", "SeatIndex");
-			static auto WeaponSeatDefinitionsOffset = WeaponComponent->GetOffset("WeaponSeatDefinitions");
-			auto& WeaponSeatDefinitions = WeaponComponent->Get<TArray<__int64>>(WeaponSeatDefinitionsOffset);
-
-			for (int i = 0; i < WeaponSeatDefinitions.Num(); ++i)
+			if (ReplicatedEntry->GetItemGuid() == NewVehicleInstance->GetItemEntry()->GetItemGuid())
 			{
-				auto WeaponSeat = WeaponSeatDefinitions.AtPtr(i, WeaponSeatDefinitionStructSize);
+				WorldInventory->GetItemList().MarkItemDirty(ReplicatedEntry);
+				WorldInventory->GetItemList().MarkItemDirty(NewVehicleInstance->GetItemEntry());
+				WorldInventory->HandleInventoryLocalUpdate();
 
-				if (*(int*)(__int64(WeaponSeat) + SeatIndexOffset) != Vehicle->FindSeatIndex(Pawn))
-					continue;
-
-				auto VehicleGrantedWeaponItem = (TWeakObjectPtr<UFortItem>*)(__int64(WeaponSeat) + 0x20);
-
-				VehicleGrantedWeaponItem->ObjectIndex = NewVehicleInstance->InternalIndex;
-				VehicleGrantedWeaponItem->ObjectSerialNumber = GetItemByIndex(NewVehicleInstance->InternalIndex)->SerialNumber;
-
-				static auto bWeaponEquippedOffset = WeaponComponent->GetOffset("bWeaponEquipped");
-				WeaponComponent->Get<bool>(bWeaponEquippedOffset) = true;
-
-				break;
+				Pawn->EquipWeaponDefinition(VehicleWeaponDefinition, ReplicatedEntry->GetItemGuid());
 			}
-		} */
+		}
 
 		return;
 	}

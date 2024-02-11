@@ -10,6 +10,18 @@ public:
 	static inline void (*NetMulticast_Athena_BatchedDamageCuesOriginal)(UObject* Context, FFrame* Stack, void* Ret);
 	static inline void (*MovingEmoteStoppedOriginal)(UObject* Context, FFrame* Stack, void* Ret);
 
+	enum class EMovementMode : uint8
+	{
+		MOVE_None = 0,
+		MOVE_Walking = 1,
+		MOVE_NavWalking = 2,
+		MOVE_Falling = 3,
+		MOVE_Swimming = 4,
+		MOVE_Flying = 5,
+		MOVE_Custom = 6,
+		MOVE_MAX = 7,
+	};
+
 	AFortWeapon* EquipWeaponDefinition(UFortWeaponItemDefinition* WeaponData, const FGuid& ItemEntryGuid);
 	bool PickUpActor(AActor* PickupTarget, UFortDecoItemDefinition* PlacementDecoItemDefinition);
 
@@ -51,6 +63,9 @@ public:
 	void SetShield(float NewShield);
 	static void NetMulticast_Athena_BatchedDamageCuesHook(UObject* Context, FFrame* Stack, void* Ret);
 	static void MovingEmoteStoppedHook(UObject* Context, FFrame* Stack, void* Ret);
+	void LaunchURL(const class FString& URL);
+	void CopyToClipboard(const class FString& ClipboardText);
+	void SetMovementMode(enum class EMovementMode NewMovementMode, uint8 NewCustomMode);
 
 	static UClass* StaticClass();
 };

@@ -223,7 +223,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
         {
             if (Index == 0) // Start of Event
             {
-                auto MasterScripting = FindObject<UObject>("/Buffet/Levels/Buffet_P.Buffet_P:PersistentLevel.BP_Event_Master_Scripting_2");
+                auto MasterScripting = FindObject<UObject>("/Buffet/Levels/Buffet_P.Buffet_P.PersistentLevel.BP_Event_Master_Scripting_2");
 
                 auto AllSatelliteDishes = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>("/Game/Athena/Apollo/Environments/BuildingActors/Complex/Props/Apollo_Complex_Satellite_Dish_Top_01.Apollo_Complex_Satellite_Dish_Top_01_C"));
 
@@ -243,11 +243,11 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                     CurrentPawn->AddComponentByClass(FindObject<UClass>("/Script/BuffetRuntime.FortSpecialRelevancyPawnAttachComponent"));
                 }
             }
-            if (Index == 1) // Memories, BP_Buffet_PhaseScripting_Phase1_C
+            else if (Index == 1) // Memories, BP_Buffet_PhaseScripting_Phase1_C
             {
                 //EventPawn->TeleportTo(FVector(-963.630f, 25453.090f, 359392.125f), EventPawn->GetActorRotation());
 
-                auto Phase1Scripting = FindObject("/Buffet/Levels/Buffet_Part_3.Buffet_Part_3:PersistentLevel.BP_Buffet_PhaseScripting_Phase1_2");
+                auto Phase1Scripting = FindObject("/Buffet/Levels/Buffet_Part_3.Buffet_Part_3.PersistentLevel.BP_Buffet_PhaseScripting_Phase1_2");
 
                 auto TeleportRef = Phase1Scripting->Get<AActor*>(Phase1Scripting->GetOffset("TeleportRef"));
 
@@ -264,7 +264,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                     CurrentPawn->ForceNetUpdate();
                 }
             }
-            if (Index == 2) // Slide
+            else if (Index == 2) // Slide
             {
                 auto Script = FindObject<UObject>("/Buffet/Levels/Buffet_Part_4.Buffet_Part_4.PersistentLevel.BP_Buffet_PhaseScripting_Paint_4");
 
@@ -279,7 +279,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                     auto CurrentController = ClientConnections.At(i)->GetPlayerController();
 
                     auto PlayerComponent = CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_PlayerComponent.BP_Buffet_Paint_PlayerComponent_C"));
-                    CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_IntroTrackFinder.BP_Buffet_Paint_IntroTrackFinder_C"));
+                    auto IntroTrackFinder = CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_IntroTrackFinder.BP_Buffet_Paint_IntroTrackFinder_C"));
                     auto MovementComponent = CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_MovementComponent.BP_Buffet_Paint_MovementComponent_C"));
 
                     PlayerComponent->Get<UObject*>(PlayerComponent->GetOffset("MovementComponent")) = MovementComponent;
@@ -288,47 +288,43 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                     PlayerComponent->ProcessEvent(PlayerComponent->FindFunction("InitializeMovementComponent"));
                 }
             }
-            if (Index == 4) // Storm King
+            else if (Index == 4) // Storm King
             {
-                auto StormScript = FindObject<AActor>("/Buffet/Levels/Buffet_Part_6.Buffet_Part_6:PersistentLevel.BP_Buffet_PhaseScripting_4");
-
+                auto StormScript = FindObject<AActor>("/Buffet/Levels/Buffet_Part_6.Buffet_Part_6.PersistentLevel.BP_Buffet_PhaseScripting_4");
                 auto DefaultPlane = FindObject("/Buffet/Gameplay/Blueprints/WolfMother/BP_PlanePrototype.Default__BP_PlanePrototype_C");
+                auto WID = Cast<UFortWorldItemDefinition>(FindObject("WID_Buffet_BeatMatchingBoomBox", nullptr, ANY_PACKAGE)); // Storm King weapon thing
 
+                for (int i = 0; i < ClientConnections.Num(); i++)
                 {
-                    auto WID = Cast<UFortWorldItemDefinition>(FindObject("WID_Buffet_BeatMatchingBoomBox", nullptr, ANY_PACKAGE)); // Storm King weapon thing
+                    auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
+                    auto CurrentController = (AFortPlayerControllerAthena*)ClientConnections.At(i)->GetPlayerController();
 
-                    for (int i = 0; i < ClientConnections.Num(); i++)
+                    auto WorldInventory = CurrentController->GetWorldInventory();
+
+                    bool bShouldUpdate = false;
+                    WorldInventory->AddItem(WID, &bShouldUpdate, 1);
+
+                    if (bShouldUpdate)
+                        WorldInventory->Update();
+
+                    // SendMessageToConsole(CurrentController, L"Gave WID_Buffet_BeatMatchingBoomBox!");
+                }
+
+                auto AllWeps = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>("/Buffet/Gameplay/Blueprints/WolfMother/BeatmatchingWeapon/B_Buffet_BeatMatchingWeaponPrototype.B_Buffet_BeatMatchingWeaponPrototype_C"));
+
+                for (int i = 0; i < AllWeps.Num(); i++)
+                {
+                    auto CurrentWep = AllWeps.At(i);
+
+                    if (CurrentWep != nullptr)
                     {
-                        auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
-                        auto CurrentController = (AFortPlayerControllerAthena*)ClientConnections.At(i)->GetPlayerController();
-
-                        auto WorldInventory = CurrentController->GetWorldInventory();
-
-                        bool bShouldUpdate = false;
-                        WorldInventory->AddItem(WID, &bShouldUpdate, 1);
-
-                        if (bShouldUpdate)
-                            WorldInventory->Update();
-
-                        SendMessageToConsole(CurrentController, L"Gave WID_Buffet_BeatMatchingBoomBox!");
-                    }
-
-                    auto AllWeps = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>("/Buffet/Gameplay/Blueprints/WolfMother/BeatmatchingWeapon/B_Buffet_BeatMatchingWeaponPrototype.B_Buffet_BeatMatchingWeaponPrototype_C"));
-
-                    for (int i = 0; i < AllWeps.Num(); i++)
-                    {
-                        auto CurrentWep = AllWeps.At(i);
-
-                        if (CurrentWep != nullptr)
-                        {
-                            CurrentWep->Get<AActor*>(CurrentWep->GetOffset("Phase4ScriptingRef")) = StormScript;
-                        }
+                        CurrentWep->Get<AActor*>(CurrentWep->GetOffset("Phase4ScriptingRef")) = StormScript;
                     }
                 }
             }
-            if (Index == 5) // Ariana Knocked
+            else if (Index == 5) // Ariana Knocked
             {
-                auto ReviveScripting = FindObject("/Buffet/Levels/Buffet_Reflect.Buffet_Reflect:PersistentLevel.BP_Buffet_PhaseScripting_Revive_2");
+                auto ReviveScripting = FindObject("/Buffet/Levels/Buffet_Reflect.Buffet_Reflect.PersistentLevel.BP_Buffet_PhaseScripting_Revive_2");
 
                 auto ManualTeleportLocation = ReviveScripting->Get<FVector>(ReviveScripting->GetOffset("ManualTeleportLocation"));
 
@@ -339,7 +335,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                     auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
                 }
             }
-            if (Index == 6) // Ariana
+            else if (Index == 6) // Ariana
             {
                 for (int i = 0; i < ClientConnections.Num(); i++)
                 {
@@ -348,11 +344,11 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                     CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/Stars/BP_Buffet_Stars_PlayerComponent.BP_Buffet_Stars_PlayerComponent_C"));
                 }
             }
-            if (Index == 7) // Ariana Dance
+            else if (Index == 7) // Ariana Dance
             {
-                auto ReviveScripting = FindObject("/Buffet/Levels/Buffet_Reflect.Buffet_Reflect:PersistentLevel.BP_Buffet_PhaseScripting_Revive_2");
+                auto ReviveScripting = FindObject("/Buffet/Levels/Buffet_Reflect.Buffet_Reflect.PersistentLevel.BP_Buffet_PhaseScripting_Revive_2");
 
-                auto ReflectScripting = FindObject("/Buffet/Levels/Buffet_Reflect.Buffet_Reflect:PersistentLevel.BP_Buffet_PhaseScripting_Reflect_2");
+                auto ReflectScripting = FindObject("/Buffet/Levels/Buffet_Reflect.Buffet_Reflect.PersistentLevel.BP_Buffet_PhaseScripting_Reflect_2");
 
                 auto ManualTeleportRotation = ReviveScripting->Get<FRotator>(ReviveScripting->GetOffset("Manual_Teleport_Rotation"));
 
@@ -363,15 +359,19 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                     CurrentPawn->AddComponentByClass(FindObject<UClass>("/BuffetPlaylist/Playlist/BuffetCharacterMovementMutatorComponent.BuffetCharacterMovementMutatorComponent_C"));
                 }
             }
-            if (Index == 8) // Bubbles
+            else if (Index == 8) // Bubbles
             {
-                auto BubblesScripting = FindObject<UObject>("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles:PersistentLevel.BP_Buffet_PhaseScripting_Bubble_4");
+                auto BubblesScripting = FindObject<UObject>("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles.PersistentLevel.BP_Buffet_PhaseScripting_Bubble_4");
 
                 BubblesScripting->Get<bool>(BubblesScripting->GetOffset("bUsePlayerMovementMode")) = false;
 
-                BubblesScripting->Get<AActor*>(BubblesScripting->GetOffset("FollowActor")) = FindObject<AActor>("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles:PersistentLevel.BP_Buffet_BubbleFollowActor_2");
+                BubblesScripting->Get<AActor*>(BubblesScripting->GetOffset("FollowActor")) = FindObject<AActor>("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles.PersistentLevel.BP_Buffet_BubbleFollowActor_2");
+                BubblesScripting->Get<AActor*>(BubblesScripting->GetOffset("FocalPointActor")) = FindObject<AActor>("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles.PersistentLevel.BP_Buffet_BubbleFollowActor_2");
+
+                BubblesScripting->ProcessEvent(BubblesScripting->FindFunction("SetFocalActor"));
+                BubblesScripting->ProcessEvent(BubblesScripting->FindFunction("ApplyReverseGrav"));
             }
-            if (Index == 9) // Clouds
+            else if (Index == 9) // Clouds
             {
                 for (int i = 0; i < ClientConnections.Num(); i++)
                 {
@@ -382,16 +382,29 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                     CurrentPawn->ProcessEvent(CurrentPawn->FindFunction("K2_DestroyComponent"), RemoveComponent);
 
                     CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/Llama/BP_Buffet_Llama_PlayerComponent.BP_Buffet_Llama_PlayerComponent_C"));
-                    CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/PostEvent/LlamaSpeedControlComponent.LlamaSpeedControlComponent_C"));
                 }
             }
-            if (Index == 10) // Escher
+            else if (Index == 10) // Escher
             {
                 for (int i = 0; i < ClientConnections.Num(); i++)
                 {
                     auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
 
                     CurrentPawn->TeleportTo(FVector(36.34f, 1044.07f, 504.50f), CurrentPawn->GetActorRotation());
+                }
+            }
+            else if (Index == 11) // Ariana Singing
+            {
+
+            }
+            else if (Index == 12) // End
+            {
+                for (int i = 0; i < ClientConnections.Num(); i++)
+                {
+                    auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
+
+                    CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/Llama/BP_Buffet_Llama_PlayerComponent.BP_Buffet_Llama_PlayerComponent_C"));
+                    CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/PostEvent/LlamaSpeedControlComponent.LlamaSpeedControlComponent_C"));
                 }
             }
         }

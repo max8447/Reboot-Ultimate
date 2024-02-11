@@ -65,7 +65,7 @@ static void SetFoundationTransform(AActor* BuildingFoundation, const FTransform&
 		{
 			auto DynamicFoundationTransform = BuildingFoundation->GetPtr<FTransform>(DynamicFoundationTransformOffset);
 
-			if (Fortnite_Version >= 13)
+			if (Fortnite_Version > 13)
 				*(FRotator*)(__int64(DynamicFoundationRepData) + RotationOffset) = DynamicFoundationTransform->Rotation.Rotator();
 			else
 				*(FQuat*)(__int64(DynamicFoundationRepData) + RotationOffset) = DynamicFoundationTransform->Rotation;
@@ -232,6 +232,11 @@ static void StreamLevel(const std::string& LevelName, FVector Location = {})
 	ShowFoundation(BuildingFoundation);
 }
 
+class UFortSupplyDropInfo : public UObject // UDataAsset
+{
+public:
+};
+
 class AFortGameModeAthena : public AFortGameModePvPBase
 {
 public:
@@ -269,6 +274,8 @@ public:
 	void PauseSafeZone(bool bPaused = true);
 	void StartAircraftPhase();
 
+	static void OverrideBattleBus(AFortGameStateAthena* GameState, UObject* OverrideBattleBusSkin);
+	static void OverrideSupplyDrop(AFortGameStateAthena* GameState, UClass* OverrideSupplyDropBusClass);
 	static void HandleSpawnRateForActorClass(UClass* ActorClass, float SpawnPercentage); // idk where to put
 
 	static void OnAircraftEnteredDropZoneHook(AFortGameModeAthena* GameModeAthena, AActor* Aircraft);
