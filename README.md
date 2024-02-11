@@ -21,6 +21,7 @@
 - Add Pickaxe Stutter
 - Fix Traps on 18+
 - Fix More Crashes (ie: 14.60 win crash, random dll startup crashes, etc)
+- Make Storm Rain effect a feature
 
 # Links
 
