@@ -675,7 +675,7 @@ DWORD WINAPI Main(LPVOID)
         return 1;
     }
 
-    LOG_INFO(LogInit, "Initializing Project Reboot!");
+    LOG_INFO(LogInit, "Initializing Reboot Ultimate!");
 
     Addresses::SetupVersion();
 
