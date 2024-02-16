@@ -7,6 +7,7 @@
 #include "Rotator.h"
 #include "BuildingSMActor.h"
 #include "Stack.h"
+#include "ActorComponent.h"
 
 struct FFortAthenaLoadout
 {
