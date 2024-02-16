@@ -89,6 +89,113 @@ enum class EInteractionBeingAttempted : uint8
 	EInteractionBeingAttempted_MAX = 3,
 };
 
+
+class UFortPlayerControllerAthenaXPComponent : public UActorComponent //UFortControllerComponent
+{
+public:
+	int32 GetCurrentLevel()
+	{
+		static auto CurrentLevelOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "CurrentLevel");
+		return *(int32*)(__int64(this) + CurrentLevelOffset);
+	}
+
+	bool& IsRegisteredWithQuestManager()
+	{
+		static auto IsRegisteredWithQuestManagerOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "bRegisteredWithQuestManager");
+		return *(bool*)(__int64(this) + IsRegisteredWithQuestManagerOffset);
+	}
+
+	int32& GetCombatXp()
+	{
+		static auto CombatXpOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "CombatXp");
+		return *(int32*)(__int64(this) + CombatXpOffset);
+	}
+
+	int32& GetSurvivalXp()
+	{
+		static auto SurvivalXpOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "SurvivalXp");
+		return *(int32*)(__int64(this) + SurvivalXpOffset);
+	}
+
+	int32& GetMedalBonusXP()
+	{
+		static auto MedalBonusXPOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "MedalBonusXP");
+		return *(int32*)(__int64(this) + MedalBonusXPOffset);
+	}
+
+	int32& GetChallengeXp()
+	{
+		static auto ChallengeXpOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "ChallengeXp");
+		return *(int32*)(__int64(this) + ChallengeXpOffset);
+	}
+
+	int32& GetMatchXp()
+	{
+		static auto MatchXpOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "MatchXp");
+		return *(int32*)(__int64(this) + MatchXpOffset);
+	}
+
+	int32& GetTotalXpEarned()
+	{
+		static auto TotalXpEarnedOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "TotalXpEarned");
+		return *(int32*)(__int64(this) + TotalXpEarnedOffset);
+	}
+
+	int32& GetRestXP()
+	{
+		static auto RestXPOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "RestXP");
+		return *(int32*)(__int64(this) + RestXPOffset);
+	}
+
+	int64& GetInMatchProfileVer()
+	{
+		static auto InMatchProfileVerOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "InMatchProfileVer");
+		return *(int64*)(__int64(this) + InMatchProfileVerOffset);
+	}
+
+	void OnProfileUpdated()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnProfileUpdated");
+		this->ProcessEvent(fn, nullptr);
+	}
+
+	void OnXpUpdated(int32 InCombatXp, int32 InServivalXp, int32 InBonusMedalXp, int32 InChallengeXp, int32 InMatchXp, int32 InTotalXp)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnXpUpdated");
+
+		struct
+		{
+			int32                              InCombatXp;                                                      // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+			int32                              InServivalXp;                                                    // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+			int32                              InBonusMedalXp;                                                  // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+			int32                              InChallengeXp;                                                   // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+			int32                              InMatchXp;                                                       // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+			int32                              InTotalXp;                                                       // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+
+		}params{ InCombatXp , InServivalXp , InBonusMedalXp , InChallengeXp , InMatchXp , InTotalXp };
+
+		this->ProcessEvent(fn, &params);
+	}
+
+	void OnInMatchProfileUpdate(int64 ProfileRevision)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnInMatchProfileUpdate");
+
+		struct
+		{
+			int64                              ProfileRevision;
+		}params{ ProfileRevision };
+
+		this->ProcessEvent(fn, &params);
+	}
+
+	void OnRep_bRegisteredWithQuestManager()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnRep_bRegisteredWithQuestManager");
+		this->ProcessEvent(fn, nullptr);
+	}
+};
+
 class AFortPlayerController : public APlayerController
 {
 public:
@@ -102,6 +209,12 @@ public:
 	static inline void (*ServerAttemptAircraftJumpOriginal)(AFortPlayerController* PC, FRotator ClientRotation);
 
 	void ClientReportDamagedResourceBuilding(ABuildingSMActor* BuildingSMActor, EFortResourceType PotentialResourceType, int PotentialResourceCount, bool bDestroyed, bool bJustHitWeakspot);
+
+	UFortPlayerControllerAthenaXPComponent* GetXPComponent()
+	{
+		static auto XPComponentOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthena", "XPComponent");
+		return *(UFortPlayerControllerAthenaXPComponent**)(__int64(this) + XPComponentOffset);
+	}
 
 	AFortInventory*& GetWorldInventory()
 	{

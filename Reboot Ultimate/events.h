@@ -211,6 +211,34 @@ static inline std::vector<Event> Events =
 	),
 	Event
 	(
+	"The Showdown",
+	"/Game/Athena/Prototype/Blueprints/Cattus/BP_CattusDoggus_Scripting.BP_CattusDoggus_Scripting_C",
+	"/Game/Athena/Prototype/Blueprints/Cattus/BP_CattusDoggus_Scripting.BP_CattusDoggus_Scripting_C.LoadCattusLevel",
+	1,
+	{
+		{
+			true,
+			"/Game/Athena/Prototype/Blueprints/Cattus/BP_CattusDoggus_Scripting.BP_CattusDoggus_Scripting_C.OnReady_C11CA7624A74FBAEC54753A3C2BD4506"
+		}
+		},
+		{
+			{
+				{
+					true,
+					"/Game/Athena/Prototype/Blueprints/Cattus/BP_CattusDoggus_Scripting.BP_CattusDoggus_Scripting_C.startevent"
+				},
+
+				0
+			}
+		},
+
+		"/Game/Athena/Prototype/Blueprints/Cattus/BP_CattusDoggus_Scripting.BP_CattusDoggus_Scripting_C",
+		"/Game/Athena/Playlists/Music/Playlist_Music_High.Playlist_Music_High",
+		9.41,
+		false
+		),
+	Event
+	(
 		"Astronomical", 
 		"/CycloneJerky/Gameplay/BP_Jerky_Loader.BP_Jerky_Loader_C",
 		// "/CycloneJerky/Gameplay/BP_Jerky_Loader.BP_Jerky_Loader_C.LoadJerkyLevel", 

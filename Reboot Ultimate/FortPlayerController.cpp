@@ -230,6 +230,14 @@ void AFortPlayerController::ServerLoadingScreenDroppedHook(UObject* Context, FFr
 
 	PlayerController->ApplyCosmeticLoadout();
 
+	if (Fortnite_Version >= 11)
+	{
+		auto XPComponent = PlayerController->GetXPComponent();
+
+		XPComponent->IsRegisteredWithQuestManager() = true;
+		XPComponent->OnRep_bRegisteredWithQuestManager();
+	}
+
 	return ServerLoadingScreenDroppedOriginal(Context, Stack, Ret);
 }
 
@@ -456,6 +464,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	// static auto LlamaClass = FindObject<UClass>(L"/Game/Athena/SupplyDrops/Llama/AthenaSupplyDrop_Llama.AthenaSupplyDrop_Llama_C");
 	static auto FortAthenaSupplyDropClass = FindObject<UClass>(L"/Script/FortniteGame.FortAthenaSupplyDrop");
 	static auto BuildingItemCollectorActorClass = FindObject<UClass>(L"/Script/FortniteGame.BuildingItemCollectorActor");
+	static auto BP_StationProp_ParentClass = FindObject<UClass>("/Game/Building/ActorBlueprints/Stations/BP_StationProp_Parent.BP_StationProp_Parent_C");
 
 	LOG_INFO(LogInteraction, "ServerAttemptInteract!");
 
@@ -627,9 +636,13 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	
 			LOG_INFO(LogDev, "UpgradedWeaponDef: {}", NewDefinition->GetFullName());
 	
-			int WoodCost = (int)FoundRow->WoodCost * 50;
-			int StoneCost = (int)FoundRow->BrickCost * 50 - 400;
-			int MetalCost = (int)FoundRow->MetalCost * 50 - 200;
+			int WoodToRemove = Fortnite_Version < 12 ? -50 : 0;
+			int StoneToRemove = Fortnite_Version < 12 ? 350 : 400;
+			int MetalToRemove = Fortnite_Version < 12 ? 150 : 200;
+
+			int WoodCost = (int)FoundRow->WoodCost * 50 - WoodToRemove;
+			int StoneCost = (int)FoundRow->BrickCost * 50 - StoneToRemove;
+			int MetalCost = (int)FoundRow->MetalCost * 50 - MetalToRemove;
 	
 			if (bIsSidegrading)
 			{
@@ -653,6 +666,11 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 			auto MetalInstance = WorldInventory->FindItemInstance(MetalItemData);
 			auto MetalCount = MetalInstance->GetItemEntry()->GetCount();
 	
+			if (WoodCount < WoodCost || StoneCount < StoneCost || MetalCount < MetalCost)
+			{
+				return ServerAttemptInteractOriginal(Context, Stack, Ret);
+			}
+
 			bool bShouldUpdate = false;
 	
 			WorldInventory->RemoveItem(WoodInstance->GetItemEntry()->GetItemGuid(), &bShouldUpdate, WoodCost);
@@ -746,6 +764,30 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 				ItemCollector->ProcessEvent(DoVendDeath);
 				ItemCollector->K2_DestroyActor();
 			}
+		}
+	}
+	else if (ReceivingActor->IsA(BP_StationProp_ParentClass))
+	{
+		LOG_INFO(LogDev, "S15+ UI BP!");
+
+		if (ReceivingActor->GetFullName().contains("Bounty"))
+		{
+			static auto ConversationComponentOffset = ReceivingActor->GetOffset("NonPlayerConversationComponent");
+			auto ConversationComponent = ReceivingActor->Get<UObject*>(ConversationComponentOffset);
+
+			static auto EntryTagOffset = ReceivingActor->GetOffset("ConversationEntryTag");
+			auto EntryTag = ReceivingActor->Get<FGameplayTag>(EntryTagOffset);
+
+			static auto StartConversationFn = FindObject<UFunction>("/Script/FortniteGame.FortNonPlayerConversationParticipantComponent.StartConversation");
+
+			struct
+			{
+				FGameplayTag InConversationEntryTag;
+				AActor* Instigator;
+				AActor* Target;
+			}UFortNonPlayerConversationParticipantComponent_StartConversation_Params{ EntryTag , PlayerController , ReceivingActor };
+
+			ConversationComponent->ProcessEvent(StartConversationFn, &UFortNonPlayerConversationParticipantComponent_StartConversation_Params);
 		}
 	}
 

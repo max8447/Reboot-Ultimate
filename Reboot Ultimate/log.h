@@ -26,6 +26,15 @@ enum ELogLevel : uint8_t
     All = Trace
 };
 
+struct FConsoleOutputMsg
+{
+    const char* Msg;
+    ELogLevel Severity;
+};
+
+inline std::vector<FConsoleOutputMsg> ConsoleOutputMessages;
+inline std::vector<FConsoleOutputMsg> StoredOutputMessages;
+
 inline void MakeLogger(const std::string& LoggerName)
 {
     auto logger = std::make_shared<spdlog::logger>(LoggerName, sinks.begin(), sinks.end());
@@ -96,6 +105,19 @@ inline void InitLogger()
 #define LOG_INFO(loggerName, ...)                                            \
     if (spdlog::get(#loggerName))         \
         spdlog::get(#loggerName)->info(std::format(__VA_ARGS__));
+// #define LOG_INFO(loggerName, ...)                                           \
+    do                                                                      \
+    {                                                                     \
+        if (spdlog::get(#loggerName))                                          \
+        {                                      \
+            spdlog::get(#loggerName)->info(std::format(__VA_ARGS__));        \
+            FConsoleOutputMsg Msg;                                               \
+            Msg.Msg = (std::string(#loggerName) + ": " + std::format(__VA_ARGS__)).c_str(); \
+            Msg.Severity = ELogLevel::Info;                               \
+            ConsoleOutputMessages.push_back(Msg);                                \
+        }                                                                    \
+    }                                                                       \
+    while (0)
 #define LOG_WARN(loggerName, ...)                                            \
     if (spdlog::get(#loggerName))         \
         spdlog::get(#loggerName)->warn(std::format(__VA_ARGS__));

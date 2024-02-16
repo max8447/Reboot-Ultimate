@@ -456,8 +456,8 @@ static inline void InputVector(const std::string& baseText, FVector* vec)
 #endif
 }
 
-static int Width = 640;
-static int Height = 480;
+static int Width = 1280;
+static int Height = 720;
 
 static int Tab = 1;
 static int PlayerTab = -1;
@@ -511,6 +511,7 @@ static inline void MainTabs()
 		}
 
 		// if (serverStatus == EServerStatus::Up)
+		/*
 		{
 			if (ImGui::BeginTabItem("Players"))
 			{
@@ -518,6 +519,7 @@ static inline void MainTabs()
 				ImGui::EndTabItem();
 			}
 		}
+		*/
 
 		if (false && ImGui::BeginTabItem("Gamemode"))
 		{
@@ -1079,11 +1081,6 @@ static inline void MainUI()
 					}
 				}
 			}
-		}
-
-		else if (Tab == PLAYERS_TAB)
-		{
-			
 		}
 
 		else if (Tab == EVENT_TAB)
@@ -1677,6 +1674,180 @@ static inline void PregameUI()
 		ImGui::InputText("Playlist", &PlaylistName);
 }
 
+static inline void TestUI()
+{
+	ImGui::SetCursorScreenPos(ImVec2(0, 1080));
+	ImGui::Begin("Players", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+	if (ImGui::Selectable("Jake (MISSING UMP ACCOUNT DETAILS)"))
+	{
+
+	}
+	ImGui::End();
+
+	ImGui::SetCursorScreenPos(ImVec2(300, 1080));
+	ImGui::Begin("Map", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+	ImGui::End();
+
+	ImGui::SetCursorScreenPos(ImVec2(300, 0));
+	ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+	ImGui::TextColored(ImVec4(1, 0, 0, 1), "No warnings, errors.");
+
+	ImGui::BeginChild("Console Output", ImVec2(0, 150), true);
+	ImGui::Text("[21:15:39] RiftMP - built on Nov 13 2022\n"
+		"[21:15:39] Running on UE 4.26.2-9836822+++UE+Release-4.26\n"
+		"[21:15:39] Waiting for World\n"
+		"[21:16:02] Initializing components\n"
+		"[21:16:13] Listening on port 7777\n"
+		"[21:16:13] Successfully configured GameMode\n"
+		"[21:17:24] jake spawned\n"
+		"[21:17:24] Jake joined the match");
+	ImGui::EndChild();
+
+	static char command[32];
+	ImGui::InputText("", command, IM_ARRAYSIZE(command));
+	ImGui::End();
+
+	ImGui::SetCursorScreenPos(ImVec2(1920, 1080));
+	ImGui::Begin("Match", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+	if (ImGui::TreeNode("Match"))
+	{
+		if (ImGui::TreeNode("Safe Zone"))
+		{
+			ImGui::TreePop();
+		}
+
+		if (ImGui::TreeNode("Level"))
+		{
+			ImGui::TreePop();
+		}
+
+		if (ImGui::TreeNodeEx("Debug & Cheats", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			if (ImGui::Selectable("Build Free", false)) {}
+			if (ImGui::Selectable("Reload Free", false)) {}
+			ImGui::TreePop();
+		}
+	}
+	ImGui::End();
+}
+
+static inline void TheGoodStuff()
+{
+	ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiLayoutType_Horizontal);
+	{
+		ImGui::SetWindowSize(ImVec2(640, 300));
+		ImGui::SetWindowPos(ImVec2(620, 400));
+
+		if (ImGui::Button("Clear"))
+		{
+
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::TreeNodeEx("Info, warnings, errors"))
+		{
+			if (ImGui::Selectable("Info"))
+			{
+				for (int i = 0; i < ConsoleOutputMessages.size(); i++)
+				{
+					auto Message = ConsoleOutputMessages[i];
+
+					if (Message.Severity != ELogLevel::Info)
+					{
+						if (StoredOutputMessages.empty())
+						{
+							StoredOutputMessages.push_back(Message);
+							ConsoleOutputMessages.erase(ConsoleOutputMessages.begin() + i);
+						}
+						else
+						{
+							for (int i = 0; i < StoredOutputMessages.size(); i++)
+							{
+								ConsoleOutputMessages.push_back(Message);
+							}
+
+							StoredOutputMessages.clear();
+						}
+					}
+				}
+			}
+
+			if (ImGui::Selectable("Warnings"))
+			{
+				for (int i = 0; i < ConsoleOutputMessages.size(); i++)
+				{
+					auto Message = ConsoleOutputMessages[i];
+
+					if (Message.Severity != ELogLevel::Warning)
+					{
+						if (StoredOutputMessages.empty())
+						{
+							StoredOutputMessages.push_back(Message);
+							ConsoleOutputMessages.erase(ConsoleOutputMessages.begin() + i);
+						}
+						else
+						{
+							for (int i = 0; i < StoredOutputMessages.size(); i++)
+							{
+								ConsoleOutputMessages.push_back(Message);
+							}
+
+							StoredOutputMessages.clear();
+						}
+					}
+				}
+			}
+
+			if (ImGui::Selectable("Errors"))
+			{
+				for (int i = 0; i < ConsoleOutputMessages.size(); i++)
+				{
+					auto Message = ConsoleOutputMessages[i];
+
+					if (Message.Severity != ELogLevel::Error)
+					{
+						if (StoredOutputMessages.empty())
+						{
+							StoredOutputMessages.push_back(Message);
+							ConsoleOutputMessages.erase(ConsoleOutputMessages.begin() + i);
+						}
+						else
+						{
+							for (int i = 0; i < StoredOutputMessages.size(); i++)
+							{
+								ConsoleOutputMessages.push_back(Message);
+							}
+
+							StoredOutputMessages.clear();
+						}
+					}
+				}
+			}
+		}
+
+		ImGui::SameLine();
+
+		ImGui::Text("Log Levels");
+
+		ImGui::BeginChild("", ImVec2(0, 200), true, ImGuiWindowFlags_HorizontalScrollbar);
+		{
+			for (int i = 0; i < ConsoleOutputMessages.size(); i++)
+			{
+				auto Message = ConsoleOutputMessages[i];
+
+				ImGui::Text(Message.Msg);
+			}
+		}
+		ImGui::EndChild();
+
+		std::string ConsoleCommand;
+
+		ImGui::InputText("Execute a console command...", &ConsoleCommand);
+	}
+	ImGui::End();
+}
+
 static inline HICON LoadIconFromMemory(const char* bytes, int bytes_size, const wchar_t* IconName) {
 	HANDLE hMemory = CreateFileMappingW(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, bytes_size, IconName);
 	if (hMemory == NULL) {
@@ -1796,6 +1967,10 @@ static inline DWORD WINAPI GuiThread(LPVOID)
 		if (!ImGui::IsWindowCollapsed())
 		{
 			ImGui::Begin("Project Reboot 3.0", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+
+			// TestUI();
+
+			// TheGoodStuff();
 
 			Globals::bInitializedPlaylist ? MainUI() : PregameUI();
 

@@ -93,6 +93,20 @@ public:
 class AFortGameStateAthena : public AGameState
 {
 public:
+	bool IsTeleportToCreativeHubAllowed()
+	{
+		static auto IsTeleportToCreativeHubAllowedFn = FindObject<UFunction>("/Script/FortniteGame.FortGameStateAthena.IsTeleportToCreativeHubAllowed");
+
+		struct
+		{
+			bool                               ReturnValue;
+		}params;
+
+		this->ProcessEvent(IsTeleportToCreativeHubAllowedFn, &params);
+
+		return params.ReturnValue;
+	}
+
 	int& GetPlayersLeft()
 	{
 		static auto PlayersLeftOffset = GetOffset("PlayersLeft");

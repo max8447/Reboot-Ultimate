@@ -156,6 +156,12 @@ void AActor::FlushNetDormancy()
 	this->ProcessEvent(fn);
 }
 
+void AActor::SetActorEnableCollision(bool bNewActorEnableCollision)
+{
+	static auto SetActorEnableCollisionFn = FindObject<UFunction>("/Script/Engine.Actor.SetActorEnableCollision");
+	this->ProcessEvent(SetActorEnableCollisionFn, &bNewActorEnableCollision);
+}
+
 bool AActor::TeleportTo(const FVector& DestLocation, const FRotator& DestRotation)
 {
 	static auto fn = FindObject<UFunction>(L"/Script/Engine.Actor.K2_TeleportTo");
