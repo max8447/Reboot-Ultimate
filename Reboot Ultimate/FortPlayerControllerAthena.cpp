@@ -205,7 +205,7 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 					LOG_INFO(LogDev, "[{}] Out2: {} ItemToGive.ItemToDrop: {}", j, Out2, ItemToGive->GetItemToDrop()->IsValidLowLevel() ? ItemToGive->GetItemToDrop()->GetFullName() : "BadRead");
 
 					if (!Out2) // ?
-						continue;
+						Out2 = 0;
 
 					WorldInventory->AddItem(ItemToGive->GetItemToDrop(), nullptr, Out2);
 				}
@@ -379,26 +379,68 @@ void AFortPlayerControllerAthena::ServerTeleportToPlaygroundLobbyIslandHook(AFor
 	if (!Pawn)
 		return;
 
-	// TODO IsTeleportToCreativeHubAllowed
+	auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
 
-	static auto FortPlayerStartCreativeClass = FindObject<UClass>(L"/Script/FortniteGame.FortPlayerStartCreative");
-	auto AllCreativePlayerStarts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortPlayerStartCreativeClass);
+	if (!GameState)
+		return;
 
-	for (int i = 0; i < AllCreativePlayerStarts.Num(); ++i)
+	if (GameState->IsTeleportToCreativeHubAllowed())
 	{
-		auto CurrentPlayerStart = AllCreativePlayerStarts.at(i);
+		LOG_INFO(LogDev, "GameState->IsTeleportToCreativeHubAllowed()!");
 
-		static auto PlayerStartTagsOffset = CurrentPlayerStart->GetOffset("PlayerStartTags");
-		auto bHasSpawnTag = CurrentPlayerStart->Get<FGameplayTagContainer>(PlayerStartTagsOffset).Contains("Playground.LobbyIsland.Spawn");
+		static auto FortPlayerStartCreativeClass = FindObject<UClass>(L"/Script/FortniteGame.FortPlayerStartCreative");
+		auto AllCreativePlayerStarts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FortPlayerStartCreativeClass);
 
-		if (!bHasSpawnTag)
-			continue;
+		for (int i = 0; i < AllCreativePlayerStarts.Num(); ++i)
+		{
+			auto CurrentPlayerStart = AllCreativePlayerStarts.at(i);
 
-		Pawn->TeleportTo(CurrentPlayerStart->GetActorLocation(), Pawn->GetActorRotation());
-		break;
+			static auto PlayerStartTagsOffset = CurrentPlayerStart->GetOffset("PlayerStartTags");
+			auto bHasSpawnTag = CurrentPlayerStart->Get<FGameplayTagContainer>(PlayerStartTagsOffset).Contains("Playground.LobbyIsland.Spawn");
+
+			if (!bHasSpawnTag)
+				continue;
+
+			auto PlayerController = Cast<AFortPlayerControllerAthena>(Pawn->GetController());
+
+			static auto FortEditToolItemDefinitionClass = FindObject<UClass>(L"/Script/FortniteGame.FortEditToolItemDefinition");
+			static auto FortBuildingItemDefinitionClass = FindObject<UClass>(L"/Script/FortniteGame.FortBuildingItemDefinition");
+			const auto& ItemInstances = PlayerController->GetWorldInventory()->GetItemList().GetItemInstances();
+			auto PickaxeInstance = PlayerController->GetWorldInventory()->GetPickaxeInstance();
+			std::vector<std::pair<FGuid, int>> GuidsAndCountsToRemove;
+
+			if (PlayerController->GetWorldInventory())
+			{
+				for (int i = 0; i < ItemInstances.Num(); ++i)
+				{
+					auto ItemInstance = ItemInstances.at(i);
+					const auto ItemDefinition = Cast<UFortWorldItemDefinition>(ItemInstance->GetItemEntry()->GetItemDefinition());
+
+					if (ItemDefinition->CanBeDropped() ||
+						(!ItemDefinition->IsA(FortBuildingItemDefinitionClass) &&
+							!ItemDefinition->IsA(FortEditToolItemDefinitionClass) &&
+							ItemInstance != PickaxeInstance))
+					{
+						GuidsAndCountsToRemove.push_back({ ItemInstance->GetItemEntry()->GetItemGuid(), ItemInstance->GetItemEntry()->GetCount() });
+					}
+				}
+
+				for (auto& [Guid, Count] : GuidsAndCountsToRemove)
+				{
+					PlayerController->GetWorldInventory()->RemoveItem(Guid, nullptr, Count, true);
+				}
+
+				PlayerController->GetWorldInventory()->Update();
+			}
+
+			Pawn->TeleportTo(CurrentPlayerStart->GetActorLocation(), Pawn->GetActorRotation());
+			break;
+		}
+
+		AllCreativePlayerStarts.Free();
+
+		LOG_INFO(LogCreative, "Teleported and freed!");
 	}
-
-	AllCreativePlayerStarts.Free();
 }
 
 void AFortPlayerControllerAthena::ServerAcknowledgePossessionHook(APlayerController* Controller, APawn* Pawn)
@@ -548,7 +590,6 @@ void AFortPlayerControllerAthena::ServerReadyToStartMatchHook(AFortPlayerControl
 
 	return ServerReadyToStartMatchOriginal(PlayerController);
 }
-
 
 void AFortPlayerControllerAthena::UpdateTrackedAttributesHook(AFortPlayerControllerAthena* PlayerController)
 {
