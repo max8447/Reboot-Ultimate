@@ -37,12 +37,12 @@ uint8 AFortGameSessionDedicatedAthena::GetSquadIdForCurrentPlayerHook(AFortGameS
 
 		static auto UniqueIdOffset = PlayerState->GetOffset("UniqueId");
 
-		// if (IsBadReadPtr(PlayerState->GetPtr<FUniqueNetIdRepl>(UniqueIdOffset))) 
-			// continue;
+		if (IsBadReadPtr(PlayerState->GetPtr<FUniqueNetIdRepl>(UniqueIdOffset))) 
+			continue;
 
 		LOG_INFO(LogDev, "PS PlayerState->GetPtr<FUniqueNetIdRepl>(UniqueIdOffset)->GetReplicationBytes().Num(): {}", PlayerState->GetPtr<FUniqueNetIdRepl>(UniqueIdOffset)->GetReplicationBytes().Num());
 
-		if (PlayerState->GetPtr<FUniqueNetIdRepl>(UniqueIdOffset)->IsIdentical(OwnerUniqueId))
+		if (PlayerState->GetPtr<FUniqueNetIdRepl>(UniqueIdOffset)->IsIdentical((FUniqueNetIdRepl*)&UniqueId))
 		{
 			LOG_INFO(LogDev, "Found {}!", PlayerState->GetPlayerName().ToString());
 			return PlayerState->GetTeamIndex() - NumToSubtractFromSquadId;

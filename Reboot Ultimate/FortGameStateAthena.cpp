@@ -345,8 +345,6 @@ void AFortGameStateAthena::OnRep_PlayersLeft()
 
 TeamsArrayContainer* AFortGameStateAthena::GetTeamsArrayContainer()
 {
-	if (true)
-		return nullptr;
 
 	if (Fortnite_Version < 8.0) // I'm pretty sure it got added on 7.40 but idk if it is structured differently.
 		return nullptr;
