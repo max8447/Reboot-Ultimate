@@ -50,8 +50,20 @@ void APlayerState::SetIsBot(bool NewValue)
 	return SetBitfieldValue(bIsABotOffset, bIsABotFieldMask, NewValue);
 }
 
+float& APlayerState::GetScore()
+{
+	static auto ScoreOffset = GetOffset("Score");
+	return Get<float>(ScoreOffset);
+}
+
 void APlayerState::OnRep_PlayerName()
 {
 	static auto OnRep_PlayerNameFn = FindObject<UFunction>("/Script/Engine.PlayerState.OnRep_PlayerName");
 	this->ProcessEvent(OnRep_PlayerNameFn);
+}
+
+void APlayerState::OnRep_Score()
+{
+	static auto fn = FindObject<UFunction>("/Script/Engine.PlayerState.OnRep_Score");
+	this->ProcessEvent(fn);
 }

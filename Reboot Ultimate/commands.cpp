@@ -2009,6 +2009,53 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				return;
 			}
 		}
+		else if (Command == "ballermove")
+		{
+			auto Pawn = Cast<AFortPlayerPawn>(ReceivingController->GetMyFortPawn());
+
+			if (!Pawn)
+			{
+				SendMessageToConsole(PlayerController, L"No pawn found!");
+				return;
+			}
+
+			auto Vehicle = Pawn->GetVehicle();
+
+			if (!Vehicle)
+			{
+				SendMessageToConsole(PlayerController, L"No vehicle found!");
+				return;
+			}
+
+			/*
+			 
+			[02/18/24-02:06:08] LogDev: Rotation: 0.000000, -0.000000, -1.000000
+			[02/18/24-02:06:08] LogDev: Translation: -117158.195312, -113867.359375, 3847.555420
+			[02/18/24-02:06:08] LogDev: LinearVelocity: 1.496917, -0.250735, -0.000311
+			[02/18/24-02:06:08] LogDev: AngularVelocity: 0.000000, 0.000000, 0.000000
+			[02/18/24-02:06:08] LogDev: SyncKey: 53640
+
+			*/
+
+			struct FReplicatedPhysicsPawnState
+			{
+				FQuat Rotation;
+				FVector Translation;
+				FVector LinearVelocity;
+				FVector AngularVelocity;
+				uint16 SyncKey;
+			};
+
+			FReplicatedPhysicsPawnState State{};
+			State.Rotation = FRotator(0.f, -0.f, -1.f).Quaternion();
+			State.Translation = Vehicle->GetActorLocation() + FVector(1000, 1000, 1000);
+			State.LinearVelocity = FVector(200, 250, 300);
+			State.AngularVelocity = FVector(0, 0, 0);
+			State.SyncKey = 53640;
+
+			static auto ServerUpdatePhysicsParamsFn = FindObject<UFunction>("/Script/FortniteGame.FortPhysicsPawn.ServerUpdatePhysicsParams");
+			Vehicle->ProcessEvent(ServerUpdatePhysicsParamsFn, &State);
+		}
 		else if (Command == "setspeed" || Command == "speed")
 		{
 			float Speed = 1.0f;

@@ -12,6 +12,7 @@
 #include "FortAthenaMutator_InventoryOverride.h"
 #include "FortGadgetItemDefinition.h"
 #include "gui.h"
+#include "FortAthenaMutator_GG.h"
 
 void AFortPlayerControllerAthena::StartGhostModeHook(UObject* Context, FFrame* Stack, void* Ret)
 {
@@ -176,7 +177,11 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 	}
 
 	std::vector<std::pair<AFortAthenaMutator*, UFunction*>> FunctionsToCall;
-	LoopMutators([&](AFortAthenaMutator* Mutator) { FunctionsToCall.push_back(std::make_pair(Mutator, Mutator->FindFunction("OnGamePhaseStepChanged"))); });
+	LoopMutators([&](AFortAthenaMutator* Mutator)
+		{
+			FunctionsToCall.push_back(std::make_pair(Mutator, Mutator->FindFunction("OnGamePhaseStepChanged")));
+		}
+	);
 
 	auto HandleGiveItemsAtGamePhaseStepMutator = [&](AFortAthenaMutator* Mutator) {
 		if (auto GiveItemsAtGamePhaseStepMutator = Cast<AFortAthenaMutator_GiveItemsAtGamePhaseStep>(Mutator))
@@ -186,7 +191,7 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 
 			LOG_INFO(LogDev, "PhaseToGiveItems: {} ItemsToGive.Num(): {}", (int)PhaseToGive, ItemsToGive.Num());
 
-			if (PhaseToGive <= 5) // Flying or lower
+			if ((int)PhaseToGive <= 5) // Flying or lower
 			{
 				for (int j = 0; j < ItemsToGive.Num(); j++)
 				{
@@ -215,17 +220,20 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 
 	LoopMutators(HandleGiveItemsAtGamePhaseStepMutator);
 
-	/* if (auto GGMutator = Cast<AFortAthenaMutator_GG>(Mutator))
+	auto HandleGGMutator = [&](AFortAthenaMutator* Mutator)
 	{
-		auto& WeaponEntries = GGMutator->GetWeaponEntries();
-
-		LOG_INFO(LogDev, "[{}] WeaponEntries.Num(): {}", i, WeaponEntries.Num());
-
-		for (int j = 0; j < WeaponEntries.Num(); j++)
+		if (auto GG_Mutator = Cast<AFortAthenaMutator_GG>(Mutator))
 		{
-			WorldInventory->AddItem(WeaponEntries.at(j).Weapon, nullptr, 1);
+			bool bShouldUpdate = false;
+
+			WorldInventory->AddItem(GG_Mutator->GetWeaponEntries()[0].GetWeapon(), &bShouldUpdate, 1, Cast<UFortWeaponItemDefinition>(GG_Mutator->GetWeaponEntries()[0].GetWeapon())->GetClipSize());
+
+			if (bShouldUpdate)
+				WorldInventory->Update();
 		}
-	} */
+	};
+
+	LoopMutators(HandleGGMutator);
 
 	auto PlayerStateAthena = Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState());
 

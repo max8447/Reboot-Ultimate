@@ -90,7 +90,6 @@ enum class EInteractionBeingAttempted : uint8
 	EInteractionBeingAttempted_MAX = 3,
 };
 
-
 class UFortPlayerControllerAthenaXPComponent : public UActorComponent //UFortControllerComponent
 {
 public:

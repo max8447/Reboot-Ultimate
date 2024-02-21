@@ -23,7 +23,7 @@
 #include "KismetSystemLibrary.h"
 #include "gui.h"
 #include "FortAthenaMutator_InventoryOverride.h"
-#include "FortAthenaMutator_TDM.h"
+#include "FortAthenaMutator_GG.h"
 
 void AFortPlayerController::ClientReportDamagedResourceBuilding(ABuildingSMActor* BuildingSMActor, EFortResourceType PotentialResourceType, int PotentialResourceCount, bool bDestroyed, bool bJustHitWeakspot)
 {
@@ -227,6 +227,9 @@ void AFortPlayerController::ServerLoadingScreenDroppedHook(UObject* Context, FFr
 	LOG_INFO(LogDev, "ServerLoadingScreenDroppedHook!");
 
 	auto PlayerController = (AFortPlayerController*)Context;
+	auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+	auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+	auto WorldInventory = PlayerController->GetWorldInventory();
 
 	PlayerController->ApplyCosmeticLoadout();
 
@@ -237,6 +240,20 @@ void AFortPlayerController::ServerLoadingScreenDroppedHook(UObject* Context, FFr
 		XPComponent->IsRegisteredWithQuestManager() = true;
 		XPComponent->OnRep_bRegisteredWithQuestManager();
 	}
+
+	LoopMutators([&](AFortAthenaMutator* Mutator)
+		{
+			if (auto GG_Mutator = Cast<AFortAthenaMutator_GG>(Mutator))
+			{
+				bool bShouldUpdate = false;
+
+				WorldInventory->AddItem(GG_Mutator->GetWeaponEntries()[0].GetWeapon(), &bShouldUpdate, 1, Cast<UFortWeaponItemDefinition>(GG_Mutator->GetWeaponEntries()[0].GetWeapon())->GetClipSize());
+				
+				if (bShouldUpdate)
+					WorldInventory->Update();
+			}
+		}
+	);
 
 	return ServerLoadingScreenDroppedOriginal(Context, Stack, Ret);
 }
@@ -1284,61 +1301,6 @@ void AFortPlayerController::ServerPlayEmoteItemHook(AFortPlayerController* Playe
 	}
 }
 
-uint8 ToDeathCause(const FGameplayTagContainer& TagContainer, bool bWasDBNO = false, AFortPawn* Pawn = nullptr)
-{
-	static auto ToDeathCauseFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerStateAthena.ToDeathCause");
-
-	if (ToDeathCauseFn)
-	{
-		struct
-		{
-			FGameplayTagContainer                       InTags;                                                   // (ConstParm, Parm, OutParm, ReferenceParm, NativeAccessSpecifierPublic)
-			bool                                               bWasDBNO;                                                 // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-			uint8_t                                        ReturnValue;                                              // (Parm, OutParm, ZeroConstructor, ReturnParm, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-		} AFortPlayerStateAthena_ToDeathCause_Params{ TagContainer, bWasDBNO };
-
-		AFortPlayerStateAthena::StaticClass()->ProcessEvent(ToDeathCauseFn, &AFortPlayerStateAthena_ToDeathCause_Params);
-
-		return AFortPlayerStateAthena_ToDeathCause_Params.ReturnValue;
-	}
-
-	static bool bHaveFoundAddress = false;
-
-	static uint64 Addr = 0;
-
-	if (!bHaveFoundAddress)
-	{
-		bHaveFoundAddress = true;
-
-		if (Engine_Version == 419)
-			Addr = Memcury::Scanner::FindPattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 41 0F B6 F8 48 8B DA 48 8B F1 E8 ? ? ? ? 33 ED").Get();
-		if (Engine_Version == 420)
-			Addr = Memcury::Scanner::FindPattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 0F B6 FA 48 8B D9 E8 ? ? ? ? 33 F6 48 89 74 24").Get();
-		if (Engine_Version == 421) // 5.1
-			Addr = Memcury::Scanner::FindPattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 0F B6 FA 48 8B D9 E8 ? ? ? ? 33").Get();
-
-		if (!Addr)
-		{
-			LOG_WARN(LogPlayer, "Failed to find ToDeathCause address!");
-			return 0;
-		}
-	}
-
-	if (!Addr)
-	{
-		return 0;
-	}
-
-	if (Engine_Version == 419)
-	{
-		static uint8(*sub_7FF7AB499410)(AFortPawn* Pawn, FGameplayTagContainer TagContainer, char bWasDBNOIg) = decltype(sub_7FF7AB499410)(Addr);
-		return sub_7FF7AB499410(Pawn, TagContainer, bWasDBNO);
-	}
-
-	static uint8 (*sub_7FF7AB499410)(FGameplayTagContainer TagContainer, char bWasDBNOIg) = decltype(sub_7FF7AB499410)(Addr);
-	return sub_7FF7AB499410(TagContainer, bWasDBNO);
-}
-
 DWORD WINAPI SpectateThread(LPVOID PC)
 {
 	auto PlayerController = (UObject*)PC;
@@ -1381,6 +1343,7 @@ DWORD WINAPI RestartThread(LPVOID)
 
 void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerController, void* DeathReport)
 {
+	auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
 	auto GameState = Cast<AFortGameStateAthena>(((AFortGameMode*)GetWorld()->GetGameMode())->GetGameState());
 	auto DeadPawn = Cast<AFortPlayerPawn>(PlayerController->GetPawn());
 	auto DeadPlayerState = Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState());
@@ -1407,7 +1370,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 		// LOG_INFO(LogDev, "Tags: {}", Tags.ToStringSimple(true));
 
-		DeathCause = ToDeathCause(Tags, false, DeadPawn); // DeadPawn->IsDBNO() ??
+		DeathCause = DeadPlayerState->ToDeathCause(Tags, false, DeadPawn); // DeadPawn->IsDBNO() ??
 
 		FGameplayTagContainer CopyTags;
 
@@ -1461,31 +1424,106 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 		if (KillerPlayerState && KillerPlayerState != DeadPlayerState)
 		{
+			auto KillScore = 0;
+			auto TeamKillScore = 0;
+
 			if (MemberOffsets::FortPlayerStateAthena::KillScore != -1)
+			{
 				KillerPlayerState->Get<int>(MemberOffsets::FortPlayerStateAthena::KillScore)++;
+				KillScore = KillerPlayerState->Get<int>(MemberOffsets::FortPlayerStateAthena::KillScore);
+			}
 
 			if (MemberOffsets::FortPlayerStateAthena::TeamKillScore != -1)
+			{
 				KillerPlayerState->Get<int>(MemberOffsets::FortPlayerStateAthena::TeamKillScore)++;
+				TeamKillScore = KillerPlayerState->Get<int>(MemberOffsets::FortPlayerStateAthena::TeamKillScore);
+			}
 
 			KillerPlayerState->ClientReportKill(DeadPlayerState);
 
-			/* LoopMutators([&](AFortAthenaMutator* Mutator) {
-				if (auto TDM_Mutator = Cast<AFortAthenaMutator_TDM>(Mutator))
+			if (Fortnite_Version >= 6)
+			{
+				if (GameState->GetCurrentPlaylist()->GetWinConditionType() == EAthenaWinCondition::MutatorControlledGoalScore)
 				{
-					struct
-					{
-						int                                                EventId;                                                  // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-						int                                                EventParam1;                                              // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-						int                                                EventParam2;                                              // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-						int                                                EventParam3;                                              // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
-					} AFortAthenaMutator_TDM_OnMutatorGameplayEvent_Params{ 1, 0, 0, 0 }; 
+					static auto TotalPlayerScoreOffset = KillerPlayerState->GetOffset("TotalPlayerScore");
 
-					static auto TDM_OnMutatorGameplayEventFn = FindObject<UFunction>("/Script/FortniteGame.FortAthenaMutator_TDM.OnMutatorGameplayEvent");
-					TDM_Mutator->ProcessEvent(TDM_OnMutatorGameplayEventFn, &AFortAthenaMutator_TDM_OnMutatorGameplayEvent_Params);
+					KillerPlayerState->GetScore() = KillScore;
+					KillerPlayerState->GetTeamScore() = TeamKillScore;
+					KillerPlayerState->GetTeamScorePlacement() = 1;
+					KillerPlayerState->GetOldTotalScoreStat() = KillScore;
+					KillerPlayerState->GetTotalPlayerScore() = KillScore;
+
+					GameState->GetCurrentHighScoreTeam() = 3;
+					GameState->GetCurrentHighScore() = KillScore;
+					GameState->OnRep_CurrentHighScore();
+					GameState->GetWinningScore() = KillScore;
+					GameState->GetWinningTeam() = 3;
+					GameState->OnRep_WinningTeam();
+					GameState->OnRep_WinningScore();
+					KillerPlayerState->OnRep_Score();
+					KillerPlayerState->OnRep_TeamScore();
+					KillerPlayerState->OnRep_TeamScorePlacement();
+					KillerPlayerState->OnRep_TotalPlayerScore();
+					KillerPlayerState->UpdateScoreStatChanged();
 				}
-				}); */
+			}
 
-			// KillerPlayerState->OnRep_Kills();
+			LoopMutators([&](AFortAthenaMutator* Mutator)
+				{
+					if (auto GG_Mutator = Cast<AFortAthenaMutator_GG>(Mutator))
+					{
+						auto WorldInventory = Cast<AFortPlayerControllerAthena>(KillerPawn->GetController())->GetWorldInventory();
+						// auto WeaponEntries = GG_Mutator->GetWeaponEntries();
+						// auto WeaponToGive = WeaponEntries.at(KillScore).GetWeapon();
+						// auto WeaponToRemove = WeaponEntries.at(KillScore - 1).GetWeapon();
+						auto ItemsToFullyLoad = GameState->GetCurrentPlaylist()->GetItemsToFullyLoad();
+						auto WeaponToGive = ItemsToFullyLoad.at(KillScore);
+						auto WeaponToRemove = ItemsToFullyLoad.at(KillScore - 1);
+						auto InstanceToRemove = WorldInventory->FindItemInstance(WeaponToRemove);
+
+						bool bShouldUpdate = false;
+						
+						if (ItemsToFullyLoad.Num() > KillScore)
+						{
+							if (WeaponToRemove && InstanceToRemove)
+								WorldInventory->RemoveItem(InstanceToRemove->GetItemEntry()->GetItemGuid(), &bShouldUpdate, InstanceToRemove->GetItemEntry()->GetCount(), true);
+
+							if (WeaponToGive)
+								WorldInventory->AddItem(WeaponToGive, &bShouldUpdate, 1, Cast<UFortWeaponItemDefinition>(WeaponToGive)->GetClipSize());
+
+							if (bShouldUpdate)
+								WorldInventory->Update();
+						}
+
+						if (KillScore == GG_Mutator->GetScoreToWin())
+						{
+							KillerPlayerState->GetPlace() = 1;
+							KillerPlayerState->OnRep_Place();
+
+							for (int i = 0; i < GameMode->GetAlivePlayers().Num(); i++)
+							{
+								AFortPlayerStateAthena* PlayerState = ((AFortPlayerStateAthena*)GameMode->GetAlivePlayers()[i]->GetPlayerState());
+								int PlayerKills = PlayerState->Get<int>(MemberOffsets::FortPlayerStateAthena::KillScore);
+
+								if (GameMode->GetAlivePlayers()[i] != (AFortPlayerControllerAthena*)KillerPlayerState->GetOwner())
+								{
+									PlayerState->GetPlace() = PlayerKills;
+									PlayerState->OnRep_Place();
+								}
+							}
+
+							GameState->GetWinningPlayerState() = KillerPlayerState;
+							GameState->GetWinningScore() = 1;
+							GameState->GetWinningTeam() = KillerPlayerState->GetTeamIndex();
+
+							GameState->OnRep_WinningPlayerState();
+							GameState->OnRep_WinningScore();
+							GameState->OnRep_WinningTeam();
+							GameMode->EndMatch();
+						}
+					}
+				}
+			);
 		}
 
 		// LOG_INFO(LogDev, "Reported kill.");
@@ -1653,29 +1691,71 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 					// FAthenaMatchStats.Stats[ERewardSource] // hmm
 
-					/*
-
 					// We need to check if their entire team is dead then I think we send it????
 
 					auto DeadControllerAthena = Cast<AFortPlayerControllerAthena>(PlayerController);
+					// auto KillerControllerAthena = Cast<AFortPlayerControllerAthena>(KillerPlayerState->GetOwner());
 
-					if (DeadControllerAthena && FAthenaMatchTeamStats::GetStruct())
+					if (FAthenaMatchTeamStats::GetStruct()/* && FAthenaMatchStats::GetStruct()*/)
 					{
-						auto MatchReport = DeadControllerAthena->GetMatchReport();
-
-						LOG_INFO(LogDev, "MatchReport: {}", __int64(MatchReport));
-
-						if (MatchReport)
+						if (DeadControllerAthena && !DeadPlayerState->IsBot())
 						{
-							MatchReport->GetTeamStats()->GetPlace() = DeadPlayerState->GetPlace();
-							MatchReport->GetTeamStats()->GetTotalPlayers() = AmountOfPlayersWhenBusStart; // hmm
-							MatchReport->HasTeamStats() = true;
+							auto MatchReport = DeadControllerAthena->GetMatchReport();
 
-							DeadControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
+							LOG_INFO(LogDev, "MatchReport: {}", __int64(MatchReport));
+
+							if (MatchReport)
+							{
+								MatchReport->GetTeamStats()->GetPlace() = DeadPlayerState->GetPlace();
+								MatchReport->GetTeamStats()->GetTotalPlayers() = AmountOfPlayersWhenBusStart; // hmm
+								MatchReport->HasTeamStats() = true;
+
+								DeadControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
+							}
+
+							/*
+
+							FAthenaMatchStats Stats;
+
+							for (size_t i = 0; i < 20; i++)
+							{
+								Stats.Stats[i] = i;
+							}
+
+							DeadControllerAthena->ClientSendMatchStatsForPlayer(&Stats);
+
+							*/
 						}
-					}
 
-					*/
+						/*
+
+						if (KillerControllerAthena && !KillerPlayerState->IsBot())
+						{
+							auto MatchReport = KillerControllerAthena->GetMatchReport();
+
+							LOG_INFO(LogDev, "MatchReport: {}", __int64(MatchReport));
+
+							if (MatchReport)
+							{
+								MatchReport->GetTeamStats()->GetPlace() = KillerPlayerState->GetPlace();
+								MatchReport->GetTeamStats()->GetTotalPlayers() = AmountOfPlayersWhenBusStart; // hmm
+								MatchReport->HasTeamStats() = true;
+
+								KillerControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
+							}
+
+							FAthenaMatchStats Stats;
+
+							for (size_t i = 0; i < 20; i++)
+							{
+								Stats.Stats[i] = i;
+							}
+
+							KillerControllerAthena->ClientSendMatchStatsForPlayer(&Stats);
+						}
+
+						*/
+					}
 
 					LOG_INFO(LogDev, "Removed!");
 				}

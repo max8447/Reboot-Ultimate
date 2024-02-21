@@ -52,6 +52,12 @@ struct FGunGamePlayerData
 class AFortAthenaMutator_GG : public AFortAthenaMutator
 {
 public:
+	int GetScoreToWin()
+	{
+		static auto ScoreToWinOffset = GetOffset("ScoreToWin");
+		return Get<int>(ScoreToWinOffset);
+	}
+
 	TArray<FGunGameGunEntry>& GetWeaponEntries()
 	{
 		static auto WeaponEntriesOffset = GetOffset("WeaponEntries");

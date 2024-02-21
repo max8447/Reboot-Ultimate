@@ -131,6 +131,131 @@ struct FGhostModeRepData
 	}
 };
 
+enum class ESubGame : uint8
+{
+	Campaign = 0,
+	Athena = 1,
+	Invalid = 2,
+	Count = 2,
+	ESubGame_MAX = 3,
+};
+
+class UFortQuestItem : public UFortItem // UFortAccountItem
+{
+public:
+	bool HasCompletedObjectiveWithName(FName BackendName)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestItem.HasCompletedObjectiveWithName");
+
+		struct
+		{
+			FName BackendName;
+			bool ReturnValue;
+		}params{ BackendName };
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
+	}
+
+	int32 GetNumObjectivesComplete()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestItem.GetNumObjectivesComplete");
+
+		struct
+		{
+			int32 ReturnValue;
+		}params;
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
+	}
+
+	float GetPercentageComplete()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestItem.GetPercentageComplete");
+
+		struct
+		{
+			float ReturnValue;
+		}params;
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
+	}
+};
+
+class UFortQuestItemDefinition : public UFortItemDefinition // UFortAccountItemDefinition
+{
+public:
+};
+
+class UFortQuestManager : public UObject
+{
+public:
+	UFortQuestItem* GetQuestWithDefinition(UFortQuestItemDefinition* Definition)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestManager.GetQuestWithDefinition");
+
+		struct
+		{
+			UFortQuestItemDefinition* Definition;
+			UFortQuestItem* ReturnValue;
+		}params{ Definition };
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
+	}
+
+	void SelfCompletedUpdatedQuest(AFortPlayerController* QuestOwner, UFortQuestItemDefinition* QuestDef, FName BackendName, int32 CompletionCount, int32 DeltaChange, AFortPlayerState* AssistingPlayer, bool ObjectiveCompleted, bool QuestCompleted)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestManager.SelfCompletedUpdatedQuest");
+
+		struct
+		{
+			AFortPlayerController* QuestOwner;
+			UFortQuestItemDefinition* QuestDef;
+			FName							   BackendName;
+			int32                              CompletionCount;
+			int32                              DeltaChange;
+			AFortPlayerState* AssistingPlayer;
+			bool                               ObjectiveCompleted;
+			bool                               QuestCompleted;
+		}params{ QuestOwner , QuestDef , BackendName , CompletionCount , DeltaChange , AssistingPlayer , ObjectiveCompleted , QuestCompleted };
+
+		this->ProcessEvent(fn, &params);
+	}
+
+	void ClaimQuestReward(UFortQuestItem* Quest)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestManager.ClaimQuestReward");
+		this->ProcessEvent(fn, nullptr);
+	}
+
+	void SendComplexCustomStatEvent(UObject* TargetObject, const FGameplayTagContainer& AdditionalSourceTags, const FGameplayTagContainer& TargetTags, bool* QuestActive, bool* QuestCompleted, int32 Count)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortQuestManager.SendComplexCustomStatEvent");
+
+		struct
+		{
+			UObject* TargetObject;
+			FGameplayTagContainer AdditionalSourceTags;
+			FGameplayTagContainer TargetTags;
+			bool QuestActive;
+			bool QuestCompleted;
+			int32 Count;
+		}params{ TargetObject , AdditionalSourceTags , TargetTags , Count };
+
+		this->ProcessEvent(fn, &params);
+
+		*QuestActive = params.QuestActive;
+		*QuestCompleted = params.QuestCompleted;
+	}
+};
+
 class AFortPlayerControllerAthena : public AFortPlayerController
 {
 public:
@@ -140,6 +265,21 @@ public:
 	static inline void (*EnterAircraftOriginal)(UObject* PC, AActor* Aircraft);
 	static inline void (*StartGhostModeOriginal)(UObject* Context, FFrame* Stack, void* Ret);
 	static inline void (*EndGhostModeOriginal)(AFortPlayerControllerAthena* PlayerController);
+
+	UFortQuestManager* GetQuestManager(ESubGame SubGame)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerController.GetQuestManager");
+
+		struct
+		{
+			ESubGame SubGame;
+			UFortQuestManager* ReturnValue;
+		}params{ SubGame };
+
+		this->ProcessEvent(fn, &params);
+
+		return params.ReturnValue;
+	}
 
 	void SpectateOnDeath() // actually in zone
 	{
@@ -224,6 +364,21 @@ public:
 		this->ProcessEvent(ClientSendTeamStatsForPlayerFn, Params);
 
 		free(Params);
+	}
+
+	void ClientSendMatchStatsForPlayer(FAthenaMatchStats* Stats)
+	{
+		static auto ClientSendMatchStatsForPlayerFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthena.ClientSendMatchStatsForPlayer");
+		static auto ParamSize = ClientSendMatchStatsForPlayerFn->GetPropertiesSize();
+		auto Params = malloc(ParamSize);
+
+		memcpy_s(Params, ParamSize, Stats, Stats->GetStructSize());
+
+		this->ProcessEvent(ClientSendMatchStatsForPlayerFn, Params/*Stats*/);
+
+		return;
+
+		// free(Params);
 	}
 
 	void RespawnPlayerAfterDeath(bool bEnterSkydiving)

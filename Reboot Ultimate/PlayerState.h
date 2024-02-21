@@ -12,5 +12,7 @@ public:
 	int& GetPlayerID(); // for future me to deal with (this is a short on some versions).
 	bool IsBot();
 	void SetIsBot(bool NewValue);
+	float& GetScore();
 	void OnRep_PlayerName();
+	void OnRep_Score();
 };

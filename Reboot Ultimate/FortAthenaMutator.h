@@ -24,6 +24,8 @@ static inline void LoopMutators(std::function<void(AFortAthenaMutator*)> Callbac
 {
 	auto AllMutators = UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFortAthenaMutator::StaticClass());
 
+	LOG_INFO(LogDev, "AllMutators.Num(): {}", AllMutators.Num());
+
 	for (int i = 0; i < AllMutators.Num(); i++)
 	{
 		Callback((AFortAthenaMutator*)AllMutators.at(i));

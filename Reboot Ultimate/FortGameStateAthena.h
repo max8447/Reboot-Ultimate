@@ -107,6 +107,57 @@ public:
 		return params.ReturnValue;
 	}
 
+	int& GetCurrentHighScoreTeam()
+	{
+		static auto CurrentHighScoreTeamOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "CurrentHighScoreTeam");
+		return *(int*)(__int64(this) + CurrentHighScoreTeamOffset);
+	}
+
+	int& GetCurrentHighScore()
+	{
+		static auto CurrentHighScoreOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "CurrentHighScore");
+		return *(int*)(__int64(this) + CurrentHighScoreOffset);
+	}
+
+	APlayerState*& GetWinningPlayerState()
+	{
+		static auto WinningPlayerStateOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "WinningPlayerState");
+		return *(APlayerState**)(__int64(this) + WinningPlayerStateOffset);
+	}
+
+	int& GetWinningScore()
+	{
+		static auto WinningScoreOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "WinningScore");
+		return *(int*)(__int64(this) + WinningScoreOffset);
+	}
+
+	int& GetWinningTeam()
+	{
+		static auto WinningTeamOffset = FindOffsetStruct("/Script/FortniteGame.FortGameStateAthena", "WinningTeam");
+		return *(int*)(__int64(this) + WinningTeamOffset);
+	}
+
+	void OnRep_CurrentHighScore()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortGameStateAthena.OnRep_CurrentHighScore");
+		if (fn)
+			this->ProcessEvent(fn, nullptr);
+	}
+
+	void OnRep_WinningTeam()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortGameStateAthena.OnRep_WinningTeam");
+		if (fn)
+			this->ProcessEvent(fn, nullptr);
+	}
+
+	void OnRep_WinningScore()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortGameStateAthena.OnRep_WinningScore");
+		if (fn)
+			this->ProcessEvent(fn, nullptr);
+	}
+
 	int& GetPlayersLeft()
 	{
 		static auto PlayersLeftOffset = GetOffset("PlayersLeft");
@@ -155,6 +206,12 @@ public:
 		struct { AFortPlayerPawn* PlayerPawn; bool Ret; } Params{PlayerPawn};
 		this->ProcessEvent(IsResurrectionEnabledFn, &Params);
 		return Params.Ret;
+	}
+
+	void OnRep_WinningPlayerState()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortGameStateAthena.OnRep_WinningPlayerState");
+		this->ProcessEvent(fn);
 	}
 
 	EAthenaGamePhaseStep& GetGamePhaseStep()

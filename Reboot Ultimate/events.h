@@ -186,6 +186,30 @@ static inline std::vector<Event> Events =
 	),
 	Event
 	(
+		"The ERA Festival",
+		"",
+		"",
+		0,
+		{
+		},
+		{
+			{
+				{
+					false,
+					"/Game/fortmp/content_complex/domino/blueprints/domino_scripting.domino_scripting_C.StartEvent"
+				},
+
+				0
+			}
+		},
+
+		"/Game/fortmp/content_complex/domino/blueprints/domino_scripting.domino_scripting_C",
+		"/Game/Athena/Playlists/Music/Playlist_Music_High.Playlist_Music_High",
+		7.40,
+		false
+	),
+	Event
+	(
 		"The Unvaulting",
 		"/Game/Athena/Prototype/Blueprints/White/BP_SnowScripting.BP_SnowScripting_C",
 		"/Game/Athena/Prototype/Blueprints/White/BP_SnowScripting.BP_SnowScripting_C.LoadSnowLevel",
@@ -236,7 +260,7 @@ static inline std::vector<Event> Events =
 		"/Game/Athena/Playlists/Music/Playlist_Music_High.Playlist_Music_High",
 		9.41,
 		false
-		),
+	),
 	Event
 	(
 		"Astronomical", 

@@ -274,13 +274,14 @@ APawn* AGameModeBase::SpawnDefaultPawnForHook(AGameModeBase* GameMode, AControll
 		// NewPlayerAsAthena->RespawnPlayerAfterDeath(true);
 	}
 
-    static bool bFirst = true;
+    static bool bFirst = false;
 
-	if (bFirst && Calendar::HasSnowModification() && !Fortnite_Version >= 19)
+	if (!bFirst && Calendar::HasSnowModification() && Fortnite_Version < 19)
 	{
-		bFirst = false;
+		bFirst = true;
 		Calendar::SetSnow(100);
 	}
+
 	// LOG_INFO(LogDev, "Finish SpawnDefaultPawnFor!");
 
 	return NewPawn;

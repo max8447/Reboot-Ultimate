@@ -1,5 +1,11 @@
 #include "FortPlayerState.h"
 
+void AFortPlayerState::UpdateScoreStatChanged()
+{
+	static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerState.UpdateScoreStatChanged");
+	this->ProcessEvent(fn);
+}
+
 void AFortPlayerState::EndDBNOAbilities()
 {
 	static auto GAB_AthenaDBNOClass = FindObject<UClass>(L"/Game/Abilities/NPC/Generic/GAB_AthenaDBNO.Default__GAB_AthenaDBNO_C");

@@ -26,6 +26,19 @@ struct FAthenaMatchTeamStats
 	}
 };
 
+struct FAthenaMatchStats
+{
+	static UStruct* GetStruct()
+	{
+		static auto Struct = FindObject<UStruct>(L"/Script/FortniteGame.AthenaMatchStats");
+		return Struct;
+	}
+
+	static auto GetStructSize() { return GetStruct()->GetPropertiesSize(); }
+
+	int32 Stats[0x14];
+};
+
 class UAthenaPlayerMatchReport : public UObject
 {
 public:

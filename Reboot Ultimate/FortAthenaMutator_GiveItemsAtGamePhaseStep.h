@@ -35,10 +35,10 @@ class AFortAthenaMutator_GiveItemsAtGamePhaseStep : public AFortAthenaMutator
 public:
 	static inline void (*OnGamePhaseStepChangedOriginal)(UObject* Context, FFrame& Stack, void* Ret);
 
-	uint8_t& GetPhaseToGiveItems()
+	EAthenaGamePhaseStep& GetPhaseToGiveItems()
 	{
 		static auto PhaseToGiveItemsOffset = GetOffset("PhaseToGiveItems");
-		return Get<uint8_t>(PhaseToGiveItemsOffset);
+		return Get<EAthenaGamePhaseStep>(PhaseToGiveItemsOffset);
 	}
 
 	TArray<FItemsToGive>& GetItemsToGive()

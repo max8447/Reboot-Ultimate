@@ -2,6 +2,8 @@
 
 #include "FortPlayerState.h"
 #include "Stack.h"
+#include "GameplayTagContainer.h"
+#include "FortPawn.h"
 
 struct FFortRespawnData
 {
@@ -102,6 +104,85 @@ public:
 		return Get<bool>(bResurrectingNowOffset);
 	}
 
+	int& GetTeamScore()
+	{
+		static auto TeamScoreOffset = GetOffset("TeamScore");
+		return Get<int>(TeamScoreOffset);
+	}
+
+	int& GetTeamScorePlacement()
+	{
+		static auto TeamScorePlacementOffset = GetOffset("TeamScorePlacement");
+		return Get<int>(TeamScorePlacementOffset);
+	}
+
+	int& GetOldTotalScoreStat()
+	{
+		static auto OldTotalScoreStatOffset = GetOffset("OldTotalScoreStat");
+		return Get<int>(OldTotalScoreStatOffset);
+	}
+
+	int& GetTotalPlayerScore()
+	{
+		static auto TotalPlayerScoreOffset = GetOffset("TotalPlayerScore");
+		return Get<int>(TotalPlayerScoreOffset);
+	}
+
+	uint8 ToDeathCause(const FGameplayTagContainer& TagContainer, bool bWasDBNO = false, AFortPawn* Pawn = nullptr)
+	{
+		static auto ToDeathCauseFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerStateAthena.ToDeathCause");
+
+		if (ToDeathCauseFn)
+		{
+			struct
+			{
+				FGameplayTagContainer                       InTags;                                                   // (ConstParm, Parm, OutParm, ReferenceParm, NativeAccessSpecifierPublic)
+				bool                                               bWasDBNO;                                                 // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+				uint8_t                                        ReturnValue;                                              // (Parm, OutParm, ZeroConstructor, ReturnParm, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+			} AFortPlayerStateAthena_ToDeathCause_Params{ TagContainer, bWasDBNO };
+
+			this->ProcessEvent(ToDeathCauseFn, &AFortPlayerStateAthena_ToDeathCause_Params);
+
+			return AFortPlayerStateAthena_ToDeathCause_Params.ReturnValue;
+		}
+
+		static bool bHaveFoundAddress = false;
+
+		static uint64 Addr = 0;
+
+		if (!bHaveFoundAddress)
+		{
+			bHaveFoundAddress = true;
+
+			if (Engine_Version == 419)
+				Addr = Memcury::Scanner::FindPattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 41 0F B6 F8 48 8B DA 48 8B F1 E8 ? ? ? ? 33 ED").Get();
+			if (Engine_Version == 420)
+				Addr = Memcury::Scanner::FindPattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 0F B6 FA 48 8B D9 E8 ? ? ? ? 33 F6 48 89 74 24").Get();
+			if (Engine_Version == 421) // 5.1
+				Addr = Memcury::Scanner::FindPattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 0F B6 FA 48 8B D9 E8 ? ? ? ? 33").Get();
+
+			if (!Addr)
+			{
+				LOG_WARN(LogPlayer, "Failed to find ToDeathCause address!");
+				return 0;
+			}
+		}
+
+		if (!Addr)
+		{
+			return 0;
+		}
+
+		if (Engine_Version == 419)
+		{
+			static uint8(*sub_7FF7AB499410)(AFortPawn * Pawn, FGameplayTagContainer TagContainer, char bWasDBNOIg) = decltype(sub_7FF7AB499410)(Addr);
+			return sub_7FF7AB499410(Pawn, TagContainer, bWasDBNO);
+		}
+
+		static uint8(*sub_7FF7AB499410)(FGameplayTagContainer TagContainer, char bWasDBNOIg) = decltype(sub_7FF7AB499410)(Addr);
+		return sub_7FF7AB499410(TagContainer, bWasDBNO);
+	}
+
 	void ClientReportKill(AFortPlayerStateAthena* Player)
 	{
 		static auto ClientReportKillFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerStateAthena.ClientReportKill");
@@ -116,6 +197,30 @@ public:
 		{
 			this->ProcessEvent(OnRep_DeathInfoFn);
 		}
+	}
+
+	void OnRep_TeamScore()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerStateAthena.OnRep_TeamScore");
+		this->ProcessEvent(fn);
+	}
+
+	void OnRep_TeamScorePlacement()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerStateAthena.OnRep_TeamScorePlacement");
+		this->ProcessEvent(fn);
+	}
+
+	void OnRep_TotalPlayerScore()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerStateAthena.OnRep_TotalPlayerScore");
+		this->ProcessEvent(fn);
+	}
+
+	void OnRep_Place()
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerStateAthena.OnRep_Place");
+		this->ProcessEvent(fn);
 	}
 
 	FDeathInfo* GetDeathInfo()

@@ -1241,20 +1241,29 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 			float Duration = AutoBusStartSeconds;
 			float EarlyDuration = Duration;
 
-			float TimeSeconds = UGameplayStatics::GetTimeSeconds(GetWorld());
+			AutoBusStartSecondsThatChanges = Duration;
 
-			static auto WarmupCountdownEndTimeOffset = GameState->GetOffset("WarmupCountdownEndTime");
-			static auto WarmupCountdownStartTimeOffset = GameState->GetOffset("WarmupCountdownStartTime");
-			static auto WarmupCountdownDurationOffset = GameMode->GetOffset("WarmupCountdownDuration");
-			static auto WarmupEarlyCountdownDurationOffset = GameMode->GetOffset("WarmupEarlyCountdownDuration");
+			if (Globals::bLateGame.load())
+			{
+				CreateThread(0, 0, LateGameThread, 0, 0, 0);
+			}
+			else
+			{
+				float TimeSeconds = UGameplayStatics::GetTimeSeconds(GetWorld());
 
-			GameState->Get<float>(WarmupCountdownEndTimeOffset) = TimeSeconds + Duration;
-			GameMode->Get<float>(WarmupCountdownDurationOffset) = Duration;
+				static auto WarmupCountdownEndTimeOffset = GameState->GetOffset("WarmupCountdownEndTime");
+				static auto WarmupCountdownStartTimeOffset = GameState->GetOffset("WarmupCountdownStartTime");
+				static auto WarmupCountdownDurationOffset = GameMode->GetOffset("WarmupCountdownDuration");
+				static auto WarmupEarlyCountdownDurationOffset = GameMode->GetOffset("WarmupEarlyCountdownDuration");
 
-			GameState->Get<float>(WarmupCountdownStartTimeOffset) = TimeSeconds;
-			GameMode->Get<float>(WarmupEarlyCountdownDurationOffset) = EarlyDuration;
+				GameState->Get<float>(WarmupCountdownEndTimeOffset) = TimeSeconds + Duration;
+				GameMode->Get<float>(WarmupCountdownDurationOffset) = Duration;
 
-			LOG_INFO(LogDev, "Auto starting bus in {}.", AutoBusStartSeconds);
+				GameState->Get<float>(WarmupCountdownStartTimeOffset) = TimeSeconds;
+				GameMode->Get<float>(WarmupEarlyCountdownDurationOffset) = EarlyDuration;
+
+				LOG_INFO(LogDev, "Auto starting bus in {}.", AutoBusStartSeconds);
+			}
 		}
 	}
 

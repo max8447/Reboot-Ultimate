@@ -36,6 +36,25 @@ static inline void ServerVehicleUpdate(UObject* Context, FFrame& Stack, void* Re
 
 	static auto RotationOffset = FindOffsetStruct(StateStructName, "Rotation");
 	static auto TranslationOffset = FindOffsetStruct(StateStructName, "Translation");
+	static auto LinearVelOffset = FindOffsetStruct(StateStructName, "LinearVelocity");
+	static auto AngularVelOffset = FindOffsetStruct(StateStructName, "AngularVelocity");
+	static auto SyncKeyOffset = FindOffsetStruct(StateStructName, "SyncKey");
+
+	auto Rot = (FQuat*)(__int64(State) + RotationOffset);
+	auto Transloc = (FVector*)(__int64(State) + TranslationOffset);
+	auto LinearVel = (FVector*)(__int64(State) + LinearVelOffset);
+	auto AngularVel = (FVector*)(__int64(State) + AngularVelOffset);
+	auto SyncKey = (uint16)(__int64(State) + SyncKeyOffset);
+
+	/*
+
+	LOG_INFO(LogDev, "Rotation: {}", Rot->Rotator().Vector().ToString().ToString());
+	LOG_INFO(LogDev, "Translation: {}", Transloc->ToString().ToString());
+	LOG_INFO(LogDev, "LinearVelocity: {}", LinearVel->ToString().ToString());
+	LOG_INFO(LogDev, "AngularVelocity: {}", AngularVel->ToString().ToString());
+	LOG_INFO(LogDev, "SyncKey: {}", SyncKey);
+
+	*/
 
 	if (Engine_Version >= 420 && Engine_Version <= 425) // S4-S12
 	{
