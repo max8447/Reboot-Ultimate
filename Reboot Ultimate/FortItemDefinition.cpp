@@ -53,3 +53,11 @@ float UFortItemDefinition::GetMaxStackSize()
 
     return Curve->GetKeys().at(0).Value;
 }
+
+EFortItemType UFortItemDefinition::GetItemType()
+{
+	static auto GetItemTypeFn = FindObject<UFunction>("/Script/FortniteGame.FortItemDefinition.GetItemType");
+	EFortItemType ReturnValue;
+	this->ProcessEvent(GetItemTypeFn, &ReturnValue);
+	return ReturnValue;
+}

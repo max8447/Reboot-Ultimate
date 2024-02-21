@@ -17,6 +17,8 @@ namespace Globals
 	extern inline bool bInfiniteMaterials = true;
 	extern inline bool bInfiniteAmmo = true;
 
+	extern inline bool bCustomLootpool = false;
+
 	extern inline bool bHitReadyToStartMatch = false;
 	extern inline bool bInitializedPlaylist = false;
 	extern inline bool bStartedListening = false;

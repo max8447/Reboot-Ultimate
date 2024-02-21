@@ -135,6 +135,14 @@ struct LootDrop
 	}
 };
 
+struct ItemRow
+{
+	UFortItemDefinition* Definition;
+	int DropCount;
+	float Weight;
+	int LoadedAmmo = 0;
+};
+
 static inline float RandomFloatForLoot(float AllWeightsSum)
 {
 	return (rand() * 0.000030518509f) * AllWeightsSum;

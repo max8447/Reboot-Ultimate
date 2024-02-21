@@ -130,6 +130,14 @@ public:
 		return ReadBitfieldValue(bForceFocusWhenAddedOffset, bForceFocusWhenAddedFieldMask);
 	}
 
+	UFortWorldItemDefinition* GetAmmoWorldItemDefinition_BP()
+	{
+		static auto GetAmmoWorldItemDefinition_BPFn = FindObject<UFunction>("/Script/FortniteGame.FortWorldItemDefinition.GetAmmoWorldItemDefinition_BP");
+		UFortWorldItemDefinition* ReturnValue;
+		this->ProcessEvent(GetAmmoWorldItemDefinition_BPFn, ReturnValue);
+		return ReturnValue;
+	}
+
 	static UClass* StaticClass()
 	{
 		static auto Class = FindObject<UClass>(L"/Script/FortniteGame.FortWorldItemDefinition");

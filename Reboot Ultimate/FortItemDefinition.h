@@ -3,6 +3,7 @@
 #include "FortItem.h"
 #include "Object.h"
 #include "Class.h"
+#include "BuildingContainer.h"
 
 #include "reboot.h"
 
@@ -11,6 +12,7 @@ class UFortItemDefinition : public UObject
 public:
 	UFortItem* CreateTemporaryItemInstanceBP(int Count, int Level = 1); // Should Level be 20?
 	float GetMaxStackSize();
+	EFortItemType GetItemType();
 
 	bool DoesAllowMultipleStacks()
 	{

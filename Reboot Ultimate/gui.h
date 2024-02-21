@@ -21,6 +21,7 @@
 #include <set>
 #include <fstream>
 #include <olectl.h>
+#include <json.hpp>
 
 #include "objectviewer.h"
 #include "FortAthenaMutator_Disco.h"
@@ -66,6 +67,8 @@
 #define LOADOUT_PLAYERTAB 4
 #define FUN_PLAYERTAB 5
 
+using json = nlohmann::json;
+
 static inline float DefaultCannonMultiplier = 1.f;
 
 extern inline int StartReverseZonePhase = 7;
@@ -99,6 +102,7 @@ extern inline bool bEnableCannonAnimations = true;
 extern inline float* CannonXMultiplier = &DefaultCannonMultiplier;
 extern inline float* CannonYMultiplier = &DefaultCannonMultiplier;
 extern inline float* CannonZMultiplier = &DefaultCannonMultiplier;
+extern inline std::map<std::string, std::vector<ItemRow>> CustomLootpoolMap{};
 
 // THE BASE CODE IS FROM IMGUI GITHUB
 
@@ -599,13 +603,13 @@ static inline void MainTabs()
 		}
 #endif
 
-		/* if (ImGui::BeginTabItem(("Settings")))
+		if (ImGui::BeginTabItem(("Settings")))
 		{
 			Tab = SETTINGS_TAB;
 			PlayerTab = -1;
 			bInformationTab = false;
 			ImGui::EndTabItem();
-		} */
+		}
 
 		// maybe a Replication Stats for >3.3?
 
@@ -1650,7 +1654,63 @@ static inline void MainUI()
 		}
 		else if (Tab == SETTINGS_TAB)
 		{
-			// ImGui::Checkbox("Use custom lootpool (from Win64/lootpool.txt)", &Defines::bCustomLootpool);
+			if (ImGui::Checkbox("Use custom lootpool", &Globals::bCustomLootpool))
+			{
+				char Path[MAX_PATH];
+				GetModuleFileNameA(NULL, Path, MAX_PATH);
+				std::string::size_type Position = std::string(Path).find_last_of("\\/");
+				std::string Directory = std::string(Path).substr(0, Position);
+				std::string LootPoolFilePath = Directory + "\\lootpool.json";
+
+				std::ifstream LootpoolFile(LootPoolFilePath);
+
+				json JsonData = json::parse(LootpoolFile);
+
+				std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::pair<std::string, std::vector<std::string>>>>> AllItemRows;
+
+				for (const auto& JsonItem : JsonData)
+				{
+					std::string Definition = JsonItem["Definition"].get<std::string>();
+					std::string DropCount = JsonItem["DropCount"].get<std::string>();
+					std::string LoadedAmmo = JsonItem["LoadedAmmo"].get<std::string>();
+					std::string Weight = JsonItem["Weight"].get<std::string>();
+					std::vector<std::string> LootTiers;
+
+					for (const auto& LootTier : JsonItem)
+					{
+						if (LootTier.is_array())
+						{
+							for (const auto& String : LootTier)
+								LootTiers.push_back(String.get<std::string>());
+						}
+					}
+				}
+
+				ItemRow ItemRow{};
+
+				for (int i = 0; i < AllItemRows.size(); i++)
+				{
+					auto CurrentItemRow = AllItemRows.at(i);
+
+					UFortItemDefinition* Definition = FindObject<UFortItemDefinition>(CurrentItemRow.first.first);
+					int DropCount = std::stoi(CurrentItemRow.first.second);
+					int LoadedAmmo = std::stoi(CurrentItemRow.second.first);
+					float Weight = std::stof(CurrentItemRow.second.second.first);
+					std::vector<std::string> LootTiers = CurrentItemRow.second.second.second;
+
+					ItemRow.Definition = Definition;
+					ItemRow.DropCount = DropCount;
+					ItemRow.LoadedAmmo = LoadedAmmo;
+					ItemRow.Weight = Weight;
+
+					for (int i = 0; i < LootTiers.size(); i++)
+					{
+						auto LootTierString = LootTiers.at(i);
+
+						CustomLootpoolMap[LootTierString].push_back(ItemRow);
+					}
+				}
+			}
 		}
 	}
 }
