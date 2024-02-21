@@ -688,10 +688,8 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 		static auto DefaultRebootMachineHotfixOffset = GameState->GetOffset("DefaultRebootMachineHotfix", false);
 
 		if (DefaultRebootMachineHotfixOffset != -1)
-		{
-			LOG_INFO(LogDev, "before: {}", GameState->Get<float>(DefaultRebootMachineHotfixOffset));
-			GameState->Get<float>(DefaultRebootMachineHotfixOffset) = 1; // idk i dont think we need to set
-		}
+
+			GameState->Get<float>(DefaultRebootMachineHotfixOffset) = 1;
 
 		LOG_INFO(LogDev, "Finished presetup!");
 

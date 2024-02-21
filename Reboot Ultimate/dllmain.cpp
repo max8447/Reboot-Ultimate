@@ -734,7 +734,7 @@ DWORD WINAPI Main(LPVOID)
     Addresses::Init();
     Addresses::Print();
 
-    bEnableRebooting = Addresses::RebootingDelegate && Addresses::FinishResurrection && Addresses::GetSquadIdForCurrentPlayer && false;
+    bEnableRebooting = Addresses::RebootingDelegate && Addresses::FinishResurrection;
 
     LOG_INFO(LogDev, "Fortnite_CL: {}", Fortnite_CL);
     LOG_INFO(LogDev, "Fortnite_Version: {}", Fortnite_Version);

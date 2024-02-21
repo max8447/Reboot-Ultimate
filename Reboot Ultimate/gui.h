@@ -456,8 +456,8 @@ static inline void InputVector(const std::string& baseText, FVector* vec)
 #endif
 }
 
-static int Width = 1280;
-static int Height = 720;
+static int Width = 640;
+static int Height = 480;
 
 static int Tab = 1;
 static int PlayerTab = -1;
@@ -492,7 +492,7 @@ static inline void StaticUI()
 
 	if (Addresses::ApplyGadgetData && Addresses::RemoveGadgetData && Engine_Version < 424)
 	{
-		ImGui::Checkbox("Enable AGIDs (Don't change unless you know what this is)", &Globals::bEnableAGIDs);
+		ImGui::Checkbox("Enable AGIDs", &Globals::bEnableAGIDs);
 	}
 }
 
@@ -541,7 +541,7 @@ static inline void MainTabs()
 			}
 		}
 
-		if (ImGui::BeginTabItem(("Zone")))
+		if (ImGui::BeginTabItem(("Storm")))
 		{
 			Tab = ZONE_TAB;
 			PlayerTab = -1;
@@ -896,20 +896,20 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 		WorldInventory->AddItem(WoodItemData, nullptr, 999);
 		WorldInventory->AddItem(StoneItemData, nullptr, 999);
 		WorldInventory->AddItem(MetalItemData, nullptr, 999);
-		WorldInventory->AddItem(Gold, nullptr, 10000);
+		WorldInventory->AddItem(Gold, nullptr, 5000);
 		WorldInventory->AddItem(Primary, nullptr, 1);
 		WorldInventory->AddItem(Secondary, nullptr, 1);
 		WorldInventory->AddItem(Tertiary, nullptr, 1);
 		WorldInventory->AddItem(Consumable1, nullptr, Consumable1->GetMaxStackSize());
 		WorldInventory->AddItem(Consumable2, nullptr, Consumable2->GetMaxStackSize());
-		WorldInventory->AddItem(ShellsAmmo, nullptr, 999);
-		WorldInventory->AddItem(HeavyAmmo, nullptr, 999);
-		WorldInventory->AddItem(MediumAmmo, nullptr, 999);
-		WorldInventory->AddItem(LightAmmo, nullptr, 999);
-		WorldInventory->AddItem(RocketAmmo, nullptr, 999);
+		WorldInventory->AddItem(ShellsAmmo, nullptr, (std::rand() % 876) + 87);
+		WorldInventory->AddItem(HeavyAmmo, nullptr, (std::rand() % 876) + 50);
+		WorldInventory->AddItem(MediumAmmo, nullptr, (std::rand() % 999) + 186);
+		WorldInventory->AddItem(LightAmmo, nullptr, (std::rand() % 999) + 124);
+		WorldInventory->AddItem(RocketAmmo, nullptr, (std::rand() % 12) + 3);
 		WorldInventory->AddItem(ExplosiveAmmo, nullptr, 999);
 		WorldInventory->AddItem(EnergyCells, nullptr, 999);
-		WorldInventory->AddItem(Arrows, nullptr, 30);
+		WorldInventory->AddItem(Arrows, nullptr, (std::rand() % 30) + 12);
 		WorldInventory->AddItem(ReconAmmo, nullptr, 999);
 		WorldInventory->AddItem(Trap, nullptr, (std::rand() % 5) + 2);
 		WorldInventory->AddItem(Crown, nullptr, 1);
@@ -944,13 +944,13 @@ static inline void MainUI()
 					SetIsLategame(bWillBeLategame);
 				}
 
-				ImGui::Text(std::format("Joinable {}", Globals::bStartedListening).c_str());
+				ImGui::Text(std::format("Joinable: {}", Globals::bStartedListening).c_str());
 
 				static std::string ConsoleCommand;
 
-				ImGui::InputText("Console command", &ConsoleCommand);
+				ImGui::InputText("Console Command", &ConsoleCommand);
 
-				if (ImGui::Button("Execute console command"))
+				if (ImGui::Button("Execute Console Command"))
 				{
 					auto wstr = std::wstring(ConsoleCommand.begin(), ConsoleCommand.end());
 
@@ -1181,7 +1181,7 @@ static inline void MainUI()
 
 			std::string FoundationToShowStr;
 
-			ImGui::InputText("Foundation to show", &FoundationToShowStr);
+			ImGui::InputText("Foundation to Show", &FoundationToShowStr);
 
 			if (ImGui::Button("Show Foundation"))
 			{
