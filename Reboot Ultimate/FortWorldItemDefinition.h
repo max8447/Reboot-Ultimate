@@ -134,7 +134,7 @@ public:
 	{
 		static auto GetAmmoWorldItemDefinition_BPFn = FindObject<UFunction>("/Script/FortniteGame.FortWorldItemDefinition.GetAmmoWorldItemDefinition_BP");
 		UFortWorldItemDefinition* ReturnValue;
-		this->ProcessEvent(GetAmmoWorldItemDefinition_BPFn, ReturnValue);
+		this->ProcessEvent(GetAmmoWorldItemDefinition_BPFn, &ReturnValue);
 		return ReturnValue;
 	}
 

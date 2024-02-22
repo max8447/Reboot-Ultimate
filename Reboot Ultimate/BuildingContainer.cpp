@@ -16,45 +16,62 @@ static inline bool VectorContains(T Item, std::vector<T>& Vector)
 	return false;
 }
 
-static inline ItemRow* GetRandomItemForCustomLootpool(std::string LootTier, EFortItemType ItemType = EFortItemType::EFortItemType_MAX, bool EnableDefs = false)
+static inline ItemRow* GetRandomItemForCustomLootpool(std::string LootTier, EFortItemType ItemType = EFortItemType::EFortItemType_MAX, bool bEnableDefs = false, bool bTypeMatters = true)
 {
 	static std::vector<UFortItemDefinition*> LastDefs{};
 
 	if (!CustomLootpoolMap.contains(LootTier))
 		return nullptr;
 
-	auto& Vector = CustomLootpoolMap[LootTier];
+	auto AllItemsRowsOfTier = CustomLootpoolMap[LootTier];
 
-	if (Vector.size() <= 0)
+	if (AllItemsRowsOfTier.size() <= 0)
 		return nullptr;
-	static auto rng = std::default_random_engine((unsigned int)time(0));
-	std::shuffle(Vector.begin(), Vector.end(), rng);
 
-	ItemRow* Ret = &Vector[UKismetMathLibrary::RandomIntegerInRange(0, Vector.size() - 1)];
+	// std::shuffle(AllItemsRowsOfTier.at(0), AllItemsRowsOfTier.at(AllItemsRowsOfTier.Num()), std::default_random_engine((unsigned int)time(0)));
 
-	if (EnableDefs)
+	ItemRow ItemRow = AllItemsRowsOfTier[std::rand() % AllItemsRowsOfTier.size()];
+
+	LOG_INFO(LogDev, "Random Item: {}", ItemRow.Definition->GetFullName());
+
+	if (bEnableDefs)
 	{
-		bool contains = VectorContains<UFortItemDefinition*>(Ret->Definition, LastDefs);
+		bool ItemIsContainedInLastDefs = VectorContains<UFortItemDefinition*>(ItemRow.Definition, LastDefs);
 
-		if (contains)
+		if (ItemIsContainedInLastDefs)
 			return GetRandomItemForCustomLootpool(LootTier, ItemType);
 	}
 
-	if (ItemType != EFortItemType::EFortItemType_MAX && Ret->Definition->GetItemType() != ItemType)
-		return GetRandomItemForCustomLootpool(LootTier, ItemType);
-
-	if (!UKismetMathLibrary::RandomBoolWithWeight(Ret->Weight))
-		return GetRandomItemForCustomLootpool(LootTier, ItemType);
-
-	if (EnableDefs)
+	if (!bTypeMatters && ItemType != EFortItemType::EFortItemType_MAX && ItemRow.Definition->GetItemType() != ItemType)
 	{
-		LastDefs.push_back(Ret->Definition);
+		LOG_INFO(LogDev, "Regenerating, ItemType was incorrect.");
+		return GetRandomItemForCustomLootpool(LootTier, ItemType, false, false);
+	}
+
+	if (!UKismetMathLibrary::RandomBoolWithWeight(ItemRow.Weight))
+	{
+		LOG_INFO(LogDev, "Regenerating, didn't hit Weight.");
+		return GetRandomItemForCustomLootpool(LootTier, ItemType);
+	}
+
+	if (bEnableDefs)
+	{
+		LastDefs.push_back(ItemRow.Definition);
 
 		if (LastDefs.size() > 3)
 			LastDefs.erase(LastDefs.begin());
 	}
 
-	return Ret;
+	if (ItemType == EFortItemType::WeaponRanged)
+	{
+		ItemRow.DropCount = Cast<UFortWeaponItemDefinition>(ItemRow.Definition)->GetClipSize();
+	}
+	else
+	{
+		ItemRow.DropCount = ItemRow.Definition->GetMaxStackSize();
+	}
+
+	return &ItemRow;
 }
 
 bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
@@ -81,57 +98,40 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 	if (Globals::bCustomLootpool)
 	{
 		std::string LootTierStr = RedirectedLootTier.ToString();
-		bool bIsChest = LootTierStr == "Loot_AthenaTreasure" ? true : false;
-		bool bIsFactionChest = LootTierStr == "Loot_AthenaTreasure_Blue" || LootTierStr == "Loot_AthenaTreasure_Red";
+		EFortItemType ItemType = EFortItemType::EFortItemType_MAX;
+		int RepeatNum = 1;
+		ItemRow RandomItem;
 
-		ItemRow* RandomWeaponItem = GetRandomItemForCustomLootpool(LootTierStr, (bIsChest ? EFortItemType::WeaponRanged : EFortItemType::EFortItemType_MAX));
-
-		if (RandomWeaponItem && RandomWeaponItem->Definition)
+		if (LootTierStr == "Loot_AthenaTreasure")
 		{
-			LootDrop WeaponDrop;
-			WeaponDrop.ItemEntry = ((UFortItem*)RandomWeaponItem->Definition)->GetItemEntry();
-
-			LootDrops.push_back(WeaponDrop);
+			ItemType = EFortItemType::WeaponRanged;
+		}
+		else if (LootTierStr == "Loot_AthenaIceBox")
+		{
+			RepeatNum = 2;
+		}
+		else if (LootTierStr == "Loot_AthenaTreasure_Blue" || LootTierStr == "Loot_AthenaTreasure_Red")
+		{
+			ItemType = EFortItemType::WeaponRanged;
+			RepeatNum = 3;
 		}
 
-		if (LootTierStr == "Loot_AthenaIceBox")
+		for (int i = 0; i < RepeatNum; i++)
 		{
-			for (int i = 0; i < 2; i++)
+			RandomItem = *GetRandomItemForCustomLootpool(LootTierStr, ItemType);
+
+			if (RandomItem.Definition)
 			{
-				ItemRow* RandomIceBoxItem = GetRandomItemForCustomLootpool(LootTierStr, EFortItemType::EFortItemType_MAX);
-
-				if (RandomIceBoxItem && RandomIceBoxItem->Definition)
-				{
-					LootDrop IceBoxDrop;
-					IceBoxDrop.ItemEntry = ((UFortItem*)RandomIceBoxItem->Definition)->GetItemEntry();
-
-					LootDrops.push_back(IceBoxDrop);
-				}
+				LootDrops.push_back(LootDrop(FFortItemEntry::MakeItemEntry(RandomItem.Definition, RandomItem.DropCount)));
+			}
+			else
+			{
+				LOG_INFO(LogDev, "RandomItem or RandomItem->Definition is nullptr!");
 			}
 		}
 
-		UFortWorldItemDefinition* AmmoItem = Cast<UFortWorldItemDefinition>(Cast<UFortWeaponItemDefinition>(RandomWeaponItem->Definition))->GetAmmoWorldItemDefinition_BP();
-
-		if (AmmoItem && RandomWeaponItem->Definition != AmmoItem && AmmoItem->GetDropCount() > 0)
+		if (ItemType == EFortItemType::WeaponRanged)
 		{
-			LootDrop AmmoDrop;
-			AmmoDrop.ItemEntry = ((UFortItem*)AmmoItem)->GetItemEntry();
-
-			LootDrops.push_back(AmmoDrop);
-		}
-
-		if (bIsChest || bIsFactionChest)
-		{
-			ItemRow* RandomConsumableItem = GetRandomItemForCustomLootpool(LootTierStr, EFortItemType::Consumable);
-
-			if (RandomConsumableItem)
-			{
-				LootDrop ConsumableDrop;
-				ConsumableDrop.ItemEntry = ((UFortItem*)RandomConsumableItem)->GetItemEntry();
-
-				LootDrops.push_back(ConsumableDrop);
-			}
-
 			static auto Wood = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
 			static auto Metal = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
 			static auto Stone = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
@@ -147,26 +147,25 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 				ResourceDefinition = Metal;
 			}
 
-			LootDrop ResourceDrop;
-			ResourceDrop.ItemEntry = ((UFortItem*)ResourceDefinition)->GetItemEntry();
+			LootDrops.push_back(LootDrop(FFortItemEntry::MakeItemEntry(ResourceDefinition, 30)));
 
-			LootDrops.push_back(ResourceDrop);
-		}
+			ItemRow RandomConsumableItem = *GetRandomItemForCustomLootpool(LootTierStr, EFortItemType::Consumable);
 
-		if (bIsFactionChest)
-		{
-			for (int i = 0; i < 3; i++)
+			if (RandomConsumableItem.Definition)
 			{
-				ItemRow* RandomFactionItem = GetRandomItemForCustomLootpool(LootTierStr, (bIsChest ? EFortItemType::WeaponRanged : EFortItemType::EFortItemType_MAX));
-
-				if (RandomFactionItem && RandomFactionItem->Definition)
-				{
-					LootDrop FactionDrop;
-					FactionDrop.ItemEntry = ((UFortItem*)RandomFactionItem->Definition)->GetItemEntry();
-
-					LootDrops.push_back(FactionDrop);
-				}
+				LootDrops.push_back(LootDrop(FFortItemEntry::MakeItemEntry(RandomConsumableItem.Definition, RandomConsumableItem.DropCount)));
 			}
+
+			/*
+
+			UFortWorldItemDefinition* AmmoItem = Cast<UFortWeaponItemDefinition>(RandomItem->Definition)->GetAmmoData();
+
+			if (AmmoItem && RandomItem->Definition != AmmoItem && AmmoItem->GetDropCount() > 0)
+			{
+				LootDrops.push_back(LootDrop(FFortItemEntry::MakeItemEntry(AmmoItem, AmmoItem->GetDropCount())));
+			}
+
+			*/
 		}
 	}
 	else
