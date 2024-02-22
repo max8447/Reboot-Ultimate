@@ -54,6 +54,12 @@ static inline ItemRow* GetRandomItemForCustomLootpool(std::string LootTier, EFor
 		return GetRandomItemForCustomLootpool(LootTier, ItemType);
 	}
 
+	if (!ItemRow.Definition->ClassPrivate)
+	{
+		LOG_INFO(LogDev, "Regenerating, no ClassPrivate");
+		return GetRandomItemForCustomLootpool(LootTier, ItemType);
+	}
+
 	if (bEnableDefs)
 	{
 		LastDefs.push_back(ItemRow.Definition);
@@ -100,7 +106,7 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 		std::string LootTierStr = RedirectedLootTier.ToString();
 		EFortItemType ItemType = EFortItemType::EFortItemType_MAX;
 		int RepeatNum = 1;
-		ItemRow RandomItem;
+		ItemRow* RandomItem;
 
 		if (LootTierStr == "Loot_AthenaTreasure")
 		{
@@ -118,15 +124,17 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 
 		for (int i = 0; i < RepeatNum; i++)
 		{
-			RandomItem = *GetRandomItemForCustomLootpool(LootTierStr, ItemType);
+			RandomItem = GetRandomItemForCustomLootpool(LootTierStr, ItemType);
 
-			if (RandomItem.Definition)
+			if (RandomItem->Definition)
 			{
-				LootDrops.push_back(LootDrop(FFortItemEntry::MakeItemEntry(RandomItem.Definition, RandomItem.DropCount)));
+				auto Entry = FFortItemEntry::MakeItemEntry(RandomItem->Definition, RandomItem->DropCount);
+				LootDrops.push_back(LootDrop(Entry));
+				LOG_INFO(LogDev, "Entry->ItemDefinition: {}", Entry->GetItemDefinition()->GetFullName());
 			}
 			else
 			{
-				LOG_INFO(LogDev, "RandomItem or RandomItem->Definition is nullptr!");
+				LOG_WARN(LogDev, "RandomItem or RandomItem->Definition is nullptr!");
 			}
 		}
 
@@ -149,11 +157,11 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 
 			LootDrops.push_back(LootDrop(FFortItemEntry::MakeItemEntry(ResourceDefinition, 30)));
 
-			ItemRow RandomConsumableItem = *GetRandomItemForCustomLootpool(LootTierStr, EFortItemType::Consumable);
+			ItemRow* RandomConsumableItem = GetRandomItemForCustomLootpool(LootTierStr, EFortItemType::Consumable);
 
-			if (RandomConsumableItem.Definition)
+			if (RandomConsumableItem->Definition)
 			{
-				LootDrops.push_back(LootDrop(FFortItemEntry::MakeItemEntry(RandomConsumableItem.Definition, RandomConsumableItem.DropCount)));
+				LootDrops.push_back(LootDrop(FFortItemEntry::MakeItemEntry(RandomConsumableItem->Definition, RandomConsumableItem->DropCount)));
 			}
 
 			/*
