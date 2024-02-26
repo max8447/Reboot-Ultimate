@@ -8,6 +8,7 @@
 #include "BuildingSMActor.h"
 #include "Stack.h"
 #include "ActorComponent.h"
+#include "Text.h"
 
 struct FFortAthenaLoadout
 {
@@ -90,6 +91,45 @@ enum class EInteractionBeingAttempted : uint8
 	EInteractionBeingAttempted_MAX = 3,
 };
 
+struct FPrimaryAssetType
+{
+public:
+	FName                                  Name;                                              // 0x0(0x8)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+};
+
+struct FPrimaryAssetId
+{
+public:
+	FPrimaryAssetType                     PrimaryAssetType;                                  // 0x0(0x8)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	FName                                  PrimaryAssetName;                                  // 0x8(0x8)(Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+};
+
+struct FXPEventEntry : public FFastArraySerializerItem
+{
+	FText SimulatedXpEvent;
+	class UFortQuestItemDefinition* QuestDef;
+	FPrimaryAssetId Accolade;
+	float Time;
+	int32 EventXpValue;
+	int32 TotalXpEarnedInMatch;
+};
+
+struct FAthenaLevelInfo
+{
+public:
+	int32& GetLevelXp()
+	{
+		static auto LevelXpOffset = FindOffsetStruct("/Script/FortniteGame.AthenaLevelInfo", "LevelXp");
+		return *(int32*)(__int64(this) + LevelXpOffset);
+	}
+
+	int32& GetBookLevelXp()
+	{
+		static auto BookLevelXpOffset = FindOffsetStruct("/Script/FortniteGame.AthenaLevelInfo", "BookLevelXp");
+		return *(int32*)(__int64(this) + BookLevelXpOffset);
+	}
+};
+
 class UFortPlayerControllerAthenaXPComponent : public UActorComponent //UFortControllerComponent
 {
 public:
@@ -153,6 +193,18 @@ public:
 		return *(int64*)(__int64(this) + InMatchProfileVerOffset);
 	}
 
+	TArray<FXPEventEntry>& GetWaitingQuestXp()
+	{
+		static auto WaitingQuestXpOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "WaitingQuestXp");
+		return *(TArray<FXPEventEntry>*)(__int64(this) + WaitingQuestXpOffset);
+	}
+
+	FAthenaLevelInfo& GetCachedLevelInfo()
+	{
+		static auto CachedLevelInfoOffset = FindOffsetStruct("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent", "CachedLevelInfo");
+		return *(FAthenaLevelInfo*)(__int64(this) + CachedLevelInfoOffset);
+	}
+
 	void OnProfileUpdated()
 	{
 		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnProfileUpdated");
@@ -175,6 +227,12 @@ public:
 		}params{ InCombatXp , InServivalXp , InBonusMedalXp , InChallengeXp , InMatchXp , InTotalXp };
 
 		this->ProcessEvent(fn, &params);
+	}
+
+	void HighPrioXPEvent(FXPEventEntry& HighPrioXPEvent)
+	{
+		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.HighPrioXPEvent");
+		this->ProcessEvent(fn, &HighPrioXPEvent);
 	}
 
 	void OnInMatchProfileUpdate(int64 ProfileRevision)

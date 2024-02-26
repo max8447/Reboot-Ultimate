@@ -493,21 +493,6 @@ UFortItem* AFortInventory::GetPickaxeInstance()
 	return nullptr;
 }
 
-UFortItem* AFortInventory::FindItemInstance(UFortItemDefinition* ItemDefinition)
-{
-	auto& ItemInstances = GetItemList().GetItemInstances();
-
-	for (int i = 0; i < ItemInstances.Num(); i++)
-	{
-		auto ItemInstance = ItemInstances.At(i);
-
-		if (ItemInstance->GetItemEntry()->GetItemDefinition() == ItemDefinition)
-			return ItemInstance;
-	}
-
-	return nullptr;
-}
-
 void AFortInventory::CorrectLoadedAmmo(const FGuid& Guid, int NewAmmoCount)
 {
 	auto CurrentWeaponInstance = FindItemInstance(Guid);
@@ -516,6 +501,28 @@ void AFortInventory::CorrectLoadedAmmo(const FGuid& Guid, int NewAmmoCount)
 		return;
 
 	auto CurrentWeaponReplicatedEntry = FindReplicatedEntry(Guid);
+
+	if (!CurrentWeaponReplicatedEntry)
+		return;
+
+	if (CurrentWeaponReplicatedEntry->GetLoadedAmmo() != NewAmmoCount)
+	{
+		CurrentWeaponInstance->GetItemEntry()->GetLoadedAmmo() = NewAmmoCount;
+		CurrentWeaponReplicatedEntry->GetLoadedAmmo() = NewAmmoCount;
+
+		GetItemList().MarkItemDirty(CurrentWeaponInstance->GetItemEntry());
+		GetItemList().MarkItemDirty(CurrentWeaponReplicatedEntry);
+	}
+}
+
+void AFortInventory::CorrectLoadedAmmo(UFortItemDefinition* ItemDefinition, int NewAmmoCount)
+{
+	auto CurrentWeaponInstance = FindItemInstance(ItemDefinition);
+
+	if (!CurrentWeaponInstance)
+		return;
+
+	auto CurrentWeaponReplicatedEntry = FindReplicatedEntry(CurrentWeaponInstance->GetItemEntry()->GetItemGuid());
 
 	if (!CurrentWeaponReplicatedEntry)
 		return;
@@ -539,6 +546,21 @@ UFortItem* AFortInventory::FindItemInstance(const FGuid& Guid)
 		auto ItemInstance = ItemInstances.At(i);
 
 		if (ItemInstance->GetItemEntry()->GetItemGuid() == Guid)
+			return ItemInstance;
+	}
+
+	return nullptr;
+}
+
+UFortItem* AFortInventory::FindItemInstance(UFortItemDefinition* ItemDefinition)
+{
+	auto& ItemInstances = GetItemList().GetItemInstances();
+
+	for (int i = 0; i < ItemInstances.Num(); i++)
+	{
+		auto ItemInstance = ItemInstances.At(i);
+
+		if (ItemInstance->GetItemEntry()->GetItemDefinition() == ItemDefinition)
 			return ItemInstance;
 	}
 

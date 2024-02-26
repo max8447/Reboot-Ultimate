@@ -32,8 +32,6 @@ static inline ItemRow* GetRandomItemForCustomLootpool(std::string LootTier, EFor
 
 	ItemRow ItemRow = AllItemsRowsOfTier[std::rand() % AllItemsRowsOfTier.size()];
 
-	LOG_INFO(LogDev, "Random Item: {}", ItemRow.Definition->GetFullName());
-
 	if (bEnableDefs)
 	{
 		bool ItemIsContainedInLastDefs = VectorContains<UFortItemDefinition*>(ItemRow.Definition, LastDefs);
@@ -77,6 +75,8 @@ static inline ItemRow* GetRandomItemForCustomLootpool(std::string LootTier, EFor
 		ItemRow.DropCount = ItemRow.Definition->GetMaxStackSize();
 	}
 
+	LOG_INFO(LogDev, "Random Item: {}", ItemRow.Definition->GetFullName());
+
 	return &ItemRow;
 }
 
@@ -106,7 +106,7 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 		std::string LootTierStr = RedirectedLootTier.ToString();
 		EFortItemType ItemType = EFortItemType::EFortItemType_MAX;
 		int RepeatNum = 1;
-		ItemRow* RandomItem;
+		ItemRow* RandomItem = nullptr;
 
 		if (LootTierStr == "Loot_AthenaTreasure")
 		{
@@ -126,11 +126,18 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 		{
 			RandomItem = GetRandomItemForCustomLootpool(LootTierStr, ItemType);
 
-			if (RandomItem->Definition)
+			if (RandomItem && RandomItem->Definition)
 			{
-				auto Entry = FFortItemEntry::MakeItemEntry(RandomItem->Definition, RandomItem->DropCount);
-				LootDrops.push_back(LootDrop(Entry));
-				LOG_INFO(LogDev, "Entry->ItemDefinition: {}", Entry->GetItemDefinition()->GetFullName());
+				try
+				{
+					auto Entry = FFortItemEntry::MakeItemEntry(RandomItem->Definition, 1, static_cast<UFortWeaponItemDefinition*>(RandomItem->Definition)->GetClipSize());
+					LootDrops.push_back(LootDrop(Entry));
+					LOG_INFO(LogDev, "Entry->ItemDefinition: {}", Entry->GetItemDefinition()->GetFullName());
+				}
+				catch (...)
+				{
+					LOG_ERROR(LogGame, "Failed to generate loot!");
+				}
 			}
 			else
 			{
@@ -159,21 +166,27 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 
 			ItemRow* RandomConsumableItem = GetRandomItemForCustomLootpool(LootTierStr, EFortItemType::Consumable);
 
-			if (RandomConsumableItem->Definition)
+			if (RandomConsumableItem && RandomConsumableItem->Definition)
 			{
-				LootDrops.push_back(LootDrop(FFortItemEntry::MakeItemEntry(RandomConsumableItem->Definition, RandomConsumableItem->DropCount)));
+				LootDrops.push_back(LootDrop(FFortItemEntry::MakeItemEntry(RandomConsumableItem->Definition)));
 			}
 
-			/*
-
-			UFortWorldItemDefinition* AmmoItem = Cast<UFortWeaponItemDefinition>(RandomItem->Definition)->GetAmmoData();
-
-			if (AmmoItem && RandomItem->Definition != AmmoItem && AmmoItem->GetDropCount() > 0)
+			if (RandomItem && RandomItem->Definition)
 			{
-				LootDrops.push_back(LootDrop(FFortItemEntry::MakeItemEntry(AmmoItem, AmmoItem->GetDropCount())));
-			}
+				try
+				{
+					UFortWorldItemDefinition* AmmoItem = static_cast<UFortWeaponItemDefinition*>(RandomItem->Definition)->GetAmmoData();
 
-			*/
+					if (AmmoItem && RandomItem->Definition != AmmoItem && AmmoItem->GetDropCount() > 0)
+					{
+						LootDrops.push_back(LootDrop(FFortItemEntry::MakeItemEntry(AmmoItem, AmmoItem->GetDropCount())));
+					}
+				}
+				catch (...)
+				{
+					LOG_ERROR(LogGame, "Failed to generate ammo!");
+				}
+			}
 		}
 	}
 	else
@@ -202,6 +215,6 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 		this->ForceNetUpdate();
 		// a buncha other stuff
 	}
-
+	
 	return true;
 }

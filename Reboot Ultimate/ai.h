@@ -14,6 +14,7 @@
 #include "FortBotNameSettings.h"
 #include "KismetTextLibrary.h"
 #include "FortAthenaAIBotCustomizationData.h"
+#include "FortAthenaMutator_Bots.h"
 
 using UNavigationSystemV1 = UObject;
 using UNavigationSystemConfig = UObject;
@@ -195,6 +196,27 @@ static void SetupAIDirector()
         if (ActivateFn) // ?
             GameMode->Get(AIDirectorOffset)->ProcessEvent(ActivateFn); // ?
     }
+}
+
+static AFortAthenaMutator_Bots* SpawnMutator() //sets up all the classes for phoebe
+{
+    auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+    auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+
+    static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
+    static auto PhoebeMutatorClass = LoadObject<UClass>(L"/Game/Athena/AI/Phoebe/BP_Phoebe_Mutator.BP_Phoebe_Mutator_C", BGAClass);
+
+    auto BotMutator = GetWorld()->SpawnActor<AFortAthenaMutator_Bots>(PhoebeMutatorClass); //maybe instead of spawning actor we can call UGameplayStatics::SpawnObject(PhoebeMutatorClass, GetTransientPackage());
+
+    static auto CachedGameModeOffset = BotMutator->GetOffset("CachedGameMode"); //same as BotMutator->CachedGameMode = GameMode;
+    BotMutator->Get(CachedGameModeOffset) = GameMode;
+
+    static auto CachedGameStateOffset = BotMutator->GetOffset("CachedGameState", false); //same as BotMutator->CachedGameState = GameState;
+
+    if (CachedGameStateOffset != -1)
+        BotMutator->Get(CachedGameStateOffset) = GameState;
+
+    return BotMutator;
 }
 
 static void SetupNavConfig(const FName& AgentName)

@@ -2,6 +2,7 @@
 
 #include "reboot.h"
 #include "FortAthenaAIBotCharacterCustomization.h"
+#include "TSubClassOf.h"
 
 class UFortAthenaAIBotCustomizationData : public UObject // UPrimaryDataAsset
 {
@@ -10,6 +11,12 @@ public:
 	{
 		static auto CharacterCustomizationOffset = GetOffset("CharacterCustomization");
 		return Get<UFortAthenaAIBotCharacterCustomization*>(CharacterCustomizationOffset);
+	}
+
+	TSubclassOf<AFortPlayerPawnAthena> GetPawnClass()
+	{
+		static auto PawnClassOffset = GetOffset("PawnClass");
+		return Get<TSubclassOf<AFortPlayerPawnAthena>>(PawnClassOffset);
 	}
 
 	static void ApplyOverrideCharacterCustomizationHook(UFortAthenaAIBotCustomizationData* InBotData, AFortPlayerPawn* NewBot, __int64 idk)

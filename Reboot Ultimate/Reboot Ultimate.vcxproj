@@ -180,7 +180,9 @@
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="ActorComponent.cpp" />
     <ClCompile Include="addresses.cpp" />
+    <ClCompile Include="AIBlueprintHelperLibrary.cpp" />
     <ClCompile Include="AthenaMarkerComponent.cpp" />
+    <ClCompile Include="BehaviorTree.h" />
     <ClCompile Include="BP_IslandScripting.cpp" />
     <ClCompile Include="BuildingActor.cpp" />
     <ClCompile Include="BuildingContainer.cpp" />
@@ -262,6 +264,7 @@
     <ClCompile Include="objectviewer.cpp" />
     <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="PlayerState.cpp" />
+    <ClCompile Include="quests.cpp" />
     <ClCompile Include="reboot.cpp" />
     <ClCompile Include="SavePackage.cpp" />
     <ClCompile Include="ScriptDisassembler.cpp" />
@@ -277,6 +280,8 @@
     <ClInclude Include="ActorComponent.h" />
     <ClInclude Include="addresses.h" />
     <ClInclude Include="ai.h" />
+    <ClInclude Include="AIBlueprintHelperLibrary.h" />
+    <ClInclude Include="AIController.h" />
     <ClInclude Include="AndOrNot.h" />
     <ClInclude Include="anticheat.h" />
     <ClInclude Include="Array.h" />
@@ -331,6 +336,7 @@
     <ClInclude Include="FortAbilitySet.h" />
     <ClInclude Include="FortAIEncounterInfo.h" />
     <ClInclude Include="FortAthenaAIBotCharacterCustomization.h" />
+    <ClInclude Include="FortAthenaAIBotController.h" />
     <ClInclude Include="FortAthenaAIBotCustomizationData.h" />
     <ClInclude Include="FortAthenaCreativePortal.h" />
     <ClInclude Include="FortAthenaMapInfo.h" />
@@ -453,6 +459,7 @@
     <ClInclude Include="PlayerState.h" />
     <ClInclude Include="PointerIsConvertibleFromTo.h" />
     <ClInclude Include="Quat.h" />
+    <ClInclude Include="quests.h" />
     <ClInclude Include="RandomStream.h" />
     <ClInclude Include="reboot.h" />
     <ClInclude Include="RemoveCV.h" />

@@ -48,11 +48,6 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 		AllBuildingSMActors.Free();
 		bShouldDestroyAllPlayerBuilds = false;
 	}
-	
-	/* if (bEnableBotTick)
-	{
-		Bots::Tick();
-	} */
 
 	if (Globals::bStartedListening)
 	{

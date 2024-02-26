@@ -1,6 +1,7 @@
 #include "FortPlayerPawnAthena.h"
 #include "FortInventory.h"
 #include "FortPlayerControllerAthena.h"
+#include "quests.h"
 
 void AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook(UObject* Context, FFrame* Stack, void* Ret)
 {
@@ -31,6 +32,8 @@ void AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook(UObject* Context, FFrame* 
 	LOG_INFO(LogDev, "OtherBodyIndex: {}", OtherBodyIndex);
 	LOG_INFO(LogDev, "bFromSweep: {}", (bool)bFromSweep);
 	
+	bool bIsQuest = false;
+
 	if (!Pawn->IsDBNO())
 	{
 		if (auto Pickup = Cast<AFortPickup>(OtherActor))
@@ -52,19 +55,57 @@ void AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook(UObject* Context, FFrame* 
 				}
 			}
 		}
-		/*
-		
 		else
 		{
-			auto PlayerController = Cast<AFortPlayerControllerAthena>(Pawn->GetController());
-			auto QuestManager = PlayerController->GetQuestManager(ESubGame::Athena);
-
-			bool QuestActive, QuestCompleted;
-
-			QuestManager->SendComplexCustomStatEvent(OtherActor, FGameplayTagContainer(), FGameplayTagContainer(), &QuestActive, &QuestCompleted, 1);
+			bIsQuest = true;
 		}
+	}
+	else
+	{
+		bIsQuest = true;
+	}
 
-		*/
+	if (bIsQuest)
+	{
+		auto PlayerController = Cast<AFortPlayerControllerAthena>(Pawn->GetController());
+		auto QuestManager = PlayerController->GetQuestManager(ESubGame::Athena);
+
+		bool QuestActive, QuestCompleted;
+
+		// QuestManager->SendComplexCustomStatEvent(OtherActor, FGameplayTagContainer(), FGameplayTagContainer(), &QuestActive, &QuestCompleted, 1);
+
+		UFortQuestItemDefinition* QuestItem = nullptr;
+		FName BackendName;
+
+		static auto QuestItemOffset = OtherActor->GetOffset("QuestItem");
+		static auto QuestItemOffset2 = OtherActor->GetOffset("Quest_Item");
+		static auto QuestItemOffset3 = OtherActor->GetOffset("QuestItemDefinition");
+		static auto BackendNameOffset = OtherActor->GetOffset("BackendName");
+		static auto BackendNameOffset2 = OtherActor->GetOffset("Quest_Backend_Name");
+		static auto BackendNameOffset3 = OtherActor->GetOffset("ObjectiveBackendName");
+
+		if (!QuestItem && QuestItemOffset != -1)
+			QuestItem = OtherActor->Get<UFortQuestItemDefinition*>(QuestItemOffset);
+
+		if (!QuestItem && QuestItemOffset2 != -1)
+			QuestItem = OtherActor->Get<UFortQuestItemDefinition*>(QuestItemOffset2);
+
+		if (!QuestItem && QuestItemOffset3 != -1)
+			QuestItem = OtherActor->Get<UFortQuestItemDefinition*>(QuestItemOffset3);
+
+		if (BackendName.ComparisonIndex.Value == 0 && BackendNameOffset != -1)
+			BackendName = OtherActor->Get<FName>(BackendNameOffset);
+
+		if (BackendName.ComparisonIndex.Value == 0 && BackendNameOffset2 != -1)
+			BackendName = OtherActor->Get<FName>(BackendNameOffset2);
+
+		if (BackendName.ComparisonIndex.Value == 0 && BackendNameOffset3 != -1)
+			BackendName = OtherActor->Get<FName>(BackendNameOffset3);
+
+		if (QuestItem && BackendName.ComparisonIndex.Value != 0)
+		{
+			Quests::ProgressQuest(PlayerController, QuestItem, BackendName);
+		}
 	}
 
 	// return OnCapsuleBeginOverlapOriginal(Context, Stack, Ret); // we love explicit

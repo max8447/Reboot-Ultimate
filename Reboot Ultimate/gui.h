@@ -1668,89 +1668,98 @@ static inline void MainUI()
 
 					std::ifstream LootpoolFile(LootPoolFilePath);
 
-					json JsonData;
-
-					try
+					if (LootpoolFile.is_open())
 					{
-						LootpoolFile >> JsonData;
-					}
-					catch (...)
-					{
-						LOG_ERROR(LogDev, "Failed to parse loot pool file!");
-					}
 
-					LOG_INFO(LogDev, "Passed check 2.");
+						json JsonData;
 
-					std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::pair<std::string, std::vector<std::string>>>>> AllItemRows;
-
-					for (const auto& JsonItem : JsonData)
-					{
-						std::string Definition = JsonItem["Definition"].get<std::string>();
-						std::string DropCount = JsonItem["DropCount"].get<std::string>();
-						std::string LoadedAmmo = JsonItem["LoadedAmmo"].get<std::string>();
-						std::string Weight = JsonItem["Weight"].get<std::string>();
-						std::vector<std::string> LootTiers;
-
-						LOG_INFO(LogDev, "Passed check 3.");
-
-						for (const auto& LootTier : JsonItem)
+						try
 						{
-							if (LootTier.is_array())
+							LootpoolFile >> JsonData;
+						}
+						catch (...)
+						{
+							LOG_ERROR(LogDev, "Failed to parse loot pool file!");
+						}
+
+						LOG_INFO(LogDev, "Passed check 2.");
+
+						std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::pair<std::string, std::vector<std::string>>>>> AllItemRows;
+
+						for (const auto& JsonItem : JsonData)
+						{
+							std::string Definition = JsonItem["Definition"].get<std::string>();
+							std::string DropCount = JsonItem["DropCount"].get<std::string>();
+							std::string LoadedAmmo = JsonItem["LoadedAmmo"].get<std::string>();
+							std::string Weight = JsonItem["Weight"].get<std::string>();
+							std::vector<std::string> LootTiers;
+
+							LOG_INFO(LogDev, "Passed check 3.");
+
+							for (const auto& LootTier : JsonItem)
 							{
-								for (const auto& String : LootTier)
-									LootTiers.push_back(String.get<std::string>());
+								if (LootTier.is_array())
+								{
+									for (const auto& String : LootTier)
+										LootTiers.push_back(String.get<std::string>());
+								}
 							}
-						}
 
-						LOG_INFO(LogDev, "Passed check 4.");
+							LOG_INFO(LogDev, "Passed check 4.");
 
-						AllItemRows.push_back(std::make_pair(
-							std::make_pair(
-								Definition, DropCount
-							),
-							std::make_pair(
-								LoadedAmmo,
+							AllItemRows.push_back(std::make_pair(
 								std::make_pair(
-									Weight,
-									LootTiers
+									Definition, DropCount
+								),
+								std::make_pair(
+									LoadedAmmo,
+									std::make_pair(
+										Weight,
+										LootTiers
+									)
 								)
-							)
-						));
+							));
 
-						LOG_INFO(LogDev, "Passed check 5.");
-					}
-
-					ItemRow ItemRow{};
-
-					for (int i = 0; i < AllItemRows.size(); i++)
-					{
-						auto CurrentItemRow = AllItemRows[i];
-
-						LOG_INFO(LogDev, "Passed check 6.");
-
-						UFortItemDefinition* Definition = FindObject<UFortItemDefinition>(CurrentItemRow.first.first, nullptr, ANY_PACKAGE);
-						int DropCount = std::stoi(CurrentItemRow.first.second);
-						int LoadedAmmo = std::stoi(CurrentItemRow.second.first);
-						double Weight = std::stod(CurrentItemRow.second.second.first);
-						std::vector<std::string> LootTiers = CurrentItemRow.second.second.second;
-
-						LOG_INFO(LogDev, "Passed check 7.");
-
-						ItemRow.Definition = Definition;
-						ItemRow.DropCount = DropCount;
-						ItemRow.LoadedAmmo = Cast<UFortWeaponItemDefinition>(Definition)->GetClipSize();
-						ItemRow.Weight = Weight;
-
-						LOG_INFO(LogDev, "Passed check 8.");
-
-						for (int i = 0; i < LootTiers.size(); i++)
-						{
-							auto LootTierString = LootTiers.at(i);
-
-							CustomLootpoolMap[LootTierString].Add(ItemRow);
+							LOG_INFO(LogDev, "Passed check 5.");
 						}
 
-						LOG_INFO(LogDev, "Passed check 9.");
+						ItemRow ItemRow{};
+
+						for (int i = 0; i < AllItemRows.size(); i++)
+						{
+							auto CurrentItemRow = AllItemRows[i];
+
+							LOG_INFO(LogDev, "Passed check 6.");
+
+							UFortItemDefinition* Definition = FindObject<UFortItemDefinition>(CurrentItemRow.first.first, nullptr, ANY_PACKAGE);
+							int DropCount = std::stoi(CurrentItemRow.first.second);
+							int LoadedAmmo = std::stoi(CurrentItemRow.second.first);
+							double Weight = std::stod(CurrentItemRow.second.second.first);
+							std::vector<std::string> LootTiers = CurrentItemRow.second.second.second;
+
+							LOG_INFO(LogDev, "Passed check 7.");
+
+							ItemRow.Definition = Definition;
+							ItemRow.DropCount = DropCount;
+							ItemRow.LoadedAmmo = Cast<UFortWeaponItemDefinition>(Definition)->GetClipSize();
+							ItemRow.Weight = Weight;
+
+							LOG_INFO(LogDev, "Passed check 8.");
+
+							for (int i = 0; i < LootTiers.size(); i++)
+							{
+								auto LootTierString = LootTiers.at(i);
+
+								CustomLootpoolMap[LootTierString].Add(ItemRow);
+							}
+
+							LOG_INFO(LogDev, "Passed check 9.");
+						}
+					}
+					else
+					{
+						LOG_ERROR(LogDev, "Failed to open lootpool.json, make sure it's located in Binaries/Win64");
+						Globals::bCustomLootpool = false;
 					}
 				}
 				else

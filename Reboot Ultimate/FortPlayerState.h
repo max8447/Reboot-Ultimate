@@ -7,6 +7,12 @@
 class AFortPlayerState : public APlayerState
 {
 public:
+	AFortTeamInfo* GetPlayerTeam()
+	{
+		static auto PlayerTeamOffset = GetOffset("PlayerTeam");
+		return this->Get<AFortTeamInfo*>(PlayerTeamOffset);
+	}
+
 	UAbilitySystemComponent*& GetAbilitySystemComponent()
 	{
 		static auto AbilitySystemComponentOffset = GetOffset("AbilitySystemComponent");

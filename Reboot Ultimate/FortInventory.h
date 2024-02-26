@@ -109,6 +109,7 @@ public:
 	UFortItem* FindItemInstance(UFortItemDefinition* ItemDefinition);
 
 	void CorrectLoadedAmmo(const FGuid& Guid, int NewAmmoCount);
+	void CorrectLoadedAmmo(UFortItemDefinition* ItemDefinition, int NewAmmoCount);
 
 	UFortItem* FindItemInstance(const FGuid& Guid);
 	FFortItemEntry* FindReplicatedEntry(const FGuid& Guid);

@@ -3,6 +3,17 @@
 #include "Actor.h"
 
 #include "UnrealString.h"
+#include "Controller.h"
+
+class AFortTeamInfo : public AActor // AInfo
+{
+public:
+	TArray<AController*> GetTeamMembers()
+	{
+		static auto TeamMembersOffset = GetOffset("TeamMembers");
+		return this->Get<TArray<AController*>>(TeamMembersOffset);
+	}
+};
 
 class APlayerState : public AActor
 {

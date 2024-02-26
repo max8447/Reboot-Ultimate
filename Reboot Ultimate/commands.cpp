@@ -4,6 +4,8 @@
 #include "TSubclassOf.h"
 #include "moderation.h"
 #include "gui.h"
+#include "BehaviorTree.h"
+#include "AIBlueprintHelperLibrary.h"
 
 enum class EMovementMode : uint8_t
 {
@@ -1456,6 +1458,43 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 				Pawn->SetCanBeDamaged(!Pawn->CanBeDamaged());
 				SendMessageToConsole(PlayerController, std::wstring(L"God set to " + std::to_wstring(!(bool)Pawn->CanBeDamaged())).c_str());
+			}
+		}
+		else if (Command == "spawnaifromclass")
+		{
+			auto Pawn = ReceivingController->GetPawn();
+
+			if (!Pawn)
+			{
+				SendMessageToConsole(PlayerController, L"No pawn!");
+				return;
+			}
+
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(PlayerController, L"Please provide a class!");
+				return;
+			}
+
+			TSubclassOf<APawn> PawnClass = FindObject<UClass>(Arguments[1]);
+
+			if (NumArgs < 2)
+			{
+				SendMessageToConsole(PlayerController, L"Please provide a behavior tree!");
+				return;
+			}
+
+			UBehaviorTree* BehaviorTree = FindObject<UBehaviorTree>(Arguments[2]);
+
+			auto AIPawn = UAIBlueprintHelperLibrary::SpawnAIFromClass(GetWorld(), PawnClass, BehaviorTree, Pawn->GetActorLocation(), Pawn->GetActorRotation(), true, nullptr);
+
+			if (AIPawn)
+			{
+				SendMessageToConsole(PlayerController, L"Summoned!");
+			}
+			else
+			{
+				SendMessageToConsole(PlayerController, L"Failed to summon AI!");
 			}
 		}
 		else if (Command == "foundationtest")

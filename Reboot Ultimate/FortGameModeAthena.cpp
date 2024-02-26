@@ -339,9 +339,9 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 
 		LOG_INFO(LogDev, "Presetup!");
 
-		if (false)
+		if (Engine_Version >= 424 && Engine_Version <= 500)
 		{
-			SetupAIGoalManager();
+			BotMutator = SpawnMutator();
 			SetupAIDirector();
 			SetupServerBotManager();
 		}
@@ -946,11 +946,6 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 		if (Engine_Version >= 500)
 		{
 			GameState->Get<float>("DefaultParachuteDeployTraceForGroundDistance") = 10000;
-		}
-
-		if (AmountOfBotsToSpawn != 0)
-		{
-			Bots::SpawnBotsAtPlayerStarts(AmountOfBotsToSpawn);
 		}
 
 		UptimeWebHook.send_message(std::format("Server up! {} {}", Fortnite_Version, PlaylistName)); // PlaylistName sometimes isn't always what we use!
