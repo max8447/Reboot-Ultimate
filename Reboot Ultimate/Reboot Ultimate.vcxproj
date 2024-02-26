@@ -203,6 +203,8 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="EngineTypes.cpp" />
     <ClCompile Include="finder.cpp" />
+    <ClCompile Include="FortAthenaAISpawnerData.cpp" />
+    <ClCompile Include="FortAthenaAISpawnerDataComponentList.cpp" />
     <ClCompile Include="FortAthenaCreativePortal.cpp" />
     <ClCompile Include="FortAthenaMapInfo.cpp" />
     <ClCompile Include="FortAthenaMutator_Barrier.cpp" />
@@ -239,6 +241,7 @@
     <ClCompile Include="FortPlayerStateAthena.cpp" />
     <ClCompile Include="FortPlaysetItemDefinition.cpp" />
     <ClCompile Include="FortSafeZoneIndicator.cpp" />
+    <ClCompile Include="FortServerBotManagerAthena.cpp" />
     <ClCompile Include="FortWeapon.cpp" />
     <ClCompile Include="FortWeaponItemDefinition.cpp" />
     <ClCompile Include="FortWeaponRangedMountedCannon.cpp" />
@@ -335,9 +338,13 @@
     <ClInclude Include="finder.h" />
     <ClInclude Include="FortAbilitySet.h" />
     <ClInclude Include="FortAIEncounterInfo.h" />
+    <ClInclude Include="FortAIPawn.h" />
     <ClInclude Include="FortAthenaAIBotCharacterCustomization.h" />
     <ClInclude Include="FortAthenaAIBotController.h" />
     <ClInclude Include="FortAthenaAIBotCustomizationData.h" />
+    <ClInclude Include="FortAthenaAISpawnerData.h" />
+    <ClInclude Include="FortAthenaAISpawnerDataComponent.h" />
+    <ClInclude Include="FortAthenaAISpawnerDataComponentList.h" />
     <ClInclude Include="FortAthenaCreativePortal.h" />
     <ClInclude Include="FortAthenaMapInfo.h" />
     <ClInclude Include="FortAthenaMutator.h" />
@@ -393,6 +400,7 @@
     <ClInclude Include="FortQuickBars.h" />
     <ClInclude Include="FortResourceItemDefinition.h" />
     <ClInclude Include="FortSafeZoneIndicator.h" />
+    <ClInclude Include="FortServerBotManagerAthena.h" />
     <ClInclude Include="FortVehicleItemDefinition.h" />
     <ClInclude Include="FortVolume.h" />
     <ClInclude Include="FortWeapon.h" />

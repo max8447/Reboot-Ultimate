@@ -2,6 +2,8 @@
 
 #include "Object.h"
 
+#include "FortPlayerController.h"
+
 class UFortAthenaAIBotCharacterCustomization : public UObject
 {
 public:

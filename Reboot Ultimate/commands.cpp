@@ -6,6 +6,7 @@
 #include "gui.h"
 #include "BehaviorTree.h"
 #include "AIBlueprintHelperLibrary.h"
+#include "FortServerBotManagerAthena.h"
 
 enum class EMovementMode : uint8_t
 {
@@ -1495,6 +1496,83 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			else
 			{
 				SendMessageToConsole(PlayerController, L"Failed to summon AI!");
+			}
+		}
+		else if (Command == "spawnjules")
+		{
+			auto Pawn = ReceivingController->GetPawn();
+
+			if (!Pawn)
+			{
+				SendMessageToConsole(PlayerController, L"No pawn!");
+				return;
+			}
+
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(PlayerController, L"Please provide a bot data!");
+				return;
+			}
+
+			UFortAthenaAIBotCustomizationData* InBotData = FindObject<UFortAthenaAIBotCustomizationData>("/Game/Athena/AI/MANG/BotData/BotData_MANG_POI_Agency_2.BotData_MANG_POI_Agency_2");
+
+			if (!InBotData)
+			{
+				SendMessageToConsole(PlayerController, L"Invalid bot data!");
+				return;
+			}
+
+			FFortAthenaAIBotRunTimeCustomizationData RunTimeData;
+			RunTimeData.HasCustomSquadId() = true;
+			RunTimeData.ShouldCheckForOverlaps() = true;
+			RunTimeData.GetCullDistanceSquared() = 0.f;
+			RunTimeData.GetCustomSquadId() = 16;
+			RunTimeData.GetPredefinedCosmeticSetTag() = FGameplayTag();
+
+			auto SpawnedPawn = BotManager->SpawnBot(Pawn->GetActorLocation(), Pawn->GetActorRotation(), InBotData, RunTimeData);
+
+			if (SpawnedPawn)
+			{
+				SendMessageToConsole(PlayerController, L"Summoned!");
+			}
+			else
+			{
+				SendMessageToConsole(PlayerController, L"Failed to summon!");
+			}
+		}
+		else if (Command == "spawnshark")
+		{
+			auto Pawn = ReceivingController->GetPawn();
+
+			if (!Pawn)
+			{
+				SendMessageToConsole(PlayerController, L"No pawn!");
+				return;
+			}
+
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(PlayerController, L"Please provide a component list!");
+				return;
+			}
+
+			UFortAthenaAISpawnerDataComponentList* InComponentList = FindObject<UFortAthenaAISpawnerDataComponentList>("/SpicySake/Content/AISpawnerData/Parent/AISpawnerData_SpicySake_Parent_BP.AISpawnerData_SpicySake_Parent_BP_C");
+
+			if (!InComponentList)
+			{
+				SendMessageToConsole(PlayerController, L"Invalid component list!");
+				return;
+			}
+
+			auto SpawnedPawn = BotManager->SpawnAI(Pawn->GetActorLocation(), Pawn->GetActorRotation(), InComponentList);
+
+			if (SpawnedPawn)
+			{
+				SendMessageToConsole(PlayerController, L"Summoned!");
+			}
+			else
+			{
+				SendMessageToConsole(PlayerController, L"Failed to summon!");
 			}
 		}
 		else if (Command == "foundationtest")

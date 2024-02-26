@@ -2,8 +2,10 @@
 
 #include "FortGameModeAthena.h"
 #include "FortAthenaAIBotController.h"
+#include "FortAIPawn.h"
 #include "FortAthenaAIBotCustomizationData.h"
-#include "FortAthenaMutator_Bots.h"
+#include "FortServerBotManagerAthena.h"
+#include "FortAthenaAISpawnerData.h"
 
 class PlayerBot
 {
@@ -151,7 +153,7 @@ public:
 	}
 };
 
-static inline std::vector<PlayerBot> AllPlayerBotsToTick;
+inline std::vector<PlayerBot> AllPlayerBotsToTick;
 
 namespace Bots
 {
@@ -164,7 +166,7 @@ namespace Bots
 	}
 }
 
-inline AFortAthenaMutator_Bots* BotMutator = nullptr;
+inline UFortServerBotManagerAthena* BotManager = nullptr;
 
 class Boss
 {
@@ -180,12 +182,12 @@ public:
 		FVector SpawnLocation = SpawnTransform.Translation;
 		FRotator SpawnRotation = SpawnTransform.Rotation.Rotator();
 
-		Pawn = BotMutator->SpawnBot(PawnClass, SpawnLocator, SpawnLocation, SpawnRotation, false);
+		Pawn = BotManager->GetCachedBotMutator()->SpawnBot(PawnClass, SpawnLocator, SpawnLocation, SpawnRotation, false);
 		Controller = GetWorld()->SpawnActor<AFortAthenaAIBotController>(Pawn->GetAIControllerClass(), SpawnTransform);
 	}
 };
 
-static inline std::vector<Boss> AllBossesToTick;
+inline std::vector<Boss> AllBossesToTick;
 
 namespace Bosses
 {
@@ -195,5 +197,38 @@ namespace Bosses
 		boss.Initialize(SpawnLocator, SpawnTransform, CustomizationData);
 		AllBossesToTick.push_back(boss);
 		return boss.Controller;
+	}
+}
+
+class FortAI
+{
+public:
+	AFortAIPawn* Pawn = nullptr;
+	AController* Controller = nullptr;
+
+public:
+	void Initialize(const FTransform& SpawnTransform, UFortAthenaAISpawnerData* SpawnerData)
+	{
+		auto SpawnParams = SpawnerData->GetSpawnParamsComponent();
+		auto PawnClass = SpawnParams->GetPawnClass();
+
+		FVector SpawnLocation = SpawnTransform.Translation;
+		FRotator SpawnRotation = SpawnTransform.Rotation.Rotator();
+
+		Pawn = GetWorld()->SpawnActor<AFortAIPawn>(PawnClass, SpawnTransform);
+		Controller = GetWorld()->SpawnActor<AController>(Pawn->GetAIControllerClass(), SpawnTransform);
+	}
+};
+
+inline std::vector<FortAI> AllAIsToTick;
+
+namespace AIs
+{
+	static AController* SpawnFortAI(FTransform SpawnTransform, UFortAthenaAISpawnerData* SpawnerData)
+	{
+		auto ai = FortAI();
+		ai.Initialize(SpawnTransform, SpawnerData);
+		AllAIsToTick.push_back(ai);
+		return ai.Controller;
 	}
 }

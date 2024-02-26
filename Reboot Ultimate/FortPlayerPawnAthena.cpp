@@ -65,7 +65,9 @@ void AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook(UObject* Context, FFrame* 
 		bIsQuest = true;
 	}
 
-	if (bIsQuest)
+	constexpr bool bEnableQuests = false;
+
+	if (bEnableQuests && bIsQuest)
 	{
 		auto PlayerController = Cast<AFortPlayerControllerAthena>(Pawn->GetController());
 		auto QuestManager = PlayerController->GetQuestManager(ESubGame::Athena);

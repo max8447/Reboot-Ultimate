@@ -313,6 +313,15 @@
     <ClCompile Include="AIBlueprintHelperLibrary.cpp">
       <Filter>Engine\Source\Runtime\AIModule\Classes\Private\AIBlueprintHelperLibrary</Filter>
     </ClCompile>
+    <ClCompile Include="FortAthenaAISpawnerData.cpp">
+      <Filter>FortniteGame\Source\FortniteGame\Private\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="FortAthenaAISpawnerDataComponentList.cpp">
+      <Filter>FortniteGame\Source\FortniteGame\Private\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="FortServerBotManagerAthena.cpp">
+      <Filter>FortniteGame\Source\FortniteGame\Private\AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="log.h" />
@@ -984,6 +993,21 @@
     <ClInclude Include="AIController.h">
       <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
     </ClInclude>
+    <ClInclude Include="FortAIPawn.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="FortServerBotManagerAthena.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="FortAthenaAISpawnerDataComponentList.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="FortAthenaAISpawnerDataComponent.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="FortAthenaAISpawnerData.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">
@@ -1267,6 +1291,9 @@
     </Filter>
     <Filter Include="Engine\Source\Runtime\AIModule\Classes\Private\AIBlueprintHelperLibrary">
       <UniqueIdentifier>{6e99e5ee-e955-405e-8adf-755947d4c211}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FortniteGame\Source\FortniteGame\Private\AI">
+      <UniqueIdentifier>{37fa30f4-7826-4cac-94de-129f1f46f7f7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

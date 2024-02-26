@@ -1652,9 +1652,6 @@ static inline void MainUI()
 			ImGui::Checkbox("Swapping Debug Log", &bDebugPrintSwapping);
 			ImGui::Checkbox("Engine Debug Log", &bEngineDebugLogs);
 		}
-
-		/*
-
 		else if (Tab == SETTINGS_TAB)
 		{
 			if (ImGui::Checkbox("Use custom lootpool", &Globals::bCustomLootpool))
@@ -1771,8 +1768,6 @@ static inline void MainUI()
 				}
 			}
 		}
-
-		*/
 	}
 }
 

@@ -341,9 +341,8 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 
 		if (Engine_Version >= 424 && Engine_Version <= 500)
 		{
-			BotMutator = SpawnMutator();
 			SetupAIDirector();
-			SetupServerBotManager();
+			BotManager = SetupServerBotManager();
 		}
 		// SetupNavConfig(UKismetStringLibrary::Conv_StringToName(L"MANG"));
 
