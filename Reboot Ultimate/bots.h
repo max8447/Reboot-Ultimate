@@ -65,12 +65,17 @@ public:
 		else
 		{
 			static int CurrentBotNum = 1;
-			auto BotNumWStr = std::to_wstring(CurrentBotNum++);
-			NewName = (L"RebootBot" + BotNumWStr).c_str();
+			auto BotNumWStr = Fortnite_Version < 9 ? std::to_wstring(CurrentBotNum++) : std::to_wstring(CurrentBotNum++ + 200);
+			NewName = Fortnite_Version < 9 ? (L"RebootBot" + BotNumWStr).c_str() : (std::format(L"Anonymous[{}]", BotNumWStr)).c_str();
 		}
 
 		if (auto PlayerController = Cast<APlayerController>(Controller))
-			PlayerController->ServerChangeName(NewName);
+		{
+			if (Fortnite_Version < 9)
+				PlayerController->ServerChangeName(NewName);
+			else
+				GameMode->ChangeName(Controller, NewName, true);
+		}
 
 		PlayerState->OnRep_PlayerName();
 
