@@ -6,19 +6,23 @@
 
 void Quests::ProgressQuest(AFortPlayerControllerAthena* PlayerController, UFortQuestItemDefinition* QuestDefinition, FName BackendName)
 {
-	auto QuestManager = PlayerController->GetQuestManager(ESubGame::Athena);
 	auto PlayerState = PlayerController->GetPlayerStateAthena();
 
-	QuestManager->SelfCompletedUpdatedQuest(PlayerController, QuestDefinition, BackendName, 1, 1, nullptr, true, false);
-
-	for (int i = 0; i < PlayerState->GetPlayerTeam()->GetTeamMembers().Num(); i++)
+	if (Fortnite_Version < 16)
 	{
-		auto TeamMember = Cast<AFortPlayerControllerAthena>(PlayerState->GetPlayerTeam()->GetTeamMembers().at(i));
-		auto TeamMemberQuestManager = TeamMember->GetQuestManager(ESubGame::Athena);
+		auto QuestManager = PlayerController->GetQuestManager(ESubGame::Athena);
 
-		if (TeamMember && TeamMember != PlayerController)
+		QuestManager->SelfCompletedUpdatedQuest(PlayerController, QuestDefinition, BackendName, 1, 1, nullptr, true, false);
+
+		for (int i = 0; i < PlayerState->GetPlayerTeam()->GetTeamMembers().Num(); i++)
 		{
-			TeamMemberQuestManager->SelfCompletedUpdatedQuest(PlayerController, QuestDefinition, BackendName, 1, 1, PlayerState, true, false);
+			auto TeamMember = Cast<AFortPlayerControllerAthena>(PlayerState->GetPlayerTeam()->GetTeamMembers().at(i));
+			auto TeamMemberQuestManager = TeamMember->GetQuestManager(ESubGame::Athena);
+
+			if (TeamMember && TeamMember != PlayerController)
+			{
+				TeamMemberQuestManager->SelfCompletedUpdatedQuest(PlayerController, QuestDefinition, BackendName, 1, 1, PlayerState, true, false);
+			}
 		}
 	}
 	
