@@ -4,7 +4,7 @@
 
 void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMaybeIDFK)
 {
-	static auto ZoneDurationsOffset = Fortnite_Version >= 16 && Fortnite_Version < 18 ? 0x258
+	static auto ZoneDurationsOffset = Fortnite_Version >= 15.30 && Fortnite_Version < 18 ? 0x258 // should be enough for 15.00 & 15.10 (if someone has 15.20 please test)
 		: std::floor(Fortnite_Version) >= 18 ? 0x248
 		: 0x1F8; // S13-S14
 
