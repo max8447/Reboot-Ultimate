@@ -11,7 +11,7 @@ class UFortAthenaNpcPatrollingComponent : public UActorComponent
 public:
 	void SetPatrolPath(AFortAthenaPatrolPath* NewPatrolPath)
 	{
-		static auto SetPatrolPathFn = FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaNpcPatrollingComponent:SetPatrolPath");
+		static auto SetPatrolPathFn = FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaNpcPatrollingComponent.SetPatrolPath");
 		this->ProcessEvent(SetPatrolPathFn, &NewPatrolPath);
 	}
 

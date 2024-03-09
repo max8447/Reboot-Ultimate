@@ -20,6 +20,11 @@ public:
 		return Get<EVolumeState>(VolumeStateOffset);
 	}
 
+	class UFortPlaysetItemDefinition* GetCurrentPlayset()
+	{
+		return Get<class UFortPlaysetItemDefinition*>("CurrentPlayset");
+	}
+
 	void SetCurrentPlayset(class UFortPlaysetItemDefinition* NewPlayset)
 	{
 		static auto SetCurrentPlaysetFn = FindObject<UFunction>("/Script/FortniteGame.FortVolume.SetCurrentPlayset");

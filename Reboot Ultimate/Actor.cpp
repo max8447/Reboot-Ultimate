@@ -300,6 +300,14 @@ AActor* AActor::GetClosestActor(UClass* ActorClass, float DistMax, std::function
 	return TargetActor;
 }
 
+float AActor::GetGameTimeSinceCreation()
+{
+	static auto GetGameTimeSinceCreationFn = FindObject<UFunction>("/Script/Engine.Actor.GetGameTimeSinceCreation");
+	float ReturnValue;
+	this->ProcessEvent(GetGameTimeSinceCreationFn, &ReturnValue);
+	return ReturnValue;
+}
+
 bool AActor::IsAlwaysRelevant()
 {
 	static auto bAlwaysRelevantOffset = GetOffset("bAlwaysRelevant");

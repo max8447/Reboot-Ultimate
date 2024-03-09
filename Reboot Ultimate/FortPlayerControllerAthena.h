@@ -8,6 +8,8 @@
 #include "AthenaMarkerComponent.h"
 #include "FortVolume.h"
 #include "AthenaPlayerMatchReport.h"
+#include "SoftClassPtr.h"
+#include "FortScriptedAction.h"
 
 static void ApplyHID(AFortPlayerPawn* Pawn, UObject* HeroDefinition, bool bUseServerChoosePart = false)
 {
@@ -187,9 +189,118 @@ public:
 	}
 };
 
+enum class EFortQuestObjectiveItemEvent : uint8
+{
+	Craft = 0,
+	Collect = 1,
+	Acquire = 2,
+	Consume = 3,
+	OpenCardPack = 4,
+	PurchaseCardPack = 5,
+	Convert = 6,
+	Upgrade = 7,
+	UpgradeRarity = 8,
+	QuestComplete = 9,
+	AssignWorker = 10,
+	LevelUpCollectionBook = 11,
+	LevelUpAthenaSeason = 12,
+	LevelUpBattlePass = 13,
+	GainAthenaSeasonXp = 14,
+	HasItem = 15,
+	HasAccumulatedItem = 16,
+	SlotInCollection = 17,
+	AlterationRespec = 18,
+	AlterationUpgrade = 19,
+	HasCompletedQuest = 20,
+	HasAssignedWorker = 21,
+	HasUpgraded = 22,
+	HasConverted = 23,
+	HasUpgradedRarity = 24,
+	HasLeveledUpCollectionBook = 25,
+	SlotHeroInLoadout = 26,
+	HasLeveledUpAthenaSeason = 27,
+	HasLeveledUpBattlePass = 28,
+	HasGainedAthenaSeasonXp = 29,
+	MinigameTime = 30,
+	Max_None = 31,
+	EFortQuestObjectiveItemEvent_MAX = 32,
+};
+
+struct FFortMcpQuestObjectiveInfo
+{
+public:
+	static std::string GetStructName()
+	{
+		return "/Script/FortniteGame.FortMcpQuestObjectiveInfo";
+	}
+
+	FName GetBackendName()
+	{
+		return *GetStructOffset<FName>(this, "BackendName");
+	}
+
+	FDataTableRowHandle& GetObjectiveStatHandle()
+	{
+		return *GetStructOffset<FDataTableRowHandle>(this, "ObjectiveStatHandle");
+	}
+
+	TArray<FDataTableRowHandle>& GetAlternativeStatHandles()
+	{
+		return *GetStructOffset<TArray<FDataTableRowHandle>>(this, "AlternativeStatHandles");
+	}
+
+	EFortQuestObjectiveItemEvent& GetItemEvent()
+	{
+		return *GetStructOffset<EFortQuestObjectiveItemEvent>(this, "ItemEvent");
+	}
+
+	TSoftObjectPtr<UFortItemDefinition>& GetItemReference()
+	{
+		return *GetStructOffset<TSoftObjectPtr<UFortItemDefinition>>(this, "ItemReference");
+	}
+
+	FString& GetItemTemplateIdOverride()
+	{
+		return *GetStructOffset<FString>(this, "ItemTemplateIdOverride");
+	}
+
+	FText& GetDescription()
+	{
+		return *GetStructOffset<FText>(this, "Description");
+	}
+
+	int& GetCount()
+	{
+		return *GetStructOffset<int>(this, "Count");
+	}
+
+	TSoftClassPtr<AFortScriptedAction>& GetScriptedAction()
+	{
+		return *GetStructOffset<TSoftClassPtr<AFortScriptedAction>>(this, "ScriptedAction");
+	}
+};
+
 class UFortQuestItemDefinition : public UFortItemDefinition // UFortAccountItemDefinition
 {
 public:
+	TArray<FFortMcpQuestObjectiveInfo> GetObjectives()
+	{
+		return Get<TArray<FFortMcpQuestObjectiveInfo>>("Objectives");
+	}
+
+	FText GetCompletionText()
+	{
+		static auto GetCompletionTextFn = FindObject<UFunction>("/Script/FortniteGame.FortQuestItemDefinition.GetCompletionText");
+		FText ReturnValue;
+		this->ProcessEvent(GetCompletionTextFn, &ReturnValue);
+		return ReturnValue;
+	}
+
+	static UClass* StaticClass()
+	{
+		static auto Class = FindObject<UClass>("/Script/FortniteGame.FortQuestItemDefinition");
+		return Class;
+	}
 };
 
 class UFortQuestManager : public UObject

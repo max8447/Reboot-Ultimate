@@ -17,12 +17,12 @@ static inline void ProcessEventHook(UObject* Object, UFunction* Function, void* 
 	if (!Object || !Function)
 		return;
 
+	auto FunctionName = Function->GetName(); // UKismetSystemLibrary::GetPathName(Function).ToString();
+	auto FunctionFullName = Function->GetFullName();
+	auto ObjectName = Object->GetName();
+
 	if (Globals::bLogProcessEvent)
 	{
-		auto FunctionName = Function->GetName(); // UKismetSystemLibrary::GetPathName(Function).ToString();
-		auto FunctionFullName = Function->GetFullName();
-		auto ObjectName = Object->GetName();
-
 		if (!strstr(FunctionName.c_str(), ("EvaluateGraphExposedInputs")) &&
 			!strstr(FunctionName.c_str(), ("Tick")) &&
 			!strstr(FunctionName.c_str(), ("OnSubmixEnvelope")) &&
@@ -161,6 +161,29 @@ static inline void ProcessEventHook(UObject* Object, UFunction* Function, void* 
 			!strstr(FunctionFullName.c_str(), "GameplayCues"))
 		{
 			LOG_INFO(LogDev, "Function called: {} with {}", FunctionFullName, ObjectName);
+		}
+	}
+
+	if (ObjectName.contains("FortVolumeActor_PrefabGrenades_C") && FunctionFullName.contains("OnDeathServer"))
+	{
+		LOG_INFO(LogCreative, "Spawning Playset!");
+
+		AFortVolume* Volume = (AFortVolume*)Object;
+
+		if (Volume)
+		{
+			LOG_INFO(LogCreative, "Volume: {}", Volume->GetFullName());
+
+			auto Playset = Volume->GetCurrentPlayset();
+
+			if (Playset)
+			{
+				LOG_INFO(LogCreative, "Playset: {}", Playset->GetFullName());
+
+				UFortPlaysetItemDefinition::ShowPlayset(Playset, Volume);
+
+				return;
+			}
 		}
 	}
 

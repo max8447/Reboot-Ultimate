@@ -8,7 +8,7 @@ void Quests::ProgressQuest(AFortPlayerControllerAthena* PlayerController, UFortQ
 {
 	auto PlayerState = PlayerController->GetPlayerStateAthena();
 
-	if (Fortnite_Version < 16)
+	if (Fortnite_Version < 11)
 	{
 		auto QuestManager = PlayerController->GetQuestManager(ESubGame::Athena);
 
@@ -27,7 +27,7 @@ void Quests::ProgressQuest(AFortPlayerControllerAthena* PlayerController, UFortQ
 	}
 	
 	FXPEventEntry XPEventEntry{};
-	XPEventEntry.SimulatedXpEvent = UKismetTextLibrary::Conv_StringToText(L"Temporary Text");
+	XPEventEntry.SimulatedXpEvent = QuestDefinition->GetCompletionText();
 	XPEventEntry.QuestDef = QuestDefinition;
 	XPEventEntry.Time = UGameplayStatics::GetTimeSeconds(GetWorld());
 	XPEventEntry.EventXpValue = 5000;

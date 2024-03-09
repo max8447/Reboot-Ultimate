@@ -242,6 +242,7 @@
     <ClCompile Include="FortPlaysetItemDefinition.cpp" />
     <ClCompile Include="FortSafeZoneIndicator.cpp" />
     <ClCompile Include="FortServerBotManagerAthena.cpp" />
+    <ClCompile Include="FortVolumeManager.cpp" />
     <ClCompile Include="FortWeapon.cpp" />
     <ClCompile Include="FortWeaponItemDefinition.cpp" />
     <ClCompile Include="FortWeaponRangedMountedCannon.cpp" />
@@ -267,6 +268,7 @@
     <ClCompile Include="objectviewer.cpp" />
     <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="PlayerState.cpp" />
+    <ClCompile Include="PlaysetLevelStreamComponent.cpp" />
     <ClCompile Include="quests.cpp" />
     <ClCompile Include="reboot.cpp" />
     <ClCompile Include="SavePackage.cpp" />
@@ -348,6 +350,7 @@
     <ClInclude Include="FortAthenaCreativePortal.h" />
     <ClInclude Include="FortAthenaMapInfo.h" />
     <ClInclude Include="FortAthenaMutator.h" />
+    <ClInclude Include="FortAthenaMutator_Ashton.h" />
     <ClInclude Include="FortAthenaMutator_Barrier.h" />
     <ClInclude Include="FortAthenaMutator_Bots.h" />
     <ClInclude Include="FortAthenaMutator_Disco.h" />
@@ -400,6 +403,7 @@
     <ClInclude Include="FortQuickBars.h" />
     <ClInclude Include="FortResourceItemDefinition.h" />
     <ClInclude Include="FortSafeZoneIndicator.h" />
+    <ClInclude Include="FortScriptedAction.h" />
     <ClInclude Include="FortServerBotManagerAthena.h" />
     <ClInclude Include="FortVehicleItemDefinition.h" />
     <ClInclude Include="FortVolume.h" />
@@ -465,6 +469,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerController.h" />
     <ClInclude Include="PlayerState.h" />
+    <ClInclude Include="PlaysetLevelStreamComponent.h" />
     <ClInclude Include="PointerIsConvertibleFromTo.h" />
     <ClInclude Include="Quat.h" />
     <ClInclude Include="quests.h" />
@@ -480,6 +485,7 @@
     <ClInclude Include="Set.h" />
     <ClInclude Include="SharedPointer.h" />
     <ClInclude Include="SharedPointerInternals.h" />
+    <ClInclude Include="SoftClassPtr.h" />
     <ClInclude Include="SoftObjectPath.h" />
     <ClInclude Include="SoftObjectPtr.h" />
     <ClInclude Include="Sort.h" />

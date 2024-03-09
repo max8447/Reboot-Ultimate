@@ -24,6 +24,7 @@
 #include "gui.h"
 #include "FortAthenaMutator_InventoryOverride.h"
 #include "FortAthenaMutator_GG.h"
+#include "quests.h"
 
 void AFortPlayerController::ClientReportDamagedResourceBuilding(ABuildingSMActor* BuildingSMActor, EFortResourceType PotentialResourceType, int PotentialResourceCount, bool bDestroyed, bool bJustHitWeakspot)
 {
@@ -499,9 +500,6 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 	static auto ReceivingActorOffset = FindOffsetStruct(StructName, "ReceivingActor");
 	auto ReceivingActor = *(AActor**)(__int64(Params) + ReceivingActorOffset);
-
-	static auto InteractionBeingAttemptedOffset = FindOffsetStruct(StructName, "InteractionBeingAttempted");
-	auto InteractionBeingAttempted = *(EInteractionBeingAttempted*)(__int64(Params) + InteractionBeingAttemptedOffset);
 	
 	// LOG_INFO(LogInteraction, "ReceivingActor: {}", __int64(ReceivingActor));
 
@@ -601,6 +599,9 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	{
 		if (Engine_Version >= 424 && Fortnite_Version < 15 && ReceivingActor->GetFullName().contains("Wumba"))
 		{
+			static auto InteractionBeingAttemptedOffset = FindOffsetStruct(StructName, "InteractionBeingAttempted");
+			auto InteractionBeingAttempted = *(EInteractionBeingAttempted*)(__int64(Params) + InteractionBeingAttemptedOffset);
+
 			bool bIsSidegrading = InteractionBeingAttempted == EInteractionBeingAttempted::SecondInteraction ? true : false;
 	
 			LOG_INFO(LogDev, "bIsSidegrading: {}", (bool)bIsSidegrading);
@@ -1349,6 +1350,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 	auto DeadPlayerState = Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState());
 	auto KillerPawn = Cast<AFortPlayerPawn>(*(AFortPawn**)(__int64(DeathReport) + MemberOffsets::DeathReport::KillerPawn));
 	auto KillerPlayerState = Cast<AFortPlayerStateAthena>(*(AFortPlayerState**)(__int64(DeathReport) + MemberOffsets::DeathReport::KillerPlayerState));
+	auto KillerWeapon = Cast<UFortWeaponItemDefinition>(*(UFortWeaponItemDefinition**)__int64(DeathReport) + MemberOffsets::DeathReport::KillerWeapon);
 
 	if (!DeadPawn || !GameState || !DeadPlayerState)
 		return ClientOnPawnDiedOriginal(PlayerController, DeathReport);
@@ -1569,6 +1571,67 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 			}
 		}
 	}
+
+#ifdef EXPERIMENTAL
+
+	if (Fortnite_Version < 11)
+	{
+		auto ObjectiveStatTable = FindObject<UDataTable>("/Game/Athena/Items/Quests/AthenaObjectiveStatTable.AthenaObjectiveStatTable");
+		auto RowMap = ObjectiveStatTable->GetRowMap();
+
+		void* Row = nullptr;
+		FName RowName;
+
+		for (int i = 0; i < RowMap.Pairs.Elements.Data.Num(); ++i)
+		{
+			auto& Pair = RowMap.Pairs.Elements.Data.at(i).ElementData.Value;
+
+			auto CurrentRow = Pair.Value();
+
+			EFortQuestObjectiveStatEvent Type = *(EFortQuestObjectiveStatEvent*)(__int64(CurrentRow) + FindOffsetStruct("/Script/FortniteGame.FortQuestObjectiveStatTableRow", "Type"));
+			FString SourceTags = *(FString*)(__int64(CurrentRow) + FindOffsetStruct("/Script/FortniteGame.FortQuestObjectiveStatTableRow", "SourceTags"));
+			std::string SourceTagsStr = SourceTags.ToString();
+
+			auto KillerWeaponGameplayTags = KillerWeapon->GetGameplayTags().GameplayTags;
+
+			for (int i = 0; i < KillerWeaponGameplayTags.Num(); i++)
+			{
+				auto GameplayTag = KillerWeaponGameplayTags.at(i);
+
+				if (SourceTagsStr.contains(GameplayTag.TagName.ToString()) && Type == EFortQuestObjectiveStatEvent::Kill)
+				{
+					Row = CurrentRow;
+					RowName = Pair.Key();
+				}
+			}
+		}
+
+		if (Row && RowName.ComparisonIndex.Value != 0)
+		{
+			auto AllQuests = GetAllObjectsOfClass(UFortQuestItemDefinition::StaticClass());
+
+			for (int i = 0; i < AllQuests.size(); ++i)
+			{
+				auto Quest = Cast<UFortQuestItemDefinition>(AllQuests[i]);
+				TArray<FFortMcpQuestObjectiveInfo> Objectives = Quest->GetObjectives();
+
+				for (int j = 0; j < Objectives.Num(); j++)
+				{
+					auto Objective = Objectives.at(j);
+					auto ObjectiveStatHandle = Objective.GetObjectiveStatHandle();
+
+					if (ObjectiveStatHandle.RowName == RowName && KillerPlayerState)
+					{
+						auto KillerController = Cast<AFortPlayerControllerAthena>(KillerPlayerState->GetOwner());
+
+						Quests::ProgressQuest(KillerController, Quest, Objective.GetBackendName());
+					}
+				}
+			}
+		}
+	}
+
+#endif // EXPERIMENTAL
 
 	bool bIsRespawningAllowed = GameState->IsRespawningAllowed(DeadPlayerState);
 

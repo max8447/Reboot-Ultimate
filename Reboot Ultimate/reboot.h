@@ -18,6 +18,8 @@
 	FAILED_LISTEN = 3
 }; */
 
+#define BGACLASS FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass")
+
 extern inline UObject* (*StaticLoadObjectOriginal)(UClass*, UObject*, const wchar_t* InName, const wchar_t* Filename, uint32_t LoadFlags, UObject* Sandbox, bool bAllowObjectReconciliation) = nullptr;
 
 template <typename T = UObject>
@@ -342,6 +344,14 @@ inline int FindOffsetStruct(const std::string& StructName, const std::string& Me
 	return -1;
 }
 
+template <typename T>
+static T* GetStructOffset(auto Base, const std::string& MemberName, bool bWarnIfNotFound = true)
+{
+	auto Offset = FindOffsetStruct(Base->GetStructName(), MemberName, bWarnIfNotFound);
+
+	return *(T**)(__int64(Base) + Offset);
+}
+
 // template <typename T>
 static void CopyStruct(void* Dest, void* Src, size_t Size, UStruct* Struct = nullptr)
 {
@@ -398,7 +408,7 @@ namespace MemberOffsets
 	}
 	namespace DeathReport
 	{
-		extern inline int Tags = 0, KillerPlayerState = 0, KillerPawn = 0, DamageCauser = 0;
+		extern inline int Tags = 0, KillerPlayerState = 0, KillerPawn = 0, DamageCauser = 0, KillerWeapon = 0;
 	}
 	namespace DeathInfo
 	{

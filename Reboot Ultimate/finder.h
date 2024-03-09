@@ -575,8 +575,10 @@ static inline uint64 FindSetWorld()
 		SetWorldIndex = 0x73;
 	else if (Fortnite_Season >= 19 && Fortnite_Season < 21)
 		SetWorldIndex = 0x7A;
-	if (Fortnite_Version == 20.40)
+	if (Fortnite_Version == 20.40 || Fortnite_Version >= 22)
 		SetWorldIndex = 0x7B;
+	if (Fortnite_Version >= 21 && Fortnite_Version < 22)
+		SetWorldIndex = 0x7C;
 
 	// static auto DefaultNetDriver = FindObject("/Script/Engine.Default__NetDriver");
 	return SetWorldIndex;
@@ -1109,7 +1111,7 @@ static inline uint64 FindCollectGarbage()
 
 static inline uint64 FindActorGetNetMode()
 {
-	// return 0;
+	return 0; // We *shouldnt* need to hook this now because I fixed FindGIsClient
 
 	if (Engine_Version == 500) // hah well this and 427 does like nothing cuz inline mostly
 	{
@@ -1465,81 +1467,7 @@ static inline uint64 FindMcpIsDedicatedServerOffset()
 	return 0x60; // 1.7.2 & 1.11 & 4.1
 }
 
-static inline uint64 FindGIsClient()
-{
-	/* if (Fortnite_Version >= 20)
-		return 0; */
-
-	auto Addr = Memcury::Scanner::FindStringRef(L"AllowCommandletRendering");
-
-	std::vector<std::vector<uint8_t>> BytesArray = { {0x88, 0x05}, {0xC6, 0x05}, {0x88, 0x1D}, {0x44, 0x88}};
-
-	int Skip = Engine_Version <= 420 ? 1 : 2;
-
-	uint64 Addy;
-
-	for (int i = 0; i < 50; i++) // we should subtract from skip if goup
-	{
-		auto CurrentByte = *(Memcury::ASM::MNEMONIC*)(Addr.Get() - i);
-
-		// if (bPrint)
-			// std::cout << "CurrentByte: " << std::hex << (int)CurrentByte << '\n';
-
-		bool ShouldBreak = false;
-
-		// LOG_INFO(LogDev, "[{}] Byte: 0x{:x}", i, (int)CurrentByte);
-
-		for (auto& Bytes : BytesArray)
-		{
-			if (CurrentByte == Bytes[0])
-			{
-				bool Found = true;
-				for (int j = 1; j < Bytes.size(); j++)
-				{
-					if (*(Memcury::ASM::MNEMONIC*)(Addr.Get() - i + j) != Bytes[j])
-					{
-						Found = false;
-						break;
-					}
-				}
-				if (Found)
-				{
-					int Relative = Bytes[0] == 0x44 ? 3 : 2;
-					// LOG_INFO(LogDev, "[{}] No Rel 0x{:x} Rel: 0x{:x}", Skip, Memcury::Scanner(Addr.Get() - i).Get() - __int64(GetModuleHandleW(0)), Memcury::Scanner(Addr.Get() - i).RelativeOffset(Relative).Get() - __int64(GetModuleHandleW(0)));
-					
-					if (Skip > 0)
-					{
-						Skip--;
-						continue;
-					}
-
-					Addy = Memcury::Scanner(Addr.Get() - i).RelativeOffset(Relative).Get();
-					ShouldBreak = true;
-					break;
-				}
-			}
-		}
-
-		if (ShouldBreak)
-			break;
-
-		// std::cout << std::format("CurrentByte: 0x{:x}\n", (uint8_t)CurrentByte);
-	}
-
-	// LOG_INFO(LogDev, "Addy: 0x{:x}", Addy - __int64(GetModuleHandleW(0)));
-
-	return Addy; // 0; // Memcury::Scanner(Addy3).RelativeOffset(2).Get();
-
-	/*
-	auto Addr = Memcury::Scanner::FindStringRef(L"AllowCommandletRendering");
-	int Skip = 1;
-	auto Addy = FindBytes(Addr, { 0xC6, 0x05 }, 50, 0, true, Skip);
-	Addy = Addy ? Addy : FindBytes(Addr, { 0x44, 0x88 }, 50, 0, true, Skip);
-	Addy = Addy ? Addy : FindBytes(Addr, { 0x88, 0x1D }, 50, 0, true, Skip);
-
-	return Memcury::Scanner(Addy).RelativeOffset(2).Get();
-	*/
-}
+uint64 FindGIsClient(); // AHHH
 
 static inline uint64 FindGetNetMode()
 {
@@ -1842,6 +1770,9 @@ static inline uint64 FindReplicateActor()
 	if (Fortnite_Version >= 20)
 		return Memcury::Scanner::FindPattern("48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 4C 8D 69 68").Get();
 
+	if (Fortnite_Version >= 21)
+		return Memcury::Scanner::FindPattern("48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 45 33 FF 4C 8D 69 68 44 38 3D ? ? ? ? 48 8D 05 ? ? ? ? 48 8B F9 49").Get();
+
 	return 0;
 }
 
@@ -1851,6 +1782,8 @@ static inline uint64 FindCreateChannel()
 		return Memcury::Scanner::FindPattern("40 56 57 41 54 41 55 41 57 48 83 EC 60 48 8B 01 41 8B F9 45 0F B6 E0").Get();
 	if (Fortnite_Version >= 20)
 		return Memcury::Scanner::FindPattern("48 89 5C 24 ? 48 89 74 24 ? 44 89 4C 24 ? 55 57 41 54 41 56 41 57 48 8B EC 48 83 EC 50 45 33 E4 48 8D 05 ? ? ? ? 44 38 25").Get();
+	if (Fortnite_Version >= 21)
+		return Memcury::Scanner::FindPattern("48 89 5C 24 ? 48 89 74 24 ? 44 89 4C 24 ? 55 57 41 54 41 56 41 57 48 8B EC 48 83 EC 50 45 33 E4 48 8D 05 ? ? ? ? 44 38 25 ? ? ? ? 41 8B").Get();
 
 	return 0;
 }
@@ -1870,6 +1803,8 @@ static inline uint64 FindSetChannelActor()
 	}
 	if (Fortnite_Version >= 20)
 		return Memcury::Scanner::FindPattern("40 55 53 56 57 41 54 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 45 33 E4 48 8D 3D ? ? ? ? 44 89 A5").Get();
+	if (Fortnite_Version >= 21)
+		return Memcury::Scanner::FindPattern("48 89 5C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 33 FF 4C 8D 35 ? ? ? ? 89 BD ? ? ? ? 48").Get();
 
 	return 0;
 }
@@ -1884,6 +1819,8 @@ static inline uint64 FindCallPreReplication()
 		return Memcury::Scanner::FindPattern("48 85 D2 0F 84 ? ? ? ? 56 41 56 48 83 EC 38 4C 8B F2").Get();
 	if (Fortnite_Version >= 20)
 		return Memcury::Scanner::FindPattern("48 85 D2 0F 84 ? ? ? ? 48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56 41 57 48 83 EC 40 F6 41 58 30 48 8B EA 48 8B D9 40 B6 01").Get();
+	if (Fortnite_Version >= 21)
+		return Memcury::Scanner::FindPattern("48 85 D2 0F 84 ? ? ? ? 48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56 41 57 48 83 EC 40 F6 41 58 30 4C 8B F2 48 8B D9 40 B5 01 75 1A 48 8B 81").Get();
 
 	return 0;
 }
@@ -1911,6 +1848,26 @@ static inline uint64 FindClearAbility()
 		return Memcury::Scanner::FindPattern("40 53 57 41 56 48 83 EC 20 80 89 ? ? ? ? ? 33").Get();
 	if (Engine_Version == 500)
 		return Memcury::Scanner::FindPattern("48 8B C4 48 89 58 08 48 89 68 10 48 89 70 18 48 89 78 20 41 56 48 83 EC 20 80 89 ? ? ? ? ? 48 8B F2 44 8B 89 ? ? ? ? 33 D2 48 8B").Get();
+
+	return 0;
+}
+
+static inline uint64 FindCreativeStartGame()
+{
+	if (Fortnite_Version == 13)
+	{
+		return Memcury::Scanner::FindPattern("40 53 48 83 EC 40 65 48 8B 04 25 ? ? ? ? 48 8B D9 8B 15 ? ? ? ? B9 ? ? ? ? 48 8B 14 D0 8B 04 11 39 05 ? ? ? ? 0F 8F ? ? ? ?").Get();
+	}
+
+	return 0;
+}
+
+static inline uint64 FindCreativeEndGame()
+{
+	if (Fortnite_Version == 13)
+	{
+		return Memcury::Scanner::FindPattern("48 89 5C 24 ? 56 57 41 57 48 83 EC 40 65 48 8B 04 25 ? ? ? ? 44 0F B6 FA 44 8B 05 ? ? ? ? 48 8B F9 BE ? ? ? ? 4A 8B 1C C0 8B 04 33 39 05 ? ? ? ? 0F 8F ? ? ? ?").Get();
+	}
 
 	return 0;
 }

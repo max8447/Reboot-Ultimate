@@ -1358,6 +1358,23 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(ReceivingController, L"Started bus.");
 		}
+		else if (Command == "creativestartgame")
+		{
+			if (!Globals::bCreative)
+			{
+				SendMessageToConsole(PlayerController, L"It's not creative!");
+				return;
+			}
+
+			if (Addresses::CreativeStartGame != 0)
+			{
+				static void (*StartGame)(__int64 idk) = decltype(StartGame)(Addresses::CreativeStartGame);
+
+				__int64 idk = 1;
+
+				StartGame(idk);
+			}
+		}
 		else if (Command == "listplayers")
 		{
 			std::string PlayerNames;
@@ -1839,6 +1856,14 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		{
 			static auto ServerSuicideFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerController.ServerSuicide");
 			ReceivingController->ProcessEvent(ServerSuicideFn);
+		}
+		else if (Command == "testexecutefunc")
+		{
+			ReceivingController->Execute(FindObject<UFunction>("/Script/FortniteGame.FortPlayerController.ServerSuicide"));
+		}
+		else if (Command == "testexecutefunc2")
+		{
+			ReceivingController->GetMyFortPawn()->Execute(FindObject<UFunction>("/Script/Engine.Character.LaunchCharacter"), FVector(10000, 1000, 0), false, false);
 		}
 		else if (Command == "spawn" || Command == "summon")
 		{

@@ -21,6 +21,7 @@ extern inline double Fortnite_Version = 0; // For example, 4.1, 6.21, etc. // Pr
 extern inline int Fortnite_CL = 0;
 
 #define PROD // this doesnt do anything besides remove processeventhook and some assert stuff
+// #define EXPERIMENTAL // probably extrememly scuffed code but i still wanna test it
 
 struct PlaceholderBitfield
 {

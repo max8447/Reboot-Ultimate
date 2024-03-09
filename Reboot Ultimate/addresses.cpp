@@ -315,6 +315,12 @@ void Addresses::FindAll()
 	LOG_INFO(LogDev, "Finding StartAircraftPhase");
 	Addresses::StartAircraftPhase = FindStartAircraftPhase();
 
+	LOG_INFO(LogDev, "Finding CreativeStartGame");
+	Addresses::CreativeStartGame = FindCreativeStartGame();
+
+	LOG_INFO(LogDev, "Finding CreativeEndGame");
+	Addresses::CreativeEndGame = FindCreativeEndGame();
+
 	// LOG_INFO(LogDev, "Finding GetSessionInterface");
 	// Addresses::GetSessionInterface = FindGetSessionInterface();
 
@@ -399,6 +405,8 @@ void Addresses::Print()
 	LOG_INFO(LogDev, "AddToAlivePlayers: 0x{:x}", AddToAlivePlayers - Base);
 	LOG_INFO(LogDev, "GetSessionInterface: 0x{:x}", GetSessionInterface - Base);
 	LOG_INFO(LogDev, "StartAircraftPhase: 0x{:x}", StartAircraftPhase - Base);
+	LOG_INFO(LogDev, "CreativeStartGame: 0x{:x}", CreativeStartGame - Base);
+	LOG_INFO(LogDev, "CreativeEndGame: 0x{:x}", CreativeEndGame - Base);
 }
 
 void Offsets::FindAll()

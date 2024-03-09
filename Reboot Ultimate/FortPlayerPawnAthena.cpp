@@ -65,9 +65,9 @@ void AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook(UObject* Context, FFrame* 
 		bIsQuest = true;
 	}
 
-	constexpr bool bEnableQuests = false;
+#ifdef EXPERIMENTAL
 
-	if (bEnableQuests && bIsQuest)
+	if (bIsQuest)
 	{
 		auto PlayerController = Cast<AFortPlayerControllerAthena>(Pawn->GetController());
 		auto QuestManager = PlayerController->GetQuestManager(ESubGame::Athena);
@@ -80,11 +80,14 @@ void AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook(UObject* Context, FFrame* 
 		FName BackendName;
 
 		static auto QuestItemOffset = OtherActor->GetOffset("QuestItem");
-		static auto QuestItemOffset2 = OtherActor->GetOffset("Quest_Item");
-		static auto QuestItemOffset3 = OtherActor->GetOffset("QuestItemDefinition");
+		static auto QuestItemOffset2 = OtherActor->GetOffset("QuestItem1");
+		static auto QuestItemOffset3 = OtherActor->GetOffset("Quest_Item");
+		static auto QuestItemOffset4 = OtherActor->GetOffset("QuestItemDefinition");
 		static auto BackendNameOffset = OtherActor->GetOffset("BackendName");
 		static auto BackendNameOffset2 = OtherActor->GetOffset("Quest_Backend_Name");
 		static auto BackendNameOffset3 = OtherActor->GetOffset("ObjectiveBackendName");
+		static auto BackendNameOffset4 = OtherActor->GetOffset("QuestBackendObjectiveName");
+		static auto BackendNameOffset5 = OtherActor->GetOffset("QuestObjectiveBackendName1");
 
 		if (!QuestItem && QuestItemOffset != -1)
 			QuestItem = OtherActor->Get<UFortQuestItemDefinition*>(QuestItemOffset);
@@ -95,20 +98,31 @@ void AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook(UObject* Context, FFrame* 
 		if (!QuestItem && QuestItemOffset3 != -1)
 			QuestItem = OtherActor->Get<UFortQuestItemDefinition*>(QuestItemOffset3);
 
-		if (BackendName.ComparisonIndex.Value == 0 && BackendNameOffset != -1)
+		if (!QuestItem && QuestItemOffset4 != -1)
+			QuestItem = OtherActor->Get<UFortQuestItemDefinition*>(QuestItemOffset4);
+
+		if (BackendName.ComparisonIndex.Value <= 0 && BackendNameOffset != -1)
 			BackendName = OtherActor->Get<FName>(BackendNameOffset);
 
-		if (BackendName.ComparisonIndex.Value == 0 && BackendNameOffset2 != -1)
+		if (BackendName.ComparisonIndex.Value <= 0 && BackendNameOffset2 != -1)
 			BackendName = OtherActor->Get<FName>(BackendNameOffset2);
 
-		if (BackendName.ComparisonIndex.Value == 0 && BackendNameOffset3 != -1)
+		if (BackendName.ComparisonIndex.Value <= 0 && BackendNameOffset3 != -1)
 			BackendName = OtherActor->Get<FName>(BackendNameOffset3);
+
+		if (BackendName.ComparisonIndex.Value <= 0 && BackendNameOffset4 != -1)
+			BackendName = OtherActor->Get<FName>(BackendNameOffset4);
+
+		if (BackendName.ComparisonIndex.Value <= 0 && BackendNameOffset5 != -1)
+			BackendName = OtherActor->Get<FName>(BackendNameOffset5);
 
 		if (QuestItem && BackendName.ComparisonIndex.Value != 0)
 		{
 			Quests::ProgressQuest(PlayerController, QuestItem, BackendName);
 		}
 	}
+
+#endif // EXPERIMENTAL
 
 	// return OnCapsuleBeginOverlapOriginal(Context, Stack, Ret); // we love explicit
 }

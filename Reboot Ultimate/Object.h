@@ -33,6 +33,14 @@ struct FGuid
 	}
 };
 
+template<typename... Parms>
+struct ParameterStruct
+{
+	std::tuple<Parms...> Parameters;
+
+	ParameterStruct(Parms... Params) : Parameters(Params...) {}
+};
+
 class UObject
 {
 public:
@@ -55,6 +63,14 @@ public:
 	{
 		// LOG_INFO(LogDev, "PE: 0x{:x}", __int64(ProcessEventOriginal) - __int64(GetModuleHandleW(0)));
 		ProcessEventOriginal(this, Function, Parms);
+	}
+
+	template<typename ...Parms>
+	void Execute(UFunction* Function, Parms... Params)
+	{
+		auto ParamStruct = ParameterStruct<Parms...>(Params...);
+
+		ProcessEventOriginal(this, Function, &ParamStruct);
 	}
 
 	std::string GetName() { return NamePrivate.ToString(); }

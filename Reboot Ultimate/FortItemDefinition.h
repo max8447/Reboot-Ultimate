@@ -5,6 +5,7 @@
 #include "Class.h"
 
 #include "reboot.h"
+#include "GameplayTagContainer.h"
 
 enum class EFortItemType : uint8
 {
@@ -169,6 +170,11 @@ public:
 	{
 		static auto FilterOverrideOffset = GetOffset("FilterOverride");
 		return Get<EFortInventoryFilter>(FilterOverrideOffset);
+	}
+
+	FGameplayTagContainer GetGameplayTags()
+	{
+		return Get<FGameplayTagContainer>("GameplayTags");
 	}
 
 	static UClass* StaticClass()

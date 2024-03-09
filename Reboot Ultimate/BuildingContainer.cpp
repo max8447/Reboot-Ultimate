@@ -91,7 +91,9 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 	// idk
    /* this->GetActorForwardVector() * this->GetLootSpawnLocation_Athena().X + this->GetActorRightVector() * this->GetLootSpawnLocation_Athena().Y + this->GetActorUpVector() * this->GetLootSpawnLocation_Athena().Z*/
 
-	FVector LocationToSpawnLoot = this->GetActorLocation() + this->GetActorForwardVector() * this->GetLootSpawnLocation_Athena().X + this->GetActorRightVector() * this->GetLootSpawnLocation_Athena().Y + this->GetActorUpVector() * this->GetLootSpawnLocation_Athena().Z;
+	// FVector LocationToSpawnLoot = this->GetActorLocation() + this->GetActorForwardVector() * this->GetLootSpawnLocation_Athena().X + this->GetActorRightVector() * this->GetLootSpawnLocation_Athena().Y + this->GetActorUpVector() * this->GetLootSpawnLocation_Athena().Z;
+
+	FVector LocationToSpawnLoot = this->GetActorLocation() + this->GetActorRightVector() * 70.f + this->GetActorUpVector() * 50.f;
 
 	auto RedirectedLootTier = GameMode->RedirectLootTier(GetSearchLootTierGroup());
 
@@ -130,7 +132,7 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 			{
 				try
 				{
-					auto Entry = FFortItemEntry::MakeItemEntry(RandomItem->Definition, 1, static_cast<UFortWeaponItemDefinition*>(RandomItem->Definition)->GetClipSize());
+					auto Entry = FFortItemEntry::MakeItemEntry(LoadObject<UFortItemDefinition>(RandomItem->Definition->GetFullName(), UFortItemDefinition::StaticClass()), 1, static_cast<UFortWeaponItemDefinition*>(RandomItem->Definition)->GetClipSize());
 					LootDrops.push_back(LootDrop(Entry));
 					LOG_INFO(LogDev, "Entry->ItemDefinition: {}", Entry->GetItemDefinition()->GetFullName());
 				}
@@ -175,7 +177,7 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 			{
 				try
 				{
-					UFortWorldItemDefinition* AmmoItem = static_cast<UFortWeaponItemDefinition*>(RandomItem->Definition)->GetAmmoData();
+					UFortWorldItemDefinition* AmmoItem = Cast<UFortWeaponItemDefinition>(RandomItem->Definition)->GetAmmoData();
 
 					if (AmmoItem && RandomItem->Definition != AmmoItem && AmmoItem->GetDropCount() > 0)
 					{

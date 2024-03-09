@@ -1,5 +1,7 @@
 #include "PlaysetLevelStreamComponent.h"
 
+#include "FortVolume.h"
+
 void UPlaysetLevelStreamComponent::SetPlaysetHook(UPlaysetLevelStreamComponent* Component, UFortPlaysetItemDefinition* NewPlayset)
 {
 	SetPlaysetOriginal(Component, NewPlayset);

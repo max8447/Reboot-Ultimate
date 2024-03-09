@@ -322,6 +322,12 @@
     <ClCompile Include="FortServerBotManagerAthena.cpp">
       <Filter>FortniteGame\Source\FortniteGame\Private\AI</Filter>
     </ClCompile>
+    <ClCompile Include="FortVolumeManager.cpp">
+      <Filter>FortniteGame\Source\FortniteGame\Private\Creative</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaysetLevelStreamComponent.cpp">
+      <Filter>FortniteGame\Source\FortniteGame\Private\Creative</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="log.h" />
@@ -1007,6 +1013,18 @@
     </ClInclude>
     <ClInclude Include="FortAthenaAISpawnerData.h">
       <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaysetLevelStreamComponent.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\Creative</Filter>
+    </ClInclude>
+    <ClInclude Include="SoftClassPtr.h">
+      <Filter>Engine\Source\Runtime\CoreUObject\Public\UObject</Filter>
+    </ClInclude>
+    <ClInclude Include="FortScriptedAction.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="FortAthenaMutator_Ashton.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\Athena\Modifiers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
