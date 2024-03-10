@@ -310,6 +310,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Sniper_NoScope_Athena_SR_Ore_T03";
 			}
+			else if (weaponName == "bolt_c")
+			{
+				weaponName = "WID_Sniper_BoltAction_Scope_Athena_C_Ore_T03";
+			}
 			else if (weaponName == "bolt_uc")
 			{
 				weaponName = "WID_Sniper_BoltAction_Scope_Athena_UC_Ore_T03";
@@ -453,6 +457,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			else if (weaponName == "kits" || weaponName == "kitslauncher")
 			{
 				weaponName = "WID_Launcher_Shockwave_Athena_UR_Ore_T03";
+			}
+			else if (weaponName == "godgun" || weaponName == "testgod")
+			{
+				weaponName = "TestGod";
 			}
 			else if (weaponName == "rift")
 			{
