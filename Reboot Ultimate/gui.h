@@ -1782,7 +1782,7 @@ static inline void PregameUI()
 
 	if (Fortnite_Version == 11.30 && 11.31 && 12.41)
 	{
-		ImGui::Checkbox("S11/12 Slomo on game end", &Globals::bOnGameEndSlowmo);
+		ImGui::Checkbox("Slomo on game end", &Globals::bOnGameEndSlowmo);
 	}
 
 	if (Engine_Version >= 422 && Engine_Version < 424)
