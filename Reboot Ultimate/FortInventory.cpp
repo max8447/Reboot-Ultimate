@@ -229,6 +229,12 @@ std::pair<std::vector<UFortItem*>, std::vector<UFortItem*>> AFortInventory::AddI
 
 std::pair<std::vector<UFortItem*>, std::vector<UFortItem*>> AFortInventory::AddItem(UFortItemDefinition* ItemDefinition, bool* bShouldUpdate, int Count, int LoadedAmmo, bool bShowItemToast)
 {
+	if (Count < 1)
+	{
+		std::pair<std::vector<UFortItem*>, std::vector<UFortItem*>> EmptyRet;
+		return EmptyRet;
+	}
+
 	if (LoadedAmmo == -1)
 	{
 		if (auto WeaponDef = Cast<UFortWeaponItemDefinition>(ItemDefinition)) // bPreventDefaultPreload ?

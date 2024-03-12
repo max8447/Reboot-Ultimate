@@ -133,6 +133,25 @@ void AFortPlayerControllerAthena::EndGhostModeHook(AFortPlayerControllerAthena* 
 	return EndGhostModeOriginal(PlayerController);
 }
 
+void AFortPlayerControllerAthena::ServerCreativeSetFlightSpeedIndexHook(UObject* Context, FFrame* Stack)
+{
+	int Index;
+	Stack->StepCompiledIn(&Index);
+
+	// LOG_INFO(LogDev, "Player {} wanting to change creative flight speed at index {}", Context->GetName(), Index);
+
+	auto WantedFlightSpeedChanged = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerGameplay:OnRep_FlyingModifierIndex");
+
+	if (!WantedFlightSpeedChanged)
+	{
+		return;
+	}
+
+	Context->Get<int>(Context->GetOffset("FlyingModifierIndex")) = Index;
+
+	return Context->ProcessEvent(WantedFlightSpeedChanged);
+}
+
 void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraft)
 {
 	auto PlayerController = Cast<AFortPlayerController>(Engine_Version < 424 ? PC : ((UActorComponent*)PC)->GetOwner());
@@ -207,12 +226,17 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 						Out2 = UDataTableFunctionLibrary::EvaluateCurveTableRow(ItemToGive->GetNumberToGive().GetCurve().CurveTable, ItemToGive->GetNumberToGive().GetCurve().RowName, 0.f);
 					}
 
+					if (!Out2)
+						Out2 = ItemToGive->GetNumberToGive().GetValue();
+
 					LOG_INFO(LogDev, "[{}] Out2: {} ItemToGive.ItemToDrop: {}", j, Out2, ItemToGive->GetItemToDrop()->IsValidLowLevel() ? ItemToGive->GetItemToDrop()->GetFullName() : "BadRead");
 
-					if (!Out2) // ?
-						Out2 = 0;
+					bool bShouldUpdate = false;
 
-					WorldInventory->AddItem(ItemToGive->GetItemToDrop(), nullptr, Out2);
+					WorldInventory->AddItem(ItemToGive->GetItemToDrop(), &bShouldUpdate, Out2);
+
+					// if (bShouldUpdate)
+						// WorldInventory->Update();
 				}
 			}
 		}
@@ -251,7 +275,13 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 				for (int i = 0; i < LoadoutContainer.Loadout.Num(); ++i)
 				{
 					auto& ItemAndCount = LoadoutContainer.Loadout.at(i);
-					WorldInventory->AddItem(ItemAndCount.GetItem(), nullptr, ItemAndCount.GetCount());
+
+					bool bShouldUpdate = false;
+
+					WorldInventory->AddItem(ItemAndCount.GetItem(), &bShouldUpdate, ItemAndCount.GetCount());
+
+					if (bShouldUpdate)
+						WorldInventory->Update();
 				}
 			}
 		}
@@ -259,8 +289,6 @@ void AFortPlayerControllerAthena::EnterAircraftHook(UObject* PC, AActor* Aircraf
 
 	LoopMutators(AddInventoryOverrideTeamLoadouts);
 
-	WorldInventory->Update();
-	
 	// Should we equip the pickaxe for older builds here?
 
 	if (Fortnite_Version < 2.5) // idk

@@ -1168,6 +1168,32 @@ static inline void MainUI()
 				}
 			}
 
+			if (std::floor(Fortnite_Version) == 11)
+			{
+				if (PlaylistName == "/Game/Athena/Playlists/Apollo/Playlist_Intro_Apollo_NewPlayer.Playlist_Intro_Apollo_NewPlayer")
+				{
+					if (ImGui::Button("Trigger Warmup Movie"))
+					{
+						auto GameMode = (AFortGameMode*)GetWorld()->GetGameMode();
+						auto GameState = Cast<AFortGameStateAthena>(GameMode->GetGameState());
+
+						static auto WarmupCountdownEndTimeOffset = GameState->GetOffset("WarmupCountdownEndTime");
+
+						float TimeSeconds = GameState->GetServerWorldTimeSeconds();
+						float Duration = 10;
+						float EarlyDuration = Duration;
+
+						static auto WarmupCountdownStartTimeOffset = GameState->GetOffset("WarmupCountdownStartTime");
+						static auto WarmupCountdownDurationOffset = GameMode->GetOffset("WarmupCountdownDuration");
+						static auto WarmupEarlyCountdownDurationOffset = GameMode->GetOffset("WarmupEarlyCountdownDuration");
+
+						GameState->Get<float>(WarmupCountdownEndTimeOffset) = TimeSeconds + Duration;
+						GameMode->Get<float>(WarmupCountdownDurationOffset) = Duration;
+						GameMode->Get<float>(WarmupEarlyCountdownDurationOffset) = EarlyDuration;
+					}
+				}
+			}
+
 			if (std::floor(Fortnite_Version) == 13)
 			{
 				static UObject* WL = FindObject("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Apollo_WaterSetup_2");

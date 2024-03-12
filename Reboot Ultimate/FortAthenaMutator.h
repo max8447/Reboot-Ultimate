@@ -8,6 +8,7 @@
 
 #include "ScriptInterface.h"
 #include "FortGameStateAthena.h"
+#include "FortPlayerControllerAthena.h"
 #include "GameplayStatics.h"
 
 class AFortAthenaMutator : public AActor // AFortGameplayMutator

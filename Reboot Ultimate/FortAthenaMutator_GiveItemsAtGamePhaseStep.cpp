@@ -6,54 +6,39 @@ void AFortAthenaMutator_GiveItemsAtGamePhaseStep::OnGamePhaseStepChangedHook(UOb
 {
 	LOG_INFO(LogDev, __FUNCTION__);
 
-	AFortAthenaMutator_GiveItemsAtGamePhaseStep* Mutator = (AFortAthenaMutator_GiveItemsAtGamePhaseStep*)Context;
-	TScriptInterface<UObject> SafeZoneInterface;
-	EAthenaGamePhaseStep GamePhaseStep;
+	auto GiveItems = Cast<AFortAthenaMutator_GiveItemsAtGamePhaseStep>(Context);
 
-	static auto SafeZoneInterfaceOffset = FindOffsetStruct("/Script/FortniteGame.FortAthenaMutator_Barrier.OnGamePhaseStepChanged", "SafeZoneInterface", false);
+	auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
 
-	if (SafeZoneInterfaceOffset != -1)
-		Stack.StepCompiledIn(&SafeZoneInterface);
+	if (!GameState)
+		return OnGamePhaseStepChangedOriginal(Context, Stack, Ret);
 
-	Stack.StepCompiledIn(&GamePhaseStep);
+	static bool bGaveItems = false;
 
-	if (GamePhaseStep == Mutator->GetPhaseToGiveItems())
+	if ((int)GameState->GetGamePhaseStep() == (int)GiveItems->GetPhaseToGiveItems() && bGaveItems == false)
 	{
-		static auto World_NetDriverOffset = GetWorld()->GetOffset("NetDriver");
-		auto WorldNetDriver = GetWorld()->Get<UNetDriver*>(World_NetDriverOffset);
-		auto& ClientConnections = WorldNetDriver->GetClientConnections();
+		auto ItemsToGive = GiveItems->GetItemsToGive();
 
-		auto ItemsToGive = Mutator->GetItemsToGive();
+		auto ClientConnections = GetWorld()->GetNetDriver()->GetClientConnections();
 
-		for (int i = 0; i < ItemsToGive.Num(); i++)
+		for (int i = 0; i < ClientConnections.Num(); i++)
 		{
-			UFortWorldItemDefinition* ItemToDrop = ItemsToGive.at(i).GetItemToDrop();
-			FScalableFloat NumberToGiveScalableFloat = ItemsToGive.at(i).GetNumberToGive();
+			auto CurrentController = Cast<AFortPlayerControllerAthena>(ClientConnections.At(i)->GetPlayerController());
 
-			float NumberToGive = 0;
-
-			if (NumberToGiveScalableFloat.GetCurve().RowName.ComparisonIndex.Value == 0)
-				NumberToGive = NumberToGiveScalableFloat.GetValue();
-
-			auto CurveTable = NumberToGiveScalableFloat.GetCurve().CurveTable;
-
-			NumberToGive = CurveTable->GetValueOfKey(CurveTable->GetKey(NumberToGiveScalableFloat.GetCurve().RowName, 0));
-
-			for (int i = 0; i < ClientConnections.Num(); i++)
+			if (CurrentController)
 			{
-				auto ClientConnection = ClientConnections.at(i);
-				auto PlayerController = Cast<AFortPlayerControllerAthena>(ClientConnection->GetPlayerController());
-				auto WorldInventory = PlayerController->GetWorldInventory();
+				auto WorldInventory = CurrentController->GetWorldInventory();
+
+				auto ItemToGive = ItemsToGive.At(0).GetItemToDrop();
+				auto NumberToGive = ItemsToGive.At(0).GetNumberToGive().GetValue();
 
 				bool bShouldUpdate = false;
-
-				WorldInventory->AddItem(ItemToDrop, &bShouldUpdate, NumberToGive);
-
-				if (bShouldUpdate)
-					WorldInventory->Update();
+				WorldInventory->AddItem(ItemToGive, &bShouldUpdate, NumberToGive);
 			}
 		}
+
+		bGaveItems = true;
 	}
 
-	return OnGamePhaseStepChangedOriginal(Context, Stack, Ret);
+	// return OnGamePhaseStepChangedOriginal(Context, Stack, Ret);
 }

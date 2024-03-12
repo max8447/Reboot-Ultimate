@@ -49,12 +49,30 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 		bShouldDestroyAllPlayerBuilds = false;
 	}
 
+	if (Cast<AFortGameModeAthena>(GetWorld()->GetGameMode())->GetGameStateAthena()->GetGamePhaseStep() > EAthenaGamePhaseStep::BusFlying)
+	{
+		for (int i = 0; i < NetDriver->GetClientConnections().Num(); i++)
+		{
+			auto PlayerController = Cast<AFortPlayerControllerAthena>(NetDriver->GetClientConnections().at(i)->GetPlayerController());
+			auto Pawn = Cast<AFortPawn>(PlayerController->GetPawn());
+
+			if (!Pawn)
+				continue;
+
+			if (Pawn->GetHealth() <= 0)
+			{
+				static auto ServerSuicideFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerController.ServerSuicide");
+				PlayerController->ProcessEvent(ServerSuicideFn);
+			}
+		}
+	}
+
 	if (Globals::bStartedListening)
 	{
 		static auto ReplicationDriverOffset = NetDriver->GetOffset("ReplicationDriver", false);
 
-		// if (ReplicationDriverOffset == -1)
-		if (ReplicationDriverOffset == -1/* || Fortnite_Version >= 20*/)
+		if (ReplicationDriverOffset == -1)
+		// if (ReplicationDriverOffset == -1 || Fortnite_Version >= 20)
 		{
 			NetDriver->ServerReplicateActors();
 		}

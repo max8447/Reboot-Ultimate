@@ -208,6 +208,7 @@
     <ClCompile Include="FortAthenaCreativePortal.cpp" />
     <ClCompile Include="FortAthenaMapInfo.cpp" />
     <ClCompile Include="FortAthenaMutator_Barrier.cpp" />
+    <ClCompile Include="FortAthenaMutator_DadBro.cpp" />
     <ClCompile Include="FortAthenaMutator_Disco.cpp" />
     <ClCompile Include="FortAthenaMutator_GiveItemsAtGamePhaseStep.cpp" />
     <ClCompile Include="FortAthenaSupplyDrop.cpp" />
@@ -353,6 +354,7 @@
     <ClInclude Include="FortAthenaMutator_Ashton.h" />
     <ClInclude Include="FortAthenaMutator_Barrier.h" />
     <ClInclude Include="FortAthenaMutator_Bots.h" />
+    <ClInclude Include="FortAthenaMutator_DadBro.h" />
     <ClInclude Include="FortAthenaMutator_Disco.h" />
     <ClInclude Include="FortAthenaMutator_GG.h" />
     <ClInclude Include="FortAthenaMutator_GiveItemsAtGamePhaseStep.h" />

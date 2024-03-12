@@ -897,6 +897,11 @@ void AFortPlayerController::ServerAttemptAircraftJumpHook(AFortPlayerController*
 		}
 	}
 
+	auto WorldInventory = PlayerController->GetWorldInventory();
+
+	if (WorldInventory)
+		WorldInventory->Update();
+
 	// PlayerController->ServerRestartPlayer();
 	// return ServerAttemptAircraftJumpOriginal(PC, ClientRotation);
 }
@@ -1041,14 +1046,24 @@ void AFortPlayerController::ServerCreateBuildingActorHook(UObject* Context, FFra
 
 	// LOG_INFO(LogDev, "MatInstance->GetItemEntry()->GetCount(): {}", MatInstance->GetItemEntry()->GetCount());
 
-	int MinimumMaterial = 10;
-	bool bShouldDestroy = MatInstance && MatInstance->GetItemEntry() ? MatInstance->GetItemEntry()->GetCount() < MinimumMaterial : true;
-
-	if (bShouldDestroy && !bBuildFree)
+	if (!bBuildFree)
 	{
-		ExistingBuildings.Free();
-		BuildingActor->SilentDie();
-		return ServerCreateBuildingActorOriginal(Context, Stack, Ret);
+		int MaterialCost = 10;
+
+		UFortItem* MatInstance = WorldInventory->FindItemInstance(MatDefinition);
+
+		if (!MatInstance || MatInstance->GetItemEntry()->GetCount() < MaterialCost)
+		{
+			ExistingBuildings.Free();
+			BuildingActor->SilentDie();
+			return ServerCreateBuildingActorOriginal(Context, Stack, Ret);
+		}
+
+		bool bShouldUpdate = false;
+		WorldInventory->RemoveItem(MatInstance->GetItemEntry()->GetItemGuid(), &bShouldUpdate, MaterialCost);
+
+		if (bShouldUpdate)
+			WorldInventory->Update();
 	}
 
 	for (int i = 0; i < ExistingBuildings.Num(); ++i)
@@ -1063,15 +1078,6 @@ void AFortPlayerController::ServerCreateBuildingActorHook(UObject* Context, FFra
 	BuildingActor->SetPlayerPlaced(true);
 	BuildingActor->InitializeBuildingActor(PlayerController, BuildingActor, true);
 	BuildingActor->SetTeam(PlayerStateAthena->GetTeamIndex()); // required?
-
-	if (!bBuildFree)
-	{
-		bool bShouldUpdate = false;
-		WorldInventory->RemoveItem(MatInstance->GetItemEntry()->GetItemGuid(), &bShouldUpdate, 10);
-
-		if (bShouldUpdate)
-			WorldInventory->Update();
-	}
 
 	/*
 
@@ -1917,9 +1923,13 @@ void AFortPlayerController::ServerBeginEditingBuildingActorHook(AFortPlayerContr
 	if (!EditToolInstance)
 		return;
 
-	Pawn->EquipWeaponDefinition(EditToolDef, EditToolInstance->GetItemEntry()->GetItemGuid());
+	AFortWeap_EditingTool* EditTool = nullptr;
 
+#if 1
+	EditTool = Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolInstance->GetItemEntry()->GetItemGuid()));
+#else
 	auto EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon());
+#endif
 
 	if (!EditTool)
 		return;
@@ -1957,7 +1967,7 @@ void AFortPlayerController::ServerEditBuildingActorHook(UObject* Context, FFrame
 	// if (!PlayerState || PlayerState->GetTeamIndex() != BuildingActorToEdit->GetTeamIndex()) 
 		//return ServerEditBuildingActorOriginal(Context, Frame, Ret);
 
-	BuildingActorToEdit->SetEditingPlayer(nullptr);
+	// BuildingActorToEdit->SetEditingPlayer(nullptr); // uh?
 
 	static ABuildingSMActor* (*BuildingSMActorReplaceBuildingActor)(ABuildingSMActor*, __int64, UClass*, int, int, uint8_t, AFortPlayerController*) =
 		decltype(BuildingSMActorReplaceBuildingActor)(Addresses::ReplaceBuildingActor);
@@ -1991,17 +2001,26 @@ void AFortPlayerController::ServerEndEditingBuildingActorHook(AFortPlayerControl
 	if (!WorldInventory)
 		return;
 
-	BuildingActorToStopEditing->SetEditingPlayer(nullptr);
+	AFortWeap_EditingTool* EditTool = nullptr;
 
+#if 0
 	auto EditToolInstance = WorldInventory->FindItemInstance(EditToolDef);
 
 	if (!EditToolInstance)
 		return;
 
-	// Pawn->EquipWeaponDefinition(EditToolDef, EditToolInstance->GetItemEntry()->GetItemGuid()); // ERM
+	EditTool = Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolInstance->GetItemEntry()->GetItemGuid())); // ERM
+#else
+	EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon());
+#endif
 
-	if (auto EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon()))
+	if (EditTool)
 	{
+		static auto bEditConfirmedOffset = EditTool->GetOffset("bEditConfirmed");
+
+		if (bEditConfirmedOffset == -1)
+			EditTool->Get<bool>(bEditConfirmedOffset) = true;
+
 		EditTool->SetEditActor(nullptr);
 	}
 }

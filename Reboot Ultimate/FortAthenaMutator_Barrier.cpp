@@ -9,6 +9,23 @@ void AFortAthenaMutator_Barrier::OnGamePhaseStepChangedHook(UObject* Context, FF
 	
 	LOG_INFO(LogDev, "OnGamePhaseStepChangedHook gamepadsl gwrigjsafjob fs: {}", (int)GameState->GetGamePhaseStep());
 
+	static bool bWallSpawned = false;
+
+	if (GameState->GetGamePhaseStep() == EAthenaGamePhaseStep::BusLocked && bWallSpawned == false)
+	{
+		auto Barrier = GetWorld()->SpawnActor<AActor>(FindObject<UClass>("/Game/Athena/Playlists/Barrier/Barrier.Barrier_C"), FVector{ 0, 0, -2000 }, FQuat{}, FVector{ 1,1,1 }, CreateSpawnParameters(ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
+
+		if (Barrier)
+		{
+			Context->Get<AActor*>(Context->GetOffset("BigBaseWall")) = Barrier;
+			bWallSpawned = true;
+		}
+		else
+		{
+			LOG_INFO(LogDev, "Barrier failed to spawn!");
+		}
+	}
+
 	/*
 	TScriptInterface<UObject> SafeZoneInterface;
 	EAthenaGamePhaseStep GamePhaseStep;
