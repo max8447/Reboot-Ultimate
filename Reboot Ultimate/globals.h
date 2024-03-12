@@ -11,7 +11,7 @@ namespace Globals
 	extern inline bool bEnableAGIDs = true;
 	extern inline bool bNoMCP = false;
 	extern inline bool bLogProcessEvent = false;
-	extern inline bool bSlowmo = false;
+	extern inline bool bOnGameEndSlowmo = false;
 	// extern inline bool bLateGame = false;
 	extern inline std::atomic<bool> bLateGame(false);
 
