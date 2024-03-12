@@ -449,6 +449,13 @@ void Offsets::FindAll()
 	else if (std::floor(Fortnite_Version) >= 21)
 		Offsets::ServerReplicateActors = 0x67; // checked onb 22.30
 
+	if (Engine_Version == 422 || Engine_Version == 423)
+		Offsets::ReturnValue = 0x90;
+	else if (Engine_Version == 424)
+		Offsets::ReturnValue = 0xA0;
+	else if (Engine_Version == 425)
+		Offsets::ReturnValue = 0xD0;
+
 	if (Engine_Version == 416) // checked on 1.7.2 & 1.8 & 1.9
 	{
 		Offsets::NetworkObjectList = 0x3F8;

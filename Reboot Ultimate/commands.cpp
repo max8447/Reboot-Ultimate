@@ -1873,6 +1873,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		{
 			ReceivingController->GetMyFortPawn()->Execute(FindObject<UFunction>("/Script/Engine.Character.LaunchCharacter"), FVector(10000, 1000, 0), false, false);
 		}
+		else if (Command == "textexecutefunc3")
+		{
+			SendMessageToConsole(ReceivingController, FindObject("/Script/Engine.Default__KismetSystemLibrary")->Execute<FString>(FindObject<UFunction>("/Script/Engine.KismetSystemLibrary.GetPathName"), ReceivingController->GetPawn()));
+		}
 		else if (Command == "spawn" || Command == "summon")
 		{
 			if (Arguments.size() <= 1)
@@ -2039,6 +2043,24 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				catch (...) {}
 			}
 
+			auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+
+			bool bShouldSpawnAtZoneCenter = false;
+
+			if (NumArgs >= 3 && Arguments[2] == "zonecenter")
+				bShouldSpawnAtZoneCenter = true;
+
+			if (bShouldSpawnAtZoneCenter && GameMode->GetGameStateAthena()->GetGamePhaseStep() <= EAthenaGamePhaseStep::BusFlying)
+				bShouldSpawnAtZoneCenter = false;
+
+			int SizeMultiplier = 1;
+
+			if (Arguments.size() >= 4)
+			{
+				try { SizeMultiplier = std::stod(Arguments[3]); }
+				catch (...) {}
+			}
+
 			constexpr int Max = 99;
 
 			if (Count > Max)
@@ -2054,12 +2076,14 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				FActorSpawnParameters SpawnParameters{};
 				// SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-				auto Loc = Pawn->GetActorLocation();
-				Loc.Z += 1000;
+				auto SafeZoneIndicator = GameMode->GetSafeZoneIndicator();
+
+				auto Loc = bShouldSpawnAtZoneCenter ? SafeZoneIndicator->GetSafeZoneCenter() : Pawn->GetActorLocation();
+				Loc.Z += bShouldSpawnAtZoneCenter ? 10000 : 1000;
 
 				FTransform Transform;
 				Transform.Translation = Loc;
-				Transform.Scale3D = FVector(1, 1, 1);
+				Transform.Scale3D = FVector(1 * SizeMultiplier, 1 * SizeMultiplier, 1 * SizeMultiplier);
 
 				auto NewActor = Bots::SpawnBot(Transform);
 
@@ -2073,7 +2097,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				}
 			}
 
-			SendMessageToConsole(PlayerController, L"Summoned!");
+			if (!bShouldSpawnAtZoneCenter)
+				SendMessageToConsole(PlayerController, L"Summoned!");
+			else
+				SendMessageToConsole(PlayerController, L"Summoned at zone center!");
 		}
 		else if (Command == "settimeofday" || Command == "time" || Command == "hour")
 		{

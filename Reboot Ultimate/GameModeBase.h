@@ -12,6 +12,7 @@ public:
 	UClass* GetDefaultPawnClassForController(AController* InController);
 	void ChangeName(AController* Controller, const FString& NewName, bool bNameChange);
 	AActor* K2_FindPlayerStart(AController* Player, FString IncomingName);
+	AActor* ChoosePlayerStart(AController* Player);
 	void RestartPlayerAtTransform(AController* NewPlayer, FTransform SpawnTransform);
 	void RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* StartSpot);
 	void RestartPlayer(AController* NewPlayer);

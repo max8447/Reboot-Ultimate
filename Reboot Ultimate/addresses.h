@@ -103,6 +103,7 @@ namespace Offsets
 	extern inline uint64 ClientWorldPackageName = 0;
 	extern inline uint64 Script = 0;
 	extern inline uint64 PropertyClass = 0;
+	extern inline uint64 ReturnValue = 0;
 
 	void FindAll();
 	void Print();

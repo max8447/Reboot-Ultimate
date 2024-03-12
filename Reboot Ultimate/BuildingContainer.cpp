@@ -132,7 +132,7 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 			{
 				try
 				{
-					auto Entry = FFortItemEntry::MakeItemEntry(LoadObject<UFortItemDefinition>(RandomItem->Definition->GetFullName(), UFortItemDefinition::StaticClass()), 1, static_cast<UFortWeaponItemDefinition*>(RandomItem->Definition)->GetClipSize());
+					auto Entry = FFortItemEntry::MakeItemEntry(LoadObject<UFortItemDefinition>(RandomItem->Definition->GetFullName(), UFortItemDefinition::StaticClass()), 1, Cast<UFortWeaponItemDefinition>(RandomItem->Definition)->GetClipSize());
 					LootDrops.push_back(LootDrop(Entry));
 					LOG_INFO(LogDev, "Entry->ItemDefinition: {}", Entry->GetItemDefinition()->GetFullName());
 				}

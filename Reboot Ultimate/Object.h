@@ -65,12 +65,23 @@ public:
 		ProcessEventOriginal(this, Function, Parms);
 	}
 
-	template<typename ...Parms>
-	void Execute(UFunction* Function, Parms... Params)
+	template<typename T = int, typename ...Parms>
+	T Execute(UFunction* Function, Parms... Params)
 	{
 		auto ParamStruct = ParameterStruct<Parms...>(Params...);
 
+		auto ReturnValueOffset = 0;
+
+		if (Offsets::ReturnValue)
+			ReturnValueOffset = *(int16*)(__int64(Function) + Offsets::ReturnValue);
+
 		ProcessEventOriginal(this, Function, &ParamStruct);
+
+		if (ReturnValueOffset != -1)
+		{
+			auto ReturnValue = *reinterpret_cast<T*>(__int64(&ParamStruct) + ReturnValueOffset);
+			return ReturnValue;
+		}
 	}
 
 	std::string GetName() { return NamePrivate.ToString(); }

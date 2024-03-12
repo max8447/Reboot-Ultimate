@@ -1111,7 +1111,8 @@ static inline uint64 FindCollectGarbage()
 
 static inline uint64 FindActorGetNetMode()
 {
-	return 0; // We *shouldnt* need to hook this now because I fixed FindGIsClient
+	if (Fortnite_Version < 20)
+		return 0; // We *shouldnt* need to hook this now because I fixed FindGIsClient
 
 	if (Engine_Version == 500) // hah well this and 427 does like nothing cuz inline mostly
 	{

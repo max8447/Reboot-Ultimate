@@ -22,7 +22,7 @@ extern inline int Fortnite_CL = 0;
 
 #define PROD // this doesnt do anything besides remove processeventhook and some assert stuff
 // #define EXPERIMENTAL // probably extrememly scuffed code but i still wanna test it
-#define ABOVE_S20
+// #define ABOVE_S20
 
 struct PlaceholderBitfield
 {

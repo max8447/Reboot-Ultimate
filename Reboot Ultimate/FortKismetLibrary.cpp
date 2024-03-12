@@ -372,6 +372,14 @@ void UFortKismetLibrary::K2_RemoveItemFromPlayerByGuidHook(UObject* Context, FFr
 	bool bShouldUpdate = false;
 	WorldInventory->RemoveItem(ItemGuid, &bShouldUpdate, AmountToRemove, bForceRemoval);
 
+	for (int i = 0; i < WorldInventory->GetItemList().GetReplicatedEntries().Num(); i++)
+	{
+		auto ReplicatedEntry = WorldInventory->GetItemList().GetReplicatedEntries().at(i);
+
+		WorldInventory->GetItemList().MarkItemDirty(&ReplicatedEntry);
+		WorldInventory->HandleInventoryLocalUpdate();
+	}
+
 	if (bShouldUpdate)
 		WorldInventory->Update();
 

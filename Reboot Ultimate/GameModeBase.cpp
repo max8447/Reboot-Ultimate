@@ -86,6 +86,21 @@ AActor* AGameModeBase::K2_FindPlayerStart(AController* Player, FString IncomingN
 	return AGameModeBase_K2_FindPlayerStart_Params.ReturnValue;
 }
 
+AActor* AGameModeBase::ChoosePlayerStart(AController* Player)
+{
+	static auto ChoosePlayerStartFn = FindObject<UFunction>(L"/Script/Engine.GameModeBase.ChoosePlayerStart");
+
+	struct
+	{
+		AController* Player;                                                   // (Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic);                                             // (Parm, ZeroConstructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+		AActor* ReturnValue;                                              // (Parm, OutParm, ZeroConstructor, ReturnParm, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+	} AGameModeBase_ChoosePlayerStart_Params{ Player };
+
+	this->ProcessEvent(ChoosePlayerStartFn, &AGameModeBase_ChoosePlayerStart_Params);
+
+	return AGameModeBase_ChoosePlayerStart_Params.ReturnValue;
+}
+
 APawn* AGameModeBase::SpawnDefaultPawnForHook(AGameModeBase* GameMode, AController* NewPlayer, AActor* StartSpot)
 {
 	LOG_INFO(LogDev, "SpawnDefaultPawnForHook!");
@@ -282,7 +297,7 @@ APawn* AGameModeBase::SpawnDefaultPawnForHook(AGameModeBase* GameMode, AControll
 		Calendar::SetSnow(100);
 	}
 
-	// LOG_INFO(LogDev, "Finish SpawnDefaultPawnFor!");
+	LOG_INFO(LogDev, "Finish SpawnDefaultPawnFor!");
 
 	return NewPawn;
 }

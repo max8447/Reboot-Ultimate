@@ -1598,7 +1598,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 			{
 				auto GameplayTag = KillerWeaponGameplayTags.at(i);
 
-				if (SourceTagsStr.contains(GameplayTag.TagName.ToString()) && Type == EFortQuestObjectiveStatEvent::Kill)
+				if (SourceTagsStr.contains(GameplayTag.TagName.ToString()) && Type == EFortQuestObjectiveStatEvent::Kill) // todo check targettags here too
 				{
 					Row = CurrentRow;
 					RowName = Pair.Key();

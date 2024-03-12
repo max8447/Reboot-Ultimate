@@ -453,6 +453,8 @@ void AFortPlayerControllerAthena::ServerTeleportToPlaygroundLobbyIslandHook(AFor
 
 void AFortPlayerControllerAthena::ServerAcknowledgePossessionHook(APlayerController* Controller, APawn* Pawn)
 {
+	LOG_INFO(LogGame, "ServerAcknowledgePossessionHook!")
+
 	static auto AcknowledgedPawnOffset = Controller->GetOffset("AcknowledgedPawn");
 
 	const APawn* OldAcknowledgedPawn = Controller->Get<APawn*>(AcknowledgedPawnOffset);

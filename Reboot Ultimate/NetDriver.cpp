@@ -54,7 +54,7 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 		static auto ReplicationDriverOffset = NetDriver->GetOffset("ReplicationDriver", false);
 
 		// if (ReplicationDriverOffset == -1)
-		if (ReplicationDriverOffset == -1 || Fortnite_Version >= 20)
+		if (ReplicationDriverOffset == -1/* || Fortnite_Version >= 20*/)
 		{
 			NetDriver->ServerReplicateActors();
 		}
@@ -268,45 +268,58 @@ void UNetDriver::ServerReplicateActors_BuildConsiderList(std::vector<FNetworkObj
 	{
 		auto Actors = UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass());
 
-		for (int i = 0; i < Actors.Num(); ++i)
+		if (Actors.Num() > 0)
 		{
-			auto Actor = Actors.at(i);
-
-			if (Actor->IsPendingKillPending())
-				// if (Actor->IsPendingKill())
+			for (int i = 0; i < Actors.Num(); ++i)
 			{
-				ActorsToRemove.push_back(Actor);
-				continue;
+				auto Actor = Actors.at(i);
+
+				if (!Actor)
+					continue;
+
+				if (Actor->IsPendingKillPending())
+					// if (Actor->IsPendingKill())
+				{
+					ActorsToRemove.push_back(Actor);
+					continue;
+				}
+
+				static auto RemoteRoleOffset = Actor->GetOffset("RemoteRole");
+
+				if (Actor->Get<ENetRole>(RemoteRoleOffset) == ENetRole::ROLE_None)
+				{
+					ActorsToRemove.push_back(Actor);
+					continue;
+				}
+
+				// We should add a NetDriverName check but I don't believe it is needed.
+
+				// We should check if the actor is initialized here.
+
+				// We should check the level stuff here.
+
+				static auto NetDormancyOffset = Actor->GetOffset("NetDormancy");
+
+				if (false)
+				{
+					if (Actor->Get<ENetDormancy>(NetDormancyOffset) == ENetDormancy::DORM_Initial && Actor->IsNetStartupActor()) // IsDormInitialStartupActor
+					{
+						continue;
+					}
+				}
+
+				auto ActorInfo = new FNetworkObjectInfo;
+				ActorInfo->Actor = Actor;
+
+				OutConsiderList.push_back(ActorInfo);
+
+				static void (*CallPreReplication)(AActor*, UNetDriver*) = decltype(CallPreReplication)(Addresses::CallPreReplication);
+				CallPreReplication(Actor, this);
 			}
-
-			static auto RemoteRoleOffset = Actor->GetOffset("RemoteRole");
-
-			if (Actor->Get<ENetRole>(RemoteRoleOffset) == ENetRole::ROLE_None)
-			{
-				ActorsToRemove.push_back(Actor);
-				continue;
-			}
-
-			// We should add a NetDriverName check but I don't believe it is needed.
-
-			// We should check if the actor is initialized here.
-
-			// We should check the level stuff here.
-
-			static auto NetDormancyOffset = Actor->GetOffset("NetDormancy");
-
-			if (Actor->Get<ENetDormancy>(NetDormancyOffset) == ENetDormancy::DORM_Initial && Actor->IsNetStartupActor()) // IsDormInitialStartupActor
-			{
-				continue;
-			}
-
-			auto ActorInfo = new FNetworkObjectInfo;
-			ActorInfo->Actor = Actor;
-
-			OutConsiderList.push_back(ActorInfo);
-
-			static void (*CallPreReplication)(AActor*, UNetDriver*) = decltype(CallPreReplication)(Addresses::CallPreReplication);
-			CallPreReplication(Actor, this);
+		}
+		else
+		{
+			LOG_WARN(LogReplication, "No actors to replicate!");
 		}
 
 		Actors.Free();
@@ -480,7 +493,7 @@ int32 UNetDriver::ServerReplicateActors()
 
 	ServerReplicateActors_BuildConsiderList(ConsiderList, ServerTickTime);
 
-	// LOG_INFO(LogReplication, "Considering {} actors.", ConsiderList.size());
+	LOG_INFO(LogReplication, "Considering {} actors.", ConsiderList.size());
 
 	for (int32 i = 0; i < this->GetClientConnections().Num(); i++)
 	{
