@@ -1172,7 +1172,7 @@ static inline void MainUI()
 			{
 				if (PlaylistName == "/Game/Athena/Playlists/Apollo/Playlist_Intro_Apollo_NewPlayer.Playlist_Intro_Apollo_NewPlayer")
 				{
-					if (ImGui::Button("Trigger Warmup Movie"))
+					if (ImGui::Button("Trigger Chapter Start Movie"))
 					{
 						auto GameMode = (AFortGameMode*)GetWorld()->GetGameMode();
 						auto GameState = Cast<AFortGameStateAthena>(GameMode->GetGameState());
