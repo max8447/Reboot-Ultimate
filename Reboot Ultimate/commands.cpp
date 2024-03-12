@@ -458,10 +458,6 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			{
 				weaponName = "WID_Launcher_Shockwave_Athena_UR_Ore_T03";
 			}
-			else if (weaponName == "godgun" || weaponName == "testgod")
-			{
-				weaponName = "TestGod";
-			}
 			else if (weaponName == "rift")
 			{
 				weaponName = "Athena_Rift_Item";
@@ -690,6 +686,17 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				else
 				{
 					weaponName = "WID_Sniper_NoScope_Athena_SR_Ore_T03";
+				}
+			}
+			else if (weaponName == "god" || weaponName == "godgun" || weaponName == "testgod")
+			{
+				if (Fortnite_Version < 15.30)
+				{
+					weaponName = "/Game/Items/Weapons/Ranged/WIP/TestGod.TestGod";
+				}
+				else
+				{
+					weaponName = "/SaveTheWorld/Items/Weapons/Ranged/WIP/TestGod.TestGod";
 				}
 			}
 
