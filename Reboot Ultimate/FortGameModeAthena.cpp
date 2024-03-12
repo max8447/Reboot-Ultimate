@@ -66,6 +66,9 @@ static UFortPlaylistAthena* GetPlaylistToUse()
 	if (Globals::bCreative)
 		Playlist = FindObject<UFortPlaylistAthena>(L"/Game/Athena/Playlists/Creative/Playlist_PlaygroundV2.Playlist_PlaygroundV2");
 
+	if (Globals::bSlowmo)
+		Playlist = FindObject<UFortPlaylistAthena>(L"/Game/Athena/Playlists/Vamp/Playlist_Vamp_Solo.Playlist_Vamp_Solo");
+
 	return Playlist;
 }
 

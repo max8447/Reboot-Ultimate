@@ -499,6 +499,11 @@ static inline void StaticUI()
 
 	ImGui::Checkbox("No MCP", &Globals::bNoMCP);
 
+	if (Fortnite_Version == 11.30 && 11.31 && 12.41)
+	{
+		ImGui::Checkbox("S11/12 Slowmo?", &Globals::bSlowmo);
+	}
+
 	if (Addresses::ApplyGadgetData && Addresses::RemoveGadgetData && Engine_Version < 424)
 	{
 		ImGui::Checkbox("Enable AGIDs", &Globals::bEnableAGIDs);
