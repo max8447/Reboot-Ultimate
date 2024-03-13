@@ -1040,8 +1040,6 @@ void AFortPlayerController::ServerCreateBuildingActorHook(UObject* Context, FFra
 
 	auto MatDefinition = UFortKismetLibrary::K2_GetResourceItemDefinition(BuildingActor->GetResourceType());
 
-	auto MatInstance = WorldInventory->FindItemInstance(MatDefinition);
-
 	bool bBuildFree = PlayerController->DoesBuildFree();
 
 	// LOG_INFO(LogDev, "MatInstance->GetItemEntry()->GetCount(): {}", MatInstance->GetItemEntry()->GetCount());
@@ -1760,71 +1758,29 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 					// FAthenaMatchStats.Stats[ERewardSource] // hmm
 
+					/*
+
 					// We need to check if their entire team is dead then I think we send it????
 
 					auto DeadControllerAthena = Cast<AFortPlayerControllerAthena>(PlayerController);
-					// auto KillerControllerAthena = Cast<AFortPlayerControllerAthena>(KillerPlayerState->GetOwner());
 
-					if (FAthenaMatchTeamStats::GetStruct()/* && FAthenaMatchStats::GetStruct()*/)
+					if (DeadControllerAthena && FAthenaMatchTeamStats::GetStruct())
 					{
-						if (DeadControllerAthena && !DeadPlayerState->IsBot())
+						auto MatchReport = DeadControllerAthena->GetMatchReport();
+
+						LOG_INFO(LogDev, "MatchReport: {}", __int64(MatchReport));
+
+						if (MatchReport)
 						{
-							auto MatchReport = DeadControllerAthena->GetMatchReport();
+							MatchReport->GetTeamStats()->GetPlace() = DeadPlayerState->GetPlace();
+							MatchReport->GetTeamStats()->GetTotalPlayers() = AmountOfPlayersWhenBusStart; // hmm
+							MatchReport->HasTeamStats() = true;
 
-							LOG_INFO(LogDev, "MatchReport: {}", __int64(MatchReport));
-
-							if (MatchReport)
-							{
-								MatchReport->GetTeamStats()->GetPlace() = DeadPlayerState->GetPlace();
-								MatchReport->GetTeamStats()->GetTotalPlayers() = AmountOfPlayersWhenBusStart; // hmm
-								MatchReport->HasTeamStats() = true;
-
-								DeadControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
-							}
-
-							/*
-
-							FAthenaMatchStats Stats;
-
-							for (size_t i = 0; i < 20; i++)
-							{
-								Stats.Stats[i] = i;
-							}
-
-							DeadControllerAthena->ClientSendMatchStatsForPlayer(&Stats);
-
-							*/
+							DeadControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
 						}
-
-						/*
-
-						if (KillerControllerAthena && !KillerPlayerState->IsBot())
-						{
-							auto MatchReport = KillerControllerAthena->GetMatchReport();
-
-							LOG_INFO(LogDev, "MatchReport: {}", __int64(MatchReport));
-
-							if (MatchReport)
-							{
-								MatchReport->GetTeamStats()->GetPlace() = KillerPlayerState->GetPlace();
-								MatchReport->GetTeamStats()->GetTotalPlayers() = AmountOfPlayersWhenBusStart; // hmm
-								MatchReport->HasTeamStats() = true;
-
-								KillerControllerAthena->ClientSendTeamStatsForPlayer(MatchReport->GetTeamStats());
-							}
-
-							FAthenaMatchStats Stats;
-
-							for (size_t i = 0; i < 20; i++)
-							{
-								Stats.Stats[i] = i;
-							}
-
-							KillerControllerAthena->ClientSendMatchStatsForPlayer(&Stats);
-						}
-
-						*/
 					}
+
+					*/
 
 					LOG_INFO(LogDev, "Removed!");
 				}
