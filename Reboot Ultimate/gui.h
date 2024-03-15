@@ -1685,7 +1685,7 @@ static inline void MainUI()
 		}
 		else if (Tab == SETTINGS_TAB)
 		{
-			if (ImGui::Checkbox("Use custom lootpool", &Globals::bCustomLootpool))
+			if (ImGui::Checkbox("Use Custom Lootpool (EXPERIMENTAL)", &Globals::bCustomLootpool))
 			{
 				if (Globals::bCustomLootpool)
 				{
