@@ -49,35 +49,6 @@ public:
 			if (!Pawn || !PlayerState)
 				return;
 
-			bool bUseOverrideName = false;
-
-			FString NewName;
-
-			if (bUseOverrideName)
-			{
-				NewName = L"Override";
-			}
-			else
-			{
-				static int CurrentBotNum = 1;
-				auto BotNumWStr = Fortnite_Version < 9 ? std::to_wstring(CurrentBotNum++) : std::to_wstring(CurrentBotNum++ + 200);
-				NewName = Fortnite_Version < 9 ? (L"RebootBot" + BotNumWStr).c_str() : (std::format(L"Anonymous[{}]", BotNumWStr)).c_str();
-			}
-
-			if (auto PlayerController = Cast<APlayerController>(Controller))
-			{
-				if (Fortnite_Version < 9)
-				{
-					PlayerController->ServerChangeName(NewName);
-				}
-				else
-				{
-					GameMode->ChangeName(Controller, NewName, true);
-				}
-
-				LOG_INFO(LogBots, "NewName: {}", NewName.ToString());
-			}
-
 			PlayerState->OnRep_PlayerName();
 			PlayerState->SetIsBot(true);
 			Controller->Possess(Pawn);
@@ -101,6 +72,33 @@ public:
 
 			PlayerState = Cast<AFortPlayerStateAthena>(AIBotController->GetPlayerState());
 		}
+
+		bool bUseOverrideName = false;
+
+		FString NewName;
+
+		if (bUseOverrideName)
+		{
+			NewName = L"Override";
+		}
+		else
+		{
+			static int CurrentBotNum = 1;
+			auto BotNumWStr = Fortnite_Version < 9 ? std::to_wstring(CurrentBotNum++) : std::to_wstring(CurrentBotNum++ + 200);
+			NewName = Fortnite_Version < 9 ? (L"RebootBot" + BotNumWStr).c_str() : (std::format(L"Anonymous[{}]", BotNumWStr)).c_str();
+		}
+
+		if (Fortnite_Version < 9)
+		{
+			if (auto PlayerController = Cast<AFortPlayerController>(Controller))
+				PlayerController->ServerChangeName(NewName);
+		}
+		else
+		{
+			GameMode->ChangeName(Controller ? Controller : AIBotController, NewName, true);
+		}
+
+		LOG_INFO(LogBots, "NewName: {}", NewName.ToString());
 
 		PlayerState->GetTeamIndex() = GameMode->Athena_PickTeamHook(GameMode, 0, Controller ? Controller : AIBotController);
 
@@ -177,8 +175,8 @@ public:
 
 		if (auto FortPlayerControllerAthena = Cast<AFortPlayerControllerAthena>(Controller))
 			GameMode->GetAlivePlayers().Add(FortPlayerControllerAthena);
-		if (AIBotController)
-			GameMode->GetAliveBots().Add(AIBotController);
+		// if (AIBotController)
+			// GameMode->GetAliveBots().Add(AIBotController);
 	}
 
 public:
@@ -270,6 +268,9 @@ public:
 
 			KillerState->ClientReportKill(PlayerState);
 		}
+
+		GameState->GetPlayersLeft()--;
+		GameState->OnRep_PlayersLeft();
 
 		/*
 
