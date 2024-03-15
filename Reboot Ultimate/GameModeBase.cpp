@@ -86,6 +86,22 @@ AActor* AGameModeBase::K2_FindPlayerStart(AController* Player, FString IncomingN
 	return AGameModeBase_K2_FindPlayerStart_Params.ReturnValue;
 }
 
+bool AGameModeBase::PlayerCanRestartHook(UObject* Context, FFrame& Stack, bool* Ret)
+{
+	auto ret = PlayerCanRestartOriginal(Context, Stack, Ret);
+
+	LOG_INFO(LogDev, "PlayerCanRestartHook ret: {}", ret);
+
+	if (Globals::bGoingToPlayEvent && Fortnite_Version == 14.60)
+	{
+		// 1:1
+		ret = true;
+		*Ret = true;
+	}
+
+	return ret;
+}
+
 AActor* AGameModeBase::ChoosePlayerStart(AController* Player)
 {
 	static auto ChoosePlayerStartFn = FindObject<UFunction>(L"/Script/Engine.GameModeBase.ChoosePlayerStart");

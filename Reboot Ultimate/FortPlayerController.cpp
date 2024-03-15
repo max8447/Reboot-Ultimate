@@ -944,8 +944,8 @@ void AFortPlayerController::ServerCreateBuildingActorHook(UObject* Context, FFra
 {
 	auto PlayerController = (AFortPlayerController*)Context;
 
-	if (!PlayerController) // ??
-		return ServerCreateBuildingActorOriginal(Context, Stack, Ret);
+	//if (!PlayerController) // ??
+		//return ServerCreateBuildingActorOriginal(Context, Stack, Ret);
 
 	auto WorldInventory = PlayerController->GetWorldInventory();
 
@@ -972,7 +972,7 @@ void AFortPlayerController::ServerCreateBuildingActorHook(UObject* Context, FFra
 		bMirrored = CreateBuildingData->bMirrored;
 
 		static auto BroadcastRemoteClientInfoOffset = PlayerController->GetOffset("BroadcastRemoteClientInfo");
-		auto BroadcastRemoteClientInfo = PlayerController->Get(BroadcastRemoteClientInfoOffset);
+		UObject* BroadcastRemoteClientInfo = PlayerController->Get(BroadcastRemoteClientInfoOffset);
 
 		static auto RemoteBuildableClassOffset = BroadcastRemoteClientInfo->GetOffset("RemoteBuildableClass");
 		BuildingClass = BroadcastRemoteClientInfo->Get<UClass*>(RemoteBuildableClassOffset);
@@ -995,7 +995,7 @@ void AFortPlayerController::ServerCreateBuildingActorHook(UObject* Context, FFra
 	if (!BuildingClass)
 		return ServerCreateBuildingActorOriginal(Context, Stack, Ret);
 
-	auto GameState = Cast<AFortGameStateAthena>(((AFortGameMode*)GetWorld()->GetGameMode())->GetGameState());
+	auto GameState = Cast<AFortGameStateAthena>(Cast<AFortGameMode>(GetWorld()->GetGameMode(), false)->GetGameState(), false);
 
 	auto StructuralSupportSystem = GameState->GetStructuralSupportSystem();
 
@@ -1320,7 +1320,7 @@ DWORD WINAPI SpectateThread(LPVOID PC)
 
 	Sleep(3000);
 
-	LOG_INFO(LogDev, "bugha!");
+	LOG_INFO(LogDev, "Spectate!");
 
 	SpectatingPC->SpectateOnDeath();
 
@@ -1810,7 +1810,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 		if (IsRestartingSupported() && Globals::bAutoRestart && !bIsInAutoRestart)
 		{
-			// wtf
+			// wht
 
 			if (GameState->GetGamePhase() > EAthenaGamePhase::Warmup)
 			{
@@ -1850,6 +1850,22 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 	return ClientOnPawnDiedOriginal(PlayerController, DeathReport);
 }
 
+bool Idk(ABuildingSMActor* BuildingActor)
+{
+	return true; // bIsPlayerBuildable && EditModeSupport && EditModePatternData && GameState->StructuralSupportSystem && ?? && ??
+}
+
+bool IsOkForEditing(ABuildingSMActor* BuildingActor, AFortPlayerController* Controller)
+{
+	if (BuildingActor->GetEditingPlayer() &&
+		BuildingActor->GetEditingPlayer() != Controller->GetPlayerState())
+		return false;
+
+	return !BuildingActor->IsDestroyed() &&
+		// BuildingActor->GetWorld() &&
+		Idk(BuildingActor);
+}
+
 void AFortPlayerController::ServerBeginEditingBuildingActorHook(AFortPlayerController* PlayerController, ABuildingSMActor* BuildingActorToEdit)
 {
 	if (!BuildingActorToEdit || !BuildingActorToEdit->IsPlayerPlaced()) // We need more checks.
@@ -1858,6 +1874,9 @@ void AFortPlayerController::ServerBeginEditingBuildingActorHook(AFortPlayerContr
 	auto Pawn = PlayerController->GetMyFortPawn();
 
 	if (!Pawn)
+		return;
+
+	if (!IsOkForEditing(BuildingActorToEdit, PlayerController))
 		return;
 
 	auto PlayerState = PlayerController->GetPlayerState();
@@ -1884,7 +1903,7 @@ void AFortPlayerController::ServerBeginEditingBuildingActorHook(AFortPlayerContr
 #if 1
 	EditTool = Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolInstance->GetItemEntry()->GetItemGuid()));
 #else
-	auto EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon());
+	EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon());
 #endif
 
 	if (!EditTool)
@@ -1959,13 +1978,19 @@ void AFortPlayerController::ServerEndEditingBuildingActorHook(AFortPlayerControl
 
 	AFortWeap_EditingTool* EditTool = nullptr;
 
-#if 0
+#if 1
 	auto EditToolInstance = WorldInventory->FindItemInstance(EditToolDef);
 
 	if (!EditToolInstance)
 		return;
 
-	EditTool = Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolInstance->GetItemEntry()->GetItemGuid())); // ERM
+	FGuid EditToolGuid = EditToolInstance->GetItemEntry()->GetItemGuid(); // Should we ref?
+
+#if 1
+	EditTool = Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolGuid)); // ERM
+#else
+	Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolGuid)); // ERM
+#endif
 #else
 	EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon());
 #endif
@@ -1974,8 +1999,8 @@ void AFortPlayerController::ServerEndEditingBuildingActorHook(AFortPlayerControl
 	{
 		static auto bEditConfirmedOffset = EditTool->GetOffset("bEditConfirmed");
 
-		if (bEditConfirmedOffset == -1)
-			EditTool->Get<bool>(bEditConfirmedOffset) = true;
+		if (bEditConfirmedOffset != -1)
+			EditTool->Get<bool>(bEditConfirmedOffset) = true; // this probably does nothing on server	
 
 		EditTool->SetEditActor(nullptr);
 	}

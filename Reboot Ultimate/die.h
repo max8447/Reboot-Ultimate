@@ -157,6 +157,7 @@ static inline void ProcessEventHook(UObject* Object, UFunction* Function, void* 
 			!strstr(FunctionName.c_str(), "SpinCubeTimeline__UpdateFunc") &&
 			!strstr(ObjectName.c_str(), "FortPhysicsObjectComponent") &&
 			!strstr(FunctionName.c_str(), "GetTextValue") &&
+			!strstr(FunctionName.c_str(), "ExecuteUbergraph_BGA_Petrol_Pickup") &&
 			!strstr(FunctionName.c_str(), "WaterDepthCheck") &&
 			!strstr(FunctionFullName.c_str(), "GameplayCues"))
 		{
