@@ -25,6 +25,7 @@
 #include "FortAthenaMutator_InventoryOverride.h"
 #include "FortAthenaMutator_GG.h"
 #include "quests.h"
+#include "globals.h"
 
 void AFortPlayerController::ClientReportDamagedResourceBuilding(ABuildingSMActor* BuildingSMActor, EFortResourceType PotentialResourceType, int PotentialResourceCount, bool bDestroyed, bool bJustHitWeakspot)
 {
@@ -1550,7 +1551,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 		// LOG_INFO(LogDev, "Reported kill.");
 
-		if (AmountOfHealthSiphon != 0)
+		if (Globals::AmountOfHealthSiphon != 0)
 		{
 			if (KillerPawn && KillerPawn != DeadPawn)
 			{
@@ -1567,14 +1568,14 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 
 				if ((MaxHealth - Health) > 0)
 				{
-					int AmountToGive = MaxHealth - Health >= AmountOfHealthSiphon ? AmountOfHealthSiphon : MaxHealth - Health;
+					int AmountToGive = MaxHealth - Health >= Globals::AmountOfHealthSiphon ? Globals::AmountOfHealthSiphon : MaxHealth - Health;
 					KillerPawn->SetHealth(Health + AmountToGive);
 					AmountGiven += AmountToGive;
 				}
 
-				if ((MaxShield - Shield) > 0 && AmountGiven < AmountOfHealthSiphon)
+				if ((MaxShield - Shield) > 0 && AmountGiven < Globals::AmountOfHealthSiphon)
 				{
-					int AmountToGive = MaxShield - Shield >= AmountOfHealthSiphon ? AmountOfHealthSiphon : MaxShield - Shield;
+					int AmountToGive = MaxShield - Shield >= Globals::AmountOfHealthSiphon ? Globals::AmountOfHealthSiphon : MaxShield - Shield;
 					AmountToGive -= AmountGiven;
 
 					if (AmountToGive > 0)

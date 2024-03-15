@@ -246,7 +246,7 @@ public:
 		else
 		{
 			if (MemberOffsets::DeathInfo::Distance != -1)
-				*(float*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::Distance) = /*KillerPawn && Pawn ? KillerPawn->GetDistanceTo(Pawn) : */0;
+				*(float*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::Distance) = KillerPawn && Pawn ? KillerPawn->GetDistanceTo_Manual(Pawn) : 0;
 		}
 
 		if (MemberOffsets::FortPlayerState::PawnDeathLocation != -1)
@@ -270,17 +270,11 @@ public:
 			KillerState->ClientReportKill(PlayerState);
 		}
 
-		/*
-
-		no siphon for now
-
-		if (AmountOfHealthSiphon != 0)
+		if (Globals::AmountOfHealthSiphon != 0)
 		{
 			if (KillerPawn && KillerPawn != Pawn)
 			{
-				auto KillerPlayerController = Cast<AFortPlayerController>(KillerPawn->GetController());
-
-				auto WorldInventory = KillerPlayerController->GetWorldInventory();
+				auto WorldInventory = KillerController->GetWorldInventory();
 
 				if (!WorldInventory)
 					return;
@@ -304,14 +298,14 @@ public:
 
 				if ((MaxHealth - Health) > 0)
 				{
-					int AmountToGive = MaxHealth - Health >= AmountOfHealthSiphon ? AmountOfHealthSiphon : MaxHealth - Health;
+					int AmountToGive = MaxHealth - Health >= Globals::AmountOfHealthSiphon ? Globals::AmountOfHealthSiphon : MaxHealth - Health;
 					KillerPawn->SetHealth(Health + AmountToGive);
 					AmountGiven += AmountToGive;
 				}
 
-				if ((MaxShield - Shield) > 0 && AmountGiven < AmountOfHealthSiphon)
+				if ((MaxShield - Shield) > 0 && AmountGiven < Globals::AmountOfHealthSiphon)
 				{
-					int AmountToGive = MaxShield - Shield >= AmountOfHealthSiphon ? AmountOfHealthSiphon : MaxShield - Shield;
+					int AmountToGive = MaxShield - Shield >= Globals::AmountOfHealthSiphon ? Globals::AmountOfHealthSiphon : MaxShield - Shield;
 					AmountToGive -= AmountGiven;
 
 					if (AmountToGive > 0)
@@ -322,8 +316,6 @@ public:
 				}
 			}
 		}
-
-		*/
 
 		GameState->GetPlayersLeft()--;
 		GameState->OnRep_PlayersLeft();

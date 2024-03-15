@@ -45,6 +45,9 @@ UFortWorldItemDefinition* UFortWeaponItemDefinition::GetAmmoData()
 
 void UFortWeaponItemDefinition::RemoveGrantedWeaponAbilities(AFortPlayerControllerAthena* PlayerController)
 {
+	if (Fortnite_Version < 14)
+		return;
+
 	auto EquippedAbilitySet = this->GetEquippedAbilitySet();
 	auto EquippedAbilities = this->GetEquippedAbilities();
 
@@ -130,6 +133,9 @@ void UFortWeaponItemDefinition::RemoveGrantedWeaponAbilities(AFortPlayerControll
 
 void UFortWeaponItemDefinition::GiveGrantedWeaponAbilities(AFortPlayerControllerAthena* PlayerController)
 {
+	if (Fortnite_Version < 14)
+		return;
+
 	auto EquippedAbilitySet = this->GetEquippedAbilitySet();
 	auto EquippedAbilities = this->GetEquippedAbilities();
 

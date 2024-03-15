@@ -17,6 +17,7 @@ namespace Globals
 
 	extern inline bool bInfiniteMaterials = true;
 	extern inline bool bInfiniteAmmo = true;
+	extern inline int AmountOfHealthSiphon = 0;
 	extern inline bool bShouldUseReplicationGraph = false;
 
 	extern inline bool bCustomLootpool = false;

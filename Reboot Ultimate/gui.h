@@ -97,7 +97,6 @@ extern inline bool bEnableRebooting = false;
 extern inline bool bEngineDebugLogs = false;
 extern inline bool bStartedBus = false;
 extern inline bool bShouldDestroyAllPlayerBuilds = false;
-extern inline int AmountOfHealthSiphon = 0;
 extern inline bool bEnableCannonAnimations = true;
 extern inline float* CannonXMultiplier = &DefaultCannonMultiplier;
 extern inline float* CannonYMultiplier = &DefaultCannonMultiplier;
@@ -487,7 +486,7 @@ static inline void StaticUI()
 		}
 	}
 
-	ImGui::InputInt("Shield/Health for siphon", &AmountOfHealthSiphon);
+	ImGui::InputInt("Shield/Health for siphon", &Globals::AmountOfHealthSiphon);
 
 #ifndef PROD
 	ImGui::Checkbox("Log ProcessEvent", &Globals::bLogProcessEvent);
