@@ -960,13 +960,8 @@ void AFortPlayerController::ServerCreateBuildingActorHook(UObject* Context, FFra
 {
 	auto PlayerController = (AFortPlayerController*)Context;
 
-<<<<<<< Updated upstream
-	//if (!PlayerController) // ??
-		//return ServerCreateBuildingActorOriginal(Context, Stack, Ret);
-=======
 	// if (!PlayerController) // ??
 		// return ServerCreateBuildingActorOriginal(Context, Stack, Ret);
->>>>>>> Stashed changes
 
 	auto WorldInventory = PlayerController->GetWorldInventory();
 
@@ -2005,21 +2000,12 @@ void AFortPlayerController::ServerEndEditingBuildingActorHook(AFortPlayerControl
 	if (!EditToolInstance)
 		return;
 
-<<<<<<< Updated upstream
 	FGuid EditToolGuid = EditToolInstance->GetItemEntry()->GetItemGuid(); // Should we ref?
 
 #if 1
 	EditTool = Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolGuid)); // ERM
 #else
 	Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolGuid)); // ERM
-#endif
-=======
-#if 1
-	EditTool = Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolInstance->GetItemEntry()->GetItemGuid())); // ERM
->>>>>>> Stashed changes
-#else
-	Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolInstance->GetItemEntry()->GetItemGuid())); // ERM
-	EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon());
 #endif
 #else
 	EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon());

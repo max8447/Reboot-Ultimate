@@ -140,11 +140,7 @@ void AFortPlayerControllerAthena::ServerCreativeSetFlightSpeedIndexHook(UObject*
 
 	// LOG_INFO(LogDev, "Player {} wanting to change creative flight speed at index {}", Context->GetName(), Index);
 
-<<<<<<< Updated upstream
 	static auto WantedFlightSpeedChangedFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerGameplay:OnRep_FlyingModifierIndex");
-=======
-	auto WantedFlightSpeedChanged = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerGameplay.OnRep_FlyingModifierIndex");
->>>>>>> Stashed changes
 
 	if (!WantedFlightSpeedChangedFn)
 	{

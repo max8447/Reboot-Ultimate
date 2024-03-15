@@ -65,7 +65,6 @@ struct FActorSpawnParametersUE500
 	TFunction<void(UObject*)> CustomPreSpawnInitalization; // my favorite
 };
 
-<<<<<<< Updated upstream
 #if 0
 
 static inline PadHexB0 CreateSpawnParameters(ESpawnActorCollisionHandlingMethod SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::Undefined, bool bDeferConstruction = false, UObject* Owner = nullptr)
@@ -156,8 +155,6 @@ public:
 };
 #else
 
-=======
->>>>>>> Stashed changes
 // #define USE_VIRTUALALLOC_SPAWNPARAMS
 
 static inline void* CreateSpawnParameters(ESpawnActorCollisionHandlingMethod SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::Undefined, bool bDeferConstruction = false, UObject* Owner = nullptr)
@@ -248,14 +245,6 @@ public:
 	ActorType* SpawnActor(UClass* Class, FTransform UserTransformPtr = FTransform(), void* SpawnParameters = nullptr)
 	{
 		const bool bCreatedSpawnParameters = !SpawnParameters;
-<<<<<<< Updated upstream
-=======
-
-		if (bCreatedSpawnParameters)
-		{
-			SpawnParameters = CreateSpawnParameters();
-		}
->>>>>>> Stashed changes
 
 		if (bCreatedSpawnParameters)
 		{

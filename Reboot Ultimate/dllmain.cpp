@@ -1488,10 +1488,7 @@ DWORD WINAPI Main(LPVOID)
     LOG_INFO(LogDev, "OnSafeZoneStateChangeAddr: 0x{:x}", OnSafeZoneStateChangeAddr - __int64(GetModuleHandleW(0)));
     Hooking::MinHook::Hook((PVOID)OnSafeZoneStateChangeAddr, AFortSafeZoneIndicator::OnSafeZoneStateChangeHook, (PVOID*)&AFortSafeZoneIndicator::OnSafeZoneStateChangeOriginal);
 #endif
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
     LOG_INFO(LogDev, "PredictionKeySize: 0x{:x} {}", PredictionKeySize, PredictionKeySize);
 
     static auto GameplayEventDataSize = FindObject<UStruct>(L"/Script/GameplayAbilities.GameplayEventData")->GetPropertiesSize();
