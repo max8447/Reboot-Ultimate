@@ -188,7 +188,8 @@ public:
 
 		auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
 		auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
-		auto KillerPawn = KillerState->GetCurrentPawn();
+		auto KillerController = Cast<AFortPlayerControllerAthena>(KillerState->GetOwner());
+		auto KillerPawn = KillerController->GetMyFortPawn();
 
 		void* DeathReport = nullptr;
 
@@ -245,7 +246,7 @@ public:
 		else
 		{
 			if (MemberOffsets::DeathInfo::Distance != -1)
-				*(float*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::Distance) = /*KillerPawn ? KillerPawn->GetDistanceTo(Pawn) : */0;
+				*(float*)(__int64(DeathInfo) + MemberOffsets::DeathInfo::Distance) = /*KillerPawn && Pawn ? KillerPawn->GetDistanceTo(Pawn) : */0;
 		}
 
 		if (MemberOffsets::FortPlayerState::PawnDeathLocation != -1)
@@ -268,9 +269,6 @@ public:
 
 			KillerState->ClientReportKill(PlayerState);
 		}
-
-		GameState->GetPlayersLeft()--;
-		GameState->OnRep_PlayersLeft();
 
 		/*
 
@@ -326,6 +324,27 @@ public:
 		}
 
 		*/
+
+		GameState->GetPlayersLeft()--;
+		GameState->OnRep_PlayersLeft();
+
+		LOG_INFO(LogDev, "Removed!");
+
+		if (GameState->GetPlayersLeft() <= 1 && !GameState->IsRespawningAllowed(PlayerState))
+		{
+			LOG_INFO(LogDev, "Winner!");
+
+			KillerController->PlayWinEffects(KillerPawn, KillerPawn->GetCurrentWeapon() ? KillerPawn->GetCurrentWeapon()->GetWeaponData() : nullptr, DeathCause, false);
+			KillerController->ClientNotifyWon(KillerPawn, KillerPawn->GetCurrentWeapon() ? KillerPawn->GetCurrentWeapon()->GetWeaponData() : nullptr, DeathCause);
+			KillerController->ClientNotifyTeamWon(KillerPawn, KillerPawn->GetCurrentWeapon() ? KillerPawn->GetCurrentWeapon()->GetWeaponData() : nullptr, DeathCause);
+			KillerState->GetPlace() = 1;
+			KillerState->OnRep_Place();
+			GameState->GetWinningPlayerState() = KillerState;
+			GameState->GetWinningTeam() = KillerState->GetTeamIndex();
+			GameState->OnRep_WinningPlayerState();
+			GameState->OnRep_WinningTeam();
+			GameMode->EndMatch();
+		}
 
 		if (!AIBotController->GetInventory())
 			return;
