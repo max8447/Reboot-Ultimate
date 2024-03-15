@@ -47,7 +47,7 @@ inline void MakeLogger(const std::string& LoggerName)
 inline void InitLogger()
 {
     // FreeConsole();
-    // AllocConsole();
+    AllocConsole();
     // AttachConsole(ATTACH_PARENT_PROCESS);
 
     FILE* stream = nullptr;
