@@ -1470,11 +1470,10 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			Pawn->SetShield(Shield);
 			SendMessageToConsole(PlayerController, L"Set shield!\n");
 		}
-		/*
 		else if (Command == "siphontest")
 		{
-			static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
-			static auto Ability = LoadObject<UClass>("/Game/Creative/Abilities/Siphon/GA_Creative_OnKillSiphon.GA_Creative_OnKillSiphon_C", BGAClass);
+			// auto Ability = LoadObject<UClass>("/Game/Creative/Abilities/Siphon/GA_Creative_OnKillSiphon.GA_Creative_OnKillSiphon_C", BGACLASS);
+			auto Ability = LoadObject<UClass>("/Game/Athena/Heroes/Abilities/Siphon/GE_SiphonEffect_Shield.GE_SiphonEffect_Shield_C", BGACLASS);
 
 			if (!Ability)
 			{
@@ -1484,28 +1483,40 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			auto AbilitySystemComponent = ReceivingPlayerState->GetAbilitySystemComponent();
 
+			FGameplayAbilitySpec* AbilitySpec = nullptr;
+
+			auto CompareAbilities = [&AbilitySpec, &Ability](FGameplayAbilitySpec* Spec)
+				{
+					auto CurrentAbility = Spec->GetAbility();
+
+					// LOG_INFO(LogDev, "CurrentAbility->ClassPrivate->GetName(): {}, Ability->GetName(): {}", CurrentAbility->ClassPrivate->GetName(), Ability->GetName());
+
+					if (CurrentAbility->ClassPrivate->GetName() == Ability->GetName())
+					{
+						AbilitySpec = Spec;
+					}
+				};
+
+			// LoopSpecs(AbilitySystemComponent, CompareAbilities);
+
+			// if (!AbilitySpec)
+			// {
+				// SendMessageToConsole(PlayerController, L"Can't find AbilitySpec!");
+				// return;
+			// }
+
+			// int Zero = 0;
+
+			// static unsigned int* (*GiveAbilityAndActivateOnce)(UAbilitySystemComponent* ASC, int* outHandle, __int64 Spec, FGameplayEventData* TriggerEventData) = decltype(GiveAbilityAndActivateOnce)(Addresses::GiveAbilityAndActivateOnce); // EventData is only on ue500?
+
+			// if (GiveAbilityAndActivateOnce)
+			// {
+				// GiveAbilityAndActivateOnce(AbilitySystemComponent, &Zero, __int64(AbilitySpec), nullptr);
+			// }
+
 			FGameplayEffectContextHandle EffectContext{};
-			AbilitySystemComponent->ApplyGameplayEffectToSelf(Ability, 1, EffectContext);
-
-			for (int i = 0; i < AbilitySystemComponent->GetActivatableAbilities()->GetItems().Num(); i++)
-			{
-				FGameplayAbilitySpec& Spec = AbilitySystemComponent->GetActivatableAbilities()->GetItems().at(i);
-
-				if (!Spec.GetAbility())
-				{
-					SendMessageToConsole(PlayerController, L"Not good!");
-					return;
-				}
-
-				if (Spec.GetAbility()->IsA(Ability))
-				{
-					AbilitySystemComponent->ServerEndAbility(Spec.GetHandle(), Spec.GetActivationInfo(), Spec.GetActivationInfo()->GetPredictionKeyWhenActivated());
-					AbilitySystemComponent->ClientEndAbility(Spec.GetHandle(), Spec.GetActivationInfo());
-					AbilitySystemComponent->ClientCancelAbility(Spec.GetHandle(), Spec.GetActivationInfo());
-				}
-			}
+			AbilitySystemComponent->ApplyGameplayEffectToSelf(Ability, 0.f, EffectContext);
 		}
-		*/
 		else if (Command == "god")
 		{
 			static auto GodFn = FindObject<UFunction>("/Script/Engine.CheatManager.God");

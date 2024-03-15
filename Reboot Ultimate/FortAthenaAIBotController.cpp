@@ -6,13 +6,13 @@ void AFortAthenaAIBotController::OnPossesedPawnDiedHook(AController* PlayerContr
 {
 	LOG_INFO(LogDev, "OnPossesedPawnDiedHook!");
 
-	if (!InstigatedBy)
-		return OnPossesedPawnDiedOriginal(PlayerController, DamagedActor, Damage, InstigatedBy, DamageCauser, HitLocation, FHitComponent, BoneName, Momentum);
+	// if (!InstigatedBy)
+		// return OnPossesedPawnDiedOriginal(PlayerController, DamagedActor, Damage, InstigatedBy, DamageCauser, HitLocation, FHitComponent, BoneName, Momentum);
 
 	for (auto& PlayerBot : AllPlayerBotsToTick)
 	{
 		if (Cast<AController>(PlayerBot.AIBotController) == PlayerController)
-			PlayerBot.OnDied(Cast<AFortPlayerStateAthena>(InstigatedBy->GetPlayerState()));
+			PlayerBot.OnDied(Cast<AFortPlayerStateAthena>(InstigatedBy ? InstigatedBy->GetPlayerState() : nullptr));
 	}
 }
 

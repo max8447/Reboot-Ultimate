@@ -143,33 +143,7 @@ void UFortWeaponItemDefinition::GiveGrantedWeaponAbilities(AFortPlayerController
 	auto AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
 	
 	if (EquippedAbilitySet.Get())
-	{
-		auto GrantedGameplayEffects = EquippedAbilitySet.Get()->GetGrantedGameplayEffects();
-		auto GameplayAbilities = EquippedAbilitySet.Get()->GetGameplayAbilities();
-
-		for (int i = 0; i < GrantedGameplayEffects->Num(); i++)
-		{
-			auto& EffectToGrant = GrantedGameplayEffects->at(i, FGameplayEffectApplicationInfoHard::GetStructSize());
-
-			if (!EffectToGrant.GameplayEffect)
-				continue;
-
-			FGameplayEffectContextHandle EffectContext{};
-			AbilitySystemComponent->ApplyGameplayEffectToSelf(EffectToGrant.GameplayEffect, EffectToGrant.Level, EffectContext);
-		}
-
-		for (int i = 0; i < GameplayAbilities->Num(); i++)
-		{
-			UClass* AbilityClass = (UClass*)GameplayAbilities->At(i);
-
-			if (!AbilityClass)
-				continue;
-
-			LOG_INFO(LogDev, "Giving AbilityClass {}", AbilityClass->GetName());
-
-			AbilitySystemComponent->GiveAbilityEasy(AbilityClass);
-		}
-	}
+		EquippedAbilitySet.Get()->GiveToAbilitySystem(AbilitySystemComponent);
 
 	for (int i = 0; i < EquippedAbilities.Num(); i++)
 	{

@@ -181,10 +181,10 @@ public:
 
 public:
 
-	virtual void OnDied(AFortPlayerStateAthena* KillerState)
+	virtual void OnDied(AFortPlayerStateAthena* KillerState = nullptr)
 	{
-		if (!KillerState)
-			return;
+		// if (!KillerState)
+			// return;
 
 		auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
 		auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
@@ -326,9 +326,13 @@ public:
 		{
 			LOG_INFO(LogDev, "Winner!");
 
-			KillerController->PlayWinEffects(KillerPawn, KillerPawn->GetCurrentWeapon() ? KillerPawn->GetCurrentWeapon()->GetWeaponData() : nullptr, DeathCause, false);
-			KillerController->ClientNotifyWon(KillerPawn, KillerPawn->GetCurrentWeapon() ? KillerPawn->GetCurrentWeapon()->GetWeaponData() : nullptr, DeathCause);
-			KillerController->ClientNotifyTeamWon(KillerPawn, KillerPawn->GetCurrentWeapon() ? KillerPawn->GetCurrentWeapon()->GetWeaponData() : nullptr, DeathCause);
+			if (KillerPawn != Pawn)
+			{
+				KillerController->PlayWinEffects(KillerPawn, KillerPawn->GetCurrentWeapon() ? KillerPawn->GetCurrentWeapon()->GetWeaponData() : nullptr, DeathCause, false);
+				KillerController->ClientNotifyWon(KillerPawn, KillerPawn->GetCurrentWeapon() ? KillerPawn->GetCurrentWeapon()->GetWeaponData() : nullptr, DeathCause);
+				KillerController->ClientNotifyTeamWon(KillerPawn, KillerPawn->GetCurrentWeapon() ? KillerPawn->GetCurrentWeapon()->GetWeaponData() : nullptr, DeathCause);
+			}
+
 			KillerState->GetPlace() = 1;
 			KillerState->OnRep_Place();
 			GameState->GetWinningPlayerState() = KillerState;
@@ -338,24 +342,27 @@ public:
 			GameMode->EndMatch();
 		}
 
-		if (!AIBotController->GetInventory())
-			return;
-
-		for (int i = 0; i < AIBotController->GetInventory()->GetItemList().GetReplicatedEntries().Num(); i++)
+		if (AIBotController)
 		{
-			if (AIBotController->GetInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition()->IsA(FindObject<UClass>("/Script/FortniteGame.FortWeaponMeleeItemDefinition")) || (Cast<UFortWorldItemDefinition>(AIBotController->GetInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition()) && !Cast<UFortWorldItemDefinition>(AIBotController->GetInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition())->CanBeDropped()))
-				continue;
+			if (!AIBotController->GetInventory())
+				return;
 
-			PickupCreateData CreateData;
-			CreateData.bToss = true;
-			// CreateData.PawnOwner = Pawn;
-			CreateData.ItemEntry = Cast<UFortItem>(AIBotController->GetInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition())->GetItemEntry();
-			CreateData.SpawnLocation = Pawn->GetActorLocation();
-			CreateData.SourceType = EFortPickupSourceTypeFlag::GetPlayerValue();
-			CreateData.bRandomRotation = true;
-			CreateData.bShouldFreeItemEntryWhenDeconstructed = true;
+			for (int i = 0; i < AIBotController->GetInventory()->GetItemList().GetReplicatedEntries().Num(); i++)
+			{
+				if (AIBotController->GetInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition()->IsA(FindObject<UClass>("/Script/FortniteGame.FortWeaponMeleeItemDefinition")) || (Cast<UFortWorldItemDefinition>(AIBotController->GetInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition()) && !Cast<UFortWorldItemDefinition>(AIBotController->GetInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition())->CanBeDropped()))
+					continue;
 
-			AFortPickup::SpawnPickup(CreateData);
+				PickupCreateData CreateData;
+				CreateData.bToss = true;
+				// CreateData.PawnOwner = Pawn;
+				CreateData.ItemEntry = Cast<UFortItem>(AIBotController->GetInventory()->GetItemList().GetReplicatedEntries()[i].GetItemDefinition())->GetItemEntry();
+				CreateData.SpawnLocation = Pawn->GetActorLocation();
+				CreateData.SourceType = EFortPickupSourceTypeFlag::GetPlayerValue();
+				CreateData.bRandomRotation = true;
+				CreateData.bShouldFreeItemEntryWhenDeconstructed = true;
+
+				AFortPickup::SpawnPickup(CreateData);
+			}
 		}
 	}
 };
