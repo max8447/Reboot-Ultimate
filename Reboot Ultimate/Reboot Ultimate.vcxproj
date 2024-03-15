@@ -203,6 +203,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="EngineTypes.cpp" />
     <ClCompile Include="finder.cpp" />
+    <ClCompile Include="FortAthenaAIBotController.cpp" />
     <ClCompile Include="FortAthenaAISpawnerData.cpp" />
     <ClCompile Include="FortAthenaAISpawnerDataComponentList.cpp" />
     <ClCompile Include="FortAthenaCreativePortal.cpp" />

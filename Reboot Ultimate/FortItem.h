@@ -250,5 +250,14 @@ public:
 		return GetPtr<FFortItemEntry>(ItemEntryOffset);
 	}
 
+	UFortItemDefinition* GetItemDefinitionBP()
+	{
+		static auto GetItemDefinitionBPFn = FindObject<UFunction>("/Script/FortniteGame.FortItem.GetItemDefinitionBP");
+		UFortItemDefinition* ReturnValue;
+		this->ProcessEvent(GetItemDefinitionBPFn, &ReturnValue);
+		return ReturnValue;
+	}
+
 	void SetOwningControllerForTemporaryItem(UObject* Controller);
+	static UClass* StaticClass();
 };

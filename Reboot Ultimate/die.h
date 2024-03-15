@@ -159,7 +159,9 @@ static inline void ProcessEventHook(UObject* Object, UFunction* Function, void* 
 			!strstr(FunctionName.c_str(), "GetTextValue") &&
 			!strstr(FunctionName.c_str(), "ExecuteUbergraph_BGA_Petrol_Pickup") &&
 			!strstr(FunctionName.c_str(), "WaterDepthCheck") &&
-			!strstr(FunctionFullName.c_str(), "GameplayCues"))
+			!strstr(FunctionFullName.c_str(), "GameplayCues") &&
+			!strstr(FunctionName.c_str(), "GetTextValue") &&
+			!strstr(FunctionName.c_str(), "ExecuteUbergraph_BGA_Petrol_Pickup"))
 		{
 			LOG_INFO(LogDev, "Function called: {} with {}", FunctionFullName, ObjectName);
 		}

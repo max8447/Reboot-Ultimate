@@ -3,6 +3,7 @@
 #include "OnlineReplStructs.h"
 #include "PlayerState.h"
 #include "AbilitySystemComponent.h"
+#include "FortPlayerPawn.h"
 
 class AFortPlayerState : public APlayerState
 {
@@ -17,6 +18,12 @@ public:
 	{
 		static auto AbilitySystemComponentOffset = GetOffset("AbilitySystemComponent");
 		return this->Get<UAbilitySystemComponent*>(AbilitySystemComponentOffset);
+	}
+
+	AFortPlayerPawn* GetCurrentPawn()
+	{
+		static auto CurrentPawnOffset = GetOffset("CurrentPawn");
+		return this->Get<AFortPlayerPawn*>(CurrentPawnOffset);
 	}
 
 	int& GetWorldPlayerId()

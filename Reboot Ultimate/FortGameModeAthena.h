@@ -10,6 +10,7 @@
 #include "FortAbilitySet.h"
 #include "FortPlayerControllerAthena.h"
 #include "FortItemDefinition.h"
+#include "FortAthenaAIBotController.h"
 
 struct FAircraftFlightInfo
 {
@@ -266,6 +267,12 @@ public:
 	{
 		static auto AlivePlayersOffset = GetOffset("AlivePlayers");
 		return Get<TArray<AFortPlayerControllerAthena*>>(AlivePlayersOffset);
+	}
+
+	TArray<AFortAthenaAIBotController*>& GetAliveBots()
+	{
+		static auto AliveBotsOffset = GetOffset("AliveBots");
+		return Get<TArray<AFortAthenaAIBotController*>>(AliveBotsOffset);
 	}
 
 	FName RedirectLootTier(const FName& LootTier);

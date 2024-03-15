@@ -42,7 +42,7 @@ public:
 class UFortServerBotManagerAthena  : public UObject
 {
 public:
-	AFortAthenaMutator_Bots* GetCachedBotMutator()
+	AFortAthenaMutator_Bots*& GetCachedBotMutator()
 	{
 		static auto CachedBotMutatorOffset = GetOffset("CachedBotMutator");
 		return Get<AFortAthenaMutator_Bots*>(CachedBotMutatorOffset);

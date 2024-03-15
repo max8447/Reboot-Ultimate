@@ -334,10 +334,14 @@ void AFortPlayerController::ServerExecuteInventoryItemHook(AFortPlayerController
 
 	FGuid OldGuid = Pawn->GetCurrentWeapon() ? Pawn->GetCurrentWeapon()->GetItemEntryGuid() : FGuid(-1, -1, -1, -1);
 	UFortItem* OldInstance = OldGuid == FGuid(-1, -1, -1, -1) ? nullptr : WorldInventory->FindItemInstance(OldGuid);
+	UFortItemDefinition* OldItemDefinition = nullptr;
 	auto ItemDefinition = ItemInstance->GetItemEntry()->GetItemDefinition();
 
 	if (!ItemDefinition)
 		return;
+
+	if (OldInstance)
+		OldItemDefinition = OldInstance->GetItemDefinitionBP();
 
 	static auto FortDecoTool_ContextTrapStaticClass = FindObject<UClass>(L"/Script/FortniteGame.FortDecoTool_ContextTrap");
 
@@ -363,6 +367,18 @@ void AFortPlayerController::ServerExecuteInventoryItemHook(AFortPlayerController
 	// LOG_INFO(LogDev, "Equipping ItemDefinition: {}", ItemDefinition->GetFullName());
 
 	static auto FortGadgetItemDefinitionClass = FindObject<UClass>(L"/Script/FortniteGame.FortGadgetItemDefinition");
+
+	if (OldItemDefinition && !OldItemDefinition->IsA(FortGadgetItemDefinitionClass))
+	{
+		if (auto OldWeaponItemDefinition = Cast<UFortWeaponItemDefinition>(OldItemDefinition))
+			OldWeaponItemDefinition->RemoveGrantedWeaponAbilities(Cast<AFortPlayerControllerAthena>(PlayerController));
+	}
+
+	if (!ItemDefinition->IsA(FortGadgetItemDefinitionClass))
+	{
+		if (auto WeaponItemDefinition = Cast<UFortWeaponItemDefinition>(ItemDefinition))
+			WeaponItemDefinition->GiveGrantedWeaponAbilities(Cast<AFortPlayerControllerAthena>(PlayerController));
+	}
 
 	UFortGadgetItemDefinition* GadgetItemDefinition = Cast<UFortGadgetItemDefinition>(ItemDefinition);
 
@@ -944,8 +960,13 @@ void AFortPlayerController::ServerCreateBuildingActorHook(UObject* Context, FFra
 {
 	auto PlayerController = (AFortPlayerController*)Context;
 
+<<<<<<< Updated upstream
 	//if (!PlayerController) // ??
 		//return ServerCreateBuildingActorOriginal(Context, Stack, Ret);
+=======
+	// if (!PlayerController) // ??
+		// return ServerCreateBuildingActorOriginal(Context, Stack, Ret);
+>>>>>>> Stashed changes
 
 	auto WorldInventory = PlayerController->GetWorldInventory();
 
@@ -1984,12 +2005,21 @@ void AFortPlayerController::ServerEndEditingBuildingActorHook(AFortPlayerControl
 	if (!EditToolInstance)
 		return;
 
+<<<<<<< Updated upstream
 	FGuid EditToolGuid = EditToolInstance->GetItemEntry()->GetItemGuid(); // Should we ref?
 
 #if 1
 	EditTool = Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolGuid)); // ERM
 #else
 	Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolGuid)); // ERM
+#endif
+=======
+#if 1
+	EditTool = Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolInstance->GetItemEntry()->GetItemGuid())); // ERM
+>>>>>>> Stashed changes
+#else
+	Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolInstance->GetItemEntry()->GetItemGuid())); // ERM
+	EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon());
 #endif
 #else
 	EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon());

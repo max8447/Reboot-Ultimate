@@ -15,8 +15,6 @@ void AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook(UObject* Context, FFrame* 
 	bool bFromSweep;
 	auto SweepResultPtr = (FHitResult*)std::realloc(0, FHitResult::GetStructSize());
 
-	LOG_INFO(LogDev, "OnCapsuleBeginOverlapHook!");
-
 	Stack->StepCompiledIn(&OverlappedComp);
 	Stack->StepCompiledIn(&OtherActor);
 	Stack->StepCompiledIn(&OtherComp);
@@ -26,11 +24,13 @@ void AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook(UObject* Context, FFrame* 
 
 	std::free(SweepResultPtr);
 
-	LOG_INFO(LogDev, "OtherActor: {}", OtherActor->IsValidLowLevel() ? OtherActor->GetFullName() : "BadRead");
-	LOG_INFO(LogDev, "OverlappedComp: {}", OverlappedComp->GetFullName());
-	LOG_INFO(LogDev, "OtherComp: {}", OtherComp->GetFullName());
-	LOG_INFO(LogDev, "OtherBodyIndex: {}", OtherBodyIndex);
-	LOG_INFO(LogDev, "bFromSweep: {}", (bool)bFromSweep);
+	LOG_INFO(LogDev, "OnCapsuleBeginOverlapHook with {}", OtherActor->IsValidLowLevel() ? OtherActor->GetFullName() : "BadRead");
+
+	// LOG_INFO(LogDev, "OtherActor: {}", OtherActor->IsValidLowLevel() ? OtherActor->GetFullName() : "BadRead");
+	// LOG_INFO(LogDev, "OverlappedComp: {}", OverlappedComp->GetFullName());
+	// LOG_INFO(LogDev, "OtherComp: {}", OtherComp->GetFullName());
+	// LOG_INFO(LogDev, "OtherBodyIndex: {}", OtherBodyIndex);
+	// LOG_INFO(LogDev, "bFromSweep: {}", (bool)bFromSweep);
 	
 	bool bIsQuest = false;
 

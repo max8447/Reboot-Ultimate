@@ -11,6 +11,10 @@ class AGameModeBase : public AActor // AInfo
 {
 public:
 	static inline bool (*PlayerCanRestartOriginal)(UObject* Context, FFrame& Stack, bool* Ret);
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 	UClass* GetDefaultPawnClassForController(AController* InController);
 	void ChangeName(AController* Controller, const FString& NewName, bool bNameChange);
 	AActor* K2_FindPlayerStart(AController* Player, FString IncomingName);

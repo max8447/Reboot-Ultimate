@@ -153,8 +153,7 @@ static UFortServerBotManagerAthena* SetupServerBotManager()
         if (CachedGameStateOffset != -1)
             ServerBotManager->Get(CachedGameStateOffset) = GameState;
 
-        static auto CachedBotMutatorOffset = ServerBotManager->GetOffset("CachedBotMutator");
-        ServerBotManager->Get<AFortAthenaMutator_Bots*>(CachedBotMutatorOffset) = SpawnBotMutator();
+        ServerBotManager->GetCachedBotMutator() = SpawnBotMutator();
 
         return ServerBotManager;
     }

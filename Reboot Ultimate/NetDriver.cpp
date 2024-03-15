@@ -49,7 +49,7 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 		bShouldDestroyAllPlayerBuilds = false;
 	}
 
-	if (Cast<AFortGameModeAthena>(GetWorld()->GetGameMode())->GetGameStateAthena()->GetGamePhaseStep() > EAthenaGamePhaseStep::BusFlying)
+	if (!Globals::bGoingToPlayEvent && Cast<AFortGameModeAthena>(GetWorld()->GetGameMode())->GetGameStateAthena()->GetGamePhaseStep() > EAthenaGamePhaseStep::BusFlying)
 	{
 		for (int i = 0; i < NetDriver->GetClientConnections().Num(); i++)
 		{

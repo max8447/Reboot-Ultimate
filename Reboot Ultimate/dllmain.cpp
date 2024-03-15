@@ -46,6 +46,7 @@
 #include "FortAthenaVehicleSpawner.h"
 #include "FortGameSessionDedicatedAthena.h"
 #include "FortAIEncounterInfo.h"
+#include "FortAthenaAIBotController.h"
 
 enum class EMeshNetworkNodeType : uint8_t
 {
@@ -322,12 +323,9 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                     MovementComponent->ProcessEvent(MovementComponent->FindFunction("SetIsMovingAlongSpline"), &IsMoving);
                     MovementComponent->Get<float>(MovementComponent->GetOffset("ReplicatedSplineInterpStrength")) = 1.3f;
                     MovementComponent->Get<float>(MovementComponent->GetOffset("StartServerWorldTime")) = GameState->GetServerWorldTimeSeconds();
-
                     MovementComponent->ProcessEvent(MovementComponent->FindFunction("OnRep_TargetSplineActor"));
-
                     PlayerComponent->Get<AActor*>(PlayerComponent->GetOffset("WrapManager")) = WrapManagerParams.ReturnValue;
                     PlayerComponent->Get<UObject*>(PlayerComponent->GetOffset("MovementComponent")) = MovementComponent;
-
                     CurrentPawn->ProcessEvent(CurrentPawn->FindFunction("SetStasisMode"), &StasisMode);
                 }
             }
@@ -389,8 +387,8 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
             }
             if (Index == 8) // Bubbles
             {
-                //auto BubbleScript = FindObject("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles.PersistentLevel.BP_Buffet_PhaseScripting_Bubble_4");
-                //auto BubbleSpline = FindObject("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles.PersistentLevel.BP_Buffet_SmallBubblePath_2.Spline");
+                auto BubbleScript = FindObject("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles.PersistentLevel.BP_Buffet_PhaseScripting_Bubble_4");
+                auto BubbleSpline = FindObject("/Buffet/Levels/Buffet_Bubbles.Buffet_Bubbles.PersistentLevel.BP_Buffet_SmallBubblePath_2.Spline");
 
                 for (int i = 0; i < ClientConnections.Num(); i++)
                 {
@@ -398,6 +396,20 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                     auto ComponentToRemove = CurrentPawn->GetComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/Stars/BP_Buffet_Stars_PlayerComponent.BP_Buffet_Stars_PlayerComponent_C"));
 
                     auto BubbleMovementComponent = CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/Bubble/BP_BubblePlayerMovementComponent.BP_BubblePlayerMovementComponent_C"));
+
+                    bool IsMoving = true;
+
+                    struct
+                    {
+                        UObject* InSplineComponent;
+                        float StartDistance;
+                    }SetSplineComponentParams{ BubbleSpline , 0 };
+
+                    BubbleMovementComponent->ProcessEvent(BubbleMovementComponent->FindFunction("SetSplineComponent"), &SetSplineComponentParams);
+                    BubbleMovementComponent->Get<UObject*>(BubbleMovementComponent->GetOffset("SplineComponent")) = BubbleSpline;
+                    BubbleMovementComponent->Get<bool>(BubbleMovementComponent->GetOffset("bIsMovingAlongSpline")) = true;
+                    BubbleMovementComponent->Get<float>(BubbleMovementComponent->GetOffset("StartServerWorldTime")) = GameState->GetServerWorldTimeSeconds();
+                    BubbleMovementComponent->ProcessEvent(BubbleMovementComponent->FindFunction("SetIsMovingAlongSpline"), &IsMoving);
 
                     CurrentPawn->ProcessEvent(CurrentPawn->FindFunction("K2_DestroyComponent"), &ComponentToRemove);
                 }
@@ -887,13 +899,13 @@ DWORD WINAPI Main(LPVOID)
     {
         if (Fortnite_Version >= 17.30)
         {
-            Hooking::MinHook::Hook(FindObject<UObject>("/Script/FortniteGame.Default__FortMissionLibrary"), FindObject<UFunction>(L"/Script/FortniteGame.FortMissionLibrary:TeleportPlayerPawn"), TeleportPlayerPawnHook,
+            Hooking::MinHook::Hook(FindObject<UObject>("/Script/FortniteGame.Default__FortMissionLibrary"), FindObject<UFunction>(L"/Script/FortniteGame.FortMissionLibrary.TeleportPlayerPawn"), TeleportPlayerPawnHook,
                 (PVOID*)&TeleportPlayerPawnOriginal, false, true);
         }
 
         if (Fortnite_Version == 17.50)
         {
-            Hooking::MinHook::Hook(FindObject<UObject>("/Script/SpecialEventGameplayRuntime.Default__SpecialEventScript"), FindObject<UFunction>(L"/Script/SpecialEventGameplayRuntime.SpecialEventScript:StartEventAtIndex"), StartEventAtIndexHook,
+            Hooking::MinHook::Hook(FindObject<UObject>("/Script/SpecialEventGameplayRuntime.Default__SpecialEventScript"), FindObject<UFunction>(L"/Script/SpecialEventGameplayRuntime.SpecialEventScript.StartEventAtIndex"), StartEventAtIndexHook,
                 (PVOID*)&StartEventAtIndexOriginal, false, true);
         }
     }
@@ -1407,6 +1419,9 @@ DWORD WINAPI Main(LPVOID)
         }
     }
 
+    Hooking::MinHook::Hook(FindObject<AFortAthenaAIBotController>(L"/Script/FortniteGame.Default__FortAthenaAIBotController"), FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaAIBotController.OnPossesedPawnDied"),
+        AFortAthenaAIBotController::OnPossesedPawnDiedHook, (PVOID*)&AFortAthenaAIBotController::OnPossesedPawnDiedOriginal, false);
+
     Hooking::MinHook::Hook((PVOID)Addresses::GetPlayerViewpoint, (PVOID)AFortPlayerControllerAthena::GetPlayerViewPointHook, (PVOID*)&AFortPlayerControllerAthena::GetPlayerViewPointOriginal);
 
     Hooking::MinHook::Hook((PVOID)Addresses::TickFlush, (PVOID)UNetDriver::TickFlushHook, (PVOID*)&UNetDriver::TickFlushOriginal);
@@ -1473,6 +1488,10 @@ DWORD WINAPI Main(LPVOID)
     LOG_INFO(LogDev, "OnSafeZoneStateChangeAddr: 0x{:x}", OnSafeZoneStateChangeAddr - __int64(GetModuleHandleW(0)));
     Hooking::MinHook::Hook((PVOID)OnSafeZoneStateChangeAddr, AFortSafeZoneIndicator::OnSafeZoneStateChangeHook, (PVOID*)&AFortSafeZoneIndicator::OnSafeZoneStateChangeOriginal);
 #endif
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     LOG_INFO(LogDev, "PredictionKeySize: 0x{:x} {}", PredictionKeySize, PredictionKeySize);
 
     static auto GameplayEventDataSize = FindObject<UStruct>(L"/Script/GameplayAbilities.GameplayEventData")->GetPropertiesSize();

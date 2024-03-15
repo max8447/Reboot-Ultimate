@@ -7,6 +7,7 @@
 #include "FortGameModeAthena.h"
 #include "FortGadgetItemDefinition.h"
 #include "FortPlayerStateAthena.h"
+#include "GameplayAbilityTypes.h"
 
 UFortItem* CreateItemInstance(AFortPlayerController* PlayerController, UFortItemDefinition* ItemDefinition, int Count)
 {
@@ -103,6 +104,22 @@ std::pair<std::vector<UFortItem*>, std::vector<UFortItem*>> AFortInventory::AddI
 	if (!PlayerController)
 		return std::make_pair(NewItemInstances, ModifiedItemInstances);
 
+	auto Pawn = Cast<AFortPlayerPawnAthena>(PlayerController->GetPawn());
+
+	if (Pawn)
+	{
+		auto CurrentWeapon = Pawn->GetCurrentWeapon();
+
+		if (CurrentWeapon)
+		{
+			auto CurrentWeaponGuid = CurrentWeapon->GetItemEntryGuid();
+			auto WeaponDefinition = Cast<UFortWeaponItemDefinition>(ItemEntry->GetItemDefinition());
+
+			if (WeaponDefinition && CurrentWeaponGuid != ItemEntry->GetItemGuid())
+				WeaponDefinition->RemoveGrantedWeaponAbilities(Cast<AFortPlayerControllerAthena>(PlayerController));
+		}
+	}
+
 	if (OverStack > 0 && !bAllowMultipleStacks)
 	{
 		auto Pawn = PlayerController->GetPawn();
@@ -161,6 +178,9 @@ std::pair<std::vector<UFortItem*>, std::vector<UFortItem*>> AFortInventory::AddI
 					bWasGadget = true;
 				}
 			}
+
+			// if (auto WeaponItemDefinition = Cast<UFortWeaponItemDefinition>(WorldItemDefinition))
+				// WeaponItemDefinition->GiveGrantedWeaponAbilities(Cast<AFortPlayerControllerAthena>(FortPlayerController)); // don't do this here since we don't want to enable the abilities if the player isn't holding the item
 
 			if (WorldItemDefinition->ShouldFocusWhenAdded()) // Should we also do this for stacking?
 			{
@@ -335,10 +355,13 @@ bool AFortInventory::RemoveItem(const FGuid& ItemGuid, bool* bShouldUpdate, int 
 		{
 			bool AreGadgetsEnabled = Addresses::ApplyGadgetData && Addresses::RemoveGadgetData && Globals::bEnableAGIDs;
 
-			if (FortPlayerController && AreGadgetsEnabled)
+			if (FortPlayerController)
 			{
 				if (auto GadgetItemDefinition = Cast<UFortGadgetItemDefinition>(ItemDefinition))
 				{
+					if (!AreGadgetsEnabled)
+						continue;
+
 					LOG_INFO(LogDev, "Unequipping Gadget!");
 					GadgetItemDefinition->UnequipGadgetData(FortPlayerController, ItemInstances.at(i));
 
@@ -351,6 +374,10 @@ bool AFortInventory::RemoveItem(const FGuid& ItemGuid, bool* bShouldUpdate, int 
 							FortPlayerController->AddPickaxeToInventory();
 						}
 					}
+				}
+				else if (auto WeaponItemDefinition = Cast<UFortWeaponItemDefinition>(ItemDefinition))
+				{
+					WeaponItemDefinition->RemoveGrantedWeaponAbilities((AFortPlayerControllerAthena*)this->GetOwner());
 				}
 			}
 

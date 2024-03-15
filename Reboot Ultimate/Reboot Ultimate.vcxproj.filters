@@ -331,6 +331,9 @@
     <ClCompile Include="FortAthenaMutator_DadBro.cpp">
       <Filter>FortniteGame\Source\FortniteGame\Private\Athena\Modifiers</Filter>
     </ClCompile>
+    <ClCompile Include="FortAthenaAIBotController.cpp">
+      <Filter>FortniteGame\Source\FortniteGame\Private\AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="log.h" />

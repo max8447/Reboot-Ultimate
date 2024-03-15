@@ -73,13 +73,13 @@ public:
 		auto ReturnValueOffset = 0;
 
 		if (Offsets::ReturnValue)
-			ReturnValueOffset = *(int16*)(__int64(Function) + Offsets::ReturnValue);
+			ReturnValueOffset = *(int*)(__int64(Function) + Offsets::ReturnValue);
 
 		ProcessEventOriginal(this, Function, &ParamStruct);
 
-		if (ReturnValueOffset != -1)
+		if (ReturnValueOffset > 0)
 		{
-			auto ReturnValue = *reinterpret_cast<T*>(__int64(&ParamStruct) + ReturnValueOffset);
+			T ReturnValue = *reinterpret_cast<T*>(__int64(&ParamStruct) + ReturnValueOffset);
 			return ReturnValue;
 		}
 	}

@@ -533,6 +533,12 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 				}
 			}
 
+			if (Fortnite_Version == 14.60 && Globals::bGoingToPlayEvent)
+			{
+				// Auto with SetDynamicFoundationEnabled
+				// ShowFoundation(FindObject<AActor>(L"/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Lobby_Foundation3")); // Aircraft Carrier
+			}
+
 			if (Fortnite_Version == 12.41)
 			{
 				ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_Athena_POI_19x19_2"));
@@ -659,11 +665,14 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 			}
 		}
 
+<<<<<<< Updated upstream
 		if (Fortnite_Version == 14.60 && Globals::bGoingToPlayEvent)
 		{
 			// ShowFoundation(FindObject<AActor>(L"/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Lobby_Foundation3")); // Aircraft Carrier
 		}
 
+=======
+>>>>>>> Stashed changes
 		AActor* TheBlock = nullptr;
 
 		if (Fortnite_Version > 10) // todo only checked on 10.40
