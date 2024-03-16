@@ -860,38 +860,8 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 
 		GetWorld()->Listen();
 
-		static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
-		UObject* OverrideBattleBusSkin = nullptr;
-		UClass* OverrideSupplyDropClass = LoadObject<UClass>(L"/Game/Athena/SupplyDrops/AthenaSupplyDrop.AthenaSupplyDrop_C", BGAClass); // wrong for some builds but its ok
-
-		if (Fortnite_Version == 1.11 || Fortnite_Version == 7.30 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.10)
-		{
-			OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus"); // Winterfest
-			OverrideSupplyDropClass = LoadObject<UClass>(L"/Game/Athena/SupplyDrops/AthenaSupplyDrop_Holiday.AthenaSupplyDrop_Holiday_C", BGAClass);
-		}
-		else if (Fortnite_Version == 5.10 || Fortnite_Version == 9.41 || Fortnite_Version == 14.20 || Fortnite_Version == 18.00)
-		{
-			OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_BirthdayBus2nd.BBID_BirthdayBus2nd"); // Birthday
-			OverrideSupplyDropClass = LoadObject<UClass>(L"/Game/Athena/SupplyDrops/AthenaSupplyDrop_BDay.AthenaSupplyDrop_BDay_C", BGAClass);
-		}
-		else if (Fortnite_Version == 1.8 || Fortnite_Version == 6.20 || Fortnite_Version == 6.21 || Fortnite_Version == 11.10 || Fortnite_Version == 14.40 || Fortnite_Version == 18.21)
-		{
-			OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_HalloweenBus.BBID_HalloweenBus"); // Fortnitemares
-		}
-		else if (Fortnite_Version >= 12.30 && Fortnite_Version <= 12.61)
-		{
-			OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_DonutBus.BBID_DonutBus"); // Deadpool
-			OverrideSupplyDropClass = LoadObject<UClass>(L"/Game/Athena/SupplyDrops/AthenaSupplyDrop_Donut.AthenaSupplyDrop_Donut_C", BGAClass);
-		}
-		else if (Fortnite_Version == 9.30)
-		{
-			OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WorldCupBus.BBID_WorldCupBus"); // World Cup
-		}
-
-		if (OverrideBattleBusSkin)
-			OverrideBattleBus(GameState, OverrideBattleBusSkin);
-
-		OverrideSupplyDrop(GameState, OverrideSupplyDropClass);
+		static auto WarmupRequiredPlayerCountOffset = GameMode->GetOffset("WarmupRequiredPlayerCount");
+		GameMode->Get<int>(WarmupRequiredPlayerCountOffset) = WarmupRequiredPlayerCount;
 
 		LOG_INFO(LogNet, "WorldLevel {}", GameState->GetWorldLevel());
 
@@ -1344,6 +1314,39 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 		if (LastNum69 != Globals::AmountOfListens)
 		{
 			LastNum69 = Globals::AmountOfListens;
+
+			static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
+			UObject* OverrideBattleBusSkin = nullptr;
+			UClass* OverrideSupplyDropClass = LoadObject<UClass>(L"/Game/Athena/SupplyDrops/AthenaSupplyDrop.AthenaSupplyDrop_C", BGAClass); // wrong for some builds but its ok
+
+			if (Fortnite_Version == 1.11 || Fortnite_Version == 7.30 || Fortnite_Version == 11.31 || Fortnite_Version == 15.10 || Fortnite_Version == 19.10)
+			{
+				OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus"); // Winterfest
+				OverrideSupplyDropClass = LoadObject<UClass>(L"/Game/Athena/SupplyDrops/AthenaSupplyDrop_Holiday.AthenaSupplyDrop_Holiday_C", BGAClass);
+			}
+			else if (Fortnite_Version == 5.10 || Fortnite_Version == 9.41 || Fortnite_Version == 14.20 || Fortnite_Version == 18.00)
+			{
+				OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_BirthdayBus2nd.BBID_BirthdayBus2nd"); // Birthday
+				OverrideSupplyDropClass = LoadObject<UClass>(L"/Game/Athena/SupplyDrops/AthenaSupplyDrop_BDay.AthenaSupplyDrop_BDay_C", BGAClass);
+			}
+			else if (Fortnite_Version == 1.8 || Fortnite_Version == 6.20 || Fortnite_Version == 6.21 || Fortnite_Version == 11.10 || Fortnite_Version == 14.40 || Fortnite_Version == 18.21)
+			{
+				OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_HalloweenBus.BBID_HalloweenBus"); // Fortnitemares
+			}
+			else if (Fortnite_Version >= 12.30 && Fortnite_Version <= 12.61)
+			{
+				OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_DonutBus.BBID_DonutBus"); // Deadpool
+				OverrideSupplyDropClass = LoadObject<UClass>(L"/Game/Athena/SupplyDrops/AthenaSupplyDrop_Donut.AthenaSupplyDrop_Donut_C", BGAClass);
+			}
+			else if (Fortnite_Version == 9.30)
+			{
+				OverrideBattleBusSkin = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WorldCupBus.BBID_WorldCupBus"); // World Cup
+			}
+
+			if (OverrideBattleBusSkin)
+				OverrideBattleBus(GameState, OverrideBattleBusSkin);
+
+			OverrideSupplyDrop(GameState, OverrideSupplyDropClass);
 
 			// is there spawn percentage for vending machines?
 

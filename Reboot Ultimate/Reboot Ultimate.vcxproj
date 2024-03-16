@@ -347,6 +347,7 @@
     <ClInclude Include="FortAthenaAIBotCharacterCustomization.h" />
     <ClInclude Include="FortAthenaAIBotController.h" />
     <ClInclude Include="FortAthenaAIBotCustomizationData.h" />
+    <ClInclude Include="FortAthenaAIBotInventoryItems.h" />
     <ClInclude Include="FortAthenaAISpawnerData.h" />
     <ClInclude Include="FortAthenaAISpawnerDataComponent.h" />
     <ClInclude Include="FortAthenaAISpawnerDataComponentList.h" />

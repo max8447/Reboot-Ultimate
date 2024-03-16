@@ -289,6 +289,12 @@ public:
 		return GetPtr<FWinConditionScoreData>(ScoringDataOffset);
 	}
 
+	int GetMaxPlayers()
+	{
+		static auto MaxPlayersOffset = GetOffset("MaxPlayers");
+		return Get<int>(MaxPlayersOffset);
+	}
+
 	void ApplyModifiersToActor(AActor* Actor)
 	{
 		if (!Actor)

@@ -93,6 +93,7 @@ extern inline bool bEnableBotTick = false;
 extern inline bool bZoneReversing = false;
 extern inline bool bEnableCombinePickup = false;
 extern inline int AmountOfBotsToSpawn = 0;
+extern inline int WarmupRequiredPlayerCount = 1;
 extern inline bool bEnableRebooting = false;
 extern inline bool bEngineDebugLogs = false;
 extern inline bool bStartedBus = false;
@@ -950,6 +951,13 @@ static inline void MainUI()
 					bool bWillBeLategame = Globals::bLateGame.load();
 					ImGui::Checkbox("Lategame", &bWillBeLategame);
 					SetIsLategame(bWillBeLategame);
+				}
+
+				if (!Globals::bStartedListening) // hm
+				{
+					auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+					GET_PLAYLIST(GameState);
+					ImGui::SliderInt("Players required to start the match", &WarmupRequiredPlayerCount, 1, CurrentPlaylist->GetMaxPlayers());
 				}
 
 				ImGui::Text(std::format("Joinable: {}", Globals::bStartedListening).c_str());

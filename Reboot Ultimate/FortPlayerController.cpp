@@ -486,7 +486,7 @@ void AFortPlayerController::ServerExecuteInventoryItemHook(AFortPlayerController
 	}
 }
 
-void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* Stack, void* Ret)
+void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* Stack)
 {
 	// static auto LlamaClass = FindObject<UClass>(L"/Game/Athena/SupplyDrops/Llama/AthenaSupplyDrop_Llama.AthenaSupplyDrop_Llama_C");
 	static auto FortAthenaSupplyDropClass = FindObject<UClass>(L"/Script/FortniteGame.FortAthenaSupplyDrop");
@@ -552,7 +552,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	else if (ReceivingActor->IsA(FortAthenaVehicleClass))
 	{
 		auto Vehicle = (AFortAthenaVehicle*)ReceivingActor;
-		ServerAttemptInteractOriginal(Context, Stack, Ret);
+		ServerAttemptInteractOriginal(Context, Stack);
 
 		if (!AreVehicleWeaponsEnabled())
 			return;
@@ -695,7 +695,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 	
 			if (WoodCount < WoodCost || StoneCount < StoneCost || MetalCount < MetalCost)
 			{
-				return ServerAttemptInteractOriginal(Context, Stack, Ret);
+				return ServerAttemptInteractOriginal(Context, Stack);
 			}
 
 			bool bShouldUpdate = false;
@@ -716,14 +716,14 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 			auto WorldInventory = PlayerController->GetWorldInventory();
 	
 			if (!WorldInventory)
-				return ServerAttemptInteractOriginal(Context, Stack, Ret);
+				return ServerAttemptInteractOriginal(Context, Stack);
 	
 			auto ItemCollector = ReceivingActor;
 			static auto ActiveInputItemOffset = ItemCollector->GetOffset("ActiveInputItem");
 			auto CurrentMaterial = ItemCollector->Get<UFortWorldItemDefinition*>(ActiveInputItemOffset); // InteractType->OptionalObjectData
 	
 			if (!CurrentMaterial)
-				return ServerAttemptInteractOriginal(Context, Stack, Ret);
+				return ServerAttemptInteractOriginal(Context, Stack);
 	
 			int Index = 0;
 	
@@ -747,17 +747,17 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 				auto Cost = ItemCollection->GetInputCount()->GetValue();
 	
 				if (!CurrentMaterial)
-					return ServerAttemptInteractOriginal(Context, Stack, Ret);
+					return ServerAttemptInteractOriginal(Context, Stack);
 	
 				auto MatInstance = WorldInventory->FindItemInstance(CurrentMaterial);
 	
 				if (!MatInstance)
-					return ServerAttemptInteractOriginal(Context, Stack, Ret);
+					return ServerAttemptInteractOriginal(Context, Stack);
 	
 				bool bShouldUpdate = false;
 	
 				if (!WorldInventory->RemoveItem(MatInstance->GetItemEntry()->GetItemGuid(), &bShouldUpdate, Cost, true))
-					return ServerAttemptInteractOriginal(Context, Stack, Ret);
+					return ServerAttemptInteractOriginal(Context, Stack);
 	
 				if (bShouldUpdate)
 					WorldInventory->Update();
@@ -818,7 +818,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 		}
 	}
 
-	return ServerAttemptInteractOriginal(Context, Stack, Ret);
+	return ServerAttemptInteractOriginal(Context, Stack);
 }
 
 void AFortPlayerController::ServerAttemptAircraftJumpHook(AFortPlayerController* PC, FRotator ClientRotation)

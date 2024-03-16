@@ -3,6 +3,10 @@
 #include "reboot.h"
 #include "FortAthenaAIBotCharacterCustomization.h"
 #include "TSubClassOf.h"
+#include "bots.h"
+#include "BehaviorTree.h"
+#include "FortBotNameSettings.h"
+#include "FortAthenaAIBotInventoryItems.h"
 
 class UFortAthenaAIBotCustomizationData : public UObject // UPrimaryDataAsset
 {
@@ -19,29 +23,30 @@ public:
 		return Get<TSubclassOf<AFortPlayerPawnAthena>>(PawnClassOffset);
 	}
 
+	UBehaviorTree* GetBehaviorTree()
+	{
+		static auto BehaviorTreeOffset = GetOffset("BehaviorTree");
+		return Get<UBehaviorTree*>(BehaviorTreeOffset);
+	}
+
+	UFortBotNameSettings* GetBotNameSettings()
+	{
+		static auto BotNameSettingsOffset = GetOffset("BotNameSettings");
+		return Get<UFortBotNameSettings*>(BotNameSettingsOffset);
+	}
+
+	UFortAthenaAIBotInventoryItems* GetStartupInventory()
+	{
+		static auto StartupInventoryOffset = GetOffset("StartupInventory");
+		return Get<UFortAthenaAIBotInventoryItems*>(StartupInventoryOffset);
+	}
+
 	static void ApplyOverrideCharacterCustomizationHook(UFortAthenaAIBotCustomizationData* InBotData, AFortPlayerPawn* NewBot, __int64 idk)
 	{
 		LOG_INFO(LogDev, "ApplyOverrideCharacterCustomizationHook!");
 
-		auto CharacterCustomization = InBotData->GetCharacterCustomization();
-
-		auto Controller = NewBot->GetController();
-
-		LOG_INFO(LogDev, "Controller: {}", Controller->IsValidLowLevel() ? Controller->GetPathName() : "BadRead");
-
-		static auto CosmeticLoadoutBCOffset = Controller->GetOffset("CosmeticLoadoutBC");
-		Controller->GetPtr<FFortAthenaLoadout>(CosmeticLoadoutBCOffset)->GetCharacter() = CharacterCustomization->GetCustomizationLoadout()->GetCharacter();
-
-		auto PlayerStateAsFort = Cast<AFortPlayerState>(Controller->GetPlayerState());
-
-		static auto UpdatePlayerCustomCharacterPartsVisualizationFn = FindObject<UFunction>(L"/Script/FortniteGame.FortKismetLibrary.UpdatePlayerCustomCharacterPartsVisualization");
-		PlayerStateAsFort->ProcessEvent(UpdatePlayerCustomCharacterPartsVisualizationFn, &PlayerStateAsFort);
-
-		PlayerStateAsFort->ForceNetUpdate();
-		NewBot->ForceNetUpdate();
-		Controller->ForceNetUpdate();
-
-		// NewBot->GetCosmeticLoadout()->GetCharacter() = CharacterCustomization->GetCustomizationLoadout()->GetCharacter();
+		Bosses::SpawnBoss(NewBot, NewBot->GetTransform(), InBotData);
+		NewBot->K2_DestroyActor();
 	}
 
 	static UClass* StaticClass()

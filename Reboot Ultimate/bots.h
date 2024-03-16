@@ -6,8 +6,9 @@
 #include "FortAthenaAIBotCustomizationData.h"
 #include "FortServerBotManagerAthena.h"
 #include "FortAthenaAISpawnerData.h"
+#include "KismetTextLibrary.h"
+
 #include "botnames.h"
-#include <unordered_set>
 
 inline UFortServerBotManagerAthena* BotManager = nullptr;
 
@@ -64,8 +65,6 @@ public:
 				return;
 
 			Pawn = BotManager->GetCachedBotMutator()->SpawnBot(PawnClass, SpawnActor, SpawnTransform.Translation, SpawnTransform.Rotation.Rotator(), false);
-
-			LOG_INFO(LogDev, "Pawn->GetActorLocation(): {}", Pawn->GetActorLocation().ToString().ToString());
 
 			if (Fortnite_Version < 17)
 				AIBotController = Cast<AFortAthenaAIBotController>(Pawn->GetController());
@@ -478,17 +477,70 @@ class Boss
 public:
 	AFortAthenaAIBotController* Controller = nullptr;
 	AFortPlayerPawnAthena* Pawn = nullptr;
+	AFortPlayerStateAthena* PlayerState = nullptr;
 
 public:
 	void Initialize(AActor* SpawnLocator, const FTransform& SpawnTransform, UFortAthenaAIBotCustomizationData* CustomizationData)
 	{
+		auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+		auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+
 		auto PawnClass = CustomizationData->GetPawnClass();
+		auto BehaviorTree = CustomizationData->GetBehaviorTree();
+		auto BotNameSettings = CustomizationData->GetBotNameSettings();
 
 		FVector SpawnLocation = SpawnTransform.Translation;
 		FRotator SpawnRotation = SpawnTransform.Rotation.Rotator();
 
 		Pawn = BotManager->GetCachedBotMutator()->SpawnBot(PawnClass, SpawnLocator, SpawnLocation, SpawnRotation, false);
-		Controller = GetWorld()->SpawnActor<AFortAthenaAIBotController>(Pawn->GetAIControllerClass(), SpawnTransform);
+
+		if (Fortnite_Version >= 17)
+			Controller = GetWorld()->SpawnActor<AFortAthenaAIBotController>(Pawn->GetAIControllerClass(), SpawnTransform);
+		else
+			Controller = Cast<AFortAthenaAIBotController>(Pawn->GetController());
+
+		PlayerState = Cast<AFortPlayerStateAthena>(Controller->GetPlayerState());
+
+		UObject* CharacterToApply = nullptr;
+
+		if (!CharacterToApply)
+		{
+			auto DefaultCharacterName = CustomizationData->GetCharacterCustomization()->GetCustomizationLoadout()->GetCharacter()->GetName();
+
+			if (DefaultCharacterName != "CID_556_Athena_Commando_F_RebirthDefaultA")
+			{
+				CharacterToApply = CustomizationData->GetCharacterCustomization()->GetCustomizationLoadout()->GetCharacter();
+			}
+			else
+			{
+				if (CustomizationData->GetFullName().contains("Alter"))
+				{
+					CharacterToApply = FindObject<UObject>("CID_780_Athena_Commando_M_HenchmanBadShorts", nullptr, ANY_PACKAGE);
+				}
+				else if (CustomizationData->GetFullName().contains("Ego"))
+				{
+					CharacterToApply = FindObject<UObject>("CID_779_Athena_Commando_M_HenchmanGoodShorts", nullptr, ANY_PACKAGE);
+				}
+				else
+				{
+					CharacterToApply = FindObject<UObject>("CID_NPC_Athena_Commando_M_HenchmanGood", nullptr, ANY_PACKAGE);
+				}
+			}
+		}
+
+		static auto HeroDefinitionOffset = CharacterToApply->GetOffset("HeroDefiniton");
+
+		if (HeroDefinitionOffset != 1)
+		{
+			auto HeroDefinition = CharacterToApply->Get(HeroDefinitionOffset);
+
+			if (HeroDefinition)
+				ApplyHID(Pawn, HeroDefinition, true);
+		}
+
+		FString OverrideName = UKismetTextLibrary::Conv_TextToString(BotNameSettings->GetOverrideName());
+
+		GameMode->ChangeName(Controller, OverrideName, false);
 	}
 };
 

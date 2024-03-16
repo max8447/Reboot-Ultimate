@@ -992,8 +992,8 @@
     </ClInclude>
     <ClInclude Include="TSubClassOf.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
-	</ClInclude>
-	<ClInclude Include="finder.h">
+    </ClInclude>
+    <ClInclude Include="finder.h">
     </ClInclude>
     <ClInclude Include="quests.h">
       <Filter>Reboot\Public</Filter>
@@ -1039,6 +1039,9 @@
     </ClInclude>
     <ClInclude Include="botnames.h">
       <Filter>Reboot\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="FortAthenaAIBotInventoryItems.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
