@@ -108,6 +108,7 @@ public:
 
 						int RandomIndex = std::rand() % PlayerBotNames.size();
 						std::string RandomBotName = PlayerBotNames[RandomIndex];
+						RandomBotName.erase(std::remove_if(RandomBotName.begin(), RandomBotName.end(), [](char c) { return std::isspace(static_cast<unsigned char>(c)); }), RandomBotName.end());
 						NewName = std::wstring(RandomBotName.begin(), RandomBotName.end()).c_str();
 						PlayerBotNames.erase(PlayerBotNames.begin() + RandomIndex);
 					}

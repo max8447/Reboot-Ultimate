@@ -23,5 +23,7 @@ AFortPlayerPawnAthena* UFortServerBotManagerAthena::SpawnBotHook(UFortServerBotM
 
 	LOG_INFO(LogBots, "InSpawnLocation: {}", InSpawnLocation.ToString().ToString());
 
-	return SpawnBotOriginal(BotManager, InSpawnLocation, InSpawnRotation, InBotData, InRuntimeBotData);
+	// return SpawnBotOriginal(BotManager, InSpawnLocation, InSpawnRotation, InBotData, InRuntimeBotData);
+
+	return nullptr;
 }
