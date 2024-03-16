@@ -200,6 +200,12 @@ public:
 		return Get<AFortAthenaMapInfo*>(MapInfoOffset);
 	}
 
+	int GetTeamsLeft()
+	{
+		static auto TeamsLeftOffset = GetOffset("TeamsLeft");
+		return Get<int>(TeamsLeftOffset);
+	}
+
 	bool IsResurrectionEnabled(AFortPlayerPawn* PlayerPawn)
 	{
 		static auto IsResurrectionEnabledFn = FindObject<UFunction>(L"/Script/FortniteGame.FortGameStateAthena.IsResurrectionEnabled");

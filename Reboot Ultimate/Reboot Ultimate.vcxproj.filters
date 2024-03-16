@@ -1037,6 +1037,9 @@
     <ClInclude Include="FortAthenaMutator_DadBro.h">
       <Filter>FortniteGame\Source\FortniteGame\Public\Athena\Modifiers</Filter>
     </ClInclude>
+    <ClInclude Include="botnames.h">
+      <Filter>Reboot\Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">

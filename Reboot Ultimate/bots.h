@@ -6,6 +6,8 @@
 #include "FortAthenaAIBotCustomizationData.h"
 #include "FortServerBotManagerAthena.h"
 #include "FortAthenaAISpawnerData.h"
+#include "botnames.h"
+#include <unordered_set>
 
 inline UFortServerBotManagerAthena* BotManager = nullptr;
 
@@ -84,8 +86,33 @@ public:
 		else
 		{
 			static int CurrentBotNum = 1;
-			auto BotNumWStr = Fortnite_Version < 9 ? std::to_wstring(CurrentBotNum++) : std::to_wstring(CurrentBotNum++ + 200);
-			NewName = Fortnite_Version < 9 ? (L"RebootBot" + BotNumWStr).c_str() : (std::format(L"Anonymous[{}]", BotNumWStr)).c_str();
+			std::wstring BotNumWStr;
+
+			if (Fortnite_Version < 9)
+			{
+				BotNumWStr = std::to_wstring(CurrentBotNum++);
+				NewName = (L"RebootBot" + BotNumWStr).c_str();
+			}
+			else
+			{
+				if (Fortnite_Version < 11)
+				{
+					BotNumWStr = std::to_wstring(CurrentBotNum++ + 200);
+					NewName = (std::format(L"Anonymous[{}]", BotNumWStr)).c_str();
+				}
+				else
+				{
+					if (!PlayerBotNames.empty())
+					{
+						std::shuffle(PlayerBotNames.begin(), PlayerBotNames.end(), std::default_random_engine((unsigned int)time(0)));
+
+						int RandomIndex = std::rand() % PlayerBotNames.size();
+						std::string RandomBotName = PlayerBotNames[RandomIndex];
+						NewName = std::wstring(RandomBotName.begin(), RandomBotName.end()).c_str();
+						PlayerBotNames.erase(PlayerBotNames.begin() + RandomIndex);
+					}
+				}
+			}
 		}
 
 		if (Fortnite_Version < 9)
@@ -322,19 +349,53 @@ public:
 
 		LOG_INFO(LogDev, "Removed!");
 
-		if (GameState->GetPlayersLeft() <= 1 && !GameState->IsRespawningAllowed(PlayerState))
+		if (GameState->GetTeamsLeft() <= 1 && !GameState->IsRespawningAllowed(PlayerState))
 		{
-			LOG_INFO(LogDev, "Winner!");
+			LOG_INFO(LogDev, "Won!");
 
 			if (KillerPawn != Pawn)
 			{
-				KillerController->PlayWinEffects(KillerPawn, KillerPawn->GetCurrentWeapon() ? KillerPawn->GetCurrentWeapon()->GetWeaponData() : nullptr, DeathCause, false);
-				KillerController->ClientNotifyWon(KillerPawn, KillerPawn->GetCurrentWeapon() ? KillerPawn->GetCurrentWeapon()->GetWeaponData() : nullptr, DeathCause);
-				KillerController->ClientNotifyTeamWon(KillerPawn, KillerPawn->GetCurrentWeapon() ? KillerPawn->GetCurrentWeapon()->GetWeaponData() : nullptr, DeathCause);
+				for (int i = 0; i < KillerController->GetWorldInventory()->GetItemList().GetReplicatedEntries().Num(); ++i)
+				{
+					auto KillerWeapon = Cast<UFortWeaponItemDefinition>(KillerController->GetWorldInventory()->GetItemList().GetReplicatedEntries().at(i).GetItemDefinition());
+
+					if (KillerWeapon)
+					{
+						KillerController->PlayWinEffects(KillerPawn, KillerWeapon, DeathCause, false);
+						KillerController->ClientNotifyWon(KillerPawn, KillerWeapon, DeathCause);
+						KillerController->ClientNotifyTeamWon(KillerPawn, KillerWeapon, DeathCause);
+					}
+				}
 			}
 
 			KillerState->GetPlace() = 1;
 			KillerState->OnRep_Place();
+
+			for (int i = 0; i < KillerState->GetPlayerTeam()->GetTeamMembers().Num(); ++i)
+			{
+				auto TeamMember = Cast<AFortPlayerControllerAthena>(KillerState->GetPlayerTeam()->GetTeamMembers().at(i));
+				auto TeamMemberPawn = Cast<AFortPlayerPawnAthena>(TeamMember->GetMyFortPawn());
+				auto TeamMemberPlayerState = Cast<AFortPlayerStateAthena>(TeamMember->GetPlayerState());
+
+				if (TeamMemberPawn != Pawn)
+				{
+					for (int i = 0; i < TeamMember->GetWorldInventory()->GetItemList().GetReplicatedEntries().Num(); ++i)
+					{
+						auto KillerWeapon = Cast<UFortWeaponItemDefinition>(TeamMember->GetWorldInventory()->GetItemList().GetReplicatedEntries().at(i).GetItemDefinition());
+
+						if (KillerWeapon)
+						{
+							TeamMember->PlayWinEffects(TeamMemberPawn, KillerWeapon, DeathCause, false);
+							TeamMember->ClientNotifyWon(TeamMemberPawn, KillerWeapon, DeathCause);
+							TeamMember->ClientNotifyTeamWon(TeamMemberPawn, KillerWeapon, DeathCause);
+						}
+					}
+				}
+
+				TeamMemberPlayerState->GetPlace() = 1;
+				TeamMemberPlayerState->OnRep_Place();
+			}
+
 			GameState->GetWinningPlayerState() = KillerState;
 			GameState->GetWinningTeam() = KillerState->GetTeamIndex();
 			GameState->OnRep_WinningPlayerState();

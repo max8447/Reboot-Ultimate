@@ -36,6 +36,7 @@
 #include "calendar.h"
 #include "gui.h"
 #include <random>
+#include "botnames.h"
 
 static UFortPlaylistAthena* GetPlaylistToUse()
 {
@@ -1043,6 +1044,8 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 			&& Fortnite_Version != 3.3; // RepGraph is half implemented
 
 		LOG_INFO(LogDev, "bShouldUseReplicationGraph: {}", Globals::bShouldUseReplicationGraph);
+
+		CreateThread(0, 0, InitBotNames, 0, 0, 0);
 
 		Globals::bStartedListening = true;
 	}
