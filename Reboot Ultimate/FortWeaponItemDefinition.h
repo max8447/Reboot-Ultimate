@@ -19,8 +19,14 @@ public:
 		return Get<TArray<TSoftClassPtr<UObject>>>(EquippedAbilitiesOffset);
 	}
 
+	UFortWorldItemDefinition* GetAmmoData()
+	{
+		static auto AmmoDataOffset = GetOffset("AmmoData");
+		auto AmmoData = GetPtr<TSoftObjectPtr<UFortWorldItemDefinition>>(AmmoDataOffset);
+		return AmmoData->Get();
+	}
+
 	int GetClipSize();
-	UFortWorldItemDefinition* GetAmmoData();
 	void RemoveGrantedWeaponAbilities(class AFortPlayerControllerAthena* PlayerController);
 	void GiveGrantedWeaponAbilities(class AFortPlayerControllerAthena* PlayerController);
 

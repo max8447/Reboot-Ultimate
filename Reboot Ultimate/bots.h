@@ -210,13 +210,16 @@ public:
 
 	virtual void OnDied(AFortPlayerStateAthena* KillerState = nullptr)
 	{
-		// if (!KillerState)
-			// return;
-
 		auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
 		auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
-		auto KillerController = Cast<AFortPlayerControllerAthena>(KillerState->GetOwner());
-		auto KillerPawn = KillerController->GetMyFortPawn();
+		AFortPlayerControllerAthena* KillerController = nullptr;
+		AFortPawn* KillerPawn = nullptr;
+
+		if (KillerState)
+		{
+			KillerController = Cast<AFortPlayerControllerAthena>(KillerState->GetOwner());
+			KillerPawn = KillerController->GetMyFortPawn();
+		}
 
 		void* DeathReport = nullptr;
 
@@ -299,7 +302,7 @@ public:
 
 		if (Globals::AmountOfHealthSiphon != 0)
 		{
-			if (KillerPawn && KillerPawn != Pawn)
+			if (KillerPawn && KillerPawn != Pawn && KillerController && Cast<AController>(KillerController) != Cast<AController>(AIBotController))
 			{
 				auto WorldInventory = KillerController->GetWorldInventory();
 
@@ -349,55 +352,81 @@ public:
 
 		LOG_INFO(LogDev, "Removed!");
 
-		if (GameState->GetTeamsLeft() <= 1 && !GameState->IsRespawningAllowed(PlayerState))
+		auto AllPlayerStates = UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFortPlayerStateAthena::StaticClass());
+
+		bool bDidSomeoneWin = AllPlayerStates.Num() == 0;
+
+		for (int i = 0; i < AllPlayerStates.Num(); ++i)
+		{
+			auto CurrentPlayerState = (AFortPlayerStateAthena*)AllPlayerStates.at(i);
+
+			if (CurrentPlayerState->GetPlace() <= 1)
+			{
+				bDidSomeoneWin = true;
+				break;
+			}
+		}
+
+		if (bDidSomeoneWin && !GameState->IsRespawningAllowed(PlayerState))
 		{
 			LOG_INFO(LogDev, "Won!");
 
-			if (KillerPawn != Pawn)
-			{
-				for (int i = 0; i < KillerController->GetWorldInventory()->GetItemList().GetReplicatedEntries().Num(); ++i)
-				{
-					auto KillerWeapon = Cast<UFortWeaponItemDefinition>(KillerController->GetWorldInventory()->GetItemList().GetReplicatedEntries().at(i).GetItemDefinition());
+			TArray<AFortPlayerControllerAthena*> PlayerControllersArray;
 
-					if (KillerWeapon)
-					{
-						KillerController->PlayWinEffects(KillerPawn, KillerWeapon, DeathCause, false);
-						KillerController->ClientNotifyWon(KillerPawn, KillerWeapon, DeathCause);
-						KillerController->ClientNotifyTeamWon(KillerPawn, KillerWeapon, DeathCause);
-					}
-				}
-			}
-
-			KillerState->GetPlace() = 1;
-			KillerState->OnRep_Place();
+			if (KillerController)
+				PlayerControllersArray.Add(KillerController);
 
 			for (int i = 0; i < KillerState->GetPlayerTeam()->GetTeamMembers().Num(); ++i)
+				PlayerControllersArray.Add(Cast<AFortPlayerControllerAthena>(KillerState->GetPlayerTeam()->GetTeamMembers().at(i)));
+
+			for (int i = 0; i < PlayerControllersArray.Num(); ++i)
 			{
-				auto TeamMember = Cast<AFortPlayerControllerAthena>(KillerState->GetPlayerTeam()->GetTeamMembers().at(i));
-				auto TeamMemberPawn = Cast<AFortPlayerPawnAthena>(TeamMember->GetMyFortPawn());
-				auto TeamMemberPlayerState = Cast<AFortPlayerStateAthena>(TeamMember->GetPlayerState());
+				auto ArrayController = PlayerControllersArray.at(i);
+				auto ArrayPlayerState = ArrayController->GetPlayerStateAthena();
+				auto ArrayPawn = ArrayController->GetMyFortPawn();
 
-				if (TeamMemberPawn != Pawn)
+				if (!ArrayController || !ArrayPlayerState || !ArrayPawn)
+					continue;
+
+				TArray<UFortWeaponItemDefinition*> KillerWeaponsArray;
+
+				for (int i = 0; i < ArrayController->GetWorldInventory()->GetItemList().GetItemInstances().Num(); ++i)
 				{
-					for (int i = 0; i < TeamMember->GetWorldInventory()->GetItemList().GetReplicatedEntries().Num(); ++i)
-					{
-						auto KillerWeapon = Cast<UFortWeaponItemDefinition>(TeamMember->GetWorldInventory()->GetItemList().GetReplicatedEntries().at(i).GetItemDefinition());
+					auto KillerWeapon = ArrayController->GetWorldInventory()->GetItemList().GetItemInstances().at(i)->GetItemEntry()->GetItemDefinition();
 
-						if (KillerWeapon)
-						{
-							TeamMember->PlayWinEffects(TeamMemberPawn, KillerWeapon, DeathCause, false);
-							TeamMember->ClientNotifyWon(TeamMemberPawn, KillerWeapon, DeathCause);
-							TeamMember->ClientNotifyTeamWon(TeamMemberPawn, KillerWeapon, DeathCause);
-						}
+					if (!KillerWeapon)
+						continue;
+
+					if (KillerWeapon->IsA(UFortWeaponItemDefinition::StaticClass()))
+					{
+						auto KillerWeaponDefinition = (UFortWeaponItemDefinition*)KillerWeapon;
+
+						KillerWeaponsArray.Add(KillerWeaponDefinition);
 					}
 				}
 
-				TeamMemberPlayerState->GetPlace() = 1;
-				TeamMemberPlayerState->OnRep_Place();
+				for (int i = 0; i < KillerWeaponsArray.Num(); ++i)
+				{
+					auto KillerWeapon = KillerWeaponsArray.at(i);
+
+					ArrayController->PlayWinEffects(ArrayPawn, KillerWeapon, DeathCause, false);
+					ArrayController->ClientNotifyWon(ArrayPawn, KillerWeapon, DeathCause);
+					ArrayController->ClientNotifyTeamWon(ArrayPawn, KillerWeapon, DeathCause);
+				}
+
+				if (ArrayPlayerState == KillerState && ArrayPawn)
+				{
+					ArrayController->PlayWinEffects(ArrayPawn, ArrayPawn->GetCurrentWeapon()->GetWeaponData(), DeathCause, false);
+					ArrayController->ClientNotifyWon(ArrayPawn, ArrayPawn->GetCurrentWeapon()->GetWeaponData(), DeathCause);
+					ArrayController->ClientNotifyTeamWon(ArrayPawn, ArrayPawn->GetCurrentWeapon()->GetWeaponData(), DeathCause);
+				}
+
+				ArrayPlayerState->GetPlace() = 1;
+				ArrayPlayerState->OnRep_Place();
 			}
 
-			GameState->GetWinningPlayerState() = KillerState;
-			GameState->GetWinningTeam() = KillerState->GetTeamIndex();
+			GameState->GetWinningPlayerState() = KillerState ? KillerState : PlayerState;
+			GameState->GetWinningTeam() = KillerState ? KillerState->GetTeamIndex() : PlayerState->GetTeamIndex();
 			GameState->OnRep_WinningPlayerState();
 			GameState->OnRep_WinningTeam();
 			GameMode->EndMatch();

@@ -49,6 +49,8 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 		bShouldDestroyAllPlayerBuilds = false;
 	}
 
+	/* // too skunked
+
 	if (!Globals::bGoingToPlayEvent && Cast<AFortGameModeAthena>(GetWorld()->GetGameMode())->GetGameStateAthena()->GetGamePhaseStep() > EAthenaGamePhaseStep::BusFlying)
 	{
 		for (int i = 0; i < NetDriver->GetClientConnections().Num(); i++)
@@ -66,6 +68,8 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 			}
 		}
 	}
+
+	*/
 
 	if (Globals::bStartedListening)
 	{

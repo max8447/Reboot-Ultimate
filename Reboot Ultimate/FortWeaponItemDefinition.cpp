@@ -36,13 +36,6 @@ int UFortWeaponItemDefinition::GetClipSize()
 	return *(int*)(__int64(Row) + ClipSizeOffset);
 }
 
-UFortWorldItemDefinition* UFortWeaponItemDefinition::GetAmmoData()
-{
-	static auto AmmoDataOffset = GetOffset("AmmoData");
-	auto AmmoData = GetPtr<TSoftObjectPtr<UFortWorldItemDefinition>>(AmmoDataOffset);
-	return AmmoData->Get();
-}
-
 void UFortWeaponItemDefinition::RemoveGrantedWeaponAbilities(AFortPlayerControllerAthena* PlayerController)
 {
 	if (Fortnite_Version < 14)
