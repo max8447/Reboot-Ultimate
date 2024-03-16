@@ -235,14 +235,6 @@ void AFortPlayerController::ServerLoadingScreenDroppedHook(UObject* Context, FFr
 
 	PlayerController->ApplyCosmeticLoadout();
 
-	if (Fortnite_Version >= 11)
-	{
-		auto XPComponent = PlayerController->GetXPComponent();
-
-		XPComponent->IsRegisteredWithQuestManager() = true;
-		XPComponent->OnRep_bRegisteredWithQuestManager();
-	}
-
 	LoopMutators([&](AFortAthenaMutator* Mutator)
 		{
 			if (auto GG_Mutator = Cast<AFortAthenaMutator_GG>(Mutator))
