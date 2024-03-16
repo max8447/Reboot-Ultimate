@@ -17,20 +17,11 @@ APawn* UFortServerBotManagerAthena::SpawnAI(FVector InSpawnLocation, FRotator In
 	return FortServerBotManagerAthena_SpawnAI_Params.ReturnValue;
 }
 
-AFortPlayerPawnAthena* UFortServerBotManagerAthena::SpawnBot(FVector InSpawnLocation, FRotator InSpawnRotation, UFortAthenaAIBotCustomizationData* InBotData, FFortAthenaAIBotRunTimeCustomizationData InRuntimeBotData)
+AFortPlayerPawnAthena* UFortServerBotManagerAthena::SpawnBotHook(UFortServerBotManagerAthena* BotManager, FVector InSpawnLocation, FRotator InSpawnRotation, UFortAthenaAIBotCustomizationData* InBotData, FFortAthenaAIBotRunTimeCustomizationData InRuntimeBotData)
 {
-	static auto SpawnBotFn = FindObject<UFunction>("/Script/FortniteGame.FortServerBotManagerAthena.SpawnBot");
+	LOG_INFO(LogBots, "UFortServerBotManagerAthena::SpawnBotHook!");
 
-	struct
-	{
-		FVector InSpawnLocation;
-		FRotator InSpawnRotation;
-		UFortAthenaAIBotCustomizationData* InBotData;
-		FFortAthenaAIBotRunTimeCustomizationData InRuntimeBotData;
-		AFortPlayerPawnAthena* ReturnValue;
-	}FortServerBotManagerAthena_SpawnBot_Params{ InSpawnLocation , InSpawnRotation , InBotData , InRuntimeBotData };
+	LOG_INFO(LogBots, "InSpawnLocation: {}", InSpawnLocation.ToString().ToString());
 
-	this->ProcessEvent(SpawnBotFn, &FortServerBotManagerAthena_SpawnBot_Params);
-
-	return FortServerBotManagerAthena_SpawnBot_Params.ReturnValue;
+	return SpawnBotOriginal(BotManager, InSpawnLocation, InSpawnRotation, InBotData, InRuntimeBotData);
 }

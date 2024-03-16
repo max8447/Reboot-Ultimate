@@ -218,7 +218,9 @@ public:
 		if (KillerState)
 		{
 			KillerController = Cast<AFortPlayerControllerAthena>(KillerState->GetOwner());
-			KillerPawn = KillerController->GetMyFortPawn();
+
+			if (KillerController)
+				KillerPawn = KillerController->GetMyFortPawn();
 		}
 
 		void* DeathReport = nullptr;

@@ -259,21 +259,8 @@ void AFortPlayerPawn::UnEquipVehicleWeaponDefinition(UFortWeaponItemDefinition* 
 
 	LOG_INFO(LogVehicles, "Equipping SwappingDefinition: {}", SwappingDefinition->GetFullName());
 
-	auto& ReplicatedEntries = WorldInventory->GetItemList().GetReplicatedEntries();
-
-	for (int i = 0; i < ReplicatedEntries.Num(); i++)
-	{
-		auto ReplicatedEntry = ReplicatedEntries.AtPtr(i, FFortItemEntry::GetStructSize());
-
-		if (ReplicatedEntry->GetItemGuid() == SwappingInstance->GetItemEntry()->GetItemGuid())
-		{
-			WorldInventory->GetItemList().MarkItemDirty(ReplicatedEntry);
-			WorldInventory->GetItemList().MarkItemDirty(SwappingInstance->GetItemEntry());
-			WorldInventory->HandleInventoryLocalUpdate();
-
-			PlayerController->GetMyFortPawn()->EquipWeaponDefinition(Cast<UFortWeaponItemDefinition>(SwappingDefinition), SwappingInstance->GetItemEntry()->GetItemGuid()); // Bad, we should equip the last weapon.
-		}
-	}
+	PlayerController->ServerExecuteInventoryItemHook(PlayerController, SwappingInstance->GetItemEntry()->GetItemGuid());
+	PlayerController->ClientEquipItem(SwappingInstance->GetItemEntry()->GetItemGuid(), true);
 }
 
 void AFortPlayerPawn::StartGhostModeExitHook(UObject* Context, FFrame* Stack, void* Ret)
@@ -308,8 +295,9 @@ void AFortPlayerPawn::StartGhostModeExitHook(UObject* Context, FFrame* Stack, vo
 
 AActor* AFortPlayerPawn::ServerOnExitVehicleHook(AFortPlayerPawn* PlayerPawn, ETryExitVehicleBehavior ExitForceBehavior)
 {
-	auto VehicleWeaponDefinition = PlayerPawn->GetVehicleWeaponDefinition(PlayerPawn->GetVehicle());
-	LOG_INFO(LogDev, "VehicleWeaponDefinition: {}", VehicleWeaponDefinition ? VehicleWeaponDefinition->GetFullName() : "BadRead");
+	auto Vehicle = PlayerPawn->GetVehicle();
+	auto VehicleWeaponDefinition = PlayerPawn->GetVehicleWeaponDefinition(Vehicle);
+	LOG_INFO(LogDev, "[Leave] {} VehicleWeaponDefinition: {}", __int64(Vehicle), VehicleWeaponDefinition ? VehicleWeaponDefinition->GetFullName() : "BadRead");
 	PlayerPawn->UnEquipVehicleWeaponDefinition(VehicleWeaponDefinition);
 
 	return ServerOnExitVehicleOriginal(PlayerPawn, ExitForceBehavior);

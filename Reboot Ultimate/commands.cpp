@@ -138,6 +138,9 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 	bool bSendHelpMessage = false;
 
+	auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+	auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+
 	if (Arguments.size() >= 1)
 	{
 		auto& Command = Arguments[0];
@@ -1616,7 +1619,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			RunTimeData.GetCustomSquadId() = 16;
 			RunTimeData.GetPredefinedCosmeticSetTag() = FGameplayTag();
 
-			auto SpawnedPawn = BotManager->SpawnBot(Pawn->GetActorLocation(), Pawn->GetActorRotation(), InBotData, RunTimeData);
+			auto SpawnedPawn = UFortServerBotManagerAthena::SpawnBotHook(BotManager, Pawn->GetActorLocation(), Pawn->GetActorRotation(), InBotData, RunTimeData);
 
 			if (SpawnedPawn)
 			{
@@ -2166,7 +2169,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		}
 		else if (Command == "teleport" || Command == "tp" || Command == "to")
 		{
-			auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
+			UCheatManager*& CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
 
 			if (!CheatManager)
 			{
@@ -2446,7 +2449,7 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		}
 		else if (Command == "destroytarget" || Command == "destroy")
 		{
-			auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
+			UCheatManager*& CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
 
 			if (!CheatManager)
 			{

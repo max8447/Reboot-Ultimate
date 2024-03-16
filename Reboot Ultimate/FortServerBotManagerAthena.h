@@ -42,6 +42,8 @@ public:
 class UFortServerBotManagerAthena  : public UObject
 {
 public:
+	static inline AFortPlayerPawnAthena* (*SpawnBotOriginal)(UFortServerBotManagerAthena* BotManager, FVector InSpawnLocation, FRotator InSpawnRotation, UFortAthenaAIBotCustomizationData* InBotData, FFortAthenaAIBotRunTimeCustomizationData InRuntimeBotData);
+
 	AFortAthenaMutator_Bots*& GetCachedBotMutator()
 	{
 		static auto CachedBotMutatorOffset = GetOffset("CachedBotMutator");
@@ -49,5 +51,5 @@ public:
 	}
 
 	APawn* SpawnAI(FVector InSpawnLocation, FRotator InSpawnRotation, UFortAthenaAISpawnerDataComponentList* AISpawnerComponentList);
-	AFortPlayerPawnAthena* SpawnBot(FVector InSpawnLocation, FRotator InSpawnRotation, UFortAthenaAIBotCustomizationData* InBotData, FFortAthenaAIBotRunTimeCustomizationData InRuntimeBotData);
+	static AFortPlayerPawnAthena* SpawnBotHook(UFortServerBotManagerAthena* BotManager, FVector InSpawnLocation, FRotator InSpawnRotation, UFortAthenaAIBotCustomizationData* InBotData, FFortAthenaAIBotRunTimeCustomizationData InRuntimeBotData);
 };
