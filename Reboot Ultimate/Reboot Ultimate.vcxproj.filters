@@ -992,6 +992,8 @@
     </ClInclude>
     <ClInclude Include="TSubClassOf.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\Engine</Filter>
+	</ClInclude>
+	<ClInclude Include="finder.h">
     </ClInclude>
     <ClInclude Include="quests.h">
       <Filter>Reboot\Public</Filter>

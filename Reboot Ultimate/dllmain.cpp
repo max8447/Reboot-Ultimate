@@ -216,7 +216,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
     auto GameMode = (AFortGameMode*)GetWorld()->GetGameMode();
     auto GameState = Cast<AFortGameStateAthena>(GameMode->GetGameState());
 
-    auto ClientConnections = GetWorld()->GetNetDriver()->GetClientConnections();
+    auto& ClientConnections = GetWorld()->GetNetDriver()->GetClientConnections();
 
     // Rift Tour
     if (Fortnite_Version == 17.30)
@@ -252,11 +252,11 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
             }
             if (Index == 2) // Slide
             {
-                auto Script = FindObject<UObject>("/Buffet/Levels/Buffet_Part_4.Buffet_Part_4.PersistentLevel.BP_Buffet_PhaseScripting_Paint_4");
+                auto Script = FindObject<UObject>(L"/Buffet/Levels/Buffet_Part_4.Buffet_Part_4.PersistentLevel.BP_Buffet_PhaseScripting_Paint_4");
                 auto SplineActor = Script->Get<AActor*>(Script->GetOffset("SplineActor"));
                 auto PawnLocation = Script->Get<AActor*>(Script->GetOffset("PawnLocation")) = SplineActor;
 
-                auto AllWrapsSpawners = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>("/Script/SpecialEventGameplayRuntime.FortSpecialRelevancyActorSpawner"));
+                auto AllWrapsSpawners = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>(L"/Script/SpecialEventGameplayRuntime.FortSpecialRelevancyActorSpawner"));
 
                 LOG_INFO(LogDev, "AllWrapsSpawners.Num(): ", AllWrapsSpawners.Num());
 
@@ -272,11 +272,11 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
 
                         if (CurrentWrapSpawner->GetName().contains("WrapChangePickup"))
                         {
-                            ClassToSpawn = FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_WrapChangePickup.BP_Buffet_Paint_WrapChangePickup_C");
+                            ClassToSpawn = FindObject<UClass>(L"/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_WrapChangePickup.BP_Buffet_Paint_WrapChangePickup_C");
                         }
                         else if (CurrentWrapSpawner->GetName().contains("Paint_Pickup"))
                         {
-                            ClassToSpawn = FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_Pickup.BP_Buffet_Paint_Pickup_C");
+                            ClassToSpawn = FindObject<UClass>(L"/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_Pickup.BP_Buffet_Paint_Pickup_C");
                         }
 
                         auto SpawnedWrap = GetWorld()->SpawnActor<AActor>(ClassToSpawn, WrapSpawnerLocation, WrapSpawnerRotation.Quaternion(), FVector(1, 1, 1), CreateSpawnParameters(ESpawnActorCollisionHandlingMethod::AlwaysSpawn, true, nullptr));
@@ -298,8 +298,8 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
 
                 for (int i = 0; i < ClientConnections.Num(); i++)
                 {
-                    auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
                     auto CurrentController = ClientConnections.At(i)->GetPlayerController();
+                    auto CurrentPawn = ClientConnections.At(i)->GetPlayerController()->GetPawn();
                     auto PlayerComponent = CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_PlayerComponent.BP_Buffet_Paint_PlayerComponent_C"));
                     auto MovementComponent = CurrentPawn->AddComponentByClass(FindObject<UClass>("/Buffet/Gameplay/Blueprints/WrapWorldPrototype/BP_Buffet_Paint_MovementComponent.BP_Buffet_Paint_MovementComponent_C"));
 
@@ -361,7 +361,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
                     SendMessageToConsole(CurrentController, L"Gave WID_Buffet_BeatMatchingBoomBox!");
                 }
 
-                auto AllWeps = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>("/Buffet/Gameplay/Blueprints/WolfMother/BeatmatchingWeapon/B_Buffet_BeatMatchingWeaponPrototype.B_Buffet_BeatMatchingWeaponPrototype_C"));
+                auto AllWeps = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>(L"/Buffet/Gameplay/Blueprints/WolfMother/BeatmatchingWeapon/B_Buffet_BeatMatchingWeaponPrototype.B_Buffet_BeatMatchingWeaponPrototype_C"));
 
                 for (int i = 0; i < AllWeps.Num(); i++)
                 {
@@ -375,7 +375,7 @@ void ActivatePhaseAtIndexHook(UObject* SpecialEventScript, int Index)
             }
             if (Index == 6) // Ariana
             {
-                auto ReflectScript = FindObject("/Buffet/Levels/Buffet_Reflect.Buffet_Reflect.PersistentLevel.BP_Buffet_PhaseScripting_Stars_2");
+                auto ReflectScript = FindObject(L"/Buffet/Levels/Buffet_Reflect.Buffet_Reflect.PersistentLevel.BP_Buffet_PhaseScripting_Stars_2");
 
                 for (int i = 0; i < ClientConnections.Num(); i++)
                 {

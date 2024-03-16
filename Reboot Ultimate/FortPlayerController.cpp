@@ -969,7 +969,7 @@ void AFortPlayerController::ServerCreateBuildingActorHook(UObject* Context, FFra
 	if (!WorldInventory)
 		return ServerCreateBuildingActorOriginal(Context, Stack, Ret);
 
-	auto PlayerStateAthena = Cast<AFortPlayerStateAthena>(PlayerController->GetPlayerState());
+	auto PlayerStateAthena = Cast<AFortPlayerStateAthena, false>(PlayerController->GetPlayerState());
 
 	if (!PlayerStateAthena)
 		return ServerCreateBuildingActorOriginal(Context, Stack, Ret);
@@ -1012,7 +1012,7 @@ void AFortPlayerController::ServerCreateBuildingActorHook(UObject* Context, FFra
 	if (!BuildingClass)
 		return ServerCreateBuildingActorOriginal(Context, Stack, Ret);
 
-	auto GameState = Cast<AFortGameStateAthena>(Cast<AFortGameMode>(GetWorld()->GetGameMode(), false)->GetGameState(), false);
+	auto GameState = Cast<AFortGameStateAthena, false>(Cast<AFortGameMode, false>(GetWorld()->GetGameMode())->GetGameState());
 
 	auto StructuralSupportSystem = GameState->GetStructuralSupportSystem();
 
@@ -1917,11 +1917,7 @@ void AFortPlayerController::ServerBeginEditingBuildingActorHook(AFortPlayerContr
 
 	AFortWeap_EditingTool* EditTool = nullptr;
 
-#if 1
 	EditTool = Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolInstance->GetItemEntry()->GetItemGuid()));
-#else
-	EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon());
-#endif
 
 	if (!EditTool)
 		return;
@@ -1993,24 +1989,7 @@ void AFortPlayerController::ServerEndEditingBuildingActorHook(AFortPlayerControl
 	if (!WorldInventory)
 		return;
 
-	AFortWeap_EditingTool* EditTool = nullptr;
-
-#if 1
-	auto EditToolInstance = WorldInventory->FindItemInstance(EditToolDef);
-
-	if (!EditToolInstance)
-		return;
-
-	FGuid EditToolGuid = EditToolInstance->GetItemEntry()->GetItemGuid(); // Should we ref?
-
-#if 1
-	EditTool = Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolGuid)); // ERM
-#else
-	Cast<AFortWeap_EditingTool>(Pawn->EquipWeaponDefinition(EditToolDef, EditToolGuid)); // ERM
-#endif
-#else
-	EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon());
-#endif
+	AFortWeap_EditingTool* EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon());
 
 	if (EditTool)
 	{
