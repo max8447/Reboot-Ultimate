@@ -962,8 +962,6 @@ static inline void MainUI()
 					ImGui::SliderInt("Players required to start the match", &WarmupRequiredPlayerCount, 1, CurrentPlaylist->GetMaxPlayers());
 				}
 
-				ImGui::Text(std::format("Joinable: {}", Globals::bStartedListening).c_str());
-
 				static std::string ConsoleCommand;
 
 				ImGui::InputText("Console Command", &ConsoleCommand);
