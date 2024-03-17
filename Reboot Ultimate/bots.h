@@ -532,7 +532,7 @@ public:
 			}
 		}
 
-		static auto HeroDefinitionOffset = CharacterToApply->GetOffset("HeroDefiniton");
+		static auto HeroDefinitionOffset = CharacterToApply->GetOffset("HeroDefinition");
 
 		if (HeroDefinitionOffset != 1)
 		{
