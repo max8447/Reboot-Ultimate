@@ -3,10 +3,10 @@
 #include "reboot.h"
 #include "FortAthenaAIBotCharacterCustomization.h"
 #include "TSubClassOf.h"
-#include "bots.h"
 #include "BehaviorTree.h"
 #include "FortBotNameSettings.h"
 #include "FortAthenaAIBotInventoryItems.h"
+#include "FortPlayerPawnAthena.h"
 
 class UFortAthenaAIBotCustomizationData : public UObject // UPrimaryDataAsset
 {
@@ -41,13 +41,7 @@ public:
 		return Get<UFortAthenaAIBotInventoryItems*>(StartupInventoryOffset);
 	}
 
-	static void ApplyOverrideCharacterCustomizationHook(UFortAthenaAIBotCustomizationData* InBotData, AFortPlayerPawn* NewBot, __int64 idk)
-	{
-		LOG_INFO(LogDev, "ApplyOverrideCharacterCustomizationHook!");
-
-		Bosses::SpawnBoss(NewBot, NewBot->GetTransform(), InBotData);
-		NewBot->K2_DestroyActor();
-	}
+	static void ApplyOverrideCharacterCustomizationHook(UFortAthenaAIBotCustomizationData* InBotData, AFortPlayerPawn* NewBot, __int64 idk);
 
 	static UClass* StaticClass()
 	{

@@ -1411,6 +1411,7 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 				}
 			}
 
+#if 1
 			LOG_INFO(LogDev, "Spawning loot!");
 
 			auto SpawnIsland_FloorLoot = FindObject<UClass>(L"/Game/Athena/Environments/Blueprints/Tiered_Athena_FloorLoot_Warmup.Tiered_Athena_FloorLoot_Warmup_C");
@@ -1424,7 +1425,7 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 
 			uint8 SpawnFlag = EFortPickupSourceTypeFlag::GetContainerValue();
 
-			bool bTest = false;
+			bool bDestroyFloorLootActor = false;
 			bool bPrintWarmup = bDebugPrintFloorLoot;
 
 			for (int i = 0; i < SpawnIsland_FloorLoot_Actors.Num(); i++)
@@ -1447,7 +1448,7 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 					auto Pickup = AFortPickup::SpawnPickup(CreateData);
 				}
 
-				if (!bTest)
+				if (!bDestroyFloorLootActor)
 					CurrentActor->K2_DestroyActor();
 			}
 
@@ -1479,7 +1480,7 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 					auto Pickup = AFortPickup::SpawnPickup(CreateData);
 				}
 
-				if (!bTest)
+				if (!bDestroyFloorLootActor)
 					CurrentActor->K2_DestroyActor();
 			}
 
@@ -1487,6 +1488,7 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 			BRIsland_FloorLoot_Actors.Free();
 
 			LOG_INFO(LogDev, "Spawned loot!");
+#endif
 		}
 	}
 

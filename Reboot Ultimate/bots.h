@@ -3,10 +3,11 @@
 #include "FortGameModeAthena.h"
 #include "FortAthenaAIBotController.h"
 #include "FortAIPawn.h"
-#include "FortAthenaAIBotCustomizationData.h"
 #include "FortServerBotManagerAthena.h"
+#include "FortAthenaAIBotCustomizationData.h"
 #include "FortAthenaAISpawnerData.h"
 #include "KismetTextLibrary.h"
+#include "FortBotNameSettings.h"
 
 #include "botnames.h"
 
@@ -500,6 +501,9 @@ public:
 			Controller = Cast<AFortAthenaAIBotController>(Pawn->GetController());
 
 		PlayerState = Cast<AFortPlayerStateAthena>(Controller->GetPlayerState());
+
+		Controller->GetCachedBotMutator() = BotManager->GetCachedBotMutator();
+		Controller->GetCachedGameMode() = GameMode;
 
 		UObject* CharacterToApply = nullptr;
 

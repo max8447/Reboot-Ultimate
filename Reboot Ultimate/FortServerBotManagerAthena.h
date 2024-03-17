@@ -3,7 +3,8 @@
 #include "FortAthenaMutator_Bots.h"
 #include "FortPlayerPawnAthena.h"
 #include "FortAthenaAISpawnerDataComponentList.h"
-#include "FortAthenaAIBotCustomizationData.h"
+
+class UFortAthenaAIBotCustomizationData;
 
 struct FFortAthenaAIBotRunTimeCustomizationData final
 {

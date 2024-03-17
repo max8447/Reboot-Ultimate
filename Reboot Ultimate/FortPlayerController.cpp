@@ -626,9 +626,9 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 				EFortWeaponUpgradeDirection       Direction;
 			};
 	
-			static auto WumbaDataTable = FindObject<UDataTable>("/Game/Items/Datatables/AthenaWumbaData.AthenaWumbaData");
+			static auto WumbaDataTable = FindObject<UDataTable>(L"/Game/Items/Datatables/AthenaWumbaData.AthenaWumbaData");
 	
-			static auto LootPackagesRowMap = WumbaDataTable->GetRowMap();
+			auto& LootPackagesRowMap = WumbaDataTable->GetRowMap();
 	
 			auto Pawn = Cast<AFortPawn>(PlayerController->GetPawn());
 			auto CurrentHeldWeapon = Pawn->GetCurrentWeapon();
@@ -678,9 +678,9 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 				MetalCost = 20;
 			}
 	
-			static auto WoodItemData = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
-			static auto StoneItemData = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
-			static auto MetalItemData = FindObject<UFortItemDefinition>("/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+			static auto WoodItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+			static auto StoneItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+			static auto MetalItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
 	
 			auto WorldInventory = PlayerController->GetWorldInventory();
 	

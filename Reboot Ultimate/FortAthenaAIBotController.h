@@ -3,6 +3,7 @@
 #include "AIController.h"
 #include "FortInventory.h"
 #include "FortAthenaMutator_Bots.h"
+#include "FortGameModeAthena.h"
 
 class AFortAthenaAIBotController : public AAIController
 {
