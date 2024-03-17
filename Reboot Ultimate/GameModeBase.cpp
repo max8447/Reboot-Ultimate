@@ -135,7 +135,7 @@ APawn* AGameModeBase::SpawnDefaultPawnForHook(AGameModeBase* GameMode, AControll
 	static auto DefaultPawnClassOffset = GameMode->GetOffset("DefaultPawnClass");
 	GameMode->Get<UClass*>(DefaultPawnClassOffset) = PawnClass;
 
-	bool bUseSpawnActor = Fortnite_Version >= 20;
+	bool bUseSpawnActor = false;
 
 	static auto SpawnDefaultPawnAtTransformFn = FindObject<UFunction>(L"/Script/Engine.GameModeBase.SpawnDefaultPawnAtTransform");
 
@@ -151,7 +151,11 @@ APawn* AGameModeBase::SpawnDefaultPawnForHook(AGameModeBase* GameMode, AControll
 		struct { AController* NewPlayer; FTransform SpawnTransform; APawn* ReturnValue; }
 		AGameModeBase_SpawnDefaultPawnAtTransform_Params{ NewPlayer, SpawnTransform };
 
+		LOG_INFO(LogDev, "Calling SpawnDefaultPawnAtTransformFn!");
+
 		GameMode->ProcessEvent(SpawnDefaultPawnAtTransformFn, &AGameModeBase_SpawnDefaultPawnAtTransform_Params);
+
+		LOG_INFO(LogDev, "Finished SpawnDefaultPawnAtTransformFn!");
 
 		NewPawn = AGameModeBase_SpawnDefaultPawnAtTransform_Params.ReturnValue;
 	}

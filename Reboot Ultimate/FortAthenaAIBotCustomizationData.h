@@ -41,6 +41,19 @@ public:
 		return Get<UFortAthenaAIBotInventoryItems*>(StartupInventoryOffset);
 	}
 
+	bool HasCustomSquadId()
+	{
+		static auto bHasCustomSquadIdOffset = GetOffset("bHasCustomSquadId");
+		static auto bHasCustomSquadIdFieldMask = GetFieldMask(GetProperty("bHasCustomSquadId"));
+		return ReadBitfieldValue(bHasCustomSquadIdOffset, bHasCustomSquadIdFieldMask);
+	}
+
+	uint8& GetCustomSquadId()
+	{
+		static auto CustomSquadIdOffset = GetOffset("CustomSquadId");
+		return Get<uint8>(CustomSquadIdOffset);
+	}
+
 	static void ApplyOverrideCharacterCustomizationHook(UFortAthenaAIBotCustomizationData* InBotData, AFortPlayerPawn* NewBot, __int64 idk);
 
 	static UClass* StaticClass()

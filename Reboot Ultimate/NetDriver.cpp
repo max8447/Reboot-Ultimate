@@ -77,8 +77,8 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 
 		// LOG_INFO(LogDev, "ReplicationDriverOffset{}", ReplicationDriverOffset);
 
-		if (ReplicationDriverOffset == -1)
-		// if (ReplicationDriverOffset == -1 || Fortnite_Version >= 20)
+		// if (ReplicationDriverOffset == -1)
+		if (ReplicationDriverOffset == -1 || Fortnite_Version >= 20)
 		{
 			NetDriver->ServerReplicateActors();
 		}

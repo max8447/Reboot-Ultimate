@@ -636,11 +636,15 @@ void ChangeLevels()
 
     LOG_INFO(LogDev, "Using {}.", bUseSwitchLevel ? Level.ToString() : LevelB.ToString());
 
+    auto LocalPC = GetLocalPlayerController();
+
+    LOG_INFO(LogDev, "Got PC: {}", __int64(LocalPC));
+
     if (bUseSwitchLevel)
     {
         static auto SwitchLevel = FindObject<UFunction>(L"/Script/Engine.PlayerController.SwitchLevel");
 
-        GetLocalPlayerController()->ProcessEvent(SwitchLevel, &Level);
+        LocalPC->ProcessEvent(SwitchLevel, &Level);
 
         if (FindGIsServer())
         {
@@ -680,7 +684,7 @@ void ChangeLevels()
             }
             else if (bUseRemovePlayer)
             {
-                UGameplayStatics::RemovePlayer((APlayerController*)GetLocalPlayerController(), true);
+                UGameplayStatics::RemovePlayer((APlayerController*)LocalPC, true);
             }
         }
 
@@ -704,6 +708,46 @@ void ChangeLevels()
         {
             UGameplayStatics::RemovePlayer((APlayerController*)GetLocalPlayerController(), true);
         }
+    }
+}
+
+void ApplyNullAndRetTrues()
+{
+    static auto FortPlayerControllerAthenaDefault = FindObject<AFortPlayerControllerAthena>(L"/Script/FortniteGame.Default__FortPlayerControllerAthena"); // FindObject<UClass>(L"/Game/Athena/Athena_PlayerController.Default__Athena_PlayerController_C");
+
+    auto AddressesToNull = Addresses::GetFunctionsToNull();
+    const auto AddressesToReturnTrue = Addresses::GetFunctionsToReturnTrue();
+
+    auto ServerCheatAllIndex = GetFunctionIdxOrPtr(FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerController.ServerCheatAll"));
+
+    if (ServerCheatAllIndex)
+        AddressesToNull.push_back(__int64(FortPlayerControllerAthenaDefault->VFTable[ServerCheatAllIndex / 8]));
+
+    for (auto func : AddressesToNull)
+    {
+        if (func == 0)
+            continue;
+
+        LOG_INFO(LogDev, "Nulling 0x{:x}", func - __int64(GetModuleHandleW(0)));
+
+        DWORD dwProtection;
+        VirtualProtect((PVOID)func, 1, PAGE_EXECUTE_READWRITE, &dwProtection);
+
+        *(uint8_t*)func = 0xC3;
+
+        DWORD dwTemp;
+        VirtualProtect((PVOID)func, 1, dwProtection, &dwTemp);
+    }
+
+    for (auto func : AddressesToReturnTrue)
+    {
+        if (func == 0)
+            continue;
+
+        LOG_INFO(LogDev, "Forcing return true on 0x{:x}", func - __int64(GetModuleHandleW(0)));
+
+        MH_CreateHook((PVOID)func, ReturnTrueHook, nullptr);
+        MH_EnableHook((PVOID)func);
     }
 }
 
@@ -782,6 +826,8 @@ DWORD WINAPI Main(LPVOID)
     static auto FortWeaponDefault = FindObject<AFortWeapon>(L"/Script/FortniteGame.Default__FortWeapon");
     static auto FortOctopusVehicleDefault = FindObject<AFortOctopusVehicle>(L"/Script/FortniteGame.Default__FortOctopusVehicle");
 
+    ApplyNullAndRetTrues();
+
     // UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"log LogNetPackageMap VeryVerbose", nullptr);
     // UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"log LogNetTraffic VeryVerbose", nullptr);
     // UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"log LogNet VeryVerbose", nullptr);
@@ -822,7 +868,9 @@ DWORD WINAPI Main(LPVOID)
 
     Hooking::MinHook::Hook((PVOID)Addresses::ActorGetNetMode, (PVOID)GetNetModeHook2, nullptr);
 
-    if (Fortnite_Version > 13 && Fortnite_Version < 20) // ermm
+    if (Fortnite_Version > 13 && // ermm
+        Fortnite_Version < 20
+        )
     {
         Hooking::MinHook::Hook(FindObject<ABuildingFoundation>(L"/Script/FortniteGame.Default__BuildingFoundation"),
             FindObject<UFunction>(L"/Script/FortniteGame.BuildingFoundation.SetDynamicFoundationTransform"),
@@ -911,15 +959,6 @@ DWORD WINAPI Main(LPVOID)
         }
     }
 
-    if (Fortnite_Version >= 17.00) // Fixes random crash that happens a couple minutes after server starts for s17+
-    {
-        uintptr_t ServerCrashFix = Memcury::Scanner::FindPattern("48 89 5C 24 10 48 89 6C 24 20 56 57 41 54 41 56 41 57 48 81 EC ? ? ? ? 65 48 8B 04 25 ? ? ? ? 4C 8B F9").Get();
-
-        LOG_INFO(LogDev, "ServerCrashFix: 0x{:x}", ServerCrashFix);
-
-        Hooking::MinHook::Hook((PVOID)ServerCrashFix, (PVOID)ReturnFalseHook, nullptr);
-    }
-
     /*
 
     if (Fortnite_Version == 6.21)
@@ -934,41 +973,6 @@ DWORD WINAPI Main(LPVOID)
     ChangeLevels();
 
     LOG_INFO(LogDev, "Switch levels.");
-
-    auto AddressesToNull = Addresses::GetFunctionsToNull();
-    const auto AddressesToReturnTrue = Addresses::GetFunctionsToReturnTrue();
-
-    auto ServerCheatAllIndex = GetFunctionIdxOrPtr(FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerController.ServerCheatAll"));
-
-    if (ServerCheatAllIndex)
-        AddressesToNull.push_back(__int64(FortPlayerControllerAthenaDefault->VFTable[ServerCheatAllIndex / 8]));
-
-    for (auto func : AddressesToNull)
-    {
-        if (func == 0)
-            continue;
-
-        LOG_INFO(LogDev, "Nulling 0x{:x}", func - __int64(GetModuleHandleW(0)));
-
-        DWORD dwProtection;
-        VirtualProtect((PVOID)func, 1, PAGE_EXECUTE_READWRITE, &dwProtection);
-
-        *(uint8_t*)func = 0xC3;
-
-        DWORD dwTemp;
-        VirtualProtect((PVOID)func, 1, dwProtection, &dwTemp);
-    }
-
-    for (auto func : AddressesToReturnTrue)
-    {
-        if (func == 0)
-            continue;
-
-        LOG_INFO(LogDev, "Forcing return true on 0x{:x}", func - __int64(GetModuleHandleW(0)));
-
-        MH_CreateHook((PVOID)func, ReturnTrueHook, nullptr);
-        MH_EnableHook((PVOID)func);
-    }
 
     if (Fortnite_Version != 22.4)
     {
@@ -1281,7 +1285,7 @@ DWORD WINAPI Main(LPVOID)
     Hooking::MinHook::Hook(FortPlayerPawnAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPawn.MovingEmoteStopped"),
         AFortPawn::MovingEmoteStoppedHook, (PVOID*)&AFortPawn::MovingEmoteStoppedOriginal, false, true);
 
-    if (Fortnite_Version < 20)
+    if (Fortnite_Version < 20) // todo
     {
         Hooking::MinHook::Hook(FortPlayerPawnAthenaDefault, FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawnAthena.OnCapsuleBeginOverlap") ? FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawnAthena.OnCapsuleBeginOverlap") : FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawn.OnCapsuleBeginOverlap"),
             AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook, (PVOID*)&AFortPlayerPawnAthena::OnCapsuleBeginOverlapOriginal, false, true);

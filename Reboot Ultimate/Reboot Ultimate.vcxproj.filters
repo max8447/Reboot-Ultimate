@@ -1046,6 +1046,15 @@
     <ClInclude Include="FortAthenaAIBotInventoryItems.h">
       <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
     </ClInclude>
+    <ClInclude Include="BlackboardData.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="BlackboardComponent.h">
+      <Filter>FortniteGame\Source\FortniteGame\Public\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="AIStimulus.h">
+      <Filter>Engine\Plugins\Runtime\AIModule\Source\AIModule\Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">
@@ -1332,6 +1341,21 @@
     </Filter>
     <Filter Include="FortniteGame\Source\FortniteGame\Private\AI">
       <UniqueIdentifier>{37fa30f4-7826-4cac-94de-129f1f46f7f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Plugins\Runtime\AIModule">
+      <UniqueIdentifier>{0ed9edeb-1235-41d4-a772-632797b01ee1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Plugins\Runtime\AIModule\Source">
+      <UniqueIdentifier>{89fc7515-c13d-46de-b368-e2b9a3331486}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Plugins\Runtime\AIModule\Source\AIModule">
+      <UniqueIdentifier>{62fb3eca-f4cc-42e8-a5e6-fb3de309861b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Plugins\Runtime\AIModule\Source\AIModule\Public">
+      <UniqueIdentifier>{b32be48f-3f17-45f9-8f86-a106eea2c63f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Plugins\Runtime\AIModule\Source\AIModule\Private">
+      <UniqueIdentifier>{4821dbdb-02bc-446b-995f-f737798a958b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

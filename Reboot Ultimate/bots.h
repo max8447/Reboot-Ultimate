@@ -8,6 +8,7 @@
 #include "FortAthenaAISpawnerData.h"
 #include "KismetTextLibrary.h"
 #include "FortBotNameSettings.h"
+#include "AIStimulus.h"
 
 #include "botnames.h"
 
@@ -379,13 +380,16 @@ public:
 			if (KillerController)
 				PlayerControllersArray.Add(KillerController);
 
-			for (int i = 0; i < KillerState->GetPlayerTeam()->GetTeamMembers().Num(); ++i)
-				PlayerControllersArray.Add(Cast<AFortPlayerControllerAthena>(KillerState->GetPlayerTeam()->GetTeamMembers().at(i)));
+			if (KillerState != PlayerState)
+			{
+				for (int i = 0; i < KillerState->GetPlayerTeam()->GetTeamMembers().Num(); ++i)
+					PlayerControllersArray.Add(Cast<AFortPlayerControllerAthena>(KillerState->GetPlayerTeam()->GetTeamMembers().at(i)));
+			}
 
 			for (int i = 0; i < PlayerControllersArray.Num(); ++i)
 			{
 				auto ArrayController = PlayerControllersArray.at(i);
-				auto ArrayPlayerState = ArrayController->GetPlayerStateAthena();
+				auto ArrayPlayerState = ArrayController->GetPlayerState();
 				auto ArrayPawn = ArrayController->GetMyFortPawn();
 
 				if (!ArrayController || !ArrayPlayerState || !ArrayPawn)
@@ -424,8 +428,11 @@ public:
 					ArrayController->ClientNotifyTeamWon(ArrayPawn, ArrayPawn->GetCurrentWeapon()->GetWeaponData(), DeathCause);
 				}
 
-				ArrayPlayerState->GetPlace() = 1;
-				ArrayPlayerState->OnRep_Place();
+				if (ArrayPlayerState != PlayerState)
+				{
+					Cast<AFortPlayerStateAthena>(ArrayPlayerState)->GetPlace() = 1;
+					Cast<AFortPlayerStateAthena>(ArrayPlayerState)->OnRep_Place();
+				}
 			}
 
 			GameState->GetWinningPlayerState() = KillerState ? KillerState : PlayerState;
@@ -479,6 +486,9 @@ public:
 	AFortAthenaAIBotController* Controller = nullptr;
 	AFortPlayerPawnAthena* Pawn = nullptr;
 	AFortPlayerStateAthena* PlayerState = nullptr;
+	UFortAthenaAIBotCustomizationData* BotData = nullptr;
+	AActor* TargetActor = nullptr;
+	bool bTickEnabled = false;
 
 public:
 	void Initialize(AActor* SpawnLocator, const FTransform& SpawnTransform, UFortAthenaAIBotCustomizationData* CustomizationData)
@@ -487,11 +497,11 @@ public:
 		auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
 
 		auto PawnClass = CustomizationData->GetPawnClass();
-		auto BehaviorTree = CustomizationData->GetBehaviorTree();
-		auto BotNameSettings = CustomizationData->GetBotNameSettings();
 
 		FVector SpawnLocation = SpawnTransform.Translation;
 		FRotator SpawnRotation = SpawnTransform.Rotation.Rotator();
+
+		BotData = CustomizationData;
 
 		Pawn = BotManager->GetCachedBotMutator()->SpawnBot(PawnClass, SpawnLocator, SpawnLocation, SpawnRotation, false);
 
@@ -500,10 +510,24 @@ public:
 		else
 			Controller = Cast<AFortAthenaAIBotController>(Pawn->GetController());
 
+		LOG_INFO(LogDev, "Controller: {}", Controller->GetFullName());
+
 		PlayerState = Cast<AFortPlayerStateAthena>(Controller->GetPlayerState());
 
+		Pawn->GetController() = Controller;
+		Controller->GetPlayerBotPawn() = Pawn;
 		Controller->GetCachedBotMutator() = BotManager->GetCachedBotMutator();
 		Controller->GetCachedGameMode() = GameMode;
+
+		auto BehaviorTree = CustomizationData->GetBehaviorTree();
+		auto BlackboardComponent = Controller->GetBlackboard();
+
+		Controller->RunBehaviorTree(BehaviorTree);
+		Controller->UseBlackboard(BehaviorTree->GetBlackboardAsset(), &BlackboardComponent);
+		Controller->OnUsingBlackBoard(BlackboardComponent, BehaviorTree->GetBlackboardAsset());
+
+		if (BotData->HasCustomSquadId())
+			Controller->SwitchTeam(BotData->GetCustomSquadId());
 
 		UObject* CharacterToApply = nullptr;
 
@@ -542,9 +566,110 @@ public:
 				ApplyHID(Pawn, HeroDefinition, true);
 		}
 
+		auto BotNameSettings = CustomizationData->GetBotNameSettings();
 		FString OverrideName = UKismetTextLibrary::Conv_TextToString(BotNameSettings->GetOverrideName());
 
 		GameMode->ChangeName(Controller, OverrideName, false);
+
+		Controller->GetInventory() = GetWorld()->SpawnActor<AFortInventory>(AFortInventory::StaticClass(), FTransform(), CreateSpawnParameters(ESpawnActorCollisionHandlingMethod::AlwaysSpawn, true, Controller));
+
+		for (int i = 0; i < Controller->GetDigestedBotSkillSets().Num(); i++)
+		{
+			auto CurrentDigestedBotSkillSet = Controller->GetDigestedBotSkillSets().at(i);
+
+			UClass* AimingDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotAimingDigestedSkillSet");
+			UClass* HarvestDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotHarvestDigestedSkillSet");
+			UClass* InventoryDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotInventoryDigestedSkillSet");
+			UClass* LootingDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotLootingDigestedSkillSet");
+			UClass* MovementDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotMovementDigestedSkillSet");
+			UClass* PerceptionDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotPerceptionDigestedSkillSet");
+			UClass* PlayStyleDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotPlayStyleDigestedSkillSet");
+
+			if (CurrentDigestedBotSkillSet->IsA(AimingDigestedSkillSetClass))
+				Controller->Get("CacheAimingDigestedSkillSet") = CurrentDigestedBotSkillSet;
+			if (CurrentDigestedBotSkillSet->IsA(HarvestDigestedSkillSetClass))
+				Controller->Get("CacheHarvestDigestedSkillSet") = CurrentDigestedBotSkillSet;
+			if (CurrentDigestedBotSkillSet->IsA(InventoryDigestedSkillSetClass))
+				Controller->Get("CacheInventoryDigestedSkillSet") = CurrentDigestedBotSkillSet;
+			if (CurrentDigestedBotSkillSet->IsA(LootingDigestedSkillSetClass))
+				Controller->Get("CacheLootingSkillSet") = CurrentDigestedBotSkillSet;
+			if (CurrentDigestedBotSkillSet->IsA(MovementDigestedSkillSetClass))
+				Controller->Get("CacheMovementSkillSet") = CurrentDigestedBotSkillSet;
+			if (CurrentDigestedBotSkillSet->IsA(PerceptionDigestedSkillSetClass))
+				Controller->Get("CachePerceptionDigestedSkillSet") = CurrentDigestedBotSkillSet;
+			if (CurrentDigestedBotSkillSet->IsA(PlayStyleDigestedSkillSetClass))
+				Controller->Get("CachePlayStyleSkillSet") = CurrentDigestedBotSkillSet;
+		}
+
+		bTickEnabled = true;
+
+		LOG_INFO(LogBots, "Finish boss initialization.");
+	}
+
+public:
+
+	virtual void OnDied(AFortPlayerStateAthena* KillerState = nullptr)
+	{
+		if (!BotData)
+			return;
+
+		auto StartupInventoryItems = BotData->GetStartupInventory()->GetItems();
+
+		for (int i = 0; i < StartupInventoryItems.Num(); ++i)
+		{
+			auto StartupInventoryItem = StartupInventoryItems.at(i);
+
+			if (auto WorldItemDefinition = Cast<UFortWorldItemDefinition>(StartupInventoryItem.GetItem()))
+			{
+				if (WorldItemDefinition->CanBeDropped())
+				{
+					PickupCreateData PickupData;
+					PickupData.bToss = true;
+					PickupData.ItemEntry = FFortItemEntry::MakeItemEntry(WorldItemDefinition, StartupInventoryItem.GetCount(), -1, MAX_DURABILITY, WorldItemDefinition->GetFinalLevel(Cast<AFortGameStateAthena>(GetWorld()->GetGameState())->GetWorldLevel()));
+					PickupData.SpawnLocation = Pawn->GetActorLocation();
+					PickupData.SourceType = EFortPickupSourceTypeFlag::GetPlayerValue();
+					PickupData.bRandomRotation = true;
+					PickupData.bShouldFreeItemEntryWhenDeconstructed = true;
+
+					AFortPickup::SpawnPickup(PickupData);
+
+					if (auto WeaponItemDefinition = Cast<UFortWeaponItemDefinition>(WorldItemDefinition))
+					{
+						if (WeaponItemDefinition->GetAmmoData() && WeaponItemDefinition->GetAmmoData() != WeaponItemDefinition && WeaponItemDefinition->GetAmmoData()->CanBeDropped())
+						{
+							PickupCreateData PickupData;
+							PickupData.bToss = true;
+							PickupData.ItemEntry = FFortItemEntry::MakeItemEntry(WeaponItemDefinition->GetAmmoData(), WeaponItemDefinition->GetAmmoData()->GetDropCount(), -1, MAX_DURABILITY, WorldItemDefinition->GetAmmoWorldItemDefinition_BP()->GetFinalLevel(Cast<AFortGameStateAthena>(GetWorld()->GetGameState())->GetWorldLevel()));
+							PickupData.SpawnLocation = Pawn->GetActorLocation();
+							PickupData.SourceType = EFortPickupSourceTypeFlag::GetPlayerValue();
+							PickupData.bRandomRotation = true;
+							PickupData.bShouldFreeItemEntryWhenDeconstructed = true;
+
+							AFortPickup::SpawnPickup(PickupData);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	virtual void OnPerceptionSensed(AActor* SourceActor, FAIStimulus Stim)
+	{
+		// if (Stim.WasSuccessfullySensed() && Controller->LineOfSightTo(SourceActor, ) && Pawn->GetDistanceTo_Manual(SourceActor) < 5000)
+			TargetActor = SourceActor;
+	}
+
+public:
+
+	void OnTick()
+	{
+		if (!bTickEnabled)
+			return;
+
+		if (!Controller || !Pawn || !PlayerState)
+			return;
+
+
 	}
 };
 

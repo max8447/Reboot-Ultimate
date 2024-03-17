@@ -4,8 +4,14 @@
 
 void UFortAthenaAIBotCustomizationData::ApplyOverrideCharacterCustomizationHook(UFortAthenaAIBotCustomizationData* InBotData, AFortPlayerPawn* NewBot, __int64 idk)
 {
-	LOG_INFO(LogDev, "ApplyOverrideCharacterCustomizationHook!");
+	LOG_INFO(LogDev, "ApplyOverrideCharacterCustomizationHook with {} at {}!", InBotData->GetFullName(), NewBot->GetActorLocation().ToString().ToString());
 
-	Bosses::SpawnBoss(NewBot, NewBot->GetTransform(), InBotData);
-	NewBot->K2_DestroyActor();
+	auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+	auto OldController = NewBot->GetController();
+
+	auto NewController = Bosses::SpawnBoss(NewBot, NewBot->GetTransform(), InBotData);
+	auto NewPawn = NewController->GetPlayerBotPawn();
+
+	if (NewBot->IsValidLowLevel())
+		NewBot->K2_DestroyActor();
 }

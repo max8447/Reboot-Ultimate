@@ -865,6 +865,7 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 
 		LOG_INFO(LogNet, "WorldLevel {}", GameState->GetWorldLevel());
 
+#ifndef ABOVE_S20
 		if (Globals::AmountOfListens == 1) // we only want to do this one time.
 		{
 			if (bEnableRebooting)
@@ -968,13 +969,6 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 
 		AllRebootVans.Free();
 
-		if (Engine_Version >= 500)
-		{
-			GameState->Get<float>("DefaultParachuteDeployTraceForGroundDistance") = 10000;
-		}
-
-		UptimeWebHook.send_message(std::format("Server up! {} {}", Fortnite_Version, PlaylistName)); // PlaylistName sometimes isn't always what we use!
-
 		if (std::floor(Fortnite_Version) == 5)
 		{
 			auto NewFn = FindObject<UFunction>(L"/Game/Athena/Prototype/Blueprints/Cube/CUBE.CUBE_C.New");
@@ -1041,6 +1035,15 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 				}
 			}
 		}
+
+#endif
+		if (Engine_Version >= 500)
+		{
+			GameState->Get<float>("DefaultParachuteDeployTraceForGroundDistance") = 10000;
+		}
+
+		UptimeWebHook.send_message(std::format("Server up! {} {}", Fortnite_Version, PlaylistName)); // PlaylistName sometimes isn't always what we use!
+
 		static auto ReplicationDriverOffset = GetWorld()->GetNetDriver()->GetOffset("ReplicationDriver", false); // If netdriver is null the world blows up
 
 		Globals::bShouldUseReplicationGraph = (!(ReplicationDriverOffset == -1 || Fortnite_Version >= 20))
@@ -1307,7 +1310,7 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 		XPComponent->OnRep_bRegisteredWithQuestManager();
 	}
 
-	if (Fortnite_Version < 20)
+	// if (Fortnite_Version < 20)
 	{
 		static int LastNum69 = 19451;
 
@@ -1630,7 +1633,7 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 		{
 			static auto AllPortalsOffset = CreativePortalManager->GetOffset("AllPortals");
 			auto& AllPortals = CreativePortalManager->Get<TArray<AFortAthenaCreativePortal*>>(AllPortalsOffset);
-		
+
 			for (int i = 0; i < AllPortals.size(); i++)
 			{
 				auto CurrentPortal = AllPortals.at(i);
@@ -1684,7 +1687,7 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 
 			Portal->GetLinkedVolume()->GetVolumeState() = EVolumeState::Ready;
 
-			static auto IslandPlayset = FindObject<UFortPlaysetItemDefinition>("/Game/Playsets/PID_Playset_60x60_Composed_Military.PID_Playset_60x60_Composed_Military");
+			static auto IslandPlayset = FindObject<UFortPlaysetItemDefinition>("/Game/Playsets/PID_Playset_60x60_Composed.PID_Playset_60x60_Composed");
 
 			if (auto Volume = NewPlayer->GetCreativePlotLinkedVolume())
 			{
@@ -1716,32 +1719,14 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 		}
 	}
 
+	LOG_INFO(LogDev, "HandleStartingNewPlayer end");
+
 	if (Engine_Version <= 420)
 	{
 		static auto OverriddenBackpackSizeOffset = NewPlayer->GetOffset("OverriddenBackpackSize");
 		LOG_INFO(LogDev, "NewPlayer->Get<int>(OverriddenBackpackSizeOffset): {}", NewPlayer->Get<int>(OverriddenBackpackSizeOffset));
 		NewPlayer->Get<int>(OverriddenBackpackSizeOffset) = 5;
 	}
-	if (Fortnite_Version >= 20)
-	{
-		// auto AllPlayerStarts = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>("/Script/FortniteGame.FortPlayerStart"));
-		// auto StartSpot = AllPlayerStarts.at(UKismetMathLibrary::RandomIntegerInRange(0, AllPlayerStarts.Num() - 1));
-		static auto PawnClass = FindObject<UClass>(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
-		auto NewPawn = GetWorld()->SpawnActor<APawn>(PawnClass, FVector(1250, 1818, 3284), FQuat(), FVector(1, 1, 1), CreateSpawnParameters(ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn));
-
-		if (NewPawn)
-		{
-			LOG_INFO(LogGame, "Spawned pawn!");
-			NewPlayer->Possess(NewPawn);
-			NewPlayer->Execute(((APlayerController*)NewPlayer)->FindFunction("ClientRestart"), NewPawn);
-		}
-		else
-		{
-			LOG_ERROR(LogGame, "FAILED TO SPAWN PAWN");
-		}
-	}
-
-	LOG_INFO(LogDev, "HandleStartingNewPlayer end");
 
 	return Athena_HandleStartingNewPlayerOriginal(GameMode, NewPlayerActor);
 }

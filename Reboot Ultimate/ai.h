@@ -280,7 +280,7 @@ static AFortPlayerPawn* SpawnAIFromCustomizationData(const FVector& Location, UF
         return nullptr;
     }
 
-    auto Controller = Pawn->GetController();
+    auto Controller = Cast<APlayerController>(Pawn->GetController());
 
     if (!Controller)
     {

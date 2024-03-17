@@ -7,6 +7,7 @@ class AController : public AActor
 public:
 	AActor* GetViewTarget();
 	void Possess(class APawn* Pawn);
+	bool LineOfSightTo(AActor* Other, const FVector& ViewPoint, bool bAlternateChecks);
 
 	FName& GetStateName()
 	{

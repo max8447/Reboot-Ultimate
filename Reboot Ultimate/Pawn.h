@@ -19,9 +19,9 @@ public:
 		return Get<TSubclassOf<AController>>(AIControllerClassOffset);
 	}
 
-	class APlayerController* GetController()
+	class AController*& GetController()
 	{
 		static auto ControllerOffset = GetOffset("Controller");
-		return Get<class APlayerController*>(ControllerOffset);
+		return Get<class AController*>(ControllerOffset);
 	}
 };

@@ -61,11 +61,12 @@ public:
 	void SetHealth(float NewHealth);
 	void SetMaxHealth(float NewHealthVal);
 	void SetShield(float NewShield);
+	void SetMaxShield(float NewShieldVal);
 	static void NetMulticast_Athena_BatchedDamageCuesHook(UObject* Context, FFrame* Stack, void* Ret);
 	static void MovingEmoteStoppedHook(UObject* Context, FFrame* Stack, void* Ret);
-	void LaunchURL(const class FString& URL);
-	void CopyToClipboard(const class FString& ClipboardText);
-	void SetMovementMode(enum class EMovementMode NewMovementMode, uint8 NewCustomMode);
+	void LaunchURL(const FString& URL);
+	void CopyToClipboard(const FString& ClipboardText);
+	void SetMovementMode(EMovementMode NewMovementMode, uint8 NewCustomMode);
 
 	static UClass* StaticClass();
 };

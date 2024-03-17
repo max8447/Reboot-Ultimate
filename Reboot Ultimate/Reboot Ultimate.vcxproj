@@ -290,6 +290,7 @@
     <ClInclude Include="ai.h" />
     <ClInclude Include="AIBlueprintHelperLibrary.h" />
     <ClInclude Include="AIController.h" />
+    <ClInclude Include="AIStimulus.h" />
     <ClInclude Include="AndOrNot.h" />
     <ClInclude Include="anticheat.h" />
     <ClInclude Include="Array.h" />
@@ -305,6 +306,8 @@
     <ClInclude Include="BGA.h" />
     <ClInclude Include="BinaryHeap.h" />
     <ClInclude Include="BitArray.h" />
+    <ClInclude Include="BlackboardComponent.h" />
+    <ClInclude Include="BlackboardData.h" />
     <ClInclude Include="botnames.h" />
     <ClInclude Include="bots.h" />
     <ClInclude Include="BP_IslandScripting.h" />

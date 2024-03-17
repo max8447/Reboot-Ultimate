@@ -15,3 +15,20 @@ void AController::Possess(class APawn* Pawn)
 	auto PossessFn = FindFunction("Possess");
 	this->ProcessEvent(PossessFn, &Pawn);
 }
+
+bool AController::LineOfSightTo(AActor* Other, const FVector& ViewPoint, bool bAlternateChecks)
+{
+	static auto LineOfSightToFn = FindObject<UFunction>("/Script/Engine.Controller.LineOfSightTo");
+
+	struct
+	{
+		AActor* Other;
+		FVector ViewPoint;
+		bool bAlternateChecks;
+		bool ReturnValue;
+	}AController_LineOfSightTo_Params{ Other , ViewPoint , bAlternateChecks };
+
+	this->ProcessEvent(LineOfSightToFn, &AController_LineOfSightTo_Params);
+
+	return AController_LineOfSightTo_Params.ReturnValue;
+}
