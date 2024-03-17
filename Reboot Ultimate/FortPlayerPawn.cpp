@@ -295,9 +295,8 @@ void AFortPlayerPawn::StartGhostModeExitHook(UObject* Context, FFrame* Stack, vo
 
 AActor* AFortPlayerPawn::ServerOnExitVehicleHook(AFortPlayerPawn* PlayerPawn, ETryExitVehicleBehavior ExitForceBehavior)
 {
-	auto Vehicle = PlayerPawn->GetVehicle();
-	auto VehicleWeaponDefinition = PlayerPawn->GetVehicleWeaponDefinition(Vehicle);
-	LOG_INFO(LogDev, "[Leave] {} VehicleWeaponDefinition: {}", __int64(Vehicle), VehicleWeaponDefinition ? VehicleWeaponDefinition->GetFullName() : "BadRead");
+	auto VehicleWeaponDefinition = PlayerPawn->GetVehicleWeaponDefinition(PlayerPawn->GetVehicle());
+	LOG_INFO(LogDev, "VehicleWeaponDefinition: {}", VehicleWeaponDefinition ? VehicleWeaponDefinition->GetFullName() : "BadRead");
 	PlayerPawn->UnEquipVehicleWeaponDefinition(VehicleWeaponDefinition);
 
 	return ServerOnExitVehicleOriginal(PlayerPawn, ExitForceBehavior);
