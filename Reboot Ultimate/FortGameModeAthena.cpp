@@ -1274,29 +1274,20 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 			float Duration = AutoBusStartSeconds;
 			float EarlyDuration = Duration;
 
-			AutoBusStartSecondsThatChanges = Duration;
+			float TimeSeconds = UGameplayStatics::GetTimeSeconds(GetWorld());
 
-			if (Globals::bLateGame.load())
-			{
-				CreateThread(0, 0, LateGameThread, 0, 0, 0);
-			}
-			else
-			{
-				float TimeSeconds = UGameplayStatics::GetTimeSeconds(GetWorld());
+			static auto WarmupCountdownEndTimeOffset = GameState->GetOffset("WarmupCountdownEndTime");
+			static auto WarmupCountdownStartTimeOffset = GameState->GetOffset("WarmupCountdownStartTime");
+			static auto WarmupCountdownDurationOffset = GameMode->GetOffset("WarmupCountdownDuration");
+			static auto WarmupEarlyCountdownDurationOffset = GameMode->GetOffset("WarmupEarlyCountdownDuration");
 
-				static auto WarmupCountdownEndTimeOffset = GameState->GetOffset("WarmupCountdownEndTime");
-				static auto WarmupCountdownStartTimeOffset = GameState->GetOffset("WarmupCountdownStartTime");
-				static auto WarmupCountdownDurationOffset = GameMode->GetOffset("WarmupCountdownDuration");
-				static auto WarmupEarlyCountdownDurationOffset = GameMode->GetOffset("WarmupEarlyCountdownDuration");
+			GameState->Get<float>(WarmupCountdownEndTimeOffset) = TimeSeconds + Duration;
+			GameMode->Get<float>(WarmupCountdownDurationOffset) = Duration;
 
-				GameState->Get<float>(WarmupCountdownEndTimeOffset) = TimeSeconds + Duration;
-				GameMode->Get<float>(WarmupCountdownDurationOffset) = Duration;
+			GameState->Get<float>(WarmupCountdownStartTimeOffset) = TimeSeconds;
+			GameMode->Get<float>(WarmupEarlyCountdownDurationOffset) = EarlyDuration;
 
-				GameState->Get<float>(WarmupCountdownStartTimeOffset) = TimeSeconds;
-				GameMode->Get<float>(WarmupEarlyCountdownDurationOffset) = EarlyDuration;
-
-				LOG_INFO(LogDev, "Auto starting bus in {}.", AutoBusStartSeconds);
-			}
+			LOG_INFO(LogDev, "Auto starting bus in {}.", AutoBusStartSeconds);
 		}
 	}
 
@@ -1304,13 +1295,24 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 
 	if (XPComponentOffset != -1)
 	{
-		auto XPComponent = NewPlayerActor->Get<UFortPlayerControllerAthenaXPComponent*>(XPComponentOffset);
+		auto XPComponent = NewPlayerActor->Get(XPComponentOffset);
 
-		XPComponent->IsRegisteredWithQuestManager() = true;
-		XPComponent->OnRep_bRegisteredWithQuestManager();
+		if (XPComponent)
+		{
+			static auto bRegisteredWithQuestManagerOffset = XPComponent->GetOffset("bRegisteredWithQuestManager");
+			if (bRegisteredWithQuestManagerOffset != -1)
+			{
+				XPComponent->Get<bool>(bRegisteredWithQuestManagerOffset) = true;
+
+				static auto OnRep_bRegisteredWithQuestManagerFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerControllerAthenaXPComponent.OnRep_bRegisteredWithQuestManager");
+
+				if (OnRep_bRegisteredWithQuestManagerFn)
+					XPComponent->ProcessEvent(OnRep_bRegisteredWithQuestManagerFn);
+			}
+		}
 	}
 
-	// if (Fortnite_Version < 20)
+	// if (Engine_Version < 427)
 	{
 		static int LastNum69 = 19451;
 
@@ -1507,12 +1509,16 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 		}
 	}
 
+	LOG_INFO(LogDev, "kms 1");
+
 	auto NewPlayer = (AFortPlayerControllerAthena*)NewPlayerActor;
 
 	auto PlayerStateAthena = NewPlayer->GetPlayerStateAthena();
 
 	if (!PlayerStateAthena)
 		return Athena_HandleStartingNewPlayerOriginal(GameMode, NewPlayerActor);
+
+	LOG_INFO(LogDev, "kms 2");
 
 	static auto CharacterPartsOffset = PlayerStateAthena->GetOffset("CharacterParts", false);
 	static auto CustomCharacterPartsStruct = FindObject<UStruct>(L"/Script/FortniteGame.CustomCharacterParts");
@@ -1522,6 +1528,8 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 	auto Parts = (UObject**)(__int64(CharacterParts) + PartsOffset); // UCustomCharacterPart* Parts[0x6]
 
 	static auto CustomCharacterPartClass = FindObject<UClass>(L"/Script/FortniteGame.CustomCharacterPart");
+
+	LOG_INFO(LogDev, "kms 3");
 
 	if (Globals::bNoMCP)
 	{
@@ -1540,6 +1548,8 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 		}
 	}
 
+	LOG_INFO(LogDev, "kms 4");
+
 	if (auto MatchReportPtr = NewPlayer->GetMatchReport())
 		*MatchReportPtr = (UAthenaPlayerMatchReport*)UGameplayStatics::SpawnObject(UAthenaPlayerMatchReport::StaticClass(), NewPlayer); // idk when to do this
 
@@ -1548,15 +1558,24 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 	if (SquadIdOffset != -1)
 		PlayerStateAthena->GetSquadId() = PlayerStateAthena->GetTeamIndex() - NumToSubtractFromSquadId; // wrong place to do this
 
+	LOG_INFO(LogDev, "kms 5");
+
 	TWeakObjectPtr<AFortPlayerStateAthena> WeakPlayerState{};
 	WeakPlayerState.ObjectIndex = PlayerStateAthena->InternalIndex;
 	WeakPlayerState.ObjectSerialNumber = GetItemByIndex(PlayerStateAthena->InternalIndex)->SerialNumber;
 
-	if (auto TeamsArrayContainer = GameState->GetTeamsArrayContainer())
+	LOG_INFO(LogDev, "kms 6");
+
+	if (Fortnite_Version < 20)
 	{
-		auto& SquadArray = TeamsArrayContainer->SquadsArray.at(PlayerStateAthena->GetSquadId());
-		SquadArray.Add(WeakPlayerState);
+		if (auto TeamsArrayContainer = GameState->GetTeamsArrayContainer())
+		{
+			auto& SquadArray = TeamsArrayContainer->SquadsArray.at(PlayerStateAthena->GetSquadId());
+			SquadArray.Add(WeakPlayerState);
+		}
 	}
+
+	LOG_INFO(LogDev, "kms 7");
 
 	GameState->AddPlayerStateToGameMemberInfo(PlayerStateAthena);
 
@@ -1577,7 +1596,7 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 
 		static auto OnRep_bHasStartedPlayingFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerState.OnRep_bHasStartedPlaying");
 		PlayerStateAthena->ProcessEvent(OnRep_bHasStartedPlayingFn);
-	}
+}
 #endif
 
 	PlayerStateAthena->GetWorldPlayerId() = PlayerStateAthena->GetPlayerID();

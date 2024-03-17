@@ -781,7 +781,7 @@ DWORD WINAPI Main(LPVOID)
     Addresses::Init();
     Addresses::Print();
 
-    bEnableRebooting = Addresses::RebootingDelegate && Addresses::FinishResurrection;
+    bEnableRebooting = Addresses::RebootingDelegate && Addresses::FinishResurrection && Fortnite_Version < 20;
 
     LOG_INFO(LogDev, "Fortnite_CL: {}", Fortnite_CL);
     LOG_INFO(LogDev, "Fortnite_Version: {}", Fortnite_Version);
@@ -1547,7 +1547,7 @@ DWORD WINAPI Main(LPVOID)
             Sleep(10000);
         }
     }
-    else if (Fortnite_Version < 20)
+    else
     {
         Sleep(-1);
     }

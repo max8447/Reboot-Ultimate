@@ -49,41 +49,21 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 		bShouldDestroyAllPlayerBuilds = false;
 	}
 
-	/* // too skunked
-
-	if (!Globals::bGoingToPlayEvent && Cast<AFortGameModeAthena>(GetWorld()->GetGameMode())->GetGameStateAthena()->GetGamePhaseStep() > EAthenaGamePhaseStep::BusFlying)
+	/* if (bEnableBotTick)
 	{
-		for (int i = 0; i < NetDriver->GetClientConnections().Num(); i++)
-		{
-			auto PlayerController = Cast<AFortPlayerControllerAthena>(NetDriver->GetClientConnections().at(i)->GetPlayerController());
-			auto Pawn = Cast<AFortPawn>(PlayerController->GetPawn());
-
-			if (!Pawn)
-				continue;
-
-			if (Pawn->GetHealth() <= 0)
-			{
-				static auto ServerSuicideFn = FindObject<UFunction>("/Script/FortniteGame.FortPlayerController.ServerSuicide");
-				PlayerController->ProcessEvent(ServerSuicideFn);
-			}
-		}
-	}
-
-	*/
+		Bots::Tick();
+	} */
 
 	if (Globals::bStartedListening)
 	{
-		static auto ReplicationDriverOffset = NetDriver->GetOffset("ReplicationDriver"/*, false */);
-
-		// LOG_INFO(LogDev, "ReplicationDriverOffset{}", ReplicationDriverOffset);
-
-		// if (ReplicationDriverOffset == -1)
-		if (ReplicationDriverOffset == -1 || Fortnite_Version >= 20)
+		if (!Globals::bShouldUseReplicationGraph)
 		{
 			NetDriver->ServerReplicateActors();
 		}
 		else
 		{
+			static auto ReplicationDriverOffset = NetDriver->GetOffset("ReplicationDriver"/*, false */);
+
 			if (auto ReplicationDriver = NetDriver->Get(ReplicationDriverOffset))
 			{
 				reinterpret_cast<void(*)(UObject*)>(ReplicationDriver->VFTable[Offsets::ServerReplicateActors])(ReplicationDriver);
@@ -304,58 +284,45 @@ void UNetDriver::ServerReplicateActors_BuildConsiderList(std::vector<FNetworkObj
 	{
 		auto Actors = UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass());
 
-		if (Actors.Num() > 0)
+		for (int i = 0; i < Actors.Num(); ++i)
 		{
-			for (int i = 0; i < Actors.Num(); ++i)
+			auto Actor = Actors.at(i);
+
+			if (Actor->IsPendingKillPending())
+				// if (Actor->IsPendingKill())
 			{
-				auto Actor = Actors.at(i);
-
-				if (!Actor)
-					continue;
-
-				if (Actor->IsPendingKillPending())
-					// if (Actor->IsPendingKill())
-				{
-					ActorsToRemove.push_back(Actor);
-					continue;
-				}
-
-				static auto RemoteRoleOffset = Actor->GetOffset("RemoteRole");
-
-				if (Actor->Get<ENetRole>(RemoteRoleOffset) == ENetRole::ROLE_None)
-				{
-					ActorsToRemove.push_back(Actor);
-					continue;
-				}
-
-				// We should add a NetDriverName check but I don't believe it is needed.
-
-				// We should check if the actor is initialized here.
-
-				// We should check the level stuff here.
-
-				static auto NetDormancyOffset = Actor->GetOffset("NetDormancy");
-
-				if (false)
-				{
-					if (Actor->Get<ENetDormancy>(NetDormancyOffset) == ENetDormancy::DORM_Initial && Actor->IsNetStartupActor()) // IsDormInitialStartupActor
-					{
-						continue;
-					}
-				}
-
-				auto ActorInfo = new FNetworkObjectInfo;
-				ActorInfo->Actor = Actor;
-
-				OutConsiderList.push_back(ActorInfo);
-
-				static void (*CallPreReplication)(AActor*, UNetDriver*) = decltype(CallPreReplication)(Addresses::CallPreReplication);
-				CallPreReplication(Actor, this);
+				ActorsToRemove.push_back(Actor);
+				continue;
 			}
-		}
-		else
-		{
-			LOG_WARN(LogReplication, "No actors to replicate!");
+
+			static auto RemoteRoleOffset = Actor->GetOffset("RemoteRole");
+
+			if (Actor->Get<ENetRole>(RemoteRoleOffset) == ENetRole::ROLE_None)
+			{
+				ActorsToRemove.push_back(Actor);
+				continue;
+			}
+
+			// We should add a NetDriverName check but I don't believe it is needed.
+
+			// We should check if the actor is initialized here.
+
+			// We should check the level stuff here.
+
+			static auto NetDormancyOffset = Actor->GetOffset("NetDormancy");
+
+			if (Actor->Get<ENetDormancy>(NetDormancyOffset) == ENetDormancy::DORM_Initial && Actor->IsNetStartupActor()) // IsDormInitialStartupActor
+			{
+				continue;
+			}
+
+			auto ActorInfo = new FNetworkObjectInfo;
+			ActorInfo->Actor = Actor;
+
+			OutConsiderList.push_back(ActorInfo);
+
+			static void (*CallPreReplication)(AActor*, UNetDriver*) = decltype(CallPreReplication)(Addresses::CallPreReplication);
+			CallPreReplication(Actor, this);
 		}
 
 		Actors.Free();
@@ -372,7 +339,7 @@ void UNetDriver::ServerReplicateActors_BuildConsiderList(std::vector<FNetworkObj
 	}
 }
 
-static UActorChannel* FindChannel(AActor * Actor, UNetConnection * Connection)
+static UActorChannel* FindChannel(AActor* Actor, UNetConnection* Connection)
 {
 	static auto OpenChannelsOffset = Connection->GetOffset("OpenChannels");
 	auto& OpenChannels = Connection->Get<TArray<UChannel*>>(OpenChannelsOffset);
@@ -409,7 +376,7 @@ static UActorChannel* FindChannel(AActor * Actor, UNetConnection * Connection)
 	return nullptr;
 }
 
-static bool IsActorRelevantToConnection(AActor * Actor, std::vector<FNetViewer>&ConnectionViewers)
+static bool IsActorRelevantToConnection(AActor* Actor, std::vector<FNetViewer>& ConnectionViewers)
 {
 	for (int32 viewerIdx = 0; viewerIdx < ConnectionViewers.size(); viewerIdx++)
 	{
@@ -476,14 +443,14 @@ bool UNetDriver::IsLevelInitializedForActor(const AActor* InActor, const UNetCon
 		return true;
 	}
 
-/* #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST) // (Milxnor) This is on some ue versions and others not.
-	if (!InActor || !InConnection)
-		return false;
+	/* #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST) // (Milxnor) This is on some ue versions and others not.
+		if (!InActor || !InConnection)
+			return false;
 
-	// check(World == InActor->GetWorld());
-#endif */
+		// check(World == InActor->GetWorld());
+	#endif */
 
-	bool bFirstWorldCheck = Engine_Version == 416 
+	bool bFirstWorldCheck = Engine_Version == 416
 		? (InConnection->GetClientWorldPackageName() == GetWorld()->GetOutermost()->GetFName())
 		: (InConnection->GetClientWorldPackageName() == GetWorldPackage()->NamePrivate);
 
@@ -526,6 +493,7 @@ void SerializeChecksum(FArchive* Ar, uint32 x, bool ErrorOK)
 		{
 			// UE_LOG(LogCoreNet, Warning, TEXT("%d == %d"), Magic, x);
 		}
+
 	}
 	else
 	{
@@ -646,8 +614,6 @@ int32 UNetDriver::ServerReplicateActors()
 	static UObject* (*CreateChannelByName)(UNetConnection * Connection, FName * ChName, EChannelCreateFlags CreateFlags, int32_t ChannelIndex) = decltype(CreateChannelByName)(Addresses::CreateChannel);
 	static __int64 (*SetChannelActor)(UActorChannel*, AActor*) = decltype(SetChannelActor)(Addresses::SetChannelActor);
 
-	LOG_INFO(LogReplication, "Considering {} actors.", ConsiderList.size());
-
 	for (int32 i = 0; i < this->GetClientConnections().Num(); i++)
 	{
 		UNetConnection* Connection = this->GetClientConnections().at(i);
@@ -685,6 +651,7 @@ int32 UNetDriver::ServerReplicateActors()
 
 		std::vector<FActorDestructionInfo*> DeletionEntries;
 
+#if 0
 		auto ConnectionDestroyedStartupOrDormantActors = GetDestroyedStartupOrDormantActors(Connection);
 
 		if (ConnectionDestroyedStartupOrDormantActors)
@@ -714,6 +681,7 @@ int32 UNetDriver::ServerReplicateActors()
 		}
 
 		LOG_INFO(LogDev, "DeletionEntries: {}", DeletionEntries.size());
+#endif
 
 		for (FActorDestructionInfo* DeletionEntry : DeletionEntries)
 		{
@@ -831,6 +799,7 @@ int32 UNetDriver::ServerReplicateActors()
 					}
 				}
 			}
+
 
 			if (!Channel)
 			{
