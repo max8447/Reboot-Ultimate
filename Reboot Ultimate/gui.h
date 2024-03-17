@@ -953,6 +953,8 @@ static inline void MainUI()
 					SetIsLategame(bWillBeLategame);
 				}
 
+				ImGui::Text(std::format("Joinable {}", Globals::bStartedListening).c_str());
+
 				if (!Globals::bStartedListening) // hm
 				{
 					auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
