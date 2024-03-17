@@ -89,6 +89,12 @@ static inline UFortAbilitySet* GetPlayerAbilitySet()
 	return GameplayAbilitySet;
 }
 
+static inline UFortAbilitySet* GetTacSprintAbilitySet()
+{
+	static auto TacSprintAbilitySet = (UFortAbilitySet*)LoadObject(L"/TacticalSprint/Gameplay/AS_TacticalSprint.AS_TacticalSprint", UFortAbilitySet::StaticClass());
+	return TacSprintAbilitySet;
+}
+
 static void ShowFoundation(AActor* BuildingFoundation, bool bShow = true)
 {
 	if (!BuildingFoundation)

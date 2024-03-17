@@ -91,11 +91,20 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 	// idk
    /* this->GetActorForwardVector() * this->GetLootSpawnLocation_Athena().X + this->GetActorRightVector() * this->GetLootSpawnLocation_Athena().Y + this->GetActorUpVector() * this->GetLootSpawnLocation_Athena().Z*/
 
-	// FVector LocationToSpawnLoot = this->GetActorLocation() + this->GetActorForwardVector() * this->GetLootSpawnLocation_Athena().X + this->GetActorRightVector() * this->GetLootSpawnLocation_Athena().Y + this->GetActorUpVector() * this->GetLootSpawnLocation_Athena().Z;
+	// FVector LocationToSpawnLoot = this->GetActorLocation() + this->GetActorRightVector() * 70.f + this->GetActorUpVector() * 50.f;
 
-	FVector LocationToSpawnLoot = this->GetActorLocation() + this->GetActorRightVector() * 70.f + this->GetActorUpVector() * 50.f;
+	FVector LocationToSpawnLoot = this->GetActorLocation() + this->GetActorForwardVector() * this->GetLootSpawnLocation_Athena().X + this->GetActorRightVector() * this->GetLootSpawnLocation_Athena().Y + this->GetActorUpVector() * this->GetLootSpawnLocation_Athena().Z;
 
 	auto RedirectedLootTier = GameMode->RedirectLootTier(GetSearchLootTierGroup());
+
+	static auto Loot_TreasureFName = UKismetStringLibrary::Conv_StringToName(L"Loot_Treasure");
+	static auto Loot_AmmoFName = UKismetStringLibrary::Conv_StringToName(L"Loot_Ammo");
+
+	if (RedirectedLootTier == Loot_TreasureFName)
+		RedirectedLootTier = UKismetStringLibrary::Conv_StringToName(L"Loot_AthenaTreasure");
+
+	if (RedirectedLootTier == Loot_AmmoFName)
+		RedirectedLootTier = UKismetStringLibrary::Conv_StringToName(L"Loot_AthenaAmmoLarge");
 
 	LOG_INFO(LogInteraction, "RedirectedLootTier: {}", RedirectedLootTier.ToString());
 

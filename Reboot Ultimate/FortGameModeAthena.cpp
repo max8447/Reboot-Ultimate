@@ -90,13 +90,12 @@ EFortAthenaPlaylist GetPlaylistForOldVersion()
 
 FName AFortGameModeAthena::RedirectLootTier(const FName& LootTier)
 {
+	static auto Loot_TreasureFName = UKismetStringLibrary::Conv_StringToName(L"Loot_Treasure");
+	static auto Loot_AmmoFName = UKismetStringLibrary::Conv_StringToName(L"Loot_Ammo");
 	static auto RedirectAthenaLootTierGroupsOffset = this->GetOffset("RedirectAthenaLootTierGroups", false);
 
 	if (RedirectAthenaLootTierGroupsOffset == -1)
 	{
-		static auto Loot_TreasureFName = UKismetStringLibrary::Conv_StringToName(L"Loot_Treasure");
-		static auto Loot_AmmoFName = UKismetStringLibrary::Conv_StringToName(L"Loot_Ammo");
-
 		if (LootTier == Loot_TreasureFName)
 			return UKismetStringLibrary::Conv_StringToName(L"Loot_AthenaTreasure");
 
@@ -115,7 +114,18 @@ FName AFortGameModeAthena::RedirectLootTier(const FName& LootTier)
 
 		// LOG_INFO(LogDev, "[{}] {} {}", i, Key.ComparisonIndex.Value ? Key.ToString() : "NULL", Key.ComparisonIndex.Value ? Value.ToString() : "NULL");
 
-		if (Key == LootTier)
+		FName TempLootTier = LootTier;
+
+		if (Fortnite_Version >= 20)
+		{
+			if (TempLootTier == Loot_TreasureFName)
+				TempLootTier = UKismetStringLibrary::Conv_StringToName(L"Loot_AthenaTreasure");
+
+			if (TempLootTier == Loot_AmmoFName)
+				TempLootTier = UKismetStringLibrary::Conv_StringToName(L"Loot_AthenaTreasure");
+		}
+
+		if (Key == TempLootTier)
 			return Value;
 	}
 
@@ -209,6 +219,12 @@ void AFortGameModeAthena::OverrideSupplyDrop(AFortGameStateAthena* GameState, UC
 
 	static auto MapInfoOffset = GameState->GetOffset("MapInfo");
 	auto MapInfo = GameState->Get<AFortAthenaMapInfo*>(MapInfoOffset);
+
+	if (!MapInfo)
+	{
+		LOG_WARN(LogGame, "No MapInfo!");
+		return;
+	}
 
 	static auto SupplyDropInfoListOffset = MapInfo->GetOffset("SupplyDropInfoList");
 	auto SupplyDropInfoList = MapInfo->Get<TArray<UFortSupplyDropInfo*>>(SupplyDropInfoListOffset);
@@ -399,7 +415,7 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 			}
 			else
 			{
-				if (Fortnite_Version >= 4)
+				if (Fortnite_Version >= 4.1)
 				{
 					SetPlaylist(PlaylistToUse, true);
 
@@ -1353,6 +1369,16 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 
 			OverrideSupplyDrop(GameState, OverrideSupplyDropClass);
 
+			if (Fortnite_Version == 20.40)
+			{
+				auto AllAsteroids = UGameplayStatics::GetAllActorsOfClass(GetWorld(), FindObject<UClass>("/ArmadilloPlaylist/Blueprints/ShooterGameplay/BP_BGA_Armadillo_Asteroid.BP_BGA_Armadillo_Asteroid_C"));
+
+				for (int i = 0; i < AllAsteroids.Num(); i++)
+				{
+					AllAsteroids.at(i)->K2_DestroyActor();
+				}
+			}
+
 			// is there spawn percentage for vending machines?
 
 			bool bShouldDestroyVendingMachines = Fortnite_Version < 3.4 || Engine_Version >= 424;
@@ -1509,16 +1535,12 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 		}
 	}
 
-	LOG_INFO(LogDev, "kms 1");
-
 	auto NewPlayer = (AFortPlayerControllerAthena*)NewPlayerActor;
 
 	auto PlayerStateAthena = NewPlayer->GetPlayerStateAthena();
 
 	if (!PlayerStateAthena)
 		return Athena_HandleStartingNewPlayerOriginal(GameMode, NewPlayerActor);
-
-	LOG_INFO(LogDev, "kms 2");
 
 	static auto CharacterPartsOffset = PlayerStateAthena->GetOffset("CharacterParts", false);
 	static auto CustomCharacterPartsStruct = FindObject<UStruct>(L"/Script/FortniteGame.CustomCharacterParts");
@@ -1528,8 +1550,6 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 	auto Parts = (UObject**)(__int64(CharacterParts) + PartsOffset); // UCustomCharacterPart* Parts[0x6]
 
 	static auto CustomCharacterPartClass = FindObject<UClass>(L"/Script/FortniteGame.CustomCharacterPart");
-
-	LOG_INFO(LogDev, "kms 3");
 
 	if (Globals::bNoMCP)
 	{
@@ -1548,8 +1568,6 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 		}
 	}
 
-	LOG_INFO(LogDev, "kms 4");
-
 	if (auto MatchReportPtr = NewPlayer->GetMatchReport())
 		*MatchReportPtr = (UAthenaPlayerMatchReport*)UGameplayStatics::SpawnObject(UAthenaPlayerMatchReport::StaticClass(), NewPlayer); // idk when to do this
 
@@ -1558,13 +1576,9 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 	if (SquadIdOffset != -1)
 		PlayerStateAthena->GetSquadId() = PlayerStateAthena->GetTeamIndex() - NumToSubtractFromSquadId; // wrong place to do this
 
-	LOG_INFO(LogDev, "kms 5");
-
 	TWeakObjectPtr<AFortPlayerStateAthena> WeakPlayerState{};
 	WeakPlayerState.ObjectIndex = PlayerStateAthena->InternalIndex;
 	WeakPlayerState.ObjectSerialNumber = GetItemByIndex(PlayerStateAthena->InternalIndex)->SerialNumber;
-
-	LOG_INFO(LogDev, "kms 6");
 
 	if (Fortnite_Version < 20)
 	{
@@ -1574,8 +1588,6 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 			SquadArray.Add(WeakPlayerState);
 		}
 	}
-
-	LOG_INFO(LogDev, "kms 7");
 
 	GameState->AddPlayerStateToGameMemberInfo(PlayerStateAthena);
 
@@ -1596,7 +1608,7 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 
 		static auto OnRep_bHasStartedPlayingFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerState.OnRep_bHasStartedPlaying");
 		PlayerStateAthena->ProcessEvent(OnRep_bHasStartedPlayingFn);
-}
+	}
 #endif
 
 	PlayerStateAthena->GetWorldPlayerId() = PlayerStateAthena->GetPlayerID();
@@ -1605,8 +1617,16 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 	auto AbilitySystemComponent = PlayerStateAthena->GetAbilitySystemComponent();
 
 	if (PlayerAbilitySet)
-	{
 		PlayerAbilitySet->GiveToAbilitySystem(AbilitySystemComponent);
+
+	if (Fortnite_Version >= 20 && Fortnite_Version < 23)
+	{
+		auto TacticalSprintAbility = FindObject<UClass>("/TacticalSprint/Gameplay/GA_Athena_GrantTacticalSprint.GA_Athena_GrantTacticalSprint_C");
+
+		if (TacticalSprintAbility)
+			AbilitySystemComponent->GiveAbilityEasy(TacticalSprintAbility);
+		else
+			LOG_WARN(LogDev, "Failed to find tactical sprint ability!");
 	}
 
 	static auto PlayerCameraManagerOffset = NewPlayer->GetOffset("PlayerCameraManager");

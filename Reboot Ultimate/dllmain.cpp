@@ -826,7 +826,8 @@ DWORD WINAPI Main(LPVOID)
     static auto FortWeaponDefault = FindObject<AFortWeapon>(L"/Script/FortniteGame.Default__FortWeapon");
     static auto FortOctopusVehicleDefault = FindObject<AFortOctopusVehicle>(L"/Script/FortniteGame.Default__FortOctopusVehicle");
 
-    ApplyNullAndRetTrues();
+    if (Fortnite_Version >= 20)
+        ApplyNullAndRetTrues();
 
     // UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"log LogNetPackageMap VeryVerbose", nullptr);
     // UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"log LogNetTraffic VeryVerbose", nullptr);
@@ -971,6 +972,9 @@ DWORD WINAPI Main(LPVOID)
     */
 
     ChangeLevels();
+
+    if (Fortnite_Version < 20)
+        ApplyNullAndRetTrues();
 
     LOG_INFO(LogDev, "Switch levels.");
 
