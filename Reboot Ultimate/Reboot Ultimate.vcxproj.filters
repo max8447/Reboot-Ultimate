@@ -1055,6 +1055,9 @@
     <ClInclude Include="AIStimulus.h">
       <Filter>Engine\Plugins\Runtime\AIModule\Source\AIModule\Public</Filter>
     </ClInclude>
+    <ClInclude Include="FortAthenaAIBotSpawnerData.h" />
+    <ClInclude Include="FortAthenaAISpawnerDataComponent_CosmeticLoadout.h" />
+    <ClInclude Include="FortAthenaAISpawnerDataComponent_SpawnParams.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">
