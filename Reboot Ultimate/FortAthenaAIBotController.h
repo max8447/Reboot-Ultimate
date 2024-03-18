@@ -48,6 +48,7 @@ public:
 	}
 
 	void SwitchTeam(uint8 TeamIndex);
+	void AddDigestedSkillSets();
 
 	static void OnPossesedPawnDiedHook(AController* PlayerController, AActor* DamagedActor, float Damage, AController* InstigatedBy, AActor* DamageCauser, FVector HitLocation, UObject* FHitComponent, FName BoneName, FVector Momentum);
 

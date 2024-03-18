@@ -380,10 +380,19 @@ public:
 			if (KillerController)
 				PlayerControllersArray.Add(KillerController);
 
-			if (KillerState != PlayerState)
+			auto AllPlayerStates = UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFortPlayerStateAthena::StaticClass());
+
+			for (int i = 0; i < AllPlayerStates.Num(); ++i)
 			{
-				for (int i = 0; i < KillerState->GetPlayerTeam()->GetTeamMembers().Num(); ++i)
-					PlayerControllersArray.Add(Cast<AFortPlayerControllerAthena>(KillerState->GetPlayerTeam()->GetTeamMembers().at(i)));
+				auto CurrentPlayerState = (AFortPlayerStateAthena*)AllPlayerStates.at(i);
+
+				if (CurrentPlayerState && CurrentPlayerState != PlayerState)
+				{
+					LOG_INFO(LogBots, "PlayerState: {}", PlayerState->GetFullName());
+
+					for (int i = 0; i < CurrentPlayerState->GetPlayerTeam()->GetTeamMembers().Num(); ++i) // i hope it doesn't crash if the current playerstate's controller is a bot controller
+						PlayerControllersArray.Add(Cast<AFortPlayerControllerAthena>(CurrentPlayerState->GetPlayerTeam()->GetTeamMembers().at(i)));
+				}
 			}
 
 			for (int i = 0; i < PlayerControllersArray.Num(); ++i)
@@ -510,8 +519,6 @@ public:
 		else
 			Controller = Cast<AFortAthenaAIBotController>(Pawn->GetController());
 
-		LOG_INFO(LogDev, "Controller: {}", Controller->GetFullName());
-
 		PlayerState = Cast<AFortPlayerStateAthena>(Controller->GetPlayerState());
 
 		Pawn->GetController() = Controller;
@@ -573,33 +580,7 @@ public:
 
 		Controller->GetInventory() = GetWorld()->SpawnActor<AFortInventory>(AFortInventory::StaticClass(), FTransform(), CreateSpawnParameters(ESpawnActorCollisionHandlingMethod::AlwaysSpawn, true, Controller));
 
-		for (int i = 0; i < Controller->GetDigestedBotSkillSets().Num(); i++)
-		{
-			auto CurrentDigestedBotSkillSet = Controller->GetDigestedBotSkillSets().at(i);
-
-			UClass* AimingDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotAimingDigestedSkillSet");
-			UClass* HarvestDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotHarvestDigestedSkillSet");
-			UClass* InventoryDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotInventoryDigestedSkillSet");
-			UClass* LootingDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotLootingDigestedSkillSet");
-			UClass* MovementDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotMovementDigestedSkillSet");
-			UClass* PerceptionDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotPerceptionDigestedSkillSet");
-			UClass* PlayStyleDigestedSkillSetClass = FindObject<UClass>("/Script/FortniteGame.FortAthenaAIBotPlayStyleDigestedSkillSet");
-
-			if (CurrentDigestedBotSkillSet->IsA(AimingDigestedSkillSetClass))
-				Controller->Get("CacheAimingDigestedSkillSet") = CurrentDigestedBotSkillSet;
-			if (CurrentDigestedBotSkillSet->IsA(HarvestDigestedSkillSetClass))
-				Controller->Get("CacheHarvestDigestedSkillSet") = CurrentDigestedBotSkillSet;
-			if (CurrentDigestedBotSkillSet->IsA(InventoryDigestedSkillSetClass))
-				Controller->Get("CacheInventoryDigestedSkillSet") = CurrentDigestedBotSkillSet;
-			if (CurrentDigestedBotSkillSet->IsA(LootingDigestedSkillSetClass))
-				Controller->Get("CacheLootingSkillSet") = CurrentDigestedBotSkillSet;
-			if (CurrentDigestedBotSkillSet->IsA(MovementDigestedSkillSetClass))
-				Controller->Get("CacheMovementSkillSet") = CurrentDigestedBotSkillSet;
-			if (CurrentDigestedBotSkillSet->IsA(PerceptionDigestedSkillSetClass))
-				Controller->Get("CachePerceptionDigestedSkillSet") = CurrentDigestedBotSkillSet;
-			if (CurrentDigestedBotSkillSet->IsA(PlayStyleDigestedSkillSetClass))
-				Controller->Get("CachePlayStyleSkillSet") = CurrentDigestedBotSkillSet;
-		}
+		Controller->AddDigestedSkillSets();
 
 		bTickEnabled = true;
 

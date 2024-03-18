@@ -1520,6 +1520,23 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			FGameplayEffectContextHandle EffectContext{};
 			AbilitySystemComponent->ApplyGameplayEffectToSelf(Ability, 0.f, EffectContext);
 		}
+		else if (Command == "printmangspawners")
+		{
+			static auto MangSpawnerClass = FindObject<UClass>("/Game/Athena/AI/MANG/BP_MANG_Spawner.BP_MANG_Spawner_C");
+
+			auto AllMangSpawners = UGameplayStatics::GetAllActorsOfClass(GetWorld(), MangSpawnerClass);
+
+			if (AllMangSpawners.Num() < 1)
+			{
+				SendMessageToConsole(PlayerController, L"No Mang Spawners found.");
+				return;
+			}
+
+			for (int i = 0; i < AllMangSpawners.Num(); i++)
+			{
+				SendMessageToConsole(PlayerController, (L"Mang Spawner: {} at {}", std::wstring(AllMangSpawners.at(i)->GetFullName().begin(), AllMangSpawners.at(i)->GetFullName().end()).c_str(), AllMangSpawners.at(i)->GetActorLocation().ToString()));
+			}
+		}
 		else if (Command == "god")
 		{
 			static auto GodFn = FindObject<UFunction>("/Script/Engine.CheatManager.God");
