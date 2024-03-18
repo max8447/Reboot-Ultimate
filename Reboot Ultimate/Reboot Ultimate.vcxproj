@@ -352,9 +352,12 @@
     <ClInclude Include="FortAthenaAIBotController.h" />
     <ClInclude Include="FortAthenaAIBotCustomizationData.h" />
     <ClInclude Include="FortAthenaAIBotInventoryItems.h" />
+    <ClInclude Include="FortAthenaAIBotSpawnerData.h" />
     <ClInclude Include="FortAthenaAISpawnerData.h" />
     <ClInclude Include="FortAthenaAISpawnerDataComponent.h" />
     <ClInclude Include="FortAthenaAISpawnerDataComponentList.h" />
+    <ClInclude Include="FortAthenaAISpawnerDataComponent_CosmeticLoadout.h" />
+    <ClInclude Include="FortAthenaAISpawnerDataComponent_SpawnParams.h" />
     <ClInclude Include="FortAthenaCreativePortal.h" />
     <ClInclude Include="FortAthenaMapInfo.h" />
     <ClInclude Include="FortAthenaMutator.h" />

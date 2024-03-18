@@ -7,6 +7,7 @@
 #include "BehaviorTree.h"
 #include "AIBlueprintHelperLibrary.h"
 #include "FortServerBotManagerAthena.h"
+#include "FortAthenaAIBotSpawnerData.h"
 
 enum class EMovementMode : uint8_t
 {
@@ -2061,6 +2062,55 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			else
 			{
 				SendMessageToConsole(PlayerController, L"Not a valid class!");
+			}
+		}
+		else if (Command == "spawnbottest2")
+		{
+			// FortniteGame/Plugins/GameFeatures/CosmosGameplay/Content/AI/NPCs/Cosmos/AISpawnerData/BP_AIBotSpawnerData_Cosmos
+			// /Game/Athena/AI/NPCs/Base/AISpawnerData/BP_AIBotSpawnerData_NPC_Base.BP_AIBotSpawnerData_NPC_Base_C
+			// /CosmosGameplay/AI/NPCs/Cosmos/AISpawnerData/BP_AIBotSpawnerData_Cosmos.BP_AIBotSpawnerData_Cosmos_C
+
+			if (NumArgs < 1)
+			{
+				SendMessageToConsole(PlayerController, L"Please provide a customization object!");
+				return;
+			}
+
+			auto Pawn = ReceivingController->GetPawn();
+
+			if (!Pawn)
+			{
+				SendMessageToConsole(PlayerController, L"No pawn to spawn bot at!");
+				return;
+			}
+
+			static auto BlueprintGeneratedClassClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
+			auto SpawnerDataClass = LoadObject<UClass>(Arguments[1], BlueprintGeneratedClassClass);
+			// auto SpawnerData = LoadObject<UFortAthenaAIBotSpawnerData>(Arguments[1], UFortAthenaAIBotSpawnerData::StaticClass());
+
+			if (!SpawnerDataClass)
+			{
+				SendMessageToConsole(PlayerController, L"Invalid SpawnerDataClass!");
+				return;
+			}
+
+			auto DefaultSpawnerData = Cast<UFortAthenaAIBotSpawnerData>(SpawnerDataClass->CreateDefaultObject());
+
+			if (!SpawnerDataClass)
+			{
+				SendMessageToConsole(PlayerController, L"Invalid DefaultSpawnerData!");
+				return;
+			}
+
+			auto NewPawn = SpawnAIFromSpawnerData(Pawn->GetActorLocation(), DefaultSpawnerData);
+
+			if (NewPawn)
+			{
+				SendMessageToConsole(PlayerController, L"Spawned!");
+			}
+			else
+			{
+				SendMessageToConsole(PlayerController, L"Failed to spawn!");
 			}
 		}
 		else if (Command == "spawnbot" || Command == "bot")

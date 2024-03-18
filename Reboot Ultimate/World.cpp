@@ -79,11 +79,18 @@ void UWorld::Listen()
 
 	FString Error;
 
-	if (!NewNetDriver->InitListen(GetWorld(), URL, false, Error))
+	LOG_INFO(LogNet, "Calling InitListen!");
+
+	AWorldSettings* WorldSettings = GetWorldSettings();
+	const bool bReuseAddressAndPort = false; // WorldSettings ? WorldSettings->bReuseAddressAndPort : false;
+
+	if (!NewNetDriver->InitListen(GetWorld(), URL, bReuseAddressAndPort, Error))
 	{
 		LOG_ERROR(LogNet, "Failed to init listen!");
 		return;
 	}
+
+	LOG_INFO(LogNet, "Called InitListen!");
 
 	const bool bLanSpeed = false;
 
