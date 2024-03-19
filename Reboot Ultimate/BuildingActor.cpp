@@ -15,7 +15,8 @@ void ABuildingActor::OnDamageServerHook(ABuildingActor* BuildingActor, float Dam
 	FVector Momentum, /* FHitResult */ __int64 HitInfo, APlayerController* InstigatedBy, AActor* DamageCauser,
 	/* FGameplayEffectContextHandle */ __int64 EffectContext)
 {
-	// LOG_INFO(LogDev, "Befor3e");
+	if (Fortnite_Version >= 20)
+		LOG_INFO(LogDev, "ABuildingActor::OnDamageServerHook!");
 
 	auto BuildingSMActor = Cast<ABuildingSMActor>(BuildingActor);
 	auto PlayerController = Cast<AFortPlayerControllerAthena>(InstigatedBy);

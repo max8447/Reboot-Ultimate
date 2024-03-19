@@ -5,16 +5,24 @@
 #include "FortAthenaMutator_Bots.h"
 #include "FortGameModeAthena.h"
 #include "FortAthenaAIBotCustomizationData.h"
+#include "AIStimulus.h"
 
 class AFortAthenaAIBotController : public AAIController
 {
 public:
 	static inline void (*OnPossesedPawnDiedOriginal)(AController* PlayerController, AActor* DamagedActor, float Damage, AController* InstigatedBy, AActor* DamageCauser, FVector HitLocation, UObject* FHitComponent, FName BoneName, FVector Momentum);
+	static inline void (*OnPerceptionSensedOriginal)(AFortAthenaAIBotController* PlayerController, AActor* SourceActor, FAIStimulus& Stim);
 
 	AFortInventory*& GetInventory()
 	{
 		static auto InventoryOffset = GetOffset("Inventory");
-		return Get<AFortInventory*>(InventoryOffset);
+
+		AFortInventory* Inventory = nullptr;
+
+		if (InventoryOffset != -1)
+			Inventory = Get<AFortInventory*>(InventoryOffset);
+
+		return Inventory;
 	}
 
 	AFortPlayerPawnAthena*& GetPlayerBotPawn()
@@ -49,8 +57,10 @@ public:
 
 	void SwitchTeam(uint8 TeamIndex);
 	void AddDigestedSkillSets();
+	void GiveItem(UFortItemDefinition* ItemDefinition, int Count);
 
 	static void OnPossesedPawnDiedHook(AController* PlayerController, AActor* DamagedActor, float Damage, AController* InstigatedBy, AActor* DamageCauser, FVector HitLocation, UObject* FHitComponent, FName BoneName, FVector Momentum);
+	static void OnPerceptionSensedHook(AFortAthenaAIBotController* PlayerController, AActor* SourceActor, FAIStimulus& Stim);
 
 	static UClass* StaticClass();
 };

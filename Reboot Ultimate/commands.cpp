@@ -1321,6 +1321,20 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 			SendMessageToConsole(PlayerController, (L"Gave XP: {}, {}, {}, {}, {}", a, b, c, d, e));
 		}
 		*/
+		else if (Command == "fakewin") // ends the game and gives confetti but doesnt show #1 victory royale sign thingy idk
+		{
+			GameMode->EndMatch();
+			PlayerController->PlayWinEffects(PlayerController->GetPawn(), PlayerController->GetMyFortPawn()->GetCurrentWeapon()->GetWeaponData(), 1, false);
+			PlayerController->ClientNotifyWon(PlayerController->GetPawn(), PlayerController->GetMyFortPawn()->GetCurrentWeapon()->GetWeaponData(), 1);
+			PlayerController->ClientNotifyTeamWon(PlayerController->GetPawn(), PlayerController->GetMyFortPawn()->GetCurrentWeapon()->GetWeaponData(), 1);
+		}
+		else if (Command == "giveability")
+		{
+			if (NumArgs >= 1)
+			{
+
+			}
+		}
 		else if (Command == "startaircraft")
 		{
 			if (bStartedBus)

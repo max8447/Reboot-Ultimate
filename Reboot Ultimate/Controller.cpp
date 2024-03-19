@@ -32,3 +32,9 @@ bool AController::LineOfSightTo(AActor* Other, const FVector& ViewPoint, bool bA
 
 	return AController_LineOfSightTo_Params.ReturnValue;
 }
+
+void AController::StopMovement()
+{
+	static auto StopMovementFn = FindObject<UFunction>("/Script/Engine.Controller.StopMovement");
+	this->ProcessEvent(StopMovementFn);
+}

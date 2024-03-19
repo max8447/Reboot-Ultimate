@@ -23,7 +23,7 @@ public:
 	}
 
 	void SetPlayerIsWaiting(bool NewValue);
-	void ServerChangeName(FString& S);
+	void ServerChangeName(const FString& S);
 	UCheatManager*& SpawnCheatManager(UClass* CheatManagerClass);
 	FRotator GetControlRotation();
 	void ServerRestartPlayer();

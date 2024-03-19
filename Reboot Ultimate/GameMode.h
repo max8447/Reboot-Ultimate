@@ -8,6 +8,7 @@ public:
 
 	void RestartGame();
 	void EndMatch();
+	bool IsMatchInProgress();
 
 	class AGameState*& GetGameState()
 	{

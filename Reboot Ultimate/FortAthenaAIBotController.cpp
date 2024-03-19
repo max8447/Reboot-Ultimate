@@ -1,6 +1,7 @@
 #include "FortAthenaAIBotController.h"
 
 #include "bots.h"
+#include "FortInventory.h"
 
 void AFortAthenaAIBotController::SwitchTeam(uint8 TeamIndex)
 {
@@ -39,6 +40,26 @@ void AFortAthenaAIBotController::AddDigestedSkillSets()
 	}
 }
 
+void AFortAthenaAIBotController::GiveItem(UFortItemDefinition* ItemDefinition, int Count)
+{
+	auto Inventory = this->GetInventory();
+
+	if (!Inventory)
+		return;
+
+	UFortItem* Item = CreateItemInstance(this, ItemDefinition, Count);
+
+	if (auto WeaponDefinition = Cast<UFortWeaponItemDefinition>(ItemDefinition))
+		Item->GetItemEntry()->GetLoadedAmmo() = WeaponDefinition->GetClipSize();
+
+	Inventory->GetItemList().GetReplicatedEntries().Add(*Item->GetItemEntry(), FFortItemEntry::GetStructSize());
+	Inventory->GetItemList().MarkItemDirty(Item->GetItemEntry());
+	Inventory->HandleInventoryLocalUpdate();
+
+	// if (auto WeaponDefinition = Cast<UFortWeaponItemDefinition>(ItemDefinition))
+		// this->GetPlayerBotPawn()->EquipWeaponDefinition(WeaponDefinition, Item->GetItemEntry()->GetItemGuid());
+}
+
 void AFortAthenaAIBotController::OnPossesedPawnDiedHook(AController* PlayerController, AActor* DamagedActor, float Damage, AController* InstigatedBy, AActor* DamageCauser, FVector HitLocation, UObject* FHitComponent, FName BoneName, FVector Momentum)
 {
 	LOG_INFO(LogDev, "OnPossesedPawnDiedHook!");
@@ -49,14 +70,38 @@ void AFortAthenaAIBotController::OnPossesedPawnDiedHook(AController* PlayerContr
 	for (auto& PlayerBot : AllPlayerBotsToTick)
 	{
 		if (Cast<AController>(PlayerBot.AIBotController) == PlayerController)
+		{
 			PlayerBot.OnDied(Cast<AFortPlayerStateAthena>(InstigatedBy ? InstigatedBy->GetPlayerState() : nullptr));
+			AllPlayerBotsToTick.erase(std::remove(AllPlayerBotsToTick.begin(), AllPlayerBotsToTick.end(), PlayerBot));
+		}
 	}
 
 	for (auto& Boss : AllBossesToTick)
 	{
 		if (Cast<AController>(Boss.Controller) == PlayerController)
+		{
 			Boss.OnDied(Cast<AFortPlayerStateAthena>(InstigatedBy ? InstigatedBy->GetPlayerState() : nullptr));
+			AllBossesToTick.erase(std::remove(AllBossesToTick.begin(), AllBossesToTick.end(), Boss));
+		}
 	}
+}
+
+void AFortAthenaAIBotController::OnPerceptionSensedHook(AFortAthenaAIBotController* PlayerController, AActor* SourceActor, FAIStimulus& Stim)
+{
+	if (SourceActor->IsA(AFortPlayerPawnAthena::StaticClass()) && Cast<AFortPlayerPawnAthena>(SourceActor)->GetController() && !Cast<AFortPlayerPawnAthena>(SourceActor)->GetController()->IsA(AFortAthenaAIBotController::StaticClass()))
+	{
+		LOG_INFO(LogBots, "OnPerceptionSensedHook!");
+
+		for (auto& Boss : AllBossesToTick)
+		{
+			if (Boss.Controller == PlayerController)
+			{
+				Boss.OnPerceptionSensed(SourceActor, Stim);
+			}
+		}
+	}
+
+	return OnPerceptionSensedOriginal(PlayerController, SourceActor, Stim);
 }
 
 UClass* AFortAthenaAIBotController::StaticClass()

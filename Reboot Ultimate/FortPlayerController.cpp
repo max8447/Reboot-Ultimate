@@ -55,6 +55,13 @@ void AFortPlayerController::ClientEquipItem(const FGuid& ItemGuid, bool bForceEx
 	}
 }
 
+void AFortPlayerController::ClientForceCancelBuildingTool()
+{
+	static auto ClientForceCancelBuildingToolFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerController.ClientForceCancelBuildingTool");
+
+	this->ProcessEvent(ClientForceCancelBuildingToolFn);
+}
+
 bool AFortPlayerController::DoesBuildFree()
 {
 	if (Globals::bInfiniteMaterials)
@@ -1082,6 +1089,7 @@ void AFortPlayerController::ServerCreateBuildingActorHook(UObject* Context, FFra
 
 	ExistingBuildings.Free();
 
+	// BuildingActor->SetCurrentBuildingLevel()
 	BuildingActor->SetPlayerPlaced(true);
 	BuildingActor->InitializeBuildingActor(PlayerController, BuildingActor, true);
 	BuildingActor->SetTeam(PlayerStateAthena->GetTeamIndex()); // required?
@@ -1233,13 +1241,14 @@ void AFortPlayerController::ServerPlayEmoteItemHook(AFortPlayerController* Playe
 		return;
 
 	UObject* AbilityToUse = nullptr;
+	bool bShouldBeAbilityToUse = false;
 
 	static auto AthenaSprayItemDefinitionClass = FindObject<UClass>(L"/Script/FortniteGame.AthenaSprayItemDefinition");
 	static auto AthenaToyItemDefinitionClass = FindObject<UClass>(L"/Script/FortniteGame.AthenaToyItemDefinition");
 
 	if (EmoteAsset->IsA(AthenaSprayItemDefinitionClass))
 	{
-		static auto SprayGameplayAbilityDefault = FindObject(L"/Game/Abilities/Sprays/GAB_Spray_Generic.Default__GAB_Spray_Generic_C");
+		auto SprayGameplayAbilityDefault = FindObject(L"/Game/Abilities/Sprays/GAB_Spray_Generic.Default__GAB_Spray_Generic_C");
 		AbilityToUse = SprayGameplayAbilityDefault;
 	}
 
@@ -1315,25 +1324,9 @@ void AFortPlayerController::ServerPlayEmoteItemHook(AFortPlayerController* Playe
 	}
 }
 
-DWORD WINAPI SpectateThread(LPVOID PC)
+void AFortPlayerController::ServerPlaySprayItemHook(AFortPlayerController* PlayerController, UAthenaSprayItemDefinition* SprayAsset)
 {
-	auto PlayerController = (UObject*)PC;
-
-	if (!PlayerController->IsValidLowLevel())
-		return 0;
-
-	auto SpectatingPC = Cast<AFortPlayerControllerAthena>(PlayerController);
-
-	if (!SpectatingPC)
-		return 0;
-
-	Sleep(3000);
-
-	LOG_INFO(LogDev, "Spectate!");
-
-	SpectatingPC->SpectateOnDeath();
-
-	return 0;
+	PlayerController->ServerPlayEmoteItemHook(PlayerController, SprayAsset);
 }
 
 DWORD WINAPI RestartThread(LPVOID)
@@ -1803,7 +1796,6 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 				if (GameState->GetGamePhase() > EAthenaGamePhase::Warmup)
 				{
 					static auto bAllowSpectateAfterDeathOffset = GameMode->GetOffset("bAllowSpectateAfterDeath");
-
 					bool bAllowSpectate = GameMode->Get<bool>(bAllowSpectateAfterDeathOffset);
 
 					LOG_INFO(LogDev, "bAllowSpectate: {}", bAllowSpectate);
@@ -1813,9 +1805,10 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 						LOG_INFO(LogDev, "Starting Spectating!");
 
 						static auto PlayerToSpectateOnDeathOffset = PlayerController->GetOffset("PlayerToSpectateOnDeath");
+
 						PlayerController->Get<APawn*>(PlayerToSpectateOnDeathOffset) = KillerPawn;
 
-						CreateThread(0, 0, SpectateThread, (LPVOID)PlayerController, 0, 0);
+						UKismetSystemLibrary::K2_SetTimer(PlayerController, L"SpectateOnDeath", 5.f, false); // Soo proper its scary
 					}
 				}
 			}
@@ -1879,6 +1872,21 @@ bool IsOkForEditing(ABuildingSMActor* BuildingActor, AFortPlayerController* Cont
 		Idk(BuildingActor);
 }
 
+/*
+The editing dilemma:
+
+15.10:
+Valid edit pattern:
+ServerBeginEditingActorblahblah
+ServerEdit
+ClientForceStop
+
+WHERE IS END EDITING?!?!??!
+Invalid EDitPattern:
+ServerBeginEditingActorblahblah
+ServerEnd
+*/
+
 void AFortPlayerController::ServerBeginEditingBuildingActorHook(AFortPlayerController* PlayerController, ABuildingSMActor* BuildingActorToEdit)
 {
 	if (!BuildingActorToEdit || !BuildingActorToEdit->IsPlayerPlaced()) // We need more checks.
@@ -1941,7 +1949,7 @@ void AFortPlayerController::ServerEditBuildingActorHook(UObject* Context, FFrame
 
 	// LOG_INFO(LogDev, "RotationIterations: {}", RotationIterations);
 
-	if (!BuildingActorToEdit || !NewBuildingClass || BuildingActorToEdit->IsDestroyed() || BuildingActorToEdit->GetEditingPlayer() != PlayerState)
+	if (!BuildingActorToEdit || !NewBuildingClass || BuildingActorToEdit->GetEditingPlayer() != PlayerState || BuildingActorToEdit->IsDestroyed())
 	{
 		// LOG_INFO(LogDev, "Cheater?");
 		// LOG_INFO(LogDev, "BuildingActorToEdit->GetEditingPlayer(): {} PlayerState: {} NewBuildingClass: {} BuildingActorToEdit: {}", BuildingActorToEdit ? __int64(BuildingActorToEdit->GetEditingPlayer()) : -1, __int64(PlayerState), __int64(NewBuildingClass), __int64(BuildingActorToEdit));
@@ -1985,15 +1993,18 @@ void AFortPlayerController::ServerEndEditingBuildingActorHook(AFortPlayerControl
 	if (!WorldInventory)
 		return;
 
-	AFortWeap_EditingTool* EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon());
+	auto EditToolInstance = WorldInventory->FindItemInstance(EditToolDef);
 
-	if (EditTool)
+	if (!EditToolInstance)
+		return;
+	
+	// Pawn->EquipWeaponDefinition(EditToolDef, EditToolInstance->GetItemEntry()->GetItemGuid()); // why do they do this on older builds bru
+
+	if (auto EditTool = Cast<AFortWeap_EditingTool>(Pawn->GetCurrentWeapon()))
 	{
-		static auto bEditConfirmedOffset = EditTool->GetOffset("bEditConfirmed");
-
-		if (bEditConfirmedOffset != -1)
-			EditTool->Get<bool>(bEditConfirmedOffset) = true; // this probably does nothing on server	
-
 		EditTool->SetEditActor(nullptr);
+		// PlayerController->ClientForceCancelBuildingTool();
 	}
+
+	// PlayerController->ClientForceCancelBuildingTool();
 }

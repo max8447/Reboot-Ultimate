@@ -7,6 +7,7 @@
 #include "FortAthenaAIBotCustomizationData.h"
 #include "FortAthenaAISpawnerData.h"
 #include "KismetTextLibrary.h"
+#include "KismetMathLibrary.h"
 #include "FortBotNameSettings.h"
 #include "AIStimulus.h"
 
@@ -23,134 +24,53 @@ public:
 	AFortPlayerStateAthena* PlayerState = nullptr;
 
 public:
-	void Initialize(const FTransform& SpawnTransform, AActor* SpawnActor = nullptr)
+
+	static bool ShouldUseAIBotController()
 	{
-		auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
-		auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+		return Fortnite_Version >= 11 && Engine_Version < 500;
+	}
 
-		static UClass* PawnClass = nullptr;
-		static UClass* ControllerClass = nullptr;
+	void PickRandomLoadout()
+	{
+		auto AllHeroTypes = GetAllObjectsOfClass(FindObject<UClass>(L"/Script/FortniteGame.FortHeroType"));
+		std::vector<UFortItemDefinition*> AthenaHeroTypes;
 
-		bool bUseAIBotController = Fortnite_Version >= 11 && Engine_Version < 500;
+		UFortItemDefinition* HeroType = FindObject<UFortItemDefinition>(L"/Game/Athena/Heroes/HID_030_Athena_Commando_M_Halloween.HID_030_Athena_Commando_M_Halloween");
 
-		if (!bUseAIBotController)
+		for (int i = 0; i < AllHeroTypes.size(); ++i)
 		{
-			if (!PawnClass)
-				PawnClass = FindObject<UClass>(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
+			auto CurrentHeroType = (UFortItemDefinition*)AllHeroTypes.at(i);
 
-			if (!ControllerClass)
-				ControllerClass = AFortPlayerControllerAthena::StaticClass();
-
-			if (!ControllerClass || !PawnClass)
-			{
-				LOG_ERROR(LogBots, "Failed to find a class for the bots!");
-				return;
-			}
-
-			Controller = GetWorld()->SpawnActor<AController>(ControllerClass);
-			Pawn = GetWorld()->SpawnActor<AFortPlayerPawnAthena>(PawnClass, SpawnTransform, CreateSpawnParameters(ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn));
-			PlayerState = Cast<AFortPlayerStateAthena>(Controller->GetPlayerState());
-
-			if (!Pawn || !PlayerState)
-				return;
-
-			PlayerState->OnRep_PlayerName();
-			PlayerState->SetIsBot(true);
-			Controller->Possess(Pawn);
-		}
-		else
-		{
-			if (!PawnClass)
-				PawnClass = LoadObject<UClass>(L"/Game/Athena/AI/Phoebe/BP_PlayerPawn_Athena_Phoebe.BP_PlayerPawn_Athena_Phoebe_C", BGACLASS);
-
-			if (!SpawnActor)
-				return;
-
-			Pawn = BotManager->GetCachedBotMutator()->SpawnBot(PawnClass, SpawnActor, SpawnTransform.Translation, SpawnTransform.Rotation.Rotator(), false);
-
-			if (Fortnite_Version < 17)
-				AIBotController = Cast<AFortAthenaAIBotController>(Pawn->GetController());
-			else
-				AIBotController = GetWorld()->SpawnActor<AFortAthenaAIBotController>(Pawn->GetAIControllerClass());
-
-			PlayerState = Cast<AFortPlayerStateAthena>(AIBotController->GetPlayerState());
+			if (CurrentHeroType->GetPathName().starts_with("/Game/Athena/Heroes/"))
+				AthenaHeroTypes.push_back(CurrentHeroType);
 		}
 
-		bool bUseOverrideName = false;
-
-		FString NewName;
-
-		if (bUseOverrideName)
+		if (AthenaHeroTypes.size())
 		{
-			NewName = L"Override";
-		}
-		else
-		{
-			static int CurrentBotNum = 1;
-			std::wstring BotNumWStr;
-
-			if (Fortnite_Version < 9)
-			{
-				BotNumWStr = std::to_wstring(CurrentBotNum++);
-				NewName = (L"RebootBot" + BotNumWStr).c_str();
-			}
-			else
-			{
-				if (Fortnite_Version < 11)
-				{
-					BotNumWStr = std::to_wstring(CurrentBotNum++ + 200);
-					NewName = (std::format(L"Anonymous[{}]", BotNumWStr)).c_str();
-				}
-				else
-				{
-					if (!PlayerBotNames.empty())
-					{
-						std::shuffle(PlayerBotNames.begin(), PlayerBotNames.end(), std::default_random_engine((unsigned int)time(0)));
-
-						int RandomIndex = std::rand() % PlayerBotNames.size();
-						std::string RandomBotName = PlayerBotNames[RandomIndex];
-						RandomBotName.erase(std::remove_if(RandomBotName.begin(), RandomBotName.end(), [](char c) { return std::isspace(static_cast<unsigned char>(c)); }), RandomBotName.end());
-						NewName = std::wstring(RandomBotName.begin(), RandomBotName.end()).c_str();
-						PlayerBotNames.erase(PlayerBotNames.begin() + RandomIndex);
-					}
-				}
-			}
+			HeroType = AthenaHeroTypes.at(std::rand() % AthenaHeroTypes.size());
 		}
 
-		if (Fortnite_Version < 9)
+		static auto HeroTypeOffset = PlayerState->GetOffset("HeroType");
+		PlayerState->Get(HeroTypeOffset) = HeroType;
+	}
+
+	void ApplyCosmeticLoadout()
+	{
+		static auto HeroTypeOffset = PlayerState->GetOffset("HeroType");
+		const auto CurrentHeroType = PlayerState->Get(HeroTypeOffset);
+
+		if (!CurrentHeroType)
 		{
-			if (auto PlayerController = Cast<AFortPlayerController>(Controller))
-				PlayerController->ServerChangeName(NewName);
-		}
-		else
-		{
-			GameMode->ChangeName(Controller ? Controller : AIBotController, NewName, true);
-		}
-
-		LOG_INFO(LogBots, "NewName: {}", NewName.ToString());
-
-		PlayerState->GetTeamIndex() = GameMode->Athena_PickTeamHook(GameMode, 0, Controller ? Controller : AIBotController);
-
-		static auto SquadIdOffset = PlayerState->GetOffset("SquadId", false);
-
-		if (SquadIdOffset != -1)
-			PlayerState->GetSquadId() = PlayerState->GetTeamIndex() - NumToSubtractFromSquadId;
-
-		GameState->AddPlayerStateToGameMemberInfo(PlayerState);
-
-		Pawn->SetHealth(21);
-		Pawn->SetMaxHealth(21);
-		Pawn->SetShield(21);
-
-		auto PlayerAbilitySet = GetPlayerAbilitySet();
-		auto AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
-
-		if (PlayerAbilitySet)
-		{
-			PlayerAbilitySet->GiveToAbilitySystem(AbilitySystemComponent);
+			LOG_WARN(LogBots, "CurrentHeroType called with an invalid HeroType!");
+			return;
 		}
 
-		if (!bUseAIBotController)
+		ApplyHID(Pawn, CurrentHeroType, true);
+	}
+
+	void SetupInventory()
+	{
+		if (!ShouldUseAIBotController())
 		{
 			AFortInventory** Inventory = nullptr;
 
@@ -197,7 +117,149 @@ public:
 				static auto bHasInitializedWorldInventoryOffset = FortPlayerController->GetOffset("bHasInitializedWorldInventory");
 				FortPlayerController->Get<bool>(bHasInitializedWorldInventoryOffset) = true;
 			}
+		}
+	}
 
+	void SetName(const FString& NewName)
+	{
+		if (// true ||
+			Fortnite_Version < 9
+			)
+		{
+			if (auto PlayerController = Cast<APlayerController>(Controller))
+			{
+				PlayerController->ServerChangeName(NewName);
+			}
+		}
+		else
+		{
+			auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+			GameMode->ChangeName(Controller, NewName, true);
+		}
+
+		PlayerState->OnRep_PlayerName(); // ?
+	}
+
+	FString GetRandomName()
+	{
+		static int CurrentBotNum = 1;
+		std::wstring BotNumWStr;
+		FString NewName;
+
+		if (Fortnite_Version < 9)
+		{
+			BotNumWStr = std::to_wstring(CurrentBotNum++);
+			NewName = (L"RebootBot" + BotNumWStr).c_str();
+		}
+		else
+		{
+			if (Fortnite_Version < 11)
+			{
+				BotNumWStr = std::to_wstring(CurrentBotNum++ + 200);
+				NewName = (std::format(L"Anonymous[{}]", BotNumWStr)).c_str();
+			}
+			else
+			{
+				if (!PlayerBotNames.empty())
+				{
+					// std::shuffle(PlayerBotNames.begin(), PlayerBotNames.end(), std::default_random_engine((unsigned int)time(0)));
+
+					int RandomIndex = std::rand() % (PlayerBotNames.size() - 1);
+					NewName = std::wstring(PlayerBotNames[RandomIndex].begin(), PlayerBotNames[RandomIndex].end()).c_str();
+					PlayerBotNames.erase(PlayerBotNames.begin() + RandomIndex);
+				}
+			}
+		}
+
+		return NewName;
+	}
+
+public:
+
+	void Initialize(const FTransform& SpawnTransform, AActor* SpawnActor = nullptr)
+	{
+		auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
+		auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+
+		static UClass* PawnClass = nullptr;
+		static UClass* ControllerClass = nullptr;
+
+		if (!ShouldUseAIBotController())
+		{
+			if (!PawnClass)
+				PawnClass = FindObject<UClass>(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
+
+			if (!ControllerClass)
+				ControllerClass = AFortPlayerControllerAthena::StaticClass();
+
+			if (!ControllerClass || !PawnClass)
+			{
+				LOG_ERROR(LogBots, "Failed to find a class for the bots!");
+				return;
+			}
+
+			Controller = GetWorld()->SpawnActor<AController>(ControllerClass);
+			Pawn = GetWorld()->SpawnActor<AFortPlayerPawnAthena>(PawnClass, SpawnTransform, CreateSpawnParameters(ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn));
+			PlayerState = Cast<AFortPlayerStateAthena>(Controller->GetPlayerState());
+
+			if (!Pawn || !PlayerState)
+				return;
+
+			PlayerState->OnRep_PlayerName();
+			PlayerState->SetIsBot(true);
+			Controller->Possess(Pawn);
+		}
+		else
+		{
+			if (!PawnClass)
+				PawnClass = LoadObject<UClass>(L"/Game/Athena/AI/Phoebe/BP_PlayerPawn_Athena_Phoebe.BP_PlayerPawn_Athena_Phoebe_C", BGACLASS);
+
+			if (!SpawnActor)
+				return;
+
+			Pawn = BotManager->GetCachedBotMutator()->SpawnBot(PawnClass, SpawnActor, SpawnTransform.Translation, SpawnTransform.Rotation.Rotator(), false);
+
+			if (Fortnite_Version < 17)
+				AIBotController = Cast<AFortAthenaAIBotController>(Pawn->GetController());
+			else
+				AIBotController = GetWorld()->SpawnActor<AFortAthenaAIBotController>(Pawn->GetAIControllerClass());
+
+			PlayerState = Cast<AFortPlayerStateAthena>(AIBotController->GetPlayerState());
+		}
+
+		if (Fortnite_Version >= 20)
+			LOG_INFO(LogBots, "Bot spawned at {}", Pawn->GetActorLocation().ToString().ToString());
+
+		if (Addresses::PickTeam)
+			PlayerState->GetTeamIndex() = GameMode->Athena_PickTeamHook(GameMode, 0, Controller ? Controller : AIBotController);
+
+		static auto SquadIdOffset = PlayerState->GetOffset("SquadId", false);
+
+		if (SquadIdOffset != -1)
+			PlayerState->GetSquadId() = PlayerState->GetTeamIndex() - NumToSubtractFromSquadId;
+
+		GameState->AddPlayerStateToGameMemberInfo(PlayerState);
+
+		PlayerState->SetIsBot(true);
+
+		Pawn->SetHealth(21);
+		Pawn->SetMaxHealth(21);
+		Pawn->SetShield(21);
+
+		auto PlayerAbilitySet = GetPlayerAbilitySet();
+		auto AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
+
+		if (PlayerAbilitySet)
+		{
+			PlayerAbilitySet->GiveToAbilitySystem(AbilitySystemComponent);
+		}
+
+		SetupInventory();
+		ApplyCosmeticLoadout();
+		SetName(GetRandomName());
+
+		if (!ShouldUseAIBotController())
+		{
 			GameState->GetPlayersLeft()++;
 			GameState->OnRep_PlayersLeft();
 		}
@@ -371,7 +433,7 @@ public:
 			}
 		}
 
-		if (bDidSomeoneWin && !GameState->IsRespawningAllowed(PlayerState))
+		if (bDidSomeoneWin && !GameState->IsRespawningAllowed(PlayerState) && GameMode->IsMatchInProgress())
 		{
 			LOG_INFO(LogDev, "Won!");
 
@@ -386,7 +448,7 @@ public:
 			{
 				auto CurrentPlayerState = (AFortPlayerStateAthena*)AllPlayerStates.at(i);
 
-				if (CurrentPlayerState && CurrentPlayerState != PlayerState)
+				if (CurrentPlayerState && CurrentPlayerState != PlayerState && !CurrentPlayerState->IsBot())
 				{
 					LOG_INFO(LogBots, "PlayerState: {}", PlayerState->GetFullName());
 
@@ -495,7 +557,7 @@ public:
 	AFortAthenaAIBotController* Controller = nullptr;
 	AFortPlayerPawnAthena* Pawn = nullptr;
 	AFortPlayerStateAthena* PlayerState = nullptr;
-	UFortAthenaAIBotCustomizationData* BotData = nullptr;
+	FVector StartLocation;
 	AActor* TargetActor = nullptr;
 	bool bTickEnabled = false;
 
@@ -510,8 +572,6 @@ public:
 		FVector SpawnLocation = SpawnTransform.Translation;
 		FRotator SpawnRotation = SpawnTransform.Rotation.Rotator();
 
-		BotData = CustomizationData;
-
 		Pawn = BotManager->GetCachedBotMutator()->SpawnBot(PawnClass, SpawnLocator, SpawnLocation, SpawnRotation, false);
 
 		if (Fortnite_Version >= 17)
@@ -525,6 +585,7 @@ public:
 		Controller->GetPlayerBotPawn() = Pawn;
 		Controller->GetCachedBotMutator() = BotManager->GetCachedBotMutator();
 		Controller->GetCachedGameMode() = GameMode;
+		Controller->GetBotData() = CustomizationData;
 
 		auto BehaviorTree = CustomizationData->GetBehaviorTree();
 		auto BlackboardComponent = Controller->GetBlackboard();
@@ -533,8 +594,8 @@ public:
 		Controller->UseBlackboard(BehaviorTree->GetBlackboardAsset(), &BlackboardComponent);
 		Controller->OnUsingBlackBoard(BlackboardComponent, BehaviorTree->GetBlackboardAsset());
 
-		if (BotData->HasCustomSquadId())
-			Controller->SwitchTeam(BotData->GetCustomSquadId());
+		if (Controller->GetBotData()->HasCustomSquadId())
+			Controller->SwitchTeam(Controller->GetBotData()->GetCustomSquadId());
 
 		UObject* CharacterToApply = nullptr;
 
@@ -580,6 +641,22 @@ public:
 
 		Controller->GetInventory() = GetWorld()->SpawnActor<AFortInventory>(AFortInventory::StaticClass(), FTransform(), CreateSpawnParameters(ESpawnActorCollisionHandlingMethod::AlwaysSpawn, true, Controller));
 
+		if (Controller->GetInventory())
+		{
+			auto StartupInventoryItems = CustomizationData->GetStartupInventory()->GetItems();
+
+			for (int i = 0; i < StartupInventoryItems.Num(); i++)
+			{
+				auto StartupInventoryItem = StartupInventoryItems.at(i);
+
+				// Controller->GiveItem(StartupInventoryItem.GetItem(), StartupInventoryItem.GetCount());
+			}
+		}
+		else
+		{
+			LOG_WARN(LogBots, "No Inventory!");
+		}
+
 		Controller->AddDigestedSkillSets();
 
 		bTickEnabled = true;
@@ -591,10 +668,10 @@ public:
 
 	virtual void OnDied(AFortPlayerStateAthena* KillerState = nullptr)
 	{
-		if (!BotData)
+		if (!Controller->GetBotData())
 			return;
 
-		auto StartupInventoryItems = BotData->GetStartupInventory()->GetItems();
+		auto StartupInventoryItems = Controller->GetBotData()->GetStartupInventory()->GetItems();
 
 		for (int i = 0; i < StartupInventoryItems.Num(); ++i)
 		{
@@ -636,7 +713,7 @@ public:
 
 	virtual void OnPerceptionSensed(AActor* SourceActor, FAIStimulus Stim)
 	{
-		// if (Stim.WasSuccessfullySensed() && Controller->LineOfSightTo(SourceActor, ) && Pawn->GetDistanceTo_Manual(SourceActor) < 5000)
+		if (Stim.WasSuccessfullySensed() && Controller->LineOfSightTo(SourceActor, FVector(), true) && Pawn->GetDistanceTo_Manual(SourceActor) < 5000)
 			TargetActor = SourceActor;
 	}
 
@@ -650,7 +727,29 @@ public:
 		if (!Controller || !Pawn || !PlayerState)
 			return;
 
+		if (Pawn->IsDBNO())
+		{
+			auto ResultMoveDBNO = Controller->MoveToLocation(StartLocation, 50.f, true, false, true, true, nullptr, true);
 
+			if (ResultMoveDBNO <= EPathFollowingRequestResult::AlreadyAtGoal)
+			{
+				TargetActor = nullptr;
+				Controller->StopMovement();
+			}
+		}
+
+		if (TargetActor)
+		{
+			if (Pawn->GetDistanceTo_Manual(TargetActor) > 800)
+			{
+				auto ResultMoveTarget = Controller->MoveToActor(TargetActor, 100.f, true, false, true, nullptr, true);
+
+				if (ResultMoveTarget <= EPathFollowingRequestResult::Failed)
+				{
+					// idk what to do if we fail
+				}
+			}
+		}
 	}
 };
 

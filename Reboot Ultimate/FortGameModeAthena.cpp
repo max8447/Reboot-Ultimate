@@ -226,11 +226,22 @@ void AFortGameModeAthena::OverrideSupplyDrop(AFortGameStateAthena* GameState, UC
 		return;
 	}
 
-	static auto SupplyDropInfoListOffset = MapInfo->GetOffset("SupplyDropInfoList");
-	auto SupplyDropInfoList = MapInfo->Get<TArray<UFortSupplyDropInfo*>>(SupplyDropInfoListOffset);
+	static auto SupplyDropInfoListOffset = MapInfo->GetOffset("SupplyDropInfoList", false);
 
-	static auto SupplyDropClassOffset = SupplyDropInfoList[0]->GetOffset("SupplyDropClass");
-	SupplyDropInfoList[0]->Get<TSubclassOf<AFortAthenaSupplyDrop*>>(SupplyDropClassOffset) = OverrideSupplyDropBusClass;
+	if (SupplyDropInfoListOffset == -1)
+		return;
+
+	auto& SupplyDropInfoList = MapInfo->Get<TArray<UFortSupplyDropInfo*>>(SupplyDropInfoListOffset);
+	auto FirstSupplyDropInfo = SupplyDropInfoList.at(0);
+
+	if (!FirstSupplyDropInfo)
+	{
+		LOG_WARN(LogGame, "No FirstSupplyDropInfo!");
+		return;
+	}
+
+	static auto SupplyDropClassOffset = FirstSupplyDropInfo->GetOffset("SupplyDropClass");
+	FirstSupplyDropInfo->Get<TSubclassOf<AFortAthenaSupplyDrop*>>(SupplyDropClassOffset) = OverrideSupplyDropBusClass;
 
 	LOG_INFO(LogGame, "Overridden SupplyDropClass: {}", OverrideSupplyDropBusClass->GetFullName());
 }
@@ -415,7 +426,7 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 			}
 			else
 			{
-				if (Fortnite_Version >= 4.1)
+				if (Fortnite_Version > 4.0) // bruh
 				{
 					SetPlaylist(PlaylistToUse, true);
 
@@ -547,6 +558,22 @@ bool AFortGameModeAthena::Athena_ReadyToStartMatchHook(AFortGameModeAthena* Game
 					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_Bridge_020_b"));
 					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_3x3_TruceRaft"));
 					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_3x3_Parent7_DamDoor"));
+				}
+				else if (Fortnite_Version == 13.40)
+				{
+					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Pleasant_NormalFoundation"));
+					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Sweaty_NormalFoundation"));
+					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Frenzy_NormalFoundation"));
+					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Fortilla_Foundation"));
+					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_1x1_RockIsland_1"));
+					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_1x1_RockIsland_2"));
+					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.LF_1x1_RockIsland_3"));
+					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Rig01_Foundation"));
+					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Rig02_Foundation"));
+					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Rig03_Foundation"));
+					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.RuinsCenter_Foundation"));
+					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.RuinsFalls_Foundation"));
+					ShowFoundation(FindObject<AActor>("/Game/Athena/Apollo/Maps/Apollo_POI_Foundations.Apollo_POI_Foundations.PersistentLevel.Ruins_Foundation"));
 				}
 			}
 
@@ -1622,17 +1649,21 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 	auto PlayerAbilitySet = GetPlayerAbilitySet();
 	auto AbilitySystemComponent = PlayerStateAthena->GetAbilitySystemComponent();
 
-	if (PlayerAbilitySet)
+	if (PlayerAbilitySet && Fortnite_Version != 12.00)
+	{
 		PlayerAbilitySet->GiveToAbilitySystem(AbilitySystemComponent);
 
-	if (Fortnite_Version >= 20 && Fortnite_Version < 23)
-	{
-		auto TacticalSprintAbility = FindObject<UClass>("/TacticalSprint/Gameplay/GA_Athena_GrantTacticalSprint.GA_Athena_GrantTacticalSprint_C");
-
-		if (TacticalSprintAbility)
-			AbilitySystemComponent->GiveAbilityEasy(TacticalSprintAbility);
-		else
-			LOG_WARN(LogDev, "Failed to find tactical sprint ability!");
+		if (Fortnite_Version >= 21)
+		{
+#if 0
+			static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
+			auto TacticalSprintClass = LoadObject<UClass>("/TacticalSprint/Gameplay/GA_Athena_GrantTacticalSprint.GA_Athena_GrantTacticalSprint_C", BGAClass);
+			AbilitySystemComponent->GiveAbilityEasy(TacticalSprintClass);
+#else
+			auto TacticalSprintAbilitySet = LoadObject<UFortAbilitySet>("/TacticalSprint/Gameplay/AS_TacticalSprint.AS_TacticalSprint");
+			// TacticalSprintAbilitySet->GiveToAbilitySystem(AbilitySystemComponent);
+#endif
+		}
 	}
 
 	static auto PlayerCameraManagerOffset = NewPlayer->GetOffset("PlayerCameraManager");

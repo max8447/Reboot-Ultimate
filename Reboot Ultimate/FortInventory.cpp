@@ -9,16 +9,6 @@
 #include "FortPlayerStateAthena.h"
 #include "GameplayAbilityTypes.h"
 
-UFortItem* CreateItemInstance(AFortPlayerController* PlayerController, UFortItemDefinition* ItemDefinition, int Count)
-{
-	UFortItem* NewItemInstance = ItemDefinition->CreateTemporaryItemInstanceBP(Count);
-
-	if (NewItemInstance && PlayerController)
-		NewItemInstance->SetOwningControllerForTemporaryItem(PlayerController);
-
-	return NewItemInstance;
-}
-
 std::pair<std::vector<UFortItem*>, std::vector<UFortItem*>> AFortInventory::AddItem(FFortItemEntry* ItemEntry, bool* bShouldUpdate, bool bShowItemToast, int OverrideCount)
 {
 	if (!ItemEntry || !ItemEntry->GetItemDefinition())

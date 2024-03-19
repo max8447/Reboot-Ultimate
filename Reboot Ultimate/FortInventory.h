@@ -38,6 +38,16 @@ static bool IsPrimaryQuickbar(UFortItemDefinition* ItemDefinition)
 	return false;
 }
 
+static inline UFortItem* CreateItemInstance(AController* PlayerController, UFortItemDefinition* ItemDefinition, int Count)
+{
+	UFortItem* NewItemInstance = ItemDefinition->CreateTemporaryItemInstanceBP(Count);
+
+	if (NewItemInstance && PlayerController)
+		NewItemInstance->SetOwningControllerForTemporaryItem(PlayerController);
+
+	return NewItemInstance;
+}
+
 enum class EFortInventoryType : unsigned char
 {
 	World = 0,

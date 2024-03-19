@@ -52,14 +52,15 @@ uint64 FindGIsClient()
 
 	std::vector<std::vector<uint8_t>> BytesArray = {
 		{0x88, 0x05}, // 20.40 21.00
-		{0xC6, 0x05}, // mov cs X // Checked on 1.11, 12.41
+		{0xC6, 0x05}, // mov cs X // Checked on 1.11, 12.41, 15.10
 		{0x88, 0x1D}, // mov cs bl // Checked on 17.50, 19.10
-		{0x44, 0x88} // IDK WHAT VERSION This for but it scuffs older builds
+		{0x44, 0x88} // 4.5
 	};
 
-	int Skip = 2; // Skip GIsServer and some variable i forgot
+	int Skip = 2;
 
-	uint64 Addy;
+	uint64 Addy = 0;
+	int PickedByte = 0;
 
 	for (int i = 0; i < 50; i++) // we should subtract from skip if go up
 	{
@@ -87,15 +88,34 @@ uint64 FindGIsClient()
 				}
 				if (Found)
 				{
-					int Relative = Bytes[0] == 0x44 ? 3 : 2;
+					bool bIsScuffedByte = Bytes[0] == 0x44;
+					int Relative = bIsScuffedByte ? 3 : 2;
 					auto current = Memcury::Scanner(Addr.Get() - i);
 					// LOG_INFO(LogDev, "[{}] No Rel 0x{:x} Rel: 0x{:x}", Skip, current.Get() - __int64(GetModuleHandleW(0)), Memcury::Scanner(Addr.Get() - i).RelativeOffset(Relative).Get() - __int64(GetModuleHandleW(0)));
+
+					if (bIsScuffedByte)
+					{
+						if (*(Memcury::ASM::MNEMONIC*)(Addr.Get() - i + 2) == 0x74) // DIE 4.5 (todo check length of entire instruction)
+						{
+							LOG_INFO(LogDev, "Found broken byte, skipping!");
+							continue;
+						}
+					}
+
+					if (!PickedByte)
+					{
+						PickedByte = Bytes[0];
+					}
+					else if (PickedByte != Bytes[0])
+						continue; // Its one of the bytes, but not the first one we found.
 
 					if (Skip > 0)
 					{
 						Skip--;
 						continue;
 					}
+
+					LOG_INFO(LogDev, "Found GIsClient with byte 0x{:x}", Bytes[0]);
 
 					Addy = Bytes[0] == 0xC6
 						? current.RelativeOffset(Relative, 1).Get() // If mov cs then we add 1 because the last byte is the value and makes whole instructions 1 byte longer
@@ -122,6 +142,7 @@ uint64 FindGIsClient()
 	auto Addy = FindBytes(Addr, { 0xC6, 0x05 }, 50, 0, true, Skip);
 	Addy = Addy ? Addy : FindBytes(Addr, { 0x44, 0x88 }, 50, 0, true, Skip);
 	Addy = Addy ? Addy : FindBytes(Addr, { 0x88, 0x1D }, 50, 0, true, Skip);
+
 	return Memcury::Scanner(Addy).RelativeOffset(2).Get();
 	*/
 }

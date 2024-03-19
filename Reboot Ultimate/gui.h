@@ -44,6 +44,7 @@
 #include "vendingmachine.h"
 #include "die.h"
 #include "calendar.h"
+#include "botnames.h"
 
 #define GAME_TAB 1
 #define PLAYERS_TAB 2
@@ -129,6 +130,8 @@ static inline bool HasAnyCalendarModification()
 
 static inline void Restart() // todo move?
 {
+	CreateThread(0, 0, InitBotNames, 0, 0, 0);
+
 	FString LevelA = Engine_Version < 424
 		? L"open Athena_Terrain" : Engine_Version >= 500 ? Engine_Version >= 501
 		? L"open Asteria_Terrain"
