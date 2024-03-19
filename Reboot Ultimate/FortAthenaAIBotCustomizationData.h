@@ -7,6 +7,8 @@
 #include "FortBotNameSettings.h"
 #include "FortAthenaAIBotInventoryItems.h"
 #include "FortPlayerPawnAthena.h"
+#include "FortPlayerController.h"
+#include "FortPlayerState.h"
 
 class UFortAthenaAIBotCustomizationData : public UObject // UPrimaryDataAsset
 {
