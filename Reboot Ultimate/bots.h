@@ -711,8 +711,13 @@ public:
 
 	virtual void OnPerceptionSensed(AActor* SourceActor, FAIStimulus Stim)
 	{
+		LOG_INFO(LogBots, "OnPerceptionSensed!");
+
 		if (Stim.WasSuccessfullySensed() && Controller->LineOfSightTo(SourceActor, FVector(), true) && Pawn->GetDistanceTo_Manual(SourceActor) < 5000)
+		{
+			LOG_INFO(LogBots, "Valid Target {}!", SourceActor->GetFullName());
 			TargetActor = SourceActor;
+		}
 	}
 
 public:
@@ -744,7 +749,7 @@ public:
 
 				if (ResultMoveTarget <= EPathFollowingRequestResult::Failed)
 				{
-					// idk what to do if we fail
+					LOG_ERROR(LogBots, "FAILED TO MOVE!");
 				}
 			}
 		}
