@@ -49,10 +49,11 @@ void UNetDriver::TickFlushHook(UNetDriver* NetDriver)
 		bShouldDestroyAllPlayerBuilds = false;
 	}
 
-	/* if (bEnableBotTick)
+	for (int i = 0; i < AllBossesToTick.size(); i++)
 	{
-		Bots::Tick();
-	} */
+		auto Boss = AllBossesToTick[i];
+		Boss.OnTick();
+	}
 
 	if (Globals::bStartedListening)
 	{

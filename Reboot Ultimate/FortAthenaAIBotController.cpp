@@ -67,21 +67,25 @@ void AFortAthenaAIBotController::OnPossesedPawnDiedHook(AController* PlayerContr
 	// if (!InstigatedBy)
 		// return OnPossesedPawnDiedOriginal(PlayerController, DamagedActor, Damage, InstigatedBy, DamageCauser, HitLocation, FHitComponent, BoneName, Momentum);
 
-	for (auto& PlayerBot : AllPlayerBotsToTick)
+	for (int i = 0; i < AllPlayerBotsToTick.size(); i++)
 	{
+		auto PlayerBot = AllPlayerBotsToTick[i];
+
 		if (Cast<AController>(PlayerBot.AIBotController) == PlayerController)
 		{
 			PlayerBot.OnDied(Cast<AFortPlayerStateAthena>(InstigatedBy ? InstigatedBy->GetPlayerState() : nullptr));
-			AllPlayerBotsToTick.erase(std::remove(AllPlayerBotsToTick.begin(), AllPlayerBotsToTick.end(), PlayerBot));
+			AllPlayerBotsToTick.erase(AllPlayerBotsToTick.begin() + i);
 		}
 	}
 
-	for (auto& Boss : AllBossesToTick)
+	for (int i = 0; i < AllBossesToTick.size(); i++)
 	{
+		auto Boss = AllBossesToTick[i];
+
 		if (Cast<AController>(Boss.Controller) == PlayerController)
 		{
 			Boss.OnDied(Cast<AFortPlayerStateAthena>(InstigatedBy ? InstigatedBy->GetPlayerState() : nullptr));
-			AllBossesToTick.erase(std::remove(AllBossesToTick.begin(), AllBossesToTick.end(), Boss));
+			AllBossesToTick.erase(AllBossesToTick.begin() + i);
 		}
 	}
 }

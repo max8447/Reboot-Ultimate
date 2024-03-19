@@ -92,12 +92,6 @@ uint64 FindGIsClient()
 					int Relative = bIsScuffedByte ? 3 : 2;
 					auto current = Memcury::Scanner(Addr.Get() - i);
 					// LOG_INFO(LogDev, "[{}] No Rel 0x{:x} Rel: 0x{:x}", Skip, current.Get() - __int64(GetModuleHandleW(0)), Memcury::Scanner(Addr.Get() - i).RelativeOffset(Relative).Get() - __int64(GetModuleHandleW(0)));
-					
-					if (bIsScuffedByte)
-					{
-						if (Bytes[2] == 0x74) // DIE 4.5 (todo check length of entire instruction)
-							continue;
-					}
 
 					if (bIsScuffedByte)
 					{

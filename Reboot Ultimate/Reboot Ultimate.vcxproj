@@ -181,6 +181,7 @@
     <ClCompile Include="ActorComponent.cpp" />
     <ClCompile Include="addresses.cpp" />
     <ClCompile Include="AIBlueprintHelperLibrary.cpp" />
+    <ClCompile Include="AIController.cpp" />
     <ClCompile Include="AthenaMarkerComponent.cpp" />
     <ClCompile Include="BehaviorTree.h" />
     <ClCompile Include="BP_IslandScripting.cpp" />
@@ -476,6 +477,7 @@
     <ClInclude Include="OnlineReplStructs.h" />
     <ClInclude Include="OutputDevice.h" />
     <ClInclude Include="Package.h" />
+    <ClInclude Include="PathFollowingTypes.h" />
     <ClInclude Include="Pawn.h" />
     <ClInclude Include="PersistentObjectPtr.h" />
     <ClInclude Include="Player.h" />

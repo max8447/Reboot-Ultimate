@@ -213,7 +213,7 @@ void AFortGameModeAthena::OverrideSupplyDrop(AFortGameStateAthena* GameState, UC
 {
 	if (!OverrideSupplyDropBusClass)
 	{
-		LOG_WARN(LogGame, "OverrideSuppyDrop not found! Equipping default supply drop.");
+		LOG_WARN(LogGame, "OverrideSupplyDrop not found! Equipping default supply drop.");
 		return;
 	}
 

@@ -140,9 +140,6 @@ static UFortServerBotManagerAthena* SetupServerBotManager()
 
     UFortServerBotManagerAthena*& ServerBotManager = GameMode->GetServerBotManager();
 
-    static auto ServerBotManagerOffset = GameMode->GetOffset("ServerBotManager");
-    UFortServerBotManagerAthena*& ServerBotManager = GameMode->Get<UFortServerBotManagerAthena*>(ServerBotManagerOffset);
-
     if (!ServerBotManager)
         ServerBotManager = (UFortServerBotManagerAthena*)UGameplayStatics::SpawnObject(FortServerBotManagerClass, GetTransientPackage());
 

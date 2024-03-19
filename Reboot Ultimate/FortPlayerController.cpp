@@ -2006,5 +2006,5 @@ void AFortPlayerController::ServerEndEditingBuildingActorHook(AFortPlayerControl
 		// PlayerController->ClientForceCancelBuildingTool();
 	}
 
-	// PlayerController->ClientForceCancelBuildingTool();
+	PlayerController->ClientForceCancelBuildingTool();
 }

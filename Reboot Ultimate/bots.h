@@ -262,12 +262,10 @@ public:
 		{
 			GameState->GetPlayersLeft()++;
 			GameState->OnRep_PlayersLeft();
-		}
 
-		if (auto FortPlayerControllerAthena = Cast<AFortPlayerControllerAthena>(Controller))
-			GameMode->GetAlivePlayers().Add(FortPlayerControllerAthena);
-		// if (AIBotController)
-			// GameMode->GetAliveBots().Add(AIBotController);
+			if (auto FortPlayerControllerAthena = Cast<AFortPlayerControllerAthena>(Controller))
+				GameMode->GetAlivePlayers().Add(FortPlayerControllerAthena);
+		}
 	}
 
 public:
