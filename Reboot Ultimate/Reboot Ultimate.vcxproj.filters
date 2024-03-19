@@ -235,9 +235,6 @@
     <ClCompile Include="NetConnection.cpp">
       <Filter>Engine\Source\Runtime\Engine\Private</Filter>
     </ClCompile>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>Reboot\Public</Filter>
-    </ClCompile>
     <ClCompile Include="SavePackage.cpp">
       <Filter>Engine\Source\Runtime\CoreUObject\Private</Filter>
     </ClCompile>
@@ -304,6 +301,9 @@
     <ClCompile Include="extra.cpp">
       <Filter>Reboot\Private</Filter>
     </ClCompile>
+	  <ClCompile Include="dllmain.cpp">
+  <Filter>Reboot\Public</Filter>
+</ClCompile>
     <ClCompile Include="quests.cpp">
       <Filter>Reboot\Private</Filter>
     </ClCompile>

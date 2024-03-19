@@ -1,4 +1,5 @@
 #include "FortServerBotManagerAthena.h"
+#include "bots.h"
 
 #include "FortAthenaAIBotCustomizationData.h"
 
@@ -23,6 +24,8 @@ AFortPlayerPawnAthena* UFortServerBotManagerAthena::SpawnBotHook(UFortServerBotM
 {
 	LOG_INFO(LogBots, "UFortServerBotManagerAthena::SpawnBotHook!");
 
+	LOG_INFO(LogBots, "SpawnBotHook!");
+
 	LOG_INFO(LogBots, "InSpawnLocation: {}", InSpawnLocation.ToString().ToString());
 
 	auto SpawnActor = GetWorld()->SpawnActor<AFortPlayerPawn>(AFortPlayerPawn::StaticClass(), InSpawnLocation, InSpawnRotation.Quaternion());
@@ -39,5 +42,5 @@ AFortPlayerPawnAthena* UFortServerBotManagerAthena::SpawnBotHook(UFortServerBotM
 
 	BotManagerSetup(__int64(BotManager), __int64(ReturnPawn), __int64(InBotData->GetBehaviorTree()), 0, &CustomSquadId, 0, __int64(InBotData->GetStartupInventory()), __int64(InBotData->GetBotNameSettings()), 0, &TrueByte, 0, &FalseByte, InRuntimeBotData);
 
-	return ReturnPawn;
+	return ReturnPawn;;
 }
