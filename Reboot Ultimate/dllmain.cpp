@@ -82,6 +82,7 @@ static ENetMode GetNetModeHook2() { return NetMode; }
 static bool ReturnTrueHook() { return true; }
 static bool ReturnFalseHook() { return false; }
 static int Return2Hook() { return 2; }
+static void EmptyHook() { return; }
 
 static bool NoMCPHook() { return Globals::bNoMCP; }
 static void CollectGarbageHook() { return; }
