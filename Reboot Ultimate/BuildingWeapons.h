@@ -29,8 +29,7 @@ public:
 		// if (HasAuthority())
 		{
 			GetEditActor() = EditActor;
-			OnRep_EditActor();
-			// originalOnRep_EditActor(this);
+			originalOnRep_EditActor(this);
 		}
 	}
 

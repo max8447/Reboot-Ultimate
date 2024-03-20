@@ -323,6 +323,7 @@
     <ClInclude Include="BuildingStructuralSupportSystem.h" />
     <ClInclude Include="BuildingTrap.h" />
     <ClInclude Include="Channel.h" />
+    <ClInclude Include="Character.h" />
     <ClInclude Include="CheatManager.h" />
     <ClInclude Include="Class.h" />
     <ClInclude Include="commands.h" />

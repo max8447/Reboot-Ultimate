@@ -38,3 +38,9 @@ void AController::StopMovement()
 	static auto StopMovementFn = FindObject<UFunction>("/Script/Engine.Controller.StopMovement");
 	this->ProcessEvent(StopMovementFn);
 }
+
+void AController::SetControlRotation(FRotator NewRotation)
+{
+	static auto SetControlRotationFn = FindObject<UFunction>("/Script/Engine.Controller.SetControlRotation");
+	this->ProcessEvent(SetControlRotationFn, &NewRotation);
+}

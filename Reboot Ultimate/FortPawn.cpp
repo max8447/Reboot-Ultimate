@@ -40,6 +40,18 @@ bool AFortPawn::PickUpActor(AActor* PickupTarget, UFortDecoItemDefinition* Place
 	return AFortPawn_PickUpActor_Params.ReturnValue;
 }
 
+void AFortPawn::PawnStartFire(uint8 FireModeNum)
+{
+	static auto PawnStartFireFn = FindObject<UFunction>("/Script/FortniteGame.FortPawn.PawnStartFire");
+	this->ProcessEvent(PawnStartFireFn, &FireModeNum);
+}
+
+void AFortPawn::PawnStopFire(uint8 FireModeNum)
+{
+	static auto PawnStopFireFn = FindObject<UFunction>("/Script/FortniteGame.FortPawn.PawnStopFire");
+	this->ProcessEvent(PawnStopFireFn, &FireModeNum);
+}
+
 void AFortPawn::OnRep_IsDBNO()
 {
 	static auto OnRep_IsDBNOFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPawn.OnRep_IsDBNO");

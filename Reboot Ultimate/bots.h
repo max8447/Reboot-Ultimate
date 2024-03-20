@@ -663,6 +663,82 @@ public:
 
 public:
 
+	bool ShouldToggleShoot()
+	{
+		return UKismetMathLibrary::RandomBoolWithWeight(0.05f);
+	}
+
+	bool ShouldToggleCrouch()
+	{
+		return UKismetMathLibrary::RandomBoolWithWeight(0.03f);
+	}
+
+	bool ShouldLootAtTargetDuringMove()
+	{
+		if (Pawn->IsDBNO())
+			return true;
+
+		return UKismetMathLibrary::RandomBoolWithWeight(0.5f);
+	}
+
+	void StartFire()
+	{
+		if (!ShouldToggleShoot())
+			return;
+
+		Pawn->PawnStartFire(0);
+	}
+
+	void StopFire()
+	{
+		if (!ShouldToggleShoot())
+			return;
+
+		Pawn->PawnStopFire(0);
+	}
+
+	void ToggleCrouch()
+	{
+		if (!ShouldToggleCrouch())
+			return;
+
+		if (!Pawn->IsCrouched())
+		{
+			Pawn->Crouch(false);
+		}
+		else
+		{
+			Pawn->UnCrouch(false);
+		}
+	}
+
+	void LootAt(AActor* FocalActor)
+	{
+		auto LookAtRotation = UKismetMathLibrary::FindLookAtRotation(Pawn->GetActorLocation(), FocalActor->GetActorLocation());
+		Controller->SetControlRotation(LookAtRotation);
+	}
+
+	void WalkInDirection(FVector WorldDirection)
+	{
+		Pawn->AddMovementInput(WorldDirection, 1.f, true);
+	}
+
+	void MoveToLocation(FVector Dest)
+	{
+		if (ShouldLootAtTargetDuringMove())
+			LootAt(TargetActor);
+
+		WalkInDirection(Dest - Pawn->GetActorLocation());
+		ToggleCrouch();
+	}
+
+	void MoveToActor(AActor* Goal)
+	{
+		MoveToLocation(Goal->GetActorLocation());
+	}
+
+public:
+
 	virtual void OnDied(AFortPlayerStateAthena* KillerState = nullptr)
 	{
 		if (!Controller->GetBotData())
@@ -712,11 +788,8 @@ public:
 	{
 		LOG_INFO(LogBots, "OnPerceptionSensed!");
 
-		if (Stim.WasSuccessfullySensed() && Controller->LineOfSightTo(SourceActor, FVector(), true) && Pawn->GetDistanceTo_Manual(SourceActor) < 5000)
-		{
-			LOG_INFO(LogBots, "Valid Target {}!", SourceActor->GetFullName());
+		if (Controller->LineOfSightTo(SourceActor, FVector(), true) && Pawn->GetDistanceTo_Manual(SourceActor) < 7500)
 			TargetActor = SourceActor;
-		}
 	}
 
 public:
@@ -731,24 +804,29 @@ public:
 
 		if (Pawn->IsDBNO())
 		{
-			auto ResultMoveDBNO = Controller->MoveToLocation(StartLocation, 50.f, true, false, true, true, nullptr, true);
-
-			if (ResultMoveDBNO <= EPathFollowingRequestResult::AlreadyAtGoal)
+			if (Pawn->GetActorLocation().DistanceTo(StartLocation) > 200)
 			{
-				TargetActor = nullptr;
+				MoveToLocation(StartLocation);
+			}
+			else
+			{
 				Controller->StopMovement();
 			}
 		}
 
 		if (TargetActor)
 		{
-			if (Pawn->GetDistanceTo_Manual(TargetActor) > 800)
+			if (Controller->GetCurrentAlertLevel() == EAlertLevel::Threatened)
 			{
-				auto ResultMoveTarget = Controller->MoveToActor(TargetActor, 100.f, true, false, true, nullptr, true);
-
-				if (ResultMoveTarget <= EPathFollowingRequestResult::Failed)
+				if (Pawn->GetDistanceTo_Manual(TargetActor) > 200 && Pawn->GetDistanceTo_Manual(TargetActor) < 7500)
 				{
-					LOG_ERROR(LogBots, "FAILED TO MOVE!");
+					MoveToActor(TargetActor);
+				}
+
+				if (Controller->LineOfSightTo(TargetActor, FVector(), true))
+				{
+					StartFire();
+					StopFire();
 				}
 			}
 		}

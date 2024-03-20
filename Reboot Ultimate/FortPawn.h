@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Pawn.h"
+#include "Character.h"
 #include "FortWeapon.h"
 #include "FortDecoItemDefinition.h"
 
-class AFortPawn : public APawn
+class AFortPawn : public ACharacter
 {
 public:
 	static inline void (*NetMulticast_Athena_BatchedDamageCuesOriginal)(UObject* Context, FFrame* Stack, void* Ret);
@@ -55,6 +55,8 @@ public:
 		this->SetBitfieldValue(bPlayedDyingOffset, bPlayedDyingFieldMask, NewValue);
 	}
 	
+	void PawnStartFire(uint8 FireModeNum);
+	void PawnStopFire(uint8 FireModeNum);
 	void OnRep_IsDBNO();
 	float GetShield();
 	float GetHealth();

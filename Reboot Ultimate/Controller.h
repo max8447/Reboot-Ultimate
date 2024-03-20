@@ -9,6 +9,7 @@ public:
 	void Possess(class APawn* Pawn);
 	bool LineOfSightTo(AActor* Other, const FVector& ViewPoint, bool bAlternateChecks);
 	void StopMovement();
+	void SetControlRotation(FRotator NewRotation);
 
 	FName& GetStateName()
 	{

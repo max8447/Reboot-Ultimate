@@ -59,7 +59,8 @@ void AFortPlayerController::ClientForceCancelBuildingTool()
 {
 	static auto ClientForceCancelBuildingToolFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerController.ClientForceCancelBuildingTool");
 
-	this->ProcessEvent(ClientForceCancelBuildingToolFn);
+	if (ClientForceCancelBuildingToolFn)
+		this->ProcessEvent(ClientForceCancelBuildingToolFn);
 }
 
 bool AFortPlayerController::DoesBuildFree()
@@ -1692,6 +1693,7 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 						continue;
 
 					PickupCreateData CreateData;
+					CreateData.bToss = true;
 					CreateData.ItemEntry = ItemEntry;
 					CreateData.SourceType = EFortPickupSourceTypeFlag::GetPlayerValue();
 					CreateData.Source = EFortPickupSpawnSource::GetPlayerEliminationValue();
@@ -2006,5 +2008,5 @@ void AFortPlayerController::ServerEndEditingBuildingActorHook(AFortPlayerControl
 		// PlayerController->ClientForceCancelBuildingTool();
 	}
 
-	PlayerController->ClientForceCancelBuildingTool();
+	// PlayerController->ClientForceCancelBuildingTool();
 }

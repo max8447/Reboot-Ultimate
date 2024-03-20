@@ -7,6 +7,16 @@
 #include "FortAthenaAIBotCustomizationData.h"
 #include "AIStimulus.h"
 
+enum class EAlertLevel : uint8
+{
+	Unaware = 0,
+	Alerted = 1,
+	LKP = 2,
+	Threatened = 3,
+	Count = 4,
+	EAlertLevel_MAX = 5,
+};
+
 class AFortAthenaAIBotController : public AAIController
 {
 public:
@@ -53,6 +63,12 @@ public:
 	{
 		static auto DigestedBotSkillSetsOffset = GetOffset("DigestedBotSkillSets");
 		return Get<TArray<UObject*>>(DigestedBotSkillSetsOffset);
+	}
+
+	EAlertLevel GetCurrentAlertLevel()
+	{
+		static auto CurrentAlertLevelOffset = GetOffset("CurrentAlertLevel");
+		return Get<EAlertLevel>(CurrentAlertLevelOffset);
 	}
 
 	void SwitchTeam(uint8 TeamIndex);

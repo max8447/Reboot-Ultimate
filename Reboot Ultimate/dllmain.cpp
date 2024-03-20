@@ -48,6 +48,7 @@
 #include "FortAIEncounterInfo.h"
 #include "FortAthenaAIBotController.h"
 #include "FortServerBotManagerAthena.h"
+#include "BuildingWeapons.h"
 
 enum class EMeshNetworkNodeType : uint8_t
 {
@@ -1117,6 +1118,26 @@ DWORD WINAPI Main(LPVOID)
             // ZoneServerRestartPlayer,
             AFortPlayerControllerAthena::ServerRestartPlayerHook,
             nullptr, false);
+    }
+
+    auto OnRep_EditActorFn = FindObject<UFunction>(L"/Script/FortniteGame.FortWeap_EditingTool.OnRep_EditActor");
+
+    if (OnRep_EditActorFn)
+    {
+        auto OnRep_EditActorExec = (uint64)OnRep_EditActorFn->GetFunc();
+        uint64 OnRep_EditActorOriginal = 0;
+
+        for (int i = 0; i < 400; i++)
+        {
+            if (*(uint8_t*)(OnRep_EditActorExec + i) == 0xE8 || *(uint8_t*)(OnRep_EditActorExec + i) == 0xE9)
+            {
+                OnRep_EditActorOriginal = Memcury::Scanner(OnRep_EditActorExec + i).RelativeOffset(1).Get();
+                break;
+            }
+        }
+
+        LOG_INFO(LogDev, "OnRep_EditActor Offset: 0x{:x}", OnRep_EditActorOriginal - __int64(GetModuleHandleW(0)));
+        AFortWeap_EditingTool::originalOnRep_EditActor = decltype(AFortWeap_EditingTool::originalOnRep_EditActor)(OnRep_EditActorOriginal);
     }
 
     static auto ServerReturnToMainMenuFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerController.ServerReturnToMainMenu");
