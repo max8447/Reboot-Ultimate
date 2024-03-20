@@ -2022,6 +2022,8 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				ActorName = "/Game/Athena/Prototype/Blueprints/Galileo/BP_Galileo_NoBuildZone.BP_Galileo_NoBuildZone_C";
 			else if (ActorName == "launch" || ActorName == "launchpad")
 				ActorName = "/Game/Athena/Items/Traps/Launchpad/BluePrint/Trap_Floor_Player_Launch_Pad.Trap_Floor_Player_Launch_Pad_C";
+			else if (ActorName == "gascan" || ActorName == "gas")
+				ActorName = "/Game/Athena/Items/Weapons/Prototype/PetrolPump/BGA_Petrol_Pickup.BGA_Petrol_Pickup_C";
 			else if (ActorName == "supplydrop")
 				if (Fortnite_Version >= 12.30 && Fortnite_Version <= 12.61)
 					ActorName = "/Game/Athena/SupplyDrops/AthenaSupplyDrop_Donut.AthenaSupplyDrop_Donut_C";
