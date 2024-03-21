@@ -161,8 +161,7 @@ public:
 					}
 				}
 
-				auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
-				GameMode->ChangeName(Controller ? Controller : AIBotController, NewName, true);
+				PlayerState->SetPlayerName(NewName);
 			}
 		}
 
@@ -632,7 +631,7 @@ public:
 		auto BotNameSettings = CustomizationData->GetBotNameSettings();
 		FString OverrideName = UKismetTextLibrary::Conv_TextToString(BotNameSettings->GetOverrideName());
 
-		GameMode->ChangeName(Controller, OverrideName, false);
+		PlayerState->SetPlayerName(OverrideName);
 
 		Controller->GetInventory() = GetWorld()->SpawnActor<AFortInventory>(AFortInventory::StaticClass(), FTransform(), CreateSpawnParameters(ESpawnActorCollisionHandlingMethod::AlwaysSpawn, true, Controller));
 

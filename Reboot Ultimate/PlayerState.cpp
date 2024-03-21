@@ -36,6 +36,12 @@ int& APlayerState::GetPlayerID()
 	return Get<int>(PlayerIDOffset);
 }
 
+FString& APlayerState::GetPlayerNamePrivate()
+{
+	static auto PlayerNamePrivateOffset = GetOffset("PlayerNamePrivate");
+	return Get<FString>(PlayerNamePrivateOffset);
+}
+
 bool APlayerState::IsBot()
 {
 	static auto bIsABotOffset = GetOffset("bIsABot");
@@ -54,6 +60,18 @@ float& APlayerState::GetScore()
 {
 	static auto ScoreOffset = GetOffset("Score");
 	return Get<float>(ScoreOffset);
+}
+
+void APlayerState::SetPlayerNameInternal(const FString& S)
+{
+	GetPlayerNamePrivate() = S;
+}
+
+void APlayerState::SetPlayerName(const FString& S)
+{
+	SetPlayerNameInternal(S);
+	OnRep_PlayerName();
+	ForceNetUpdate();
 }
 
 void APlayerState::OnRep_PlayerName()
