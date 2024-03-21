@@ -115,7 +115,18 @@ static inline AFortAthenaMutator_Bots* SpawnBotMutator() //sets up all the class
     static auto BGAClass = FindObject<UClass>(L"/Script/Engine.BlueprintGeneratedClass");
     static auto PhoebeMutatorClass = LoadObject<UClass>(L"/Game/Athena/AI/Phoebe/BP_Phoebe_Mutator.BP_Phoebe_Mutator_C", BGAClass);
 
+    if (!PhoebeMutatorClass)
+    {
+        return nullptr;
+    }
+
     auto BotMutator = GetWorld()->SpawnActor<AFortAthenaMutator_Bots>(PhoebeMutatorClass);
+
+    if (!BotMutator)
+    {
+        LOG_WARN(LogAI, "Failed to spawn Bot Mutator!");
+        return nullptr;
+    }
 
     static auto CachedGameModeOffset = BotMutator->GetOffset("CachedGameMode");
     BotMutator->Get(CachedGameModeOffset) = GameMode;
