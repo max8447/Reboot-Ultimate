@@ -47,7 +47,7 @@ public:
 
 		if (AthenaHeroTypes.size())
 		{
-			HeroType = AthenaHeroTypes.at(std::rand() % AthenaHeroTypes.size());
+			HeroType = AthenaHeroTypes.at(UKismetMathLibrary::RandomIntegerInRange(0, AthenaHeroTypes.size() - 1));
 		}
 
 		static auto HeroTypeOffset = PlayerState->GetOffset("HeroType");
@@ -252,6 +252,7 @@ public:
 		}
 
 		SetupInventory();
+		PickRandomLoadout();
 		ApplyCosmeticLoadout();
 
 		if (!ShouldUseAIBotController())
@@ -667,7 +668,7 @@ public:
 
 	bool ShouldToggleCrouch()
 	{
-		return UKismetMathLibrary::RandomBoolWithWeight(0.03f);
+		return UKismetMathLibrary::RandomBoolWithWeight(0.006f);
 	}
 
 	bool ShouldLootAtTargetDuringMove()
@@ -711,10 +712,15 @@ public:
 		}
 	}
 
-	void LootAt(AActor* FocalActor)
+	void LootAtLocation(FVector FocalPoint)
 	{
-		auto LookAtRotation = UKismetMathLibrary::FindLookAtRotation(Pawn->GetActorLocation(), FocalActor->GetActorLocation());
+		auto LookAtRotation = UKismetMathLibrary::FindLookAtRotation(Pawn->GetActorLocation(), FocalPoint);
 		Controller->SetControlRotation(LookAtRotation);
+	}
+
+	void LootAtActor(AActor* FocalActor)
+	{
+		LootAtLocation(FocalActor->GetActorLocation());
 	}
 
 	void WalkInDirection(FVector WorldDirection)
@@ -725,7 +731,7 @@ public:
 	void MoveToLocation(FVector Dest)
 	{
 		if (ShouldLootAtTargetDuringMove())
-			LootAt(TargetActor);
+			LootAtLocation(Dest);
 
 		WalkInDirection(Dest - Pawn->GetActorLocation());
 		ToggleCrouch();
@@ -808,6 +814,8 @@ public:
 
 		if (Pawn->IsDBNO())
 		{
+			TargetActor = nullptr;
+
 			if (Pawn->GetActorLocation().DistanceTo(StartLocation) > 200)
 			{
 				MoveToLocation(StartLocation);

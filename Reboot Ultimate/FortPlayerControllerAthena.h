@@ -20,6 +20,9 @@ static void ApplyHID(AFortPlayerPawn* Pawn, UObject* HeroDefinition, bool bUseSe
 
 	auto PlayerState = Pawn->GetPlayerState();
 
+	static auto HeroTypeOffset = PlayerState->GetOffset("HeroType");
+	PlayerState->Get(HeroTypeOffset) = HeroDefinition;
+
 	for (int i = 0; i < Specializations.Num(); i++)
 	{
 		auto& SpecializationSoft = Specializations.at(i);
