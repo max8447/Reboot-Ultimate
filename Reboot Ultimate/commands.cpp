@@ -1507,11 +1507,30 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 				{
 					auto CurrentAbility = Spec->GetAbility();
 
+					// LOG_INFO(LogDev, "CurrentAbility->ClassPrivate->GetName(): {}, Ability->GetName(): {}", CurrentAbility->ClassPrivate->GetName(), Ability->GetName());
+
 					if (CurrentAbility->ClassPrivate->GetName() == Ability->GetName())
 					{
 						AbilitySpec = Spec;
 					}
 				};
+
+			// LoopSpecs(AbilitySystemComponent, CompareAbilities);
+
+			// if (!AbilitySpec)
+			// {
+				// SendMessageToConsole(PlayerController, L"Can't find AbilitySpec!");
+				// return;
+			// }
+
+			// int Zero = 0;
+
+			// static unsigned int* (*GiveAbilityAndActivateOnce)(UAbilitySystemComponent* ASC, int* outHandle, __int64 Spec, FGameplayEventData* TriggerEventData) = decltype(GiveAbilityAndActivateOnce)(Addresses::GiveAbilityAndActivateOnce); // EventData is only on ue500?
+
+			// if (GiveAbilityAndActivateOnce)
+			// {
+				// GiveAbilityAndActivateOnce(AbilitySystemComponent, &Zero, __int64(AbilitySpec), nullptr);
+			// }
 
 			FGameplayEffectContextHandle EffectContext{};
 			AbilitySystemComponent->ApplyGameplayEffectToSelf(Ability, 0.f, EffectContext);
