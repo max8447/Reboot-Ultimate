@@ -517,7 +517,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 	static auto ReceivingActorOffset = FindOffsetStruct(StructName, "ReceivingActor");
 	auto ReceivingActor = *(AActor**)(__int64(Params) + ReceivingActorOffset);
-	
+
 	// LOG_INFO(LogInteraction, "ReceivingActor: {}", __int64(ReceivingActor));
 
 	if (!ReceivingActor)
@@ -535,7 +535,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 		static auto bAlreadySearchedOffset = BuildingContainer->GetOffset("bAlreadySearched");
 		static auto SearchBounceDataOffset = BuildingContainer->GetOffset("SearchBounceData");
 		static auto bAlreadySearchedFieldMask = GetFieldMask(BuildingContainer->GetProperty("bAlreadySearched"));
-		
+
 		auto SearchBounceData = BuildingContainer->GetPtr<void>(SearchBounceDataOffset);
 
 		if (BuildingContainer->ReadBitfieldValue(bAlreadySearchedOffset, bAlreadySearchedFieldMask))
@@ -611,6 +611,26 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 		}
 
 		return;
+	}
+	else if (ReceivingActor->GetName().contains("B_HidingProp_PhantomBooth"))
+	{
+		/*
+		ISSUE: You have to enter the booth TWICE for the CharacterParts to apply
+		*/
+
+		static auto AGID = FindObject<UFortGadgetItemDefinition>(L"/Game/Athena/Items/EnvironmentalItems/HidingProps/Props/PhantomBooth/AGID_Disguise_Alter.AGID_Disguise_Alter");
+		static auto AbilitySet = LoadObject<UFortAbilitySet>(L"/Game/Athena/Items/EnvironmentalItems/HidingProps/Props/PhantomBooth/AS_Disguise_Alter.AS_Disguise_Alter");
+		
+		bool bUpdate;
+		PlayerController->GetWorldInventory()->AddItem(AGID, &bUpdate);
+
+		if (bUpdate)
+			PlayerController->GetWorldInventory()->Update();
+		
+		/*
+			I have no idea tbh, I tried it without doing this, and it didnt work. So ig its just a OGFN issue!
+		*/
+		AbilitySet->GiveToAbilitySystem(PlayerController->GetPlayerStateAthena()->GetAbilitySystemComponent());
 	}
 	else if (ReceivingActor->IsA(BuildingItemCollectorActorClass))
 	{
