@@ -1358,6 +1358,14 @@ void AFortGameModeAthena::Athena_HandleStartingNewPlayerHook(AFortGameModeAthena
 				if (OnRep_bRegisteredWithQuestManagerFn)
 					XPComponent->ProcessEvent(OnRep_bRegisteredWithQuestManagerFn);
 			}
+
+			static auto SeasonLevelUIDisplayOffset = Cast<AFortPlayerStateAthena>(((AFortPlayerControllerAthena*)NewPlayerActor)->GetPlayerStateAthena())->GetOffset("SeasonLevelUIDisplay");
+			if (SeasonLevelUIDisplayOffset != -1)
+			{
+				static auto CurrentLevelOffset = XPComponent->GetOffset("CurrentLevel");
+				if (CurrentLevelOffset != -1)
+					Cast<AFortPlayerStateAthena>(((AFortPlayerControllerAthena*)NewPlayerActor)->GetPlayerStateAthena())->Get<int>(SeasonLevelUIDisplayOffset) = XPComponent->Get<int>(CurrentLevelOffset);
+			}
 		}
 	}
 

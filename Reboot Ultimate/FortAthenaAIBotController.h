@@ -20,8 +20,9 @@ enum class EAlertLevel : uint8
 class AFortAthenaAIBotController : public AAIController
 {
 public:
-	static inline void (*OnPossesedPawnDiedOriginal)(AController* PlayerController, AActor* DamagedActor, float Damage, AController* InstigatedBy, AActor* DamageCauser, FVector HitLocation, UObject* FHitComponent, FName BoneName, FVector Momentum);
+	static inline void (*OnPossesedPawnDiedOriginal)(AFortAthenaAIBotController* PlayerController, AActor* DamagedActor, float Damage, AController* InstigatedBy, AActor* DamageCauser, FVector HitLocation, UObject* FHitComponent, FName BoneName, FVector Momentum);
 	static inline void (*OnPerceptionSensedOriginal)(AFortAthenaAIBotController* PlayerController, AActor* SourceActor, FAIStimulus& Stim);
+	static inline void (*OnAlertLevelChangedOriginal)(AFortAthenaAIBotController* PlayerController, EAlertLevel OldAlertLevel, EAlertLevel NewAlertLevel);
 
 	AFortInventory*& GetInventory()
 	{
@@ -75,8 +76,9 @@ public:
 	void AddDigestedSkillSets();
 	void GiveItem(UFortItemDefinition* ItemDefinition, int Count);
 
-	static void OnPossesedPawnDiedHook(AController* PlayerController, AActor* DamagedActor, float Damage, AController* InstigatedBy, AActor* DamageCauser, FVector HitLocation, UObject* FHitComponent, FName BoneName, FVector Momentum);
+	static void OnPossesedPawnDiedHook(AFortAthenaAIBotController* PlayerController, AActor* DamagedActor, float Damage, AController* InstigatedBy, AActor* DamageCauser, FVector HitLocation, UObject* FHitComponent, FName BoneName, FVector Momentum);
 	static void OnPerceptionSensedHook(AFortAthenaAIBotController* PlayerController, AActor* SourceActor, FAIStimulus& Stim);
+	static void OnAlertLevelChangedHook(AFortAthenaAIBotController* PlayerController, EAlertLevel OldAlertLevel, EAlertLevel NewAlertLevel);
 
 	static UClass* StaticClass();
 };

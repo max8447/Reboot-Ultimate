@@ -154,11 +154,8 @@ public:
 				{
 					if (!PlayerBotNames.empty())
 					{
-						std::shuffle(PlayerBotNames.begin(), PlayerBotNames.end(), std::default_random_engine((unsigned int)time(0)));
-
 						int RandomIndex = std::rand() % PlayerBotNames.size();
 						std::string RandomBotName = PlayerBotNames[RandomIndex];
-						RandomBotName.erase(std::remove_if(RandomBotName.begin(), RandomBotName.end(), [](char c) { return std::isspace(static_cast<unsigned char>(c)); }), RandomBotName.end());
 						NewName = std::wstring(RandomBotName.begin(), RandomBotName.end()).c_str();
 						PlayerBotNames.erase(PlayerBotNames.begin() + RandomIndex);
 					}
@@ -665,7 +662,7 @@ public:
 
 	bool ShouldToggleShoot()
 	{
-		return UKismetMathLibrary::RandomBoolWithWeight(0.05f);
+		return UKismetMathLibrary::RandomBoolWithWeight(0.02f);
 	}
 
 	bool ShouldToggleCrouch()
@@ -685,6 +682,8 @@ public:
 	{
 		if (!ShouldToggleShoot())
 			return;
+
+		LOG_INFO(LogBots, "[Henchman]: FIRE");
 
 		Pawn->PawnStartFire(0);
 	}
@@ -792,6 +791,11 @@ public:
 			TargetActor = SourceActor;
 	}
 
+	virtual void OnAlertLevelChanged(EAlertLevel OldAlertLevel, EAlertLevel NewAlertLevel)
+	{
+
+	}
+
 public:
 
 	void OnTick()
@@ -818,7 +822,7 @@ public:
 		{
 			if (Controller->GetCurrentAlertLevel() == EAlertLevel::Threatened)
 			{
-				if (Pawn->GetDistanceTo_Manual(TargetActor) > 200 && Pawn->GetDistanceTo_Manual(TargetActor) < 7500)
+				if (Pawn->GetDistanceTo_Manual(TargetActor) <= 7500)
 				{
 					MoveToActor(TargetActor);
 				}

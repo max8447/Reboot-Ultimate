@@ -656,7 +656,7 @@ bool UFortKismetLibrary::PickLootDropsHook(UObject* Context, FFrame& Stack, bool
 
 	auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
 
-	LOG_INFO(LogDev, "Picking loot for {}.", TierGroupName.ComparisonIndex.Value ? TierGroupName.ToString() : "InvalidName");
+	LOG_INFO(LogDev, "[UFortKismetLibrary::PickLootDrops] Picking loot for {}.", TierGroupName.ComparisonIndex.Value ? TierGroupName.ToString() : "InvalidName");
 
 	auto LootDrops = PickLootDrops(TierGroupName, WorldLevel, ForcedLootTier);
 

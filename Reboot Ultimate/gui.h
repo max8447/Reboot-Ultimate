@@ -1714,7 +1714,6 @@ static inline void MainUI()
 
 					if (LootpoolFile.is_open())
 					{
-
 						json JsonData;
 
 						try

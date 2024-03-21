@@ -60,7 +60,7 @@ void AFortAthenaAIBotController::GiveItem(UFortItemDefinition* ItemDefinition, i
 		// this->GetPlayerBotPawn()->EquipWeaponDefinition(WeaponDefinition, Item->GetItemEntry()->GetItemGuid());
 }
 
-void AFortAthenaAIBotController::OnPossesedPawnDiedHook(AController* PlayerController, AActor* DamagedActor, float Damage, AController* InstigatedBy, AActor* DamageCauser, FVector HitLocation, UObject* FHitComponent, FName BoneName, FVector Momentum)
+void AFortAthenaAIBotController::OnPossesedPawnDiedHook(AFortAthenaAIBotController* PlayerController, AActor* DamagedActor, float Damage, AController* InstigatedBy, AActor* DamageCauser, FVector HitLocation, UObject* FHitComponent, FName BoneName, FVector Momentum)
 {
 	LOG_INFO(LogDev, "OnPossesedPawnDiedHook!");
 
@@ -104,6 +104,11 @@ void AFortAthenaAIBotController::OnPerceptionSensedHook(AFortAthenaAIBotControll
 	}
 
 	return OnPerceptionSensedOriginal(PlayerController, SourceActor, Stim);
+}
+
+void AFortAthenaAIBotController::OnAlertLevelChangedHook(AFortAthenaAIBotController* PlayerController, EAlertLevel OldAlertLevel, EAlertLevel NewAlertLevel)
+{
+	return OnAlertLevelChangedOriginal(PlayerController, OldAlertLevel, NewAlertLevel);
 }
 
 UClass* AFortAthenaAIBotController::StaticClass()
