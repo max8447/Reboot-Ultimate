@@ -24,7 +24,7 @@ void AFortPlayerPawnAthena::OnCapsuleBeginOverlapHook(UObject* Context, FFrame* 
 
 	std::free(SweepResultPtr);
 
-	LOG_INFO(LogDev, "OnCapsuleBeginOverlapHook with {}", OtherActor->IsValidLowLevel() ? OtherActor->GetFullName() : "BadRead");
+	// LOG_INFO(LogDev, "OnCapsuleBeginOverlapHook with {}", OtherActor->IsValidLowLevel() ? OtherActor->GetFullName() : "BadRead");
 
 	// LOG_INFO(LogDev, "OtherActor: {}", OtherActor->IsValidLowLevel() ? OtherActor->GetFullName() : "BadRead");
 	// LOG_INFO(LogDev, "OverlappedComp: {}", OverlappedComp->GetFullName());

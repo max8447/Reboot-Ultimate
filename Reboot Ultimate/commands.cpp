@@ -1335,6 +1335,19 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			}
 		}
+		else if (Command == "setname")
+		{
+			if (NumArgs >= 1)
+			{
+				SendMessageToConsole(PlayerController, L"Provide a name!");
+				return;
+			}
+
+			std::string NewName = Arguments[1];
+
+			if (ReceivingPlayerState)
+				ReceivingPlayerState->SetPlayerName(std::wstring(NewName.begin(), NewName.end()).c_str());
+		}
 		else if (Command == "startaircraft")
 		{
 			if (bStartedBus)

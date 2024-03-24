@@ -80,22 +80,15 @@ static inline ItemRow* GetRandomItemForCustomLootpool(std::string LootTier, EFor
 	return &ItemRow;
 }
 
-bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
+void ABuildingContainer::OnLootHook(ABuildingContainer* BuildingContainer)
 {
-	if (!Pawn)
-		return false;
-
-	this->ForceNetUpdate();
+	BuildingContainer->ForceNetUpdate();
 
 	auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
-	// idk
-   /* this->GetActorForwardVector() * this->GetLootSpawnLocation_Athena().X + this->GetActorRightVector() * this->GetLootSpawnLocation_Athena().Y + this->GetActorUpVector() * this->GetLootSpawnLocation_Athena().Z*/
 
-	// FVector LocationToSpawnLoot = this->GetActorLocation() + this->GetActorRightVector() * 70.f + this->GetActorUpVector() * 50.f;
+	FVector LocationToSpawnLoot = BuildingContainer->GetActorLocation() + BuildingContainer->GetActorForwardVector() * BuildingContainer->GetLootSpawnLocation_Athena().X + BuildingContainer->GetActorRightVector() * BuildingContainer->GetLootSpawnLocation_Athena().Y + BuildingContainer->GetActorUpVector() * BuildingContainer->GetLootSpawnLocation_Athena().Z;
 
-	FVector LocationToSpawnLoot = this->GetActorLocation() + this->GetActorForwardVector() * this->GetLootSpawnLocation_Athena().X + this->GetActorRightVector() * this->GetLootSpawnLocation_Athena().Y + this->GetActorUpVector() * this->GetLootSpawnLocation_Athena().Z;
-
-	auto RedirectedLootTier = GameMode->RedirectLootTier(GetSearchLootTierGroup());
+	auto RedirectedLootTier = GameMode->RedirectLootTier(BuildingContainer->GetSearchLootTierGroup());
 
 	static auto Loot_TreasureFName = UKismetStringLibrary::Conv_StringToName(L"Loot_Treasure");
 	static auto Loot_AmmoFName = UKismetStringLibrary::Conv_StringToName(L"Loot_Ammo");
@@ -211,7 +204,6 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 	{
 		PickupCreateData CreateData;
 		CreateData.bToss = true;
-		// CreateData.PawnOwner = Pawn;
 		CreateData.ItemEntry = LootDrop.ItemEntry;
 		CreateData.SpawnLocation = LocationToSpawnLoot;
 		CreateData.SourceType = EFortPickupSourceTypeFlag::GetContainerValue();
@@ -221,11 +213,15 @@ bool ABuildingContainer::SpawnLoot(AFortPawn* Pawn)
 		auto NewPickup = AFortPickup::SpawnPickup(CreateData);
 	}
 
-	if (!this->IsDestroyed())
+	if (!BuildingContainer->IsDestroyed())
 	{
-		this->ForceNetUpdate();
+		BuildingContainer->ForceNetUpdate();
 		// a buncha other stuff
 	}
-	
-	return true;
+}
+
+UClass* ABuildingContainer::StaticClass()
+{
+	static auto Class = FindObject<UClass>("/Script/FortniteGame.BuildingContainer");
+	return Class;
 }

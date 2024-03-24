@@ -71,11 +71,7 @@ public:
 		this->ProcessEvent(BounceContainerFn);
 	}
 
-	bool SpawnLoot(AFortPawn* Pawn);
+	static void OnLootHook(ABuildingContainer* BuildingContainer);
 
-	static UClass* StaticClass()
-	{
-		static auto Class = FindObject<UClass>("/Script/FortniteGame.BuildingContainer");
-		return Class;
-	}
+	static UClass* StaticClass();
 };

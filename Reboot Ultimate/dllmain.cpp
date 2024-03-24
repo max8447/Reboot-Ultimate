@@ -1426,6 +1426,9 @@ DWORD WINAPI Main(LPVOID)
     Hooking::MinHook::Hook(FindObject(L"/Script/FortniteGame.Default__FortAthenaVehicleSpawner"), FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaVehicleSpawner.SpawnVehicle"),
         AFortAthenaVehicleSpawner::SpawnVehicleHook, nullptr, false);
 
+    // Hooking::MinHook::Hook(FindObject<ABuildingContainer>("/Script/FortniteGame.Default__BuildingContainer"), FindObject<UFunction>(L"/Script/FortniteGame.BuildingContainer.OnLoot"),
+        // ABuildingContainer::OnLootHook, nullptr, false);
+
     static auto ServerHandlePickupInfoFn = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawn.ServerHandlePickupInfo");
 
     if (ServerHandlePickupInfoFn)
@@ -1497,8 +1500,6 @@ DWORD WINAPI Main(LPVOID)
         AFortAthenaAIBotController::OnPossesedPawnDiedHook, (PVOID*)&AFortAthenaAIBotController::OnPossesedPawnDiedOriginal, false);
     Hooking::MinHook::Hook(FindObject<AFortAthenaAIBotController>(L"/Script/FortniteGame.Default__FortAthenaAIBotController"), FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaAIBotController.OnPerceptionSensed"),
         AFortAthenaAIBotController::OnPerceptionSensedHook, (PVOID*)&AFortAthenaAIBotController::OnPerceptionSensedOriginal, false);
-    Hooking::MinHook::Hook(FindObject<AFortAthenaAIBotController>(L"/Script/FortniteGame.Default__FortAthenaAIBotController"), FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaAIBotController.OnAlertLevelChanged"),
-        AFortAthenaAIBotController::OnAlertLevelChangedHook, (PVOID*)&AFortAthenaAIBotController::OnAlertLevelChangedOriginal, false);
 
     Hooking::MinHook::Hook((PVOID)Addresses::GetPlayerViewpoint, (PVOID)AFortPlayerControllerAthena::GetPlayerViewPointHook, (PVOID*)&AFortPlayerControllerAthena::GetPlayerViewPointOriginal);
 
@@ -1545,7 +1546,7 @@ DWORD WINAPI Main(LPVOID)
     }
 
     Hooking::MinHook::Hook(Memcury::Scanner(ServerRemoveInventoryItemFunctionCallBeginFunctionAddr).GetAs<PVOID>(), UFortInventoryInterface::RemoveInventoryItemHook);
-   
+
     if (Fortnite_Version < 20) // doesnt always crash its just annoying
         Hooking::MinHook::Hook((PVOID)Addresses::SetZoneToIndex, (PVOID)SetZoneToIndexHook, (PVOID*)&SetZoneToIndexOriginal);
 

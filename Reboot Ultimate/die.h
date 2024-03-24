@@ -7,6 +7,7 @@
 #include "KismetStringLibrary.h"
 #include "DataTableFunctionLibrary.h"
 #include "FortPlaysetItemDefinition.h"
+#include "BuildingContainer.h"
 
 extern inline void (*SetZoneToIndexOriginal)(AFortGameModeAthena* GameModeAthena, int OverridePhaseMaybeIDFK) = nullptr;
 

@@ -9,6 +9,12 @@
 class UFortAthenaNpcPatrollingComponent : public UActorComponent
 {
 public:
+	AFortAthenaPatrolPath* GetPatrolPath()
+	{
+		static auto PatrolPathOffset = GetOffset("PatrolPath");
+		return Get<AFortAthenaPatrolPath*>(PatrolPathOffset);
+	}
+
 	void SetPatrolPath(AFortAthenaPatrolPath* NewPatrolPath)
 	{
 		static auto SetPatrolPathFn = FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaNpcPatrollingComponent.SetPatrolPath");

@@ -543,7 +543,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 		// LOG_INFO(LogInteraction, "bAlreadySearchedFieldMask: {}", bAlreadySearchedFieldMask);
 
-		BuildingContainer->SpawnLoot(PlayerController->GetMyFortPawn());
+		ABuildingContainer::OnLootHook(BuildingContainer);
 
 		BuildingContainer->SetBitfieldValue(bAlreadySearchedOffset, bAlreadySearchedFieldMask, true);
 		(*(int*)(__int64(SearchBounceData) + SearchAnimationCountOffset))++;

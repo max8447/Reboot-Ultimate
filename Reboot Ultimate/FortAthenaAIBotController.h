@@ -6,6 +6,8 @@
 #include "FortGameModeAthena.h"
 #include "FortAthenaAIBotCustomizationData.h"
 #include "AIStimulus.h"
+#include "FortBotTargetHandler.h"
+#include "FortAthenaNpcPatrollingComponent.h"
 
 enum class EAlertLevel : uint8
 {
@@ -22,7 +24,6 @@ class AFortAthenaAIBotController : public AAIController
 public:
 	static inline void (*OnPossesedPawnDiedOriginal)(AFortAthenaAIBotController* PlayerController, AActor* DamagedActor, float Damage, AController* InstigatedBy, AActor* DamageCauser, FVector HitLocation, UObject* FHitComponent, FName BoneName, FVector Momentum);
 	static inline void (*OnPerceptionSensedOriginal)(AFortAthenaAIBotController* PlayerController, AActor* SourceActor, FAIStimulus& Stim);
-	static inline void (*OnAlertLevelChangedOriginal)(AFortAthenaAIBotController* PlayerController, EAlertLevel OldAlertLevel, EAlertLevel NewAlertLevel);
 
 	AFortInventory*& GetInventory()
 	{
@@ -66,10 +67,22 @@ public:
 		return Get<TArray<UObject*>>(DigestedBotSkillSetsOffset);
 	}
 
-	EAlertLevel GetCurrentAlertLevel()
+	EAlertLevel& GetCurrentAlertLevel()
 	{
 		static auto CurrentAlertLevelOffset = GetOffset("CurrentAlertLevel");
 		return Get<EAlertLevel>(CurrentAlertLevelOffset);
+	}
+
+	FFortBotTargetHandler GetTargetHandler()
+	{
+		static auto TargetHandlerOffset = GetOffset("TargetHandler");
+		return Get<FFortBotTargetHandler>(TargetHandlerOffset);
+	}
+
+	UFortAthenaNpcPatrollingComponent* GetCachedPatrollingComponent()
+	{
+		static auto CachedPatrollingComponentOffset = GetOffset("CachedPatrollingComponent");
+		return Get<UFortAthenaNpcPatrollingComponent*>(CachedPatrollingComponentOffset);
 	}
 
 	void SwitchTeam(uint8 TeamIndex);
@@ -78,7 +91,6 @@ public:
 
 	static void OnPossesedPawnDiedHook(AFortAthenaAIBotController* PlayerController, AActor* DamagedActor, float Damage, AController* InstigatedBy, AActor* DamageCauser, FVector HitLocation, UObject* FHitComponent, FName BoneName, FVector Momentum);
 	static void OnPerceptionSensedHook(AFortAthenaAIBotController* PlayerController, AActor* SourceActor, FAIStimulus& Stim);
-	static void OnAlertLevelChangedHook(AFortAthenaAIBotController* PlayerController, EAlertLevel OldAlertLevel, EAlertLevel NewAlertLevel);
 
 	static UClass* StaticClass();
 };

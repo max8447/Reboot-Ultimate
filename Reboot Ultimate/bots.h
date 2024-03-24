@@ -10,6 +10,7 @@
 #include "KismetMathLibrary.h"
 #include "FortBotNameSettings.h"
 #include "AIStimulus.h"
+#include "FortAthenaNpcPatrollingComponent.h"
 
 #include "botnames.h"
 
@@ -200,7 +201,6 @@ public:
 				return;
 
 			PlayerState->OnRep_PlayerName();
-			PlayerState->SetIsBot(true);
 			Controller->Possess(Pawn);
 		}
 		else
@@ -574,6 +574,7 @@ public:
 			Controller = Cast<AFortAthenaAIBotController>(Pawn->GetController());
 
 		PlayerState = Cast<AFortPlayerStateAthena>(Controller->GetPlayerState());
+		StartLocation = SpawnLocation;
 
 		Pawn->GetController() = Controller;
 		Controller->GetPlayerBotPawn() = Pawn;
@@ -667,7 +668,7 @@ public:
 
 	bool ShouldToggleCrouch()
 	{
-		return UKismetMathLibrary::RandomBoolWithWeight(0.006f);
+		return UKismetMathLibrary::RandomBoolWithWeight(0.009f);
 	}
 
 	bool ShouldLootAtTargetDuringMove()
@@ -675,7 +676,7 @@ public:
 		if (Pawn->IsDBNO())
 			return true;
 
-		return UKismetMathLibrary::RandomBoolWithWeight(0.5f);
+		return UKismetMathLibrary::RandomBoolWithWeight(0.05f);
 	}
 
 	void StartFire()
@@ -762,11 +763,13 @@ public:
 					PickupData.bToss = true;
 					PickupData.ItemEntry = FFortItemEntry::MakeItemEntry(WorldItemDefinition, StartupInventoryItem.GetCount(), -1, MAX_DURABILITY, WorldItemDefinition->GetFinalLevel(Cast<AFortGameStateAthena>(GetWorld()->GetGameState())->GetWorldLevel()));
 					PickupData.SpawnLocation = Pawn->GetActorLocation();
-					PickupData.SourceType = EFortPickupSourceTypeFlag::GetPlayerValue();
+					PickupData.SourceType = EFortPickupSourceTypeFlag::GetAIValue();
 					PickupData.bRandomRotation = true;
 					PickupData.bShouldFreeItemEntryWhenDeconstructed = true;
 
 					AFortPickup::SpawnPickup(PickupData);
+
+					LOG_INFO(LogBots, "ItemToDrop: {}", WorldItemDefinition->GetFullName());
 
 					if (auto WeaponItemDefinition = Cast<UFortWeaponItemDefinition>(WorldItemDefinition))
 					{
@@ -776,11 +779,13 @@ public:
 							PickupData.bToss = true;
 							PickupData.ItemEntry = FFortItemEntry::MakeItemEntry(WeaponItemDefinition->GetAmmoData(), WeaponItemDefinition->GetAmmoData()->GetDropCount(), -1, MAX_DURABILITY, WorldItemDefinition->GetAmmoWorldItemDefinition_BP()->GetFinalLevel(Cast<AFortGameStateAthena>(GetWorld()->GetGameState())->GetWorldLevel()));
 							PickupData.SpawnLocation = Pawn->GetActorLocation();
-							PickupData.SourceType = EFortPickupSourceTypeFlag::GetPlayerValue();
+							PickupData.SourceType = EFortPickupSourceTypeFlag::GetAIValue();
 							PickupData.bRandomRotation = true;
 							PickupData.bShouldFreeItemEntryWhenDeconstructed = true;
 
 							AFortPickup::SpawnPickup(PickupData);
+
+							LOG_INFO(LogBots, "AmmoToDrop: {}", WeaponItemDefinition->GetAmmoData()->GetFullName());
 						}
 					}
 				}
@@ -792,13 +797,8 @@ public:
 	{
 		LOG_INFO(LogBots, "OnPerceptionSensed!");
 
-		if (Controller->LineOfSightTo(SourceActor, FVector(), true) && Pawn->GetDistanceTo_Manual(SourceActor) < 7500)
+		if (Stim.WasSuccessfullySensed() && Controller->LineOfSightTo(SourceActor, FVector(), true) && Pawn->GetDistanceTo_Manual(SourceActor) < 7500)
 			TargetActor = SourceActor;
-	}
-
-	virtual void OnAlertLevelChanged(EAlertLevel OldAlertLevel, EAlertLevel NewAlertLevel)
-	{
-
 	}
 
 public:
@@ -815,7 +815,7 @@ public:
 		{
 			TargetActor = nullptr;
 
-			if (Pawn->GetActorLocation().DistanceTo(StartLocation) > 200)
+			if (Pawn->GetActorLocation().DistanceTo(StartLocation) > 100)
 			{
 				MoveToLocation(StartLocation);
 			}
@@ -823,12 +823,25 @@ public:
 			{
 				Controller->StopMovement();
 			}
+
+			return;
 		}
 
 		if (TargetActor)
 		{
-			if (Controller->GetCurrentAlertLevel() == EAlertLevel::Threatened)
+			switch (Controller->GetCurrentAlertLevel())
 			{
+			case EAlertLevel::Unaware:
+				break;
+			case EAlertLevel::Alerted:
+				if (UKismetMathLibrary::RandomBoolWithWeight(0.008f))
+					LootAtActor(TargetActor);
+				break;
+			case EAlertLevel::LKP:
+				if (UKismetMathLibrary::RandomBoolWithWeight(0.04f))
+					LootAtActor(TargetActor);
+				break;
+			case EAlertLevel::Threatened:
 				if (Pawn->GetDistanceTo_Manual(TargetActor) <= 7500)
 				{
 					MoveToActor(TargetActor);
@@ -839,6 +852,21 @@ public:
 					StartFire();
 					StopFire();
 				}
+				break;
+			case EAlertLevel::Count:
+				break;
+			case EAlertLevel::EAlertLevel_MAX:
+				Controller->GetCurrentAlertLevel() = EAlertLevel::Unaware;
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			if (Controller->GetCachedPatrollingComponent())
+			{
+
 			}
 		}
 	}

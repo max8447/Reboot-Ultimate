@@ -378,11 +378,14 @@
     <ClInclude Include="FortAthenaMutator_TDM.h" />
     <ClInclude Include="FortAthenaNpcPatrollingComponent.h" />
     <ClInclude Include="FortAthenaPatrolPath.h" />
+    <ClInclude Include="FortAthenaPatrolPoint.h" />
     <ClInclude Include="FortAthenaSKPushCannon.h" />
     <ClInclude Include="FortAthenaSupplyDrop.h" />
     <ClInclude Include="FortAthenaVehicle.h" />
     <ClInclude Include="FortAthenaVehicleSpawner.h" />
     <ClInclude Include="FortBotNameSettings.h" />
+    <ClInclude Include="FortBotTargetHandler.h" />
+    <ClInclude Include="FortBotTargetInfo.h" />
     <ClInclude Include="FortDagwoodVehicle.h" />
     <ClInclude Include="FortDecoItemDefinition.h" />
     <ClInclude Include="FortGadgetItemDefinition.h" />

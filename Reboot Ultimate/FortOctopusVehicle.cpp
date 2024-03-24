@@ -8,8 +8,8 @@ void AFortOctopusVehicle::GetTowhookCableEndpoints(FVector* OutCableStart, FVect
 
 	struct
 	{
-		FVector                     OutCableStart;
-		FVector                     OutCableEnd;
+		FVector OutCableStart;
+		FVector OutCableEnd;
 	}params;
 
 	this->ProcessEvent(GetTowhookCableEndpointsFn, &params);
@@ -21,11 +21,8 @@ void AFortOctopusVehicle::GetTowhookCableEndpoints(FVector* OutCableStart, FVect
 FVector AFortOctopusVehicle::GetTowhookCableAttachLocation()
 {
 	static auto GetTowhookCableAttachLocationFn = FindObject<UFunction>("/Script/FortniteGame.FortOctopusVehicle.GetTowhookCableAttachLocation");
-
-	FVector                     ReturnValue;
-
+	FVector ReturnValue;
 	this->ProcessEvent(GetTowhookCableAttachLocationFn, &ReturnValue);
-
 	return ReturnValue;
 }
 

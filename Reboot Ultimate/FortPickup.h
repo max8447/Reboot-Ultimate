@@ -41,6 +41,12 @@ namespace EFortPickupSourceTypeFlag
 		static auto TossedValue = GetEnum() ? GetEnum()->GetValue("Tossed") : -1;
 		return TossedValue;
 	}
+
+	static inline int64 GetAIValue()
+	{
+		static auto AIValue = GetEnum() ? GetEnum()->GetValue("AI") : -1;
+		return AIValue;
+	}
 }
 
 namespace EFortPickupSpawnSource
