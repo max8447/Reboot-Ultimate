@@ -205,6 +205,19 @@ AActor* AFortPlayerPawn::ServerOnExitVehicle(ETryExitVehicleBehavior ExitForceBe
 	return AFortPlayerPawn_ServerOnExitVehicle_Params.ReturnValue;
 }
 
+void AFortPlayerPawn::ApplySiphonEffect()
+{
+	static auto SlurpBarrelClass = FindObject<UClass>(L"/Game/Athena/Items/Gameplay/SilkyBingo/Athena_Prop_SilkyBingo.Athena_Prop_SilkyBingo_C");
+
+	FVector Loc = GetActorLocation();
+	Loc.Z += 100;
+
+	auto NewActor = GetWorld()->SpawnActor<AActor>(SlurpBarrelClass, Loc);
+
+	if (NewActor)
+		NewActor->K2_DestroyActor();
+}
+
 AFortAthenaVehicle* AFortPlayerPawn::GetVehicle() // hm should we call the reflecterd function?
 {
 	static auto VehicleStateLocalOffset = this->GetOffset("VehicleStateLocal");

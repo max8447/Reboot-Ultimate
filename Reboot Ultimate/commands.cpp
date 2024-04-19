@@ -1062,6 +1062,14 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 
 			SendMessageToConsole(PlayerController, Msg.c_str());
 		}
+		else if (Command == "slurpthing")
+		{
+			static auto Class = FindObject<UClass>(L"/Game/Athena/Items/Gameplay/SilkyBingo/Athena_Prop_SilkyBingo.Athena_Prop_SilkyBingo_C");
+			FVector Loc = ReceivingController->GetPawn()->GetActorLocation();
+			Loc.Z += 100;
+			auto NewActor = GetWorld()->SpawnActor<AActor>(Class, Loc);
+			NewActor->K2_DestroyActor();
+		}
 		else if (Command == "setpickaxe" || Command == "pickaxe")
 		{
 			if (NumArgs < 1)

@@ -5,6 +5,7 @@
 #include "Class.h"
 
 #include "reboot.h"
+#include "Text.h"
 #include "GameplayTagContainer.h"
 
 enum class EFortItemType : uint8
@@ -164,6 +165,14 @@ public:
 		static auto bAllowMultipleStacksOffset = GetOffset("bAllowMultipleStacks");
 		static auto bAllowMultipleStacksFieldMask = GetFieldMask(GetProperty("bAllowMultipleStacks"));
 		return ReadBitfieldValue(bAllowMultipleStacksOffset, bAllowMultipleStacksFieldMask);
+	}
+
+	FText GetShortDescription()
+	{
+		static auto GetShortDescriptionFn = FindObject<UFunction>(L"/Script/FortniteGame.FortItemDefinition.GetShortDescription");
+		FText ReturnValue;
+		this->ProcessEvent(GetShortDescriptionFn, &ReturnValue);
+		return ReturnValue;
 	}
 
 	EFortInventoryFilter GetFilterOverride()

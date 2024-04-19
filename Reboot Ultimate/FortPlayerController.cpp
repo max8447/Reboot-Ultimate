@@ -1541,6 +1541,8 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 		{
 			if (KillerPawn && KillerPawn != DeadPawn)
 			{
+				KillerPawn->ApplySiphonEffect();
+
 				float Health = KillerPawn->GetHealth();
 				float Shield = KillerPawn->GetShield();
 
