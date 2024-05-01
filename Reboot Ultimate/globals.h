@@ -11,13 +11,13 @@ namespace Globals
 	extern inline bool bEnableAGIDs = true;
 	extern inline bool bNoMCP = false;
 	extern inline bool bLogProcessEvent = false;
-	extern inline bool bOnGameEndSlowmo = false;
+	extern inline bool bOnGameEndSlowmo = true;
 	// extern inline bool bLateGame = false;
 	extern inline std::atomic<bool> bLateGame(false);
 
 	extern inline bool bInfiniteMaterials = true;
 	extern inline bool bInfiniteAmmo = true;
-	extern inline int AmountOfHealthSiphon = 0;
+	extern inline int AmountOfHealthSiphon = 50;
 	extern inline bool bShouldUseReplicationGraph = false;
 
 	extern inline bool bCustomLootpool = false;

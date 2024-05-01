@@ -1534,54 +1534,9 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 				}
 			);
 		}
-
-		// LOG_INFO(LogDev, "Reported kill.");
-
-		if (Globals::AmountOfHealthSiphon != 0)
-		{
-			if (KillerPawn && KillerPawn != DeadPawn)
-			{
-				KillerPawn->ApplySiphonEffect();
-
-				float Health = KillerPawn->GetHealth();
-				float Shield = KillerPawn->GetShield();
-
-				int MaxHealth = 100;
-				int MaxShield = 100;
-				int AmountGiven = 0;
-				/*
-				int ShieldGiven = 0;
-				int HealthGiven = 0;
-				*/
-
-				if ((MaxHealth - Health) > 0)
-				{
-					int AmountToGive = MaxHealth - Health >= Globals::AmountOfHealthSiphon ? Globals::AmountOfHealthSiphon : MaxHealth - Health;
-					KillerPawn->SetHealth(Health + AmountToGive);
-					AmountGiven += AmountToGive;
-				}
-
-				if ((MaxShield - Shield) > 0 && AmountGiven < Globals::AmountOfHealthSiphon)
-				{
-					int AmountToGive = MaxShield - Shield >= Globals::AmountOfHealthSiphon ? Globals::AmountOfHealthSiphon : MaxShield - Shield;
-					AmountToGive -= AmountGiven;
-
-					if (AmountToGive > 0)
-					{
-						KillerPawn->SetShield(Shield + AmountToGive);
-						AmountGiven += AmountToGive;
-					}
-				}
-				
-				if (AmountGiven > 0)
-				{
-
-				}
-			}
-		}
 	}
 
-#ifdef EXPERIMENTAL
+	#ifdef EXPERIMENTAL
 
 	if (Fortnite_Version < 11)
 	{
@@ -1640,7 +1595,51 @@ void AFortPlayerController::ClientOnPawnDiedHook(AFortPlayerController* PlayerCo
 		}
 	}
 
-#endif // EXPERIMENTAL
+	#endif
+
+	if (KillerPawn && KillerPawn != DeadPawn)
+	{
+		{
+			{
+				KillerPawn->ApplySiphonEffect();
+				KillerPawn->AttemptSiphonHealAndMats();
+
+				float Health = KillerPawn->GetHealth();
+				float Shield = KillerPawn->GetShield();
+
+				int MaxHealth = 100;
+				int MaxShield = 100;
+				int AmountGiven = 0;
+				/*
+				int ShieldGiven = 0;
+				int HealthGiven = 0;
+				*/
+
+				if ((MaxHealth - Health) > 0)
+				{
+					int AmountToGive = MaxHealth - Health >= AmountOfHealthSiphon ? AmountOfHealthSiphon : MaxHealth - Health;
+					KillerPawn->SetHealth(Health + AmountToGive);
+					AmountGiven += AmountToGive;
+				}
+				if ((MaxShield - Shield) > 0 && AmountGiven < AmountOfHealthSiphon)
+				{
+					int AmountToGive = MaxShield - Shield >= AmountOfHealthSiphon ? AmountOfHealthSiphon : MaxShield - Shield;
+					AmountToGive -= AmountGiven;
+
+					if (AmountToGive > 0)
+					{
+						KillerPawn->SetShield(Shield + AmountToGive);
+						AmountGiven += AmountToGive;
+					}
+				}
+
+				if (AmountGiven > 0)
+				{
+
+				}
+			}
+		}
+	}
 
 	bool bIsRespawningAllowed = GameState->IsRespawningAllowed(DeadPlayerState);
 

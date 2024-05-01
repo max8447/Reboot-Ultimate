@@ -4,6 +4,7 @@
 #include "FortGadgetItemDefinition.h"
 #include "FortPlayerControllerAthena.h"
 #include "FortPlayerPawnAthena.h"
+#include "gui.h"
 
 FFortAthenaLoadout* AFortPlayerPawn::GetCosmeticLoadout()
 {
@@ -203,6 +204,38 @@ AActor* AFortPlayerPawn::ServerOnExitVehicle(ETryExitVehicleBehavior ExitForceBe
 	this->ProcessEvent(ServerOnExitVehicleFn, &AFortPlayerPawn_ServerOnExitVehicle_Params);
 
 	return AFortPlayerPawn_ServerOnExitVehicle_Params.ReturnValue;
+}
+
+void AFortPlayerPawn::AttemptSiphonHealAndMats()
+{
+	if ((AmountOfHealthSiphon - 10) != 0)
+	{
+		float Health = GetHealth();
+		float Shield = GetShield();
+
+		int MaxHealth = 100;
+		int MaxShield = 100;
+		int AmountGiven = 0;
+
+		if ((MaxHealth - Health) > 0)
+		{
+			int AmountToGive = MaxHealth - Health >= (AmountOfHealthSiphon - 10) ? (AmountOfHealthSiphon - 10) : MaxHealth - Health;
+			SetHealth(Health + AmountToGive);
+			AmountGiven += AmountToGive;
+		}
+
+		if ((MaxShield - Shield) > 0 && AmountGiven < (AmountOfHealthSiphon - 10))
+		{
+			int AmountToGive = MaxShield - Shield >= (AmountOfHealthSiphon - 10) ? (AmountOfHealthSiphon - 10) : MaxShield - Shield;
+			AmountToGive -= AmountGiven;
+
+			if (AmountToGive > 0)
+			{
+				SetShield(Shield + AmountToGive);
+				AmountGiven += AmountToGive;
+			}
+		}
+	}
 }
 
 void AFortPlayerPawn::ApplySiphonEffect()

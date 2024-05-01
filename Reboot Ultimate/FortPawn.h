@@ -31,6 +31,12 @@ public:
 		return Get<AFortWeapon*>(CurrentWeaponOffset);
 	}
 
+	UObject* GetHealthSet()
+	{
+		static auto HealthSetOffset = GetOffset("HealthSet");
+		return Get(HealthSetOffset);
+	}
+
 	bool IsDBNO()
 	{
 		static auto bIsDBNOFieldMask = GetFieldMask(GetProperty("bIsDBNO"));
@@ -60,6 +66,7 @@ public:
 	void OnRep_IsDBNO();
 	float GetShield();
 	float GetHealth();
+	float GetMaxHealth();
 	void SetHealth(float NewHealth);
 	void SetMaxHealth(float NewHealthVal);
 	void SetShield(float NewShield);

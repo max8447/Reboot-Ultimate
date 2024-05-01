@@ -99,6 +99,7 @@ extern inline bool bEnableRebooting = false;
 extern inline bool bEngineDebugLogs = false;
 extern inline bool bStartedBus = false;
 extern inline bool bShouldDestroyAllPlayerBuilds = false;
+extern inline int AmountOfHealthSiphon = 50;
 extern inline bool bEnableCannonAnimations = true;
 extern inline float* CannonXMultiplier = &DefaultCannonMultiplier;
 extern inline float* CannonYMultiplier = &DefaultCannonMultiplier;
@@ -501,6 +502,11 @@ static inline void StaticUI()
 	ImGui::Checkbox("Infinite Materials", &Globals::bInfiniteMaterials);
 
 	ImGui::Checkbox("No MCP", &Globals::bNoMCP);
+
+	if (Fortnite_Version == 11.30 && 11.31 && 12.41)
+	{
+		ImGui::Checkbox("S11/12 Slowmo", &Globals::bOnGameEndSlowmo);
+	}
 
 	if (Addresses::ApplyGadgetData && Addresses::RemoveGadgetData && Engine_Version < 424)
 	{
@@ -1817,11 +1823,6 @@ static inline void MainUI()
 static inline void PregameUI()
 {
 	StaticUI();
-
-	if (Fortnite_Version == 11.30 && 11.31 && 12.41)
-	{
-		ImGui::Checkbox("Slomo on game end", &Globals::bOnGameEndSlowmo);
-	}
 
 	if (Engine_Version >= 422 && Engine_Version < 424)
 	{

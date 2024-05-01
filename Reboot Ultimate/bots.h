@@ -360,6 +360,12 @@ public:
 			KillerState->ClientReportKill(PlayerState);
 		}
 
+		/*if (KillerPawn && KillerPawn != Pawn) // can someone with more than 5 braincells fix this for me please
+		{
+			KillerPawn->AttemptSiphonHealAndMats();
+			KillerPawn->ApplySiphonEffect();
+		}*/
+
 		if (Globals::AmountOfHealthSiphon != 0)
 		{
 			if (KillerPawn && KillerPawn != Pawn && KillerController && Cast<AController>(KillerController) != Cast<AController>(AIBotController))

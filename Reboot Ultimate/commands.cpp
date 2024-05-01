@@ -1575,33 +1575,36 @@ void ServerCheatHook(AFortPlayerControllerAthena* PlayerController, FString Msg)
 		}
 		else if (Command == "god")
 		{
-			static auto GodFn = FindObject<UFunction>("/Script/Engine.CheatManager.God");
+			auto Pawn = ReceivingController->GetMyFortPawn();
 
-			if (GodFn)
+			if (!Pawn)
 			{
-				auto CheatManager = ReceivingController->SpawnCheatManager(UCheatManager::StaticClass());
+				SendMessageToConsole(PlayerController, L"No pawn!");
+				return;
+			}
 
-				if (!CheatManager)
-				{
-					SendMessageToConsole(PlayerController, L"Failed to spawn player's cheat manager!");
-					return;
-				}
+			float MaxHealth = Pawn->GetMaxHealth();
 
-				CheatManager->God();
-				CheatManager = nullptr;
+			auto HealthSet = Pawn->GetHealthSet();
+
+			if (!HealthSet)
+			{
+				SendMessageToConsole(PlayerController, L"No HealthSet!");
+				return;
+			}
+
+			static auto HealthOffset = HealthSet->GetOffset("Health");
+			auto& Health = HealthSet->Get<FFortGameplayAttributeData>(HealthOffset);
+
+			if (Health.GetMinimum() != MaxHealth)
+			{
+				Health.GetMinimum() = MaxHealth;
+				SendMessageToConsole(PlayerController, L"God on.");
 			}
 			else
 			{
-				auto Pawn = ReceivingController->GetMyFortPawn();
-
-				if (!Pawn)
-				{
-					SendMessageToConsole(PlayerController, L"No pawn!");
-					return;
-				}
-
-				Pawn->SetCanBeDamaged(!Pawn->CanBeDamaged());
-				SendMessageToConsole(PlayerController, std::wstring(L"God set to " + std::to_wstring(!(bool)Pawn->CanBeDamaged())).c_str());
+				Health.GetMinimum() = 0;
+				SendMessageToConsole(PlayerController, L"God off.");
 			}
 		}
 		else if (Command == "spawnaifromclass")
