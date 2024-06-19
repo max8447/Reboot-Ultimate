@@ -1,7 +1,5 @@
 # Reboot Ultimate
 
-# DO NOT LEAK THIS GITHUB
-
 ## What's Different?
 
 - The UI has been re-worked entirely to take on a clean black & white look!
